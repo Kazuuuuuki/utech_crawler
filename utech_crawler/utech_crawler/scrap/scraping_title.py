@@ -1,7 +1,7 @@
 import urllib.request as req
 import sys
 from bs4 import BeautifulSoup
-class Scraptitle:
+class ScrapTitle:
 
         def __init__(self,url):
                 self.url = url
