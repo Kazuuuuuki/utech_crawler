@@ -1,0 +1,2144 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>PDP-11による機械語入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="PDP-11とはUNIX V6の動作対象となるアーキテクチャです。バイナリを通してUNIXを学習します。
+
+この記事は以前開催していた池袋バイナリ勉強会の初回編で教えていた内容をまとめたものです。
+
+この記事には姉妹編があります。
+
+
+
+8086による機械語入門 2015.11.09
+
+VAXによる機械語入門 2016.02.14
+
+
+
+環境設定
+
+UNIX V6のバイナリを動かすためのインタプリタと、その上で動く当時のコンパイラをインストールします。
+
+
+インタプリタ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="PDP-11による機械語入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/86724696518df3a174dc" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="PDP-11とはUNIX V6の動作対象となるアーキテクチャです。バイナリを通してUNIXを学習します。
+
+この記事は以前開催していた[池袋バイナリ勉強会](http://connpass.com/series/182/)の初回編で教..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="0csmR7Z3PFzcf/aje+RItVugLYyIS6NcQTLzx2t8PLy/Sb0fLVkFFyOsQ78LEfbsO+cJPx+P+at97Po8inIyeg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/PDP11"><span itemprop="name">PDP11</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">PDP-11による機械語入門</h1><ul class="TagList"><li class="TagList__item" data-count="10"><a class="u-link-unstyled TagList__label" href="/tags/PDP11"><img alt="PDP11" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>PDP11</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">10</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:10,&quot;uuid&quot;:&quot;86724696518df3a174dc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="heliac2000"><a itemprop="url" href="/heliac2000"><img alt="heliac2000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44994/profile-images/1473690106" /></a></li><li class="js-hovercard" data-hovercard-target-name="houmei"><a itemprop="url" href="/houmei"><img alt="houmei" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/935/profile-images/1473755344" /></a></li><li class="js-hovercard" data-hovercard-target-name="fate_fox"><a itemprop="url" href="/fate_fox"><img alt="fate_fox" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25780/profile-images/1473684408" /></a></li><li class="js-hovercard" data-hovercard-target-name="quwahara"><a itemprop="url" href="/quwahara"><img alt="quwahara" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77421/profile-images/1473700818" /></a></li><li class="js-hovercard" data-hovercard-target-name="kmuroi"><a itemprop="url" href="/kmuroi"><img alt="kmuroi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/69401/profile-images/1473698139" /></a></li><li class="js-hovercard" data-hovercard-target-name="ykominami"><a itemprop="url" href="/ykominami"><img alt="ykominami" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4321/profile-images/1473756115" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kaito_ABS"><a itemprop="url" href="/Kaito_ABS"><img alt="Kaito_ABS" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35044/profile-images/1473686583" /></a></li><li class="js-hovercard" data-hovercard-target-name="ikwzm"><a itemprop="url" href="/ikwzm"><img alt="ikwzm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24981/profile-images/1473684232" /></a></li><li class="js-hovercard" data-hovercard-target-name="takuyachallenge"><a itemprop="url" href="/takuyachallenge"><img alt="takuyachallenge" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/75330/profile-images/1473700126" /></a></li><li class="js-hovercard" data-hovercard-target-name="ijun"><a itemprop="url" href="/ijun"><img alt="ijun" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49796/profile-images/1473691864" /></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2015-11-08">Edited at <time datetime="2016-02-14T10:58:14+09:00" itemprop="dateModified">2016-02-14</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/86724696518df3a174dc/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">12</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/86724696518df3a174dc/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(12)</span></a></li><li><a href="/7shi/items/86724696518df3a174dc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-86724696518df3a174dc" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>PDP-11とはUNIX V6の動作対象となるアーキテクチャです。バイナリを通してUNIXを学習します。</p>
+
+<p>この記事は以前開催していた<a href="http://connpass.com/series/182/" rel="nofollow noopener" target="_blank">池袋バイナリ勉強会</a>の初回編で教えていた内容をまとめたものです。</p>
+
+<p>この記事には姉妹編があります。</p>
+
+<ul>
+<li>
+<a href="http://qiita.com/7shi/items/b3911948f9d97b05395e" id="reference-57fb9710e215148db236">8086による機械語入門</a> 2015.11.09</li>
+<li>
+<a href="http://qiita.com/7shi/items/e43e8ce0b1a2cadee2a3" id="reference-246d0d243b4afe44ae1b">VAXによる機械語入門</a> 2016.02.14</li>
+</ul>
+
+<h1>
+<span id="環境設定" class="fragment"></span><a href="#%E7%92%B0%E5%A2%83%E8%A8%AD%E5%AE%9A"><i class="fa fa-link"></i></a>環境設定</h1>
+
+<p>UNIX V6のバイナリを動かすためのインタプリタと、その上で動く当時のコンパイラをインストールします。</p>
+
+<ul>
+<li><a href="https://bitbucket.org/7shi/i8086tools/wiki/Home" rel="nofollow noopener" target="_blank">インタプリタとコンパイラ一式をインストール</a></li>
+</ul>
+
+<h2>
+<span id="コンパイル" class="fragment"></span><a href="#%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB"><i class="fa fa-link"></i></a>コンパイル</h2>
+
+<p>ハローワールドでテストします。</p>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">hello.c</span></div>
+<div class="highlight"><pre>
+<span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"hello</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>※ UNIX V6にはlibcのヘッダがないため<code>#include</code>はしません。</p>
+
+<p>先ほどインストールしたコンパイラでPDP-11用のバイナリを生成します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ v6cc hello.c
+</pre></div></div>
+
+<p>※ v6ccはシェルスクリプトで、インタプリタ上で当時のコンパイラ（PDP-11バイナリ）を実行しています。</p>
+
+<p>a.outというファイルが出力されます。PDP-11用のバイナリであることを確認します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ file a.out
+a.out: PDP-11 executable not stripped
+</pre></div></div>
+
+<h2>
+<span id="実行" class="fragment"></span><a href="#%E5%AE%9F%E8%A1%8C"><i class="fa fa-link"></i></a>実行</h2>
+
+<p>出力されたバイナリをインタプリタで実行します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ 7run a.out
+hello
+</pre></div></div>
+
+<h2>
+<span id="オプション" class="fragment"></span><a href="#%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3"><i class="fa fa-link"></i></a>オプション</h2>
+
+<p>7runを引数なしで実行するとオプションが確認できます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ 7run
+usage: 7run [-p] [-d|-v/-s] cmd [args ...]
+    -p: PDP-11 mode
+    -8: 8086/V6 mode
+    -d: disassemble mode (not run)
+    -m: verbose mode with memory dump
+    -v: verbose mode (output syscall and disassemble)
+    -s: syscall mode (output syscall)
+</pre></div></div>
+
+<p>よく使う<code>-d</code>と<code>-m</code>を説明します。</p>
+
+<h3>
+<span id="逆アセンブル" class="fragment"></span><a href="#%E9%80%86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%AB"><i class="fa fa-link"></i></a>逆アセンブル</h3>
+
+<p>バイナリの中にどのような命令が入っているかを分析します。この操作を<strong>逆アセンブル</strong>と呼びます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ 7run -d a.out
+
+[crt0.o]
+start:
+0000: f009            setd
+0002: 1180            mov sp, r0
+0004: 1226            mov (r0), -(sp)
+（略）
+</pre></div></div>
+
+<p>簡単なプログラムなのにすごく複雑だと感じられたと思います。入門にはあまりに複雑過ぎるため、今回の記事ではもっと簡単なものから始めます。基礎を固めてから、このバイナリに挑戦していただきます。</p>
+
+<h4>
+<span id="読み方" class="fragment"></span><a href="#%E8%AA%AD%E3%81%BF%E6%96%B9"><i class="fa fa-link"></i></a>読み方</h4>
+
+<p><code>[crt0.o]</code>や<code>start</code>は<strong>シンボル</strong>と呼ばれ、見出しのようなものです。</p>
+
+<p>その後は次のような構成になっています。</p>
+
+<table>
+<thead>
+<tr>
+<th>アドレス</th>
+<th>機械語</th>
+<th>アセンブリ言語</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0000:</code></td>
+<td><code>f009</code></td>
+<td><code>setd</code></td>
+</tr>
+<tr>
+<td><code>0002:</code></td>
+<td><code>1180</code></td>
+<td><code>mov sp, r0</code></td>
+</tr>
+<tr>
+<td><code>0004:</code></td>
+<td><code>1226</code></td>
+<td><code>mov (r0), -(sp)</code></td>
+</tr>
+</tbody>
+</table>
+
+<ul>
+<li>
+<strong>アドレス</strong>は行番号のようなものです。そこにCPUに対する命令が入っています。</li>
+<li>命令は数字で構成されており<strong>機械語</strong>と呼ばれます。ここでは16進数表記されています。</li>
+<li>機械語は人間には読みにくいため、意味を英語の略語などで表記したものが<strong>アセンブリ言語</strong>です。</li>
+</ul>
+
+<p>機械語やアセンブリ言語については後で詳しく見ていきます。</p>
+
+<h3>
+<span id="トレース" class="fragment"></span><a href="#%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9"><i class="fa fa-link"></i></a>トレース</h3>
+
+<p>命令やレジスタなどのログを表示しながら実行できます。この操作を<strong>トレース</strong>と呼びます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ 7run -m a.out
+ r0   r1   r2   r3   r4   r5   sp  flags pc
+start:
+0000 0000 0000 0000 0000 0000 fff6 ---- 0000:f009 setd
+0000 0000 0000 0000 0000 0000 fff6 ---- 0002:1180 mov sp, r0
+fff6 0000 0000 0000 0000 0000 fff6 -N-- 0004:1226 mov (r0), -(sp) ;[fff6]0001 ;[fff4]0000
+（略）
+</pre></div></div>
+
+<p>逆アセンブルと異なるのは、命令が実行される順番に表示される点です。基本的には上から順番に実行されますが、分岐や関数呼び出しなどでアドレスが飛びます。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">例</span></div>
+<div class="highlight"><pre>
+fff8 0000 0000 0000 0000 0000 fff4 -N-- 000c:09f7 0008      jsr pc, 0018 ;[0018]0977
+_main:
+fff8 0000 0000 0000 0000 0000 fff2 -N-- 0018:0977 023c      jsr r5, 0258 ;[0258]1140
+csv:
+fff8 0000 0000 0000 0000 001c fff0 -N-- 0258:1140           mov r5, r0
+</pre></div>
+</div>
+
+<p>アドレスが飛んでいることを確認してください: <code>000c</code> → <code>0018</code> → <code>0258</code></p>
+
+<h2>
+<span id="シンボル" class="fragment"></span><a href="#%E3%82%B7%E3%83%B3%E3%83%9C%E3%83%AB"><i class="fa fa-link"></i></a>シンボル</h2>
+
+<p>逆アセンブルのときに出て来たシンボルを一覧表示します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ v6nm a.out
+024e T _exit
+020c T _flush
+02be B _fout
+（略）
+027c d swtab
+02b4 b width
+0018 t ~main
+</pre></div></div>
+
+<p>構成は次の通りです。</p>
+
+<table>
+<thead>
+<tr>
+<th>アドレス</th>
+<th>種類</th>
+<th>シンボル名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>024e</code></td>
+<td><code>T</code></td>
+<td><code>_exit</code></td>
+</tr>
+<tr>
+<td><code>020c</code></td>
+<td><code>T</code></td>
+<td><code>_flush</code></td>
+</tr>
+<tr>
+<td><code>02be</code></td>
+<td><code>B</code></td>
+<td><code>_fout</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>種類は初めから細かく理解していなくても、大雑把に<code>T</code>と<code>t</code>が関数、それ以外は変数だと考えておけば良いです。それらがどのアドレスに関連付けられているかを示しています。</p>
+
+<p>※ 関数や変数以外にも種類はありますが、当面は必要ありません。</p>
+
+<h2>
+<span id="ファイルサイズの縮小" class="fragment"></span><a href="#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%B5%E3%82%A4%E3%82%BA%E3%81%AE%E7%B8%AE%E5%B0%8F"><i class="fa fa-link"></i></a>ファイルサイズの縮小</h2>
+
+<p>シンボルは付加的情報で実行には必要不可欠なものではありません。シンボルを削ってファイルサイズが縮小できます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ wc -c a.out
+1186 a.out
+$ v6strip a.out
+$ wc -c a.out
+706 a.out
+</pre></div></div>
+
+<p>シンボルがなくなっていることを確認します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ v6nm a.out
+no name list
+</pre></div></div>
+
+<p>実行には支障ありません。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ 7run a.out
+hello
+</pre></div></div>
+
+<p>逆アセンブルでシンボルが出て来なくなります。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ 7run -d a.out
+0000: f009            setd
+0002: 1180            mov sp, r0
+0004: 1226            mov (r0), -(sp)
+（略）
+</pre></div></div>
+
+<p>シンボルがないと関数の切れ目などが分からなくなるためデバッグや解析が困難になります。次のような運用方法が一般的です。</p>
+
+<ul>
+<li>開発時にはデバッグのためシンボルを付けておきます。</li>
+<li>完成品をバイナリ配布する際には、ファイルサイズを縮小するためシンボルを取り除きます。ソース非公開の商用製品の場合、内部構造を解析されにくくする意図もあります。</li>
+</ul>
+
+<h1>
+<span id="小さなバイナリ" class="fragment"></span><a href="#%E5%B0%8F%E3%81%95%E3%81%AA%E3%83%90%E3%82%A4%E3%83%8A%E3%83%AA"><i class="fa fa-link"></i></a>小さなバイナリ</h1>
+
+<p>小さなバイナリを作って分析します。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write.s
+$ v6strip a.out
+$ 7run a.out
+hello
+</pre></div>
+</div>
+
+<ul>
+<li>アセンブリ言語の文法はアセンブラによって方言があります。
+
+<ul>
+<li>このアセンブラでは<code>/</code>はコメントです。</li>
+</ul>
+</li>
+<li>アセンブリ言語はCPUによって異なります。今回はPDP-11です。
+
+<ul>
+<li>
+<code>r0</code> はレジスタと呼ばれます。変数のようなものです。</li>
+<li>
+<code>mov</code> は前から後ろに代入します: <code>mov $0, r0</code> ⇒ <code>r0 = 0</code>
+</li>
+<li>
+<code>sys</code> は割り込みを発生させる命令です。</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<span id="システムコール" class="fragment"></span><a href="#%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E3%82%B3%E3%83%BC%E3%83%AB"><i class="fa fa-link"></i></a>システムコール</h2>
+
+<p>割り込みでカーネルを呼び出してOSの機能を利用することを<strong>システムコール</strong>と呼びます。</p>
+
+<ul>
+<li>
+<code>sys</code> の後にシステムコール名を書きます: <code>write</code>, <code>exit</code> など</li>
+<li>
+<code>r0</code> は第一引数
+
+<ul>
+<li>
+<code>write</code> に渡す <code>1</code> は標準出力</li>
+</ul>
+</li>
+<li>
+<code>sys</code> の次の行には追加の引数を書きます。</li>
+</ul>
+
+<p>UNIX V6のシステムコール定義: <a href="http://minnie.tuhs.org/cgi-bin/utree.pl?file=V6/usr/sys/ken/sysent.c" rel="nofollow noopener" target="_blank">/usr/sys/ken/sysent.c</a></p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+int sysent[]
+{
+    追加の引数の数, &amp;処理関数, /* システムコール番号 = システムコール名 */
+    ...
+};
+</pre></div></div>
+
+<ul>
+<li>
+<code>exit</code>: システムコール番号 1, 追加の引数の数 0</li>
+<li>
+<code>write</code>: システムコール番号 4, 追加の引数の数 2</li>
+<li>
+<code>sysent[] {</code> の間にイコールがないのはC言語が古いため（pre K&amp;R）</li>
+</ul>
+
+<h2>
+<span id="逆アセンブル-1" class="fragment"></span><a href="#%E9%80%86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%AB-1"><i class="fa fa-link"></i></a>逆アセンブル</h2>
+
+<p>バイナリを分析します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ 7run -d a.out
+0000: 15c0 0001       mov $1, r0
+0004: 8904            sys 4 ; write
+0006: 0010            ; arg
+0008: 0006            ; arg
+000a: 15c0 0000       mov $0, r0
+000e: 8901            sys 1 ; exit
+</pre></div></div>
+
+<ul>
+<li>write.s →（アセンブル）→ a.out →（逆アセンブル）→ 上記結果
+
+<ul>
+<li>アセンブル: アセンブリ言語 → バイナリ</li>
+<li>逆アセンブル: バイナリ → アセンブリ言語</li>
+</ul>
+</li>
+<li>逆とは言っても完全に元に戻るわけではありません。
+
+<ul>
+<li>逆アセンブルでは対応するバイナリが確認できます。</li>
+</ul>
+</li>
+<li>逆アセンブラの出力はアセンブリ言語の文法とは異なります。
+
+<ul>
+<li>アセンブリ言語は8進数</li>
+<li>逆アセンブラは16進数</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<span id="バイナリダンプ" class="fragment"></span><a href="#%E3%83%90%E3%82%A4%E3%83%8A%E3%83%AA%E3%83%80%E3%83%B3%E3%83%97"><i class="fa fa-link"></i></a>バイナリダンプ</h2>
+
+<p>バイナリを16進数で出力します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ hd a.out
+00000000  07 01 10 00 06 00 00 00  00 00 00 00 00 00 01 00  |................|
+00000010  c0 15 01 00 04 89 10 00  06 00 c0 15 00 00 01 89  |................|
+00000020  68 65 6c 6c 6f 0a                                 |hello.|
+00000026
+</pre></div></div>
+
+<p>※ <code>hd</code> がない環境では <code>hexdump -C</code> や <code>od -tx1z -Ax</code> を使用します。</p>
+
+<h2>
+<span id="メモリに読み込み" class="fragment"></span><a href="#%E3%83%A1%E3%83%A2%E3%83%AA%E3%81%AB%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF"><i class="fa fa-link"></i></a>メモリに読み込み</h2>
+
+<p>先頭の16バイトはヘッダです。ヘッダはメモリに配置しないため、ファイルのオフセットとメモリのアドレスは16バイトずれます。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">メモリ配置</span></div>
+<div class="highlight"><pre>
+0000 c0 15 01 00 04 89 10 00 06 00 c0 15 00 00 01 89 ................
+0010 68 65 6c 6c 6f 0a                               hello.
+</pre></div>
+</div>
+
+<ul>
+<li>text（命令）＋data</li>
+</ul>
+
+<h2>
+<span id="仕様" class="fragment"></span><a href="#%E4%BB%95%E6%A7%98"><i class="fa fa-link"></i></a>仕様</h2>
+
+<p>コード例は擬似言語で示します。</p>
+
+<ul>
+<li>ヘッダ＋text（命令）＋data</li>
+<li>ヘッダは最初の16バイト</li>
+</ul>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+aout = File.readAllBytes("a.out")
+h = aout.slice(0, 16)
+</pre></div></div>
+
+<ul>
+<li>ヘッダを2バイトずつ区切って、2番目がtextのサイズ、3番目がデータのサイズ。リトルエンディアン。</li>
+<li>今回のサンプル: <code>tsize = 0x0010, dsize = 0x0006</code>
+</li>
+</ul>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+tsize = h.read16Unsigned(2)
+dsize = h.read16Unsigned(4)
+</pre></div></div>
+
+<ul>
+<li>ヘッダの後にtextがあり、その後にdataがある。連続した領域なので一気にメモリに読み込みます。</li>
+<li>「メモリに読み込み」はmemをダンプしたものです。</li>
+</ul>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+mem = aout.slice(16, tsize + dsize)
+</pre></div></div>
+
+<h2>
+<span id="練習" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>※ 制限時間内に作成できない場合、解答例に進んでください。</p>
+
+<p>【問1-1:20分】ファイルをそのままバイナリダンプするプログラムを作ってください。（<code>hd a.out</code> 相当）</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/1-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問1-2:10分】メモリに読み込んだ状態をバイナリダンプするプログラムを作ってください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/1-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問2-1:1時間】逆アセンブラを作ってください。（<code>7run -d a.out</code> 相当）</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/2-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問2-2:1時間】バイナリを実行してください。（<code>7run a.out</code> 相当）</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/2-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>※ 以後、問2-2で作ったものを<strong>インタプリタ</strong>と呼びます。</p>
+
+<h1>
+<span id="少しずつ拡張" class="fragment"></span><a href="#%E5%B0%91%E3%81%97%E3%81%9A%E3%81%A4%E6%8B%A1%E5%BC%B5"><i class="fa fa-link"></i></a>少しずつ拡張</h1>
+
+<p>先ほど作った小さなバイナリを少しずつ拡張していきます。</p>
+
+<h2>
+<span id="数値をメモリに書き込む" class="fragment"></span><a href="#%E6%95%B0%E5%80%A4%E3%82%92%E3%83%A1%E3%83%A2%E3%83%AA%E3%81%AB%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%82%80"><i class="fa fa-link"></i></a>数値をメモリに書き込む</h2>
+
+<p>メモリを操作して出力する文字列を変更します。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write-1.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint16_t *)r1 = 0x4548;
+mov $hello, r1
+mov $42510, (r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write-1.s
+$ mv a.out write-1.out
+$ 7run write-1.out
+hello
+HEllo
+</pre></div>
+</div>
+
+<h3>
+<span id="練習-1" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-1"><i class="fa fa-link"></i></a>練習</h3>
+
+<p>【問3-1:5分】逆アセンブラを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/3-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問3-2:10分】インタプリタを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/3-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<h2>
+<span id="ディスプレースメント" class="fragment"></span><a href="#%E3%83%87%E3%82%A3%E3%82%B9%E3%83%97%E3%83%AC%E3%83%BC%E3%82%B9%E3%83%A1%E3%83%B3%E3%83%88"><i class="fa fa-link"></i></a>ディスプレースメント</h2>
+
+<p>相対アドレス指定によるメモリ操作を行います。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write-2.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint16_t *)(r1 + 2) = 0x4548;
+mov $hello, r1
+mov $42510, 2(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write-2.s
+$ mv a.out write-2.out
+$ 7run write-2.out
+hello
+heHEo
+</pre></div>
+</div>
+
+<p><code>2(r1)</code> の <code>2</code> は <code>r1</code> に対する差分を表します。この差分を<strong>ディスプレースメント</strong>と呼びます。</p>
+
+<p>意味的には <code>(r1+2)</code> です。（この構文はエラーになります）</p>
+
+<h3>
+<span id="練習-2" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-2"><i class="fa fa-link"></i></a>練習</h3>
+
+<p>【問4-1:5分】逆アセンブラを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/4-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問4-2:10分】インタプリタを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/4-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<h2>
+<span id="movb" class="fragment"></span><a href="#movb"><i class="fa fa-link"></i></a>movb</h2>
+
+<p>1文字だけの書き替えを行います。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write-3.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint8_t *)r1 = 'H';
+mov $hello, r1
+movb $110, (r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint8_t *)(r1 + 2) = 'L';
+mov $hello, r1
+movb $114, 2(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write-3.s
+$ mv a.out write-3.out
+$ 7run write-3.out
+hello
+Hello
+HeLlo
+</pre></div>
+</div>
+
+<p><code>movb</code> は <code>mov</code> の <code>byte</code> 版です。</p>
+
+<h3>
+<span id="練習-3" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-3"><i class="fa fa-link"></i></a>練習</h3>
+
+<p>【問5-1:5分】逆アセンブラを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/5-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問5-2:10分】インタプリタを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/5-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<h2>
+<span id="レジスタの値をメモリに書き込む" class="fragment"></span><a href="#%E3%83%AC%E3%82%B8%E3%82%B9%E3%82%BF%E3%81%AE%E5%80%A4%E3%82%92%E3%83%A1%E3%83%A2%E3%83%AA%E3%81%AB%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%82%80"><i class="fa fa-link"></i></a>レジスタの値をメモリに書き込む</h2>
+
+<p>数値をいったんレジスタに入れてからメモリに書き込みます。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write-4.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ r0 = 0x4548;
+/ *(uint16_t *)r1 = r0;
+mov $hello, r1
+mov $42510, r0
+mov r0, (r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ r2 = 0x4c4c;
+/ *(uint16_t *)(r1 + 2) = r2;
+mov $hello, r1
+mov $46114, r2
+mov r2, 2(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write-4.s
+$ mv a.out write-4.out
+$ 7run write-4.out
+hello
+HEllo
+HELLo
+</pre></div>
+</div>
+
+<h3>
+<span id="練習-4" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-4"><i class="fa fa-link"></i></a>練習</h3>
+
+<p>【問6-1:5分】逆アセンブラを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/6-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問6-2:15分】インタプリタを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/6-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<h2>
+<span id="バイト命令" class="fragment"></span><a href="#%E3%83%90%E3%82%A4%E3%83%88%E5%91%BD%E4%BB%A4"><i class="fa fa-link"></i></a>バイト命令</h2>
+
+<p>レジスタを <code>movb</code> 命令のソースに使うと、下位の値だけが使われます。<code>swab</code> 命令で上位と下位を入れ替えることができます。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write-5.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ r0 = 0x4548;
+/ *(uint8_t *)r1 = r0;
+/ r0 = (r0 &lt;&lt; 8) | (r0 &gt;&gt; 8);
+/ *(uint8_t *)(r1 + 1) = r0;
+mov $hello, r1
+mov $42510, r0
+movb r0, (r1)
+swab r0
+movb r0, 1(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write-5.s
+$ mv a.out write-5.out
+$ 7run write-5.out
+hello
+HEllo
+</pre></div>
+</div>
+
+<h3>
+<span id="練習-5" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-5"><i class="fa fa-link"></i></a>練習</h3>
+
+<p>【問7-1:10分】逆アセンブラを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/7-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問7-2:20分】インタプリタを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/7-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<h2>
+<span id="アドレスを直接指定" class="fragment"></span><a href="#%E3%82%A2%E3%83%89%E3%83%AC%E3%82%B9%E3%82%92%E7%9B%B4%E6%8E%A5%E6%8C%87%E5%AE%9A"><i class="fa fa-link"></i></a>アドレスを直接指定</h2>
+
+<p>今までメモリは <code>r1</code> レジスタ経由でアクセスしていました（これを<strong>間接参照</strong>と呼びます）。アドレスを直接指定でアクセスすることも可能です（これを<strong>直接参照</strong>と呼びます）。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write-6.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)hello = 0x4548;
+mov $42510, hello
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)(hello + 2) = 0x4c4c;
+mov $46114, hello + 2
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint8_t *)(hello + 4) = 'O';
+movb $117, hello + 4
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write-6.s
+$ mv a.out write-6.out
+$ 7run write-6.out
+hello
+HEllo
+HELLo
+HELLO
+</pre></div>
+</div>
+
+<h3>
+<span id="相対アドレス" class="fragment"></span><a href="#%E7%9B%B8%E5%AF%BE%E3%82%A2%E3%83%89%E3%83%AC%E3%82%B9"><i class="fa fa-link"></i></a>相対アドレス</h3>
+
+<p>逆アセンブル結果を見ると、バイナリとアドレスに乖離があります。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+000a: 15f7 4548 0030  mov $4548, 0040
+</pre></div></div>
+
+<p>バイナリを並べ直します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+000a: 15f7
+000c: 4548
+000e: 0030 → これが0040になる
+0010: (次)
+</pre></div></div>
+
+<p><code>0030</code>→<code>0040</code>となるのは、次のアドレスを基点とする相対アドレスだからです。</p>
+
+<ul>
+<li>
+<code>0010</code>（基点） + <code>0030</code>（相対アドレス） = <code>0040</code>（絶対アドレス）</li>
+</ul>
+
+<h3>
+<span id="練習-6" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-6"><i class="fa fa-link"></i></a>練習</h3>
+
+<p>【問8-1:5分】逆アセンブラを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/8-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問8-2:10分】インタプリタを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/8-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<h2>
+<span id="引き算" class="fragment"></span><a href="#%E5%BC%95%E3%81%8D%E7%AE%97"><i class="fa fa-link"></i></a>引き算</h2>
+
+<p>引き算により小文字から大文字へ変換します。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">write-7.s</span></div>
+<div class="highlight"><pre>
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)hello -= 0x2020;
+sub $20040, hello
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)(hello + 2) -= 0x2020;
+sub $20040, hello + 2
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+$ v6as write-7.s
+$ mv a.out write-7.out
+$ 7run write-7.out
+hello
+HEllo
+HELLo
+</pre></div>
+</div>
+
+<h3>
+<span id="練習-7" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-7"><i class="fa fa-link"></i></a>練習</h3>
+
+<p>【問9-1:5分】逆アセンブラを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/9-1.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<p>【問9-2:15分】インタプリタを対応させてください。</p>
+
+<p>⇒ <a href="https://bitbucket.org/7shi/ikebin/src/tip/pdp11/9-2.fsx" rel="nofollow noopener" target="_blank">解答例 (F#)</a></p>
+
+<h1>
+<span id="仕様書" class="fragment"></span><a href="#%E4%BB%95%E6%A7%98%E6%9B%B8"><i class="fa fa-link"></i></a>仕様書</h1>
+
+<p>今まで推測していた仕様を仕様書で確認してください。</p>
+
+<p>PDP-11/40 Processor Handbook (P.198～199)</p>
+
+<ul>
+<li><a href="http://d.hatena.ne.jp/syuu1228/20101101/1288601688" rel="nofollow noopener" target="_blank">UNIXv6 ハードウェア資料</a></li>
+</ul>
+
+<h2>
+<span id="練習-8" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-8"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>仕様書を基に、今まで作った逆アセンブラとインタプリタをリファクタリングしてください。</p>
+
+<h1>
+<span id="テストコード集" class="fragment"></span><a href="#%E3%83%86%E3%82%B9%E3%83%88%E3%82%B3%E3%83%BC%E3%83%89%E9%9B%86"><i class="fa fa-link"></i></a>テストコード集</h1>
+
+<p>自作インタプリタで順番に動作させてください。</p>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">1.c</span></div>
+<div class="highlight"><pre>
+<span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">"hello</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">2.c</span></div>
+<div class="highlight"><pre>
+<span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">putchar</span><span class="p">(</span><span class="sc">'a'</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">3.c</span></div>
+<div class="highlight"><pre>
+<span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"hello</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">4.c</span></div>
+<div class="highlight"><pre>
+<span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">1234</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"a=%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">5.c</span></div>
+<div class="highlight"><pre>
+<span class="n">main</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">;</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">argc</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"argv[%d]=%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">6.c</span></div>
+<div class="highlight"><pre>
+<span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">printo</span><span class="p">(</span><span class="mo">012345</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">printo</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">putchar</span><span class="p">(</span><span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="sc">'1'</span> <span class="o">:</span> <span class="sc">'0'</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">putchar</span><span class="p">(((</span><span class="n">v</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">+</span> <span class="sc">'0'</span><span class="p">);</span>
+        <span class="n">v</span> <span class="o">=&lt;&lt;</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<h2>
+<span id="nm" class="fragment"></span><a href="#nm"><i class="fa fa-link"></i></a>nm</h2>
+
+<p>既存のコマンドを自作インタプリタで動かしてみましょう。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+# nm a.out
+</pre></div></div>
+
+<p>※ 2015年11月現在、達成者4名</p>
+
+<h2>
+<span id="cc" class="fragment"></span><a href="#cc"><i class="fa fa-link"></i></a>cc</h2>
+
+<p>ccは内部で色々なものを呼んでいます。これらを自作インタプリタで順番に動かして、最終的にはccから一括で処理できることを目指してください。</p>
+
+<ul>
+<li>cc 1.c
+
+<ul>
+<li>/lib/c0 1.c /tmp/ctm1a /tmp/ctm2a</li>
+<li>/lib/c1 /tmp/ctm1a /tmp/ctm2a /tmp/ctm3a</li>
+<li>/bin/as - /tmp/ctm3a
+
+<ul>
+<li>/lib/as2 /tmp/atm1a /tmp/atm2a /tmp/atm3a -g</li>
+</ul>
+</li>
+<li>/bin/ld -X /lib/crt0.o test.o -lc –l</li>
+</ul>
+</li>
+</ul>
+
+<p>自作インタプリタでccを読んでハローワールドのビルドを目指してください。</p>
+
+<h3>
+<span id="カーネルビルドへの道" class="fragment"></span><a href="#%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%83%93%E3%83%AB%E3%83%89%E3%81%B8%E3%81%AE%E9%81%93"><i class="fa fa-link"></i></a>カーネルビルドへの道</h3>
+
+<p>ハローワールドがビルドできたら、以下の順にカーネルビルドを目指してください。</p>
+
+<ol>
+<li>他のテストコード（2.c～6.c）をビルドする</li>
+<li>V6カーネルをビルドする</li>
+<li>アセンブラをビルドする</li>
+<li>コンパイラをビルドする</li>
+<li>3と4のセルフホスティングを確認する</li>
+<li>セルフホスティングしたツールでカーネルをコンパイルする</li>
+</ol>
+
+<p>ここまで出来れば、バイナリのトレース練習は終了です。</p>
+
+<p>※ 2015年11月現在、達成者3名</p>
+
+<p>次はUNIX V6そのものを動かすことに挑戦しましょう！</p>
+
+<p>※ 2015年12月6日現在、達成者1名</p>
+
+<blockquote class="twitter-tweet" lang="ja">
+<p lang="ja">TM11のブートローダ→dist.tapのブートローダプログラム→dist.tapをrk0に展開→rk0を起動デバイスにしてUnixv6を起動→dist.tapのsrcをrk1に展開→rk1を/usr/souceにマウント→カーネルコンパイルまでエミュレートできたよ！</p>— kano (@kanorimon) <a href="https://twitter.com/kanorimon/status/673406597809352704" rel="nofollow noopener" target="_blank">2015, 12月 6</a>
+</blockquote>
+
+
+
+<blockquote class="twitter-tweet" lang="ja">
+<p lang="ja">まとめていただきました .<a href="https://twitter.com/7shi" rel="nofollow noopener" target="_blank">@7shi</a> さんの「PDP-11エミュレータ実装への道」をお気に入りにしました。 <a href="https://t.co/y0Xe7ebIr3" rel="nofollow noopener" target="_blank">https://t.co/y0Xe7ebIr3</a></p>— kano (@kanorimon) <a href="https://twitter.com/kanorimon/status/673819936037330944" rel="nofollow noopener" target="_blank">2015, 12月 7</a>
+</blockquote>
+
+
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/86724696518df3a174dc" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="I0/jinpF/TI+eMFLAQD5pRxJYs8P1IE3BzdVE8/Xnu5NzXjS4WvEecGrdFdx9Uf8fA5GfJgQ28A76VzoLtmQKA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1455415094" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+PDP-11とはUNIX V6の動作対象となるアーキテクチャです。バイナリを通してUNIXを学習します。
+
+この記事は以前開催していた[池袋バイナリ勉強会](http://connpass.com/series/182/)の初回編で教えていた内容をまとめたものです。
+
+この記事には姉妹編があります。
+
+* [8086による機械語入門](http://qiita.com/7shi/items/b3911948f9d97b05395e) 2015.11.09
+* [VAXによる機械語入門](http://qiita.com/7shi/items/e43e8ce0b1a2cadee2a3) 2016.02.14
+
+# 環境設定
+
+UNIX V6のバイナリを動かすためのインタプリタと、その上で動く当時のコンパイラをインストールします。
+
+* [インタプリタとコンパイラ一式をインストール](https://bitbucket.org/7shi/i8086tools/wiki/Home)
+
+## コンパイル
+
+ハローワールドでテストします。
+
+```hello.c
+main() {
+    printf(&quot;hello\n&quot;);
+    return 0;
+}
+```
+
+※ UNIX V6にはlibcのヘッダがないため`#include`はしません。
+
+先ほどインストールしたコンパイラでPDP-11用のバイナリを生成します。
+
+```text
+$ v6cc hello.c
+```
+
+※ v6ccはシェルスクリプトで、インタプリタ上で当時のコンパイラ（PDP-11バイナリ）を実行しています。
+
+a.outというファイルが出力されます。PDP-11用のバイナリであることを確認します。
+
+```text
+$ file a.out
+a.out: PDP-11 executable not stripped
+```
+
+## 実行
+
+出力されたバイナリをインタプリタで実行します。
+
+```text
+$ 7run a.out
+hello
+```
+
+## オプション
+
+7runを引数なしで実行するとオプションが確認できます。
+
+```
+$ 7run
+usage: 7run [-p] [-d|-v/-s] cmd [args ...]
+    -p: PDP-11 mode
+    -8: 8086/V6 mode
+    -d: disassemble mode (not run)
+    -m: verbose mode with memory dump
+    -v: verbose mode (output syscall and disassemble)
+    -s: syscall mode (output syscall)
+```
+
+よく使う`-d`と`-m`を説明します。
+
+### 逆アセンブル
+
+バイナリの中にどのような命令が入っているかを分析します。この操作を**逆アセンブル**と呼びます。
+
+```text
+$ 7run -d a.out
+
+[crt0.o]
+start:
+0000: f009            setd
+0002: 1180            mov sp, r0
+0004: 1226            mov (r0), -(sp)
+（略）
+```
+
+簡単なプログラムなのにすごく複雑だと感じられたと思います。入門にはあまりに複雑過ぎるため、今回の記事ではもっと簡単なものから始めます。基礎を固めてから、このバイナリに挑戦していただきます。
+
+#### 読み方
+
+`[crt0.o]`や`start`は**シンボル**と呼ばれ、見出しのようなものです。
+
+その後は次のような構成になっています。
+
+アドレス|機械語|アセンブリ言語
+--------|------|--------------
+`0000:` |`f009`|`setd`
+`0002:` |`1180`|`mov sp, r0`
+`0004:` |`1226`|`mov (r0), -(sp)`
+
+* **アドレス**は行番号のようなものです。そこにCPUに対する命令が入っています。
+* 命令は数字で構成されており**機械語**と呼ばれます。ここでは16進数表記されています。
+* 機械語は人間には読みにくいため、意味を英語の略語などで表記したものが**アセンブリ言語**です。
+
+機械語やアセンブリ言語については後で詳しく見ていきます。
+
+### トレース
+
+命令やレジスタなどのログを表示しながら実行できます。この操作を**トレース**と呼びます。
+
+```text
+$ 7run -m a.out
+ r0   r1   r2   r3   r4   r5   sp  flags pc
+start:
+0000 0000 0000 0000 0000 0000 fff6 ---- 0000:f009 setd
+0000 0000 0000 0000 0000 0000 fff6 ---- 0002:1180 mov sp, r0
+fff6 0000 0000 0000 0000 0000 fff6 -N-- 0004:1226 mov (r0), -(sp) ;[fff6]0001 ;[fff4]0000
+（略）
+```
+
+逆アセンブルと異なるのは、命令が実行される順番に表示される点です。基本的には上から順番に実行されますが、分岐や関数呼び出しなどでアドレスが飛びます。
+
+```text:例
+fff8 0000 0000 0000 0000 0000 fff4 -N-- 000c:09f7 0008      jsr pc, 0018 ;[0018]0977
+_main:
+fff8 0000 0000 0000 0000 0000 fff2 -N-- 0018:0977 023c      jsr r5, 0258 ;[0258]1140
+csv:
+fff8 0000 0000 0000 0000 001c fff0 -N-- 0258:1140           mov r5, r0
+```
+
+アドレスが飛んでいることを確認してください: `000c` → `0018` → `0258`
+
+## シンボル
+
+逆アセンブルのときに出て来たシンボルを一覧表示します。
+
+```text
+$ v6nm a.out
+024e T _exit
+020c T _flush
+02be B _fout
+（略）
+027c d swtab
+02b4 b width
+0018 t ~main
+```
+
+構成は次の通りです。
+
+アドレス|種類|シンボル名
+--------|----|----------
+`024e`  |`T` |`_exit`
+`020c`  |`T` |`_flush`
+`02be`  |`B` |`_fout`
+
+種類は初めから細かく理解していなくても、大雑把に`T`と`t`が関数、それ以外は変数だと考えておけば良いです。それらがどのアドレスに関連付けられているかを示しています。
+
+※ 関数や変数以外にも種類はありますが、当面は必要ありません。
+
+## ファイルサイズの縮小
+
+シンボルは付加的情報で実行には必要不可欠なものではありません。シンボルを削ってファイルサイズが縮小できます。
+
+```text
+$ wc -c a.out
+1186 a.out
+$ v6strip a.out
+$ wc -c a.out
+706 a.out
+```
+
+シンボルがなくなっていることを確認します。
+
+```text
+$ v6nm a.out
+no name list
+```
+
+実行には支障ありません。
+
+```text
+$ 7run a.out
+hello
+```
+
+逆アセンブルでシンボルが出て来なくなります。
+
+```text
+$ 7run -d a.out
+0000: f009            setd
+0002: 1180            mov sp, r0
+0004: 1226            mov (r0), -(sp)
+（略）
+```
+
+シンボルがないと関数の切れ目などが分からなくなるためデバッグや解析が困難になります。次のような運用方法が一般的です。
+
+* 開発時にはデバッグのためシンボルを付けておきます。
+* 完成品をバイナリ配布する際には、ファイルサイズを縮小するためシンボルを取り除きます。ソース非公開の商用製品の場合、内部構造を解析されにくくする意図もあります。
+
+# 小さなバイナリ
+
+小さなバイナリを作って分析します。
+
+```text:write.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write.s
+$ v6strip a.out
+$ 7run a.out
+hello
+```
+
+* アセンブリ言語の文法はアセンブラによって方言があります。
+    * このアセンブラでは`/`はコメントです。
+* アセンブリ言語はCPUによって異なります。今回はPDP-11です。
+    * `r0` はレジスタと呼ばれます。変数のようなものです。
+    * `mov` は前から後ろに代入します: `mov $0, r0` ⇒ `r0 = 0`
+    * `sys` は割り込みを発生させる命令です。
+
+## システムコール
+
+割り込みでカーネルを呼び出してOSの機能を利用することを**システムコール**と呼びます。
+
+* `sys` の後にシステムコール名を書きます: `write`, `exit` など
+* `r0` は第一引数
+    * `write` に渡す `1` は標準出力
+* `sys` の次の行には追加の引数を書きます。
+
+UNIX V6のシステムコール定義: [/usr/sys/ken/sysent.c](http://minnie.tuhs.org/cgi-bin/utree.pl?file=V6/usr/sys/ken/sysent.c)
+
+```text
+int sysent[]
+{
+    追加の引数の数, &amp;処理関数, /* システムコール番号 = システムコール名 */
+    ...
+};
+```
+
+* `exit`: システムコール番号 1, 追加の引数の数 0
+* `write`: システムコール番号 4, 追加の引数の数 2
+* `sysent[] {` の間にイコールがないのはC言語が古いため（pre K&amp;R）
+
+## 逆アセンブル
+
+バイナリを分析します。
+
+```text
+$ 7run -d a.out
+0000: 15c0 0001       mov $1, r0
+0004: 8904            sys 4 ; write
+0006: 0010            ; arg
+0008: 0006            ; arg
+000a: 15c0 0000       mov $0, r0
+000e: 8901            sys 1 ; exit
+```
+
+* write.s →（アセンブル）→ a.out →（逆アセンブル）→ 上記結果
+    * アセンブル: アセンブリ言語 → バイナリ
+    * 逆アセンブル: バイナリ → アセンブリ言語
+* 逆とは言っても完全に元に戻るわけではありません。
+    * 逆アセンブルでは対応するバイナリが確認できます。
+* 逆アセンブラの出力はアセンブリ言語の文法とは異なります。
+    * アセンブリ言語は8進数
+    * 逆アセンブラは16進数
+
+## バイナリダンプ
+
+バイナリを16進数で出力します。
+
+```text
+$ hd a.out
+00000000  07 01 10 00 06 00 00 00  00 00 00 00 00 00 01 00  |................|
+00000010  c0 15 01 00 04 89 10 00  06 00 c0 15 00 00 01 89  |................|
+00000020  68 65 6c 6c 6f 0a                                 |hello.|
+00000026
+```
+
+※ `hd` がない環境では `hexdump -C` や `od -tx1z -Ax` を使用します。
+
+## メモリに読み込み
+
+先頭の16バイトはヘッダです。ヘッダはメモリに配置しないため、ファイルのオフセットとメモリのアドレスは16バイトずれます。
+
+```text:メモリ配置
+0000 c0 15 01 00 04 89 10 00 06 00 c0 15 00 00 01 89 ................
+0010 68 65 6c 6c 6f 0a                               hello.
+```
+
+* text（命令）＋data
+
+## 仕様
+
+コード例は擬似言語で示します。
+
+* ヘッダ＋text（命令）＋data
+* ヘッダは最初の16バイト
+
+```text
+aout = File.readAllBytes(&quot;a.out&quot;)
+h = aout.slice(0, 16)
+```
+
+* ヘッダを2バイトずつ区切って、2番目がtextのサイズ、3番目がデータのサイズ。リトルエンディアン。
+* 今回のサンプル: `tsize = 0x0010, dsize = 0x0006`
+
+```text
+tsize = h.read16Unsigned(2)
+dsize = h.read16Unsigned(4)
+```
+
+* ヘッダの後にtextがあり、その後にdataがある。連続した領域なので一気にメモリに読み込みます。
+* 「メモリに読み込み」はmemをダンプしたものです。
+
+```text
+mem = aout.slice(16, tsize + dsize)
+```
+
+## 練習
+
+※ 制限時間内に作成できない場合、解答例に進んでください。
+
+【問1-1:20分】ファイルをそのままバイナリダンプするプログラムを作ってください。（`hd a.out` 相当）
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/1-1.fsx)
+
+【問1-2:10分】メモリに読み込んだ状態をバイナリダンプするプログラムを作ってください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/1-2.fsx)
+
+【問2-1:1時間】逆アセンブラを作ってください。（`7run -d a.out` 相当）
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/2-1.fsx)
+
+【問2-2:1時間】バイナリを実行してください。（`7run a.out` 相当）
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/2-2.fsx)
+
+※ 以後、問2-2で作ったものを**インタプリタ**と呼びます。
+
+# 少しずつ拡張
+
+先ほど作った小さなバイナリを少しずつ拡張していきます。
+
+## 数値をメモリに書き込む
+
+メモリを操作して出力する文字列を変更します。
+
+```text:write-1.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint16_t *)r1 = 0x4548;
+mov $hello, r1
+mov $42510, (r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write-1.s
+$ mv a.out write-1.out
+$ 7run write-1.out
+hello
+HEllo
+```
+
+### 練習
+
+【問3-1:5分】逆アセンブラを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/3-1.fsx)
+
+【問3-2:10分】インタプリタを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/3-2.fsx)
+
+## ディスプレースメント
+
+相対アドレス指定によるメモリ操作を行います。
+
+```text:write-2.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint16_t *)(r1 + 2) = 0x4548;
+mov $hello, r1
+mov $42510, 2(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write-2.s
+$ mv a.out write-2.out
+$ 7run write-2.out
+hello
+heHEo
+```
+
+`2(r1)` の `2` は `r1` に対する差分を表します。この差分を**ディスプレースメント**と呼びます。
+
+意味的には `(r1+2)` です。（この構文はエラーになります）
+
+### 練習
+
+【問4-1:5分】逆アセンブラを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/4-1.fsx)
+
+【問4-2:10分】インタプリタを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/4-2.fsx)
+
+## movb
+
+1文字だけの書き替えを行います。
+
+```text:write-3.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint8_t *)r1 = &#39;H&#39;;
+mov $hello, r1
+movb $110, (r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ *(uint8_t *)(r1 + 2) = &#39;L&#39;;
+mov $hello, r1
+movb $114, 2(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write-3.s
+$ mv a.out write-3.out
+$ 7run write-3.out
+hello
+Hello
+HeLlo
+```
+
+`movb` は `mov` の `byte` 版です。
+
+### 練習
+
+【問5-1:5分】逆アセンブラを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/5-1.fsx)
+
+【問5-2:10分】インタプリタを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/5-2.fsx)
+
+## レジスタの値をメモリに書き込む
+
+数値をいったんレジスタに入れてからメモリに書き込みます。
+
+```text:write-4.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ r0 = 0x4548;
+/ *(uint16_t *)r1 = r0;
+mov $hello, r1
+mov $42510, r0
+mov r0, (r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ r2 = 0x4c4c;
+/ *(uint16_t *)(r1 + 2) = r2;
+mov $hello, r1
+mov $46114, r2
+mov r2, 2(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write-4.s
+$ mv a.out write-4.out
+$ 7run write-4.out
+hello
+HEllo
+HELLo
+```
+
+### 練習
+
+【問6-1:5分】逆アセンブラを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/6-1.fsx)
+
+【問6-2:15分】インタプリタを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/6-2.fsx)
+
+## バイト命令
+
+レジスタを `movb` 命令のソースに使うと、下位の値だけが使われます。`swab` 命令で上位と下位を入れ替えることができます。
+
+```text:write-5.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ r1 = hello;
+/ r0 = 0x4548;
+/ *(uint8_t *)r1 = r0;
+/ r0 = (r0 &lt;&lt; 8) | (r0 &gt;&gt; 8);
+/ *(uint8_t *)(r1 + 1) = r0;
+mov $hello, r1
+mov $42510, r0
+movb r0, (r1)
+swab r0
+movb r0, 1(r1)
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write-5.s
+$ mv a.out write-5.out
+$ 7run write-5.out
+hello
+HEllo
+```
+
+### 練習
+
+【問7-1:10分】逆アセンブラを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/7-1.fsx)
+
+【問7-2:20分】インタプリタを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/7-2.fsx)
+
+## アドレスを直接指定
+
+今までメモリは `r1` レジスタ経由でアクセスしていました（これを**間接参照**と呼びます）。アドレスを直接指定でアクセスすることも可能です（これを**直接参照**と呼びます）。
+
+```text:write-6.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)hello = 0x4548;
+mov $42510, hello
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)(hello + 2) = 0x4c4c;
+mov $46114, hello + 2
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint8_t *)(hello + 4) = &#39;O&#39;;
+movb $117, hello + 4
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write-6.s
+$ mv a.out write-6.out
+$ 7run write-6.out
+hello
+HEllo
+HELLo
+HELLO
+```
+
+### 相対アドレス
+
+逆アセンブル結果を見ると、バイナリとアドレスに乖離があります。
+
+```text
+000a: 15f7 4548 0030  mov $4548, 0040
+```
+
+バイナリを並べ直します。
+
+```text
+000a: 15f7
+000c: 4548
+000e: 0030 → これが0040になる
+0010: (次)
+```
+
+`0030`→`0040`となるのは、次のアドレスを基点とする相対アドレスだからです。
+
+* `0010`（基点） + `0030`（相対アドレス） = `0040`（絶対アドレス）
+
+### 練習
+
+【問8-1:5分】逆アセンブラを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/8-1.fsx)
+
+【問8-2:10分】インタプリタを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/8-2.fsx)
+
+## 引き算
+
+引き算により小文字から大文字へ変換します。
+
+```text:write-7.s
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)hello -= 0x2020;
+sub $20040, hello
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ *(uint16_t *)(hello + 2) -= 0x2020;
+sub $20040, hello + 2
+
+/ write(1, hello, 6);
+mov $1, r0
+sys write
+hello
+6
+
+
+/ exit(0);
+mov $0, r0
+sys exit
+
+
+.data
+hello: &lt;hello\n&gt;
+```
+```text:実行結果
+$ v6as write-7.s
+$ mv a.out write-7.out
+$ 7run write-7.out
+hello
+HEllo
+HELLo
+```
+
+### 練習
+
+【問9-1:5分】逆アセンブラを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/9-1.fsx)
+
+【問9-2:15分】インタプリタを対応させてください。
+
+⇒ [解答例 (F#)](https://bitbucket.org/7shi/ikebin/src/tip/pdp11/9-2.fsx)
+
+# 仕様書
+
+今まで推測していた仕様を仕様書で確認してください。
+
+PDP-11/40 Processor Handbook (P.198～199)
+
+* [UNIXv6 ハードウェア資料](http://d.hatena.ne.jp/syuu1228/20101101/1288601688)
+
+## 練習
+
+仕様書を基に、今まで作った逆アセンブラとインタプリタをリファクタリングしてください。
+
+# テストコード集
+
+自作インタプリタで順番に動作させてください。
+
+```1.c
+main() {
+    write(1, &quot;hello\n&quot;, 6);
+}
+```
+
+```2.c
+main() {
+    putchar(&#39;a&#39;);
+}
+```
+
+```3.c
+main() {
+    printf(&quot;hello\n&quot;);
+}
+```
+
+```4.c
+main() {
+    int a;
+    a = 1234;
+    printf(&quot;a=%d\n&quot;, a);
+}
+```
+
+```5.c
+main(argc, argv) char **argv; {
+    int i;
+    for(i = 0; i &lt; argc; i++)
+        printf(&quot;argv[%d]=%s\n&quot;, i, argv[i]);
+}
+```
+
+```6.c
+main() {
+    printo(012345);
+}
+
+printo(v) {
+    int i;
+    putchar(v &lt; 0 ? &#39;1&#39; : &#39;0&#39;);
+    for (i = 0; i &lt; 5; i++) {
+        putchar(((v &gt;&gt; 12) &amp; 7) + &#39;0&#39;);
+        v =&lt;&lt; 3;
+    }
+}
+```
+
+## nm
+
+既存のコマンドを自作インタプリタで動かしてみましょう。
+
+```text
+# nm a.out
+```
+
+※ 2015年11月現在、達成者4名
+
+## cc
+
+ccは内部で色々なものを呼んでいます。これらを自作インタプリタで順番に動かして、最終的にはccから一括で処理できることを目指してください。
+
+* cc 1.c
+    * /lib/c0 1.c /tmp/ctm1a /tmp/ctm2a
+    * /lib/c1 /tmp/ctm1a /tmp/ctm2a /tmp/ctm3a
+    * /bin/as - /tmp/ctm3a
+        * /lib/as2 /tmp/atm1a /tmp/atm2a /tmp/atm3a -g
+    * /bin/ld -X /lib/crt0.o test.o -lc –l
+
+自作インタプリタでccを読んでハローワールドのビルドを目指してください。
+
+### カーネルビルドへの道
+
+ハローワールドがビルドできたら、以下の順にカーネルビルドを目指してください。
+
+1. 他のテストコード（2.c～6.c）をビルドする
+2. V6カーネルをビルドする
+3. アセンブラをビルドする
+4. コンパイラをビルドする
+5. 3と4のセルフホスティングを確認する
+6. セルフホスティングしたツールでカーネルをコンパイルする
+
+ここまで出来れば、バイナリのトレース練習は終了です。
+
+※ 2015年11月現在、達成者3名
+
+次はUNIX V6そのものを動かすことに挑戦しましょう！
+
+※ 2015年12月6日現在、達成者1名
+
+&lt;blockquote class=&quot;twitter-tweet&quot; lang=&quot;ja&quot;&gt;&lt;p lang=&quot;ja&quot; dir=&quot;ltr&quot;&gt;TM11のブートローダ→dist.tapのブートローダプログラム→dist.tapをrk0に展開→rk0を起動デバイスにしてUnixv6を起動→dist.tapのsrcをrk1に展開→rk1を/usr/souceにマウント→カーネルコンパイルまでエミュレートできたよ！&lt;/p&gt;&amp;mdash; kano (@kanorimon) &lt;a href=&quot;https://twitter.com/kanorimon/status/673406597809352704&quot;&gt;2015, 12月 6&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src=&quot;//platform.twitter.com/widgets.js&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+&lt;blockquote class=&quot;twitter-tweet&quot; lang=&quot;ja&quot;&gt;&lt;p lang=&quot;ja&quot; dir=&quot;ltr&quot;&gt;まとめていただきました .&lt;a href=&quot;https://twitter.com/7shi&quot;&gt;@7shi&lt;/a&gt; さんの「PDP-11エミュレータ実装への道」をお気に入りにしました。 &lt;a href=&quot;https://t.co/y0Xe7ebIr3&quot;&gt;https://t.co/y0Xe7ebIr3&lt;/a&gt;&lt;/p&gt;&amp;mdash; kano (@kanorimon) &lt;a href=&quot;https://twitter.com/kanorimon/status/673819936037330944&quot;&gt;2015, 12月 7&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src=&quot;//platform.twitter.com/widgets.js&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="PDP-11による機械語入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/86724696518df3a174dc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="PDP-11による機械語入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/86724696518df3a174dc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/86724696518df3a174dc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/86724696518df3a174dc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%92%B0%E5%A2%83%E8%A8%AD%E5%AE%9A\&quot;\u003e環境設定\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B3%E3%83%B3%E3%83%91%E3%82%A4%E3%83%AB\&quot;\u003eコンパイル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A1%8C\&quot;\u003e実行\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3\&quot;\u003eオプション\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%80%86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%AB\&quot;\u003e逆アセンブル\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%AD%E3%81%BF%E6%96%B9\&quot;\u003e読み方\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9\&quot;\u003eトレース\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B7%E3%83%B3%E3%83%9C%E3%83%AB\&quot;\u003eシンボル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%82%B5%E3%82%A4%E3%82%BA%E3%81%AE%E7%B8%AE%E5%B0%8F\&quot;\u003eファイルサイズの縮小\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B0%8F%E3%81%95%E3%81%AA%E3%83%90%E3%82%A4%E3%83%8A%E3%83%AA\&quot;\u003e小さなバイナリ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E3%82%B3%E3%83%BC%E3%83%AB\&quot;\u003eシステムコール\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%80%86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%AB-1\&quot;\u003e逆アセンブル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%90%E3%82%A4%E3%83%8A%E3%83%AA%E3%83%80%E3%83%B3%E3%83%97\&quot;\u003eバイナリダンプ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A1%E3%83%A2%E3%83%AA%E3%81%AB%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF\&quot;\u003eメモリに読み込み\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BB%95%E6%A7%98\&quot;\u003e仕様\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B0%91%E3%81%97%E3%81%9A%E3%81%A4%E6%8B%A1%E5%BC%B5\&quot;\u003e少しずつ拡張\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%95%B0%E5%80%A4%E3%82%92%E3%83%A1%E3%83%A2%E3%83%AA%E3%81%AB%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%82%80\&quot;\u003e数値をメモリに書き込む\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-1\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%82%A3%E3%82%B9%E3%83%97%E3%83%AC%E3%83%BC%E3%82%B9%E3%83%A1%E3%83%B3%E3%83%88\&quot;\u003eディスプレースメント\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-2\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#movb\&quot;\u003emovb\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-3\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AC%E3%82%B8%E3%82%B9%E3%82%BF%E3%81%AE%E5%80%A4%E3%82%92%E3%83%A1%E3%83%A2%E3%83%AA%E3%81%AB%E6%9B%B8%E3%81%8D%E8%BE%BC%E3%82%80\&quot;\u003eレジスタの値をメモリに書き込む\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-4\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%90%E3%82%A4%E3%83%88%E5%91%BD%E4%BB%A4\&quot;\u003eバイト命令\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-5\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%83%89%E3%83%AC%E3%82%B9%E3%82%92%E7%9B%B4%E6%8E%A5%E6%8C%87%E5%AE%9A\&quot;\u003eアドレスを直接指定\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%9B%B8%E5%AF%BE%E3%82%A2%E3%83%89%E3%83%AC%E3%82%B9\&quot;\u003e相対アドレス\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-6\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%BC%95%E3%81%8D%E7%AE%97\&quot;\u003e引き算\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-7\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BB%95%E6%A7%98%E6%9B%B8\&quot;\u003e仕様書\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-8\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%86%E3%82%B9%E3%83%88%E3%82%B3%E3%83%BC%E3%83%89%E9%9B%86\&quot;\u003eテストコード集\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#nm\&quot;\u003enm\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#cc\&quot;\u003ecc\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%83%93%E3%83%AB%E3%83%89%E3%81%B8%E3%81%AE%E9%81%93\&quot;\u003eカーネルビルドへの道\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:10,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;86724696518df3a174dc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="heliac2000"><a itemprop="url" href="/heliac2000"><img alt="heliac2000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44994/profile-images/1473690106" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="houmei"><a itemprop="url" href="/houmei"><img alt="houmei" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/935/profile-images/1473755344" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fate_fox"><a itemprop="url" href="/fate_fox"><img alt="fate_fox" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25780/profile-images/1473684408" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="quwahara"><a itemprop="url" href="/quwahara"><img alt="quwahara" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77421/profile-images/1473700818" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kmuroi"><a itemprop="url" href="/kmuroi"><img alt="kmuroi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/69401/profile-images/1473698139" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ykominami"><a itemprop="url" href="/ykominami"><img alt="ykominami" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4321/profile-images/1473756115" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kaito_ABS"><a itemprop="url" href="/Kaito_ABS"><img alt="Kaito_ABS" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35044/profile-images/1473686583" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ikwzm"><a itemprop="url" href="/ikwzm"><img alt="ikwzm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24981/profile-images/1473684232" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="takuyachallenge"><a itemprop="url" href="/takuyachallenge"><img alt="takuyachallenge" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/75330/profile-images/1473700126" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ijun"><a itemprop="url" href="/ijun"><img alt="ijun" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49796/profile-images/1473691864" /></a></div></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/86724696518df3a174dc/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/86724696518df3a174dc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/b3911948f9d97b05395e#_reference-9be3004be772d8c45469"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />8086による機械語入門</a><time class="references_datetime js-dateTimeView" datetime="2015-11-09T08:30:38+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/e43e8ce0b1a2cadee2a3#_reference-3fac694890d3e6931aca"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />VAXによる機械語入門</a><time class="references_datetime js-dateTimeView" datetime="2016-02-14T01:55:00+00:00">about 1 year ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="PDP-11による機械語入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/86724696518df3a174dc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="PDP-11による機械語入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/86724696518df3a174dc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/86724696518df3a174dc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/86724696518df3a174dc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:341146,&quot;uuid&quot;:&quot;86724696518df3a174dc&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="6a5C7XxEmCsDJEs+4OhdhUWPeDl+T35s7nkWYDCtfTKHLNm152qhYPz3/iKQHePcJchciumLJJvSpx+b0aNz9A==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/86724696518df3a174dc" /><input type="hidden" name="item_uuid" id="item_uuid" value="86724696518df3a174dc" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/86724696518df3a174dc", "id": 341146, "uuid": "86724696518df3a174dc" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="CXavdD3GYRECpId7Vi+NzK1LpE6/knOIkeuuMYxzdIdn9DQspuhYWv13Mmcm2jOVzQyA/ShWKX+tNafKbX16QQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/86724696518df3a174dc" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

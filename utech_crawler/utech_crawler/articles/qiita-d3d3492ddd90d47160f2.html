@@ -1,0 +1,1250 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Haskell IOモナド 超入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Haskellではモナドと呼ばれる部品を組み合わせてプログラムを作ります。今までアクションとして取り扱っていたのはIOモナドというモナドの一種です。IOモナドの仕組みを調べることで、IOモナドを組み合わせることの具体的なイメージを説明します。モナドについての一般論へ進む前の準備を目的としているため、IO以外のモナドや圏論には言及しません。
+
+シリーズの記事です。
+
+
+Haskell 超入門
+Haskell 代数的データ型 超入門
+Haskell アクション 超入門
+Ha..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="Haskell IOモナド 超入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Haskellではモナドと呼ばれる部品を組み合わせてプログラムを作ります。今までアクションとして取り扱っていたのはIOモナドというモナドの一種です。IOモナドの仕組みを調べることで、IOモナドを組み合わせることの具体的なイメージを説明..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="rtGFeWFcuS6zGB678mL79jnyVoZrmbU0duJm4orK0qnAUx4h+nKAZUzLq6eCl0WvWbVyNfxd78NKPG8Za8Tcbw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/Haskell"><span itemprop="name">Haskell</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">Haskell IOモナド 超入門</h1><ul class="TagList"><li class="TagList__item" data-count="1345"><a class="u-link-unstyled TagList__label" href="/tags/Haskell"><img alt="Haskell" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/373b3b0595a92712b2a45616f53dae97bc1a04e5/medium.jpg?1387913155" /><span>Haskell</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">38</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:38,&quot;uuid&quot;:&quot;d3d3492ddd90d47160f2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="sys_tradingtech"><a itemprop="url" href="/sys_tradingtech"><img alt="sys_tradingtech" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/39556/profile-images/1473688150" /></a></li><li class="js-hovercard" data-hovercard-target-name="uchiko"><a itemprop="url" href="/uchiko"><img alt="uchiko" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2278/profile-images/1473681372" /></a></li><li class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></li><li class="js-hovercard" data-hovercard-target-name="JunKikuchi"><a itemprop="url" href="/JunKikuchi"><img alt="JunKikuchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13181/profile-images/1473682708" /></a></li><li class="js-hovercard" data-hovercard-target-name="moyahima"><a itemprop="url" href="/moyahima"><img alt="moyahima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3366/profile-images/1473683039" /></a></li><li class="js-hovercard" data-hovercard-target-name="matt76k"><a itemprop="url" href="/matt76k"><img alt="matt76k" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29439/profile-images/1473685337" /></a></li><li class="js-hovercard" data-hovercard-target-name="typista"><a itemprop="url" href="/typista"><img alt="typista" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8200/profile-images/1473680938" /></a></li><li class="js-hovercard" data-hovercard-target-name="aminamid"><a itemprop="url" href="/aminamid"><img alt="aminamid" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38680/profile-images/1473687851" /></a></li><li class="js-hovercard" data-hovercard-target-name="takano32"><a itemprop="url" href="/takano32"><img alt="takano32" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1644/profile-images/1473683743" /></a></li><li class="js-hovercard" data-hovercard-target-name="LightSpeedC"><a itemprop="url" href="/LightSpeedC"><img alt="LightSpeedC" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/16128/profile-images/1473681778" /></a></li><li><a href="/7shi/items/d3d3492ddd90d47160f2/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2014-12-11">Edited at <time datetime="2015-07-31T15:55:44+09:00" itemprop="dateModified">2015-07-31</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/d3d3492ddd90d47160f2/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">44</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/d3d3492ddd90d47160f2/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(44)</span></a></li><li><a href="/7shi/items/d3d3492ddd90d47160f2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-d3d3492ddd90d47160f2" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>Haskellではモナドと呼ばれる部品を組み合わせてプログラムを作ります。今までアクションとして取り扱っていたのはIOモナドというモナドの一種です。IOモナドの仕組みを調べることで、IOモナドを組み合わせることの具体的なイメージを説明します。モナドについての一般論へ進む前の準備を目的としているため、IO以外のモナドや圏論には言及しません。</p>
+
+<p>シリーズの記事です。</p>
+
+<ol>
+<li><a href="http://qiita.com/7shi/items/145f1234f8ec2af923ef" id="reference-5787c71e305337460b24">Haskell 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/1ce76bde464b4a55c143" id="reference-0f8e6424e345d8f7a877">Haskell 代数的データ型 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" id="reference-b335cc8da7511a3bd08a">Haskell アクション 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/1345bf32003faff435cb" id="reference-777f2bbab1d774c504c3">Haskell ラムダ 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/4a8a2807bb5186576c61" id="reference-55971a7a3f5b9cc0d7ba">Haskell アクションとラムダ 超入門</a></li>
+<li>Haskell IOモナド 超入門 ← この記事</li>
+<li><a href="http://qiita.com/7shi/items/deb19c4cba933590ffbf" id="reference-bce871dfbe54a800af45">Haskell リストモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/c7d7eec066af0fe0688d" id="reference-49eaa5d49a105aa96e53">Haskell Maybeモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/2e9bff5d88302de1a9e9" id="reference-33bd3e103421bd8b6e8c">Haskell 状態系モナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/4408b76624067c17e933" id="reference-2cf889d4a3bd21177512">Haskell モナド変換子 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/73e534c47bbebc71b37e" id="reference-802a301c8b6bc749faf2">Haskell 例外処理 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/b8c741e78a96ea2c10fe" id="reference-eaab07e8583d58807005">Haskell 構文解析 超入門</a></li>
+<li>【予定】Haskell 継続モナド 超入門</li>
+<li>【予定】Haskell 型クラス 超入門</li>
+<li>【予定】Haskell モナドとゆかいな仲間たち</li>
+<li>【予定】Haskell Freeモナド 超入門</li>
+<li>【予定】Haskell Operationalモナド 超入門</li>
+<li>【予定】Haskell Effモナド 超入門</li>
+<li>【予定】Haskell アロー 超入門</li>
+</ol>
+
+<p>練習の解答例は別記事に掲載します。</p>
+
+<ul>
+<li><a href="http://qiita.com/7shi/items/dfc114f133580ee85686" id="reference-8c9f16f27c58fcf5149f">【解答例】Haskell IOモナド 超入門</a></li>
+</ul>
+
+<h1>
+<span id="ioモナド" class="fragment"></span><a href="#io%E3%83%A2%E3%83%8A%E3%83%89"><i class="fa fa-link"></i></a>IOモナド</h1>
+
+<p>今まで出て来たアクションはIO型です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">dice</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="kt">Int</span>
+<span class="nf">dice</span> <span class="ow">=</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+</pre></div></div>
+
+<p>このIO型はIOモナドと呼ばれます。今までアクションと呼んでいたものの実体がIOモナドです。</p>
+
+<p>※ 正確にはIOモナドによるアクションはIOアクションと呼びます。</p>
+
+<p>モナドへの取っ掛かりとして、IOモナドの内部構造を見て行きます。</p>
+
+<p>※ IOモナドの実装は処理系依存ですが、今回はGHCを前提とします。</p>
+
+<h2>
+<span id="値の取り出し" class="fragment"></span><a href="#%E5%80%A4%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97"><i class="fa fa-link"></i></a>値の取り出し</h2>
+
+<p>IOモナドは値を取り出すことができます。挙動にいくつか種類がありますが、復習がてら振り返ります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/42e54acd-7595-ba82-1dfe-efc76ef7dffc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/42e54acd-7595-ba82-1dfe-efc76ef7dffc.png" alt="m_value.png"></a></p>
+
+<p>単純に値が入っている例です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">return</span> <span class="mi">1</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">a</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">a</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+1
+</pre></div>
+</div>
+
+<p>このようなケースではモナドの中に静的に値が入っているようにイメージできます。</p>
+
+<p>しかし、取り出すたびに値が変わるものもあります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">System.Random</span>
+
+<span class="nf">dice</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="kt">Int</span>
+<span class="nf">dice</span> <span class="ow">=</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">dice</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">dice</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+5
+3
+</pre></div>
+</div>
+
+<p>このようなケースでは、取り出す際に何か処理が行われているため、単純に値が入っているわけではないということが分かります。</p>
+
+<p>値を取り出す以外の影響もあります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">hello</span> <span class="ow">=</span> <span class="n">putStr</span> <span class="s">"hello"</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">hello</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">hello</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+hello()
+hello()
+</pre></div>
+</div>
+
+<p>取り出されるのは<code>()</code>という意味のない値ですが、取り出す際に文字が表示されるという副作用が発生しています。</p>
+
+<h2>
+<span id="内部構造" class="fragment"></span><a href="#%E5%86%85%E9%83%A8%E6%A7%8B%E9%80%A0"><i class="fa fa-link"></i></a>内部構造</h2>
+
+<p>IOモナドから値を取り出す際の挙動は、IOモナドの中に参照透過性が保証されない特殊な関数が隠されていることで実現されています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/0db1a648-69db-89cb-0f9f-4bd58041ee79.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/0db1a648-69db-89cb-0f9f-4bd58041ee79.png" alt="mfunc.png"></a></p>
+
+<p>※ 通常はIOモナド内の関数は隠されています。</p>
+
+<h2>
+<span id="関数の取り出し" class="fragment"></span><a href="#%E9%96%A2%E6%95%B0%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97"><i class="fa fa-link"></i></a>関数の取り出し</h2>
+
+<p>IOモナドから隠された関数を取り出してみます。</p>
+
+<p>※ ここで行うのは通常のプログラミングでは一切行わない特殊な処理です。IOモナドの仕組みを説明することが目的で、実用に供することは意図していません。</p>
+
+<p><code>GHC.Base.unIO</code>関数によりIOモナドの中に隠された関数を取り出せます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/4fab8b51-6ae7-f752-9290-75be63203da0.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/4fab8b51-6ae7-f752-9290-75be63203da0.png" alt="unIO.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">GHC.Base</span>
+
+<span class="nf">hello1</span> <span class="ow">=</span> <span class="n">unIO</span> <span class="o">$</span> <span class="n">return</span> <span class="mi">1</span>
+</pre></div></div>
+
+<p>ここで注意しないといけないのは、取り出したのは<code>1</code>という値を返す<strong>関数</strong>で、<code>1</code>という<strong>値</strong>ではないということです。</p>
+
+<p>※ 取り出した関数は非常に特殊な仕様のため、簡単には呼び出せません。詳細は後述します。</p>
+
+<h2>
+<span id="関数の格納" class="fragment"></span><a href="#%E9%96%A2%E6%95%B0%E3%81%AE%E6%A0%BC%E7%B4%8D"><i class="fa fa-link"></i></a>関数の格納</h2>
+
+<p>取り出した関数を<code>IO</code>の中に入れれば、IOモナドを再構築できます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/3d992696-f563-60f2-c2e3-555ae54e7647.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/3d992696-f563-60f2-c2e3-555ae54e7647.png" alt="IO.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">hello2</span> <span class="ow">=</span> <span class="kt">IO</span> <span class="n">hello1</span>
+</pre></div></div>
+
+<p>※ <code>IO</code>はコンストラクタ（構築子）です。今回の範囲では型を構築する特殊な関数だと捉えれば十分です。詳細は<a href="http://qiita.com/7shi/items/1ce76bde464b4a55c143">Haskell 代数的データ型 超入門</a>で説明します。</p>
+
+<h2>
+<span id="関数と値" class="fragment"></span><a href="#%E9%96%A2%E6%95%B0%E3%81%A8%E5%80%A4"><i class="fa fa-link"></i></a>関数と値</h2>
+
+<p>関数と値で出し入れの方法をまとめました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/58a98a91-3819-1d38-fd98-da6d52d110d2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/58a98a91-3819-1d38-fd98-da6d52d110d2.png" alt="IO_funcs.png"></a></p>
+
+<p>※ 図中の矢印の向きは<code>&lt;-</code>に合わせました。</p>
+
+<table>
+<thead>
+<tr>
+<th>種類</th>
+<th>取り出し</th>
+<th>格納</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>関数</td>
+<td><code>unIO</code></td>
+<td><code>IO</code></td>
+</tr>
+<tr>
+<td>値</td>
+<td><code>&lt;-</code></td>
+<td><code>return</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>ここで注目するのは<code>return</code>です。コンストラクタ<code>IO</code>を直接使うと、通常は存在を意識する必要のない内部関数が表に出てしまいます。<code>return</code>により指定された値を返す関数を自動的に作ることで、IOモナドの内部構造を意識させずに利用できるようにしています。オブジェクト指向での<a href="http://ja.wikipedia.org/wiki/Factory_Method_%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3" rel="nofollow noopener" target="_blank">ファクトリメソッド</a>に近い考え方です。</p>
+
+<p>関数や値の出し入れを行う例です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">GHC.Base</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">m</span>  <span class="ow">=</span> <span class="n">return</span> <span class="mi">1</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">m</span>
+
+    <span class="kr">let</span> <span class="n">f</span>  <span class="ow">=</span> <span class="n">unIO</span> <span class="n">m</span>
+    <span class="kr">let</span> <span class="n">m1</span> <span class="ow">=</span> <span class="kt">IO</span> <span class="n">f</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">m1</span>
+
+    <span class="n">v</span> <span class="ow">&lt;-</span> <span class="n">m</span>
+    <span class="kr">let</span> <span class="n">m2</span> <span class="ow">=</span> <span class="n">return</span> <span class="n">v</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">m2</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+1
+1
+</pre></div>
+</div>
+
+<p>この例では既存のモナドから関数や値を抜き出して、再度入れることでIOモナドを再構築しています。ただ出し入れしただけなので、元と同じIOモナドが出来るのは当たり前です。</p>
+
+<p>※ 当たり前で済ませていますが、値に関しては出し入れで変化しないことがモナド則というルールによって保証されています。今回の範囲を超えるため詳細は省略しますが、興味があれば次の記事を参照してください。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/7shi" rel="nofollow noopener" target="_blank">@7shi</a>: <a href="http://qiita.com/7shi/items/547b6137d7a3c482fe68" id="reference-78bfc543410043e47120">モナド則がちょっと分かった？</a> 2015.3.9（改訂）</li>
+</ul>
+
+<h2>
+<span id="自作関数" class="fragment"></span><a href="#%E8%87%AA%E4%BD%9C%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>自作関数</h2>
+
+<p>関数を出し入れするだけではブラックボックスのままです。関数の仕様を調べるため、自作関数でIOモナドを構築してみます。</p>
+
+<p>IOモナドの中にある関数は通常は触るようなものではなく、仕様も特殊です。戻り値はアンボックス化タプルと呼ばれる特殊なタプルです。まずそれについて説明します。</p>
+
+<h2>
+<span id="アンボックス化タプル" class="fragment"></span><a href="#%E3%82%A2%E3%83%B3%E3%83%9C%E3%83%83%E3%82%AF%E3%82%B9%E5%8C%96%E3%82%BF%E3%83%97%E3%83%AB"><i class="fa fa-link"></i></a>アンボックス化タプル</h2>
+
+<p>内部的な処理が違うタプルです。違いは表面上分かりません。</p>
+
+<p>通常のタプルは計算結果ではなく式を保持しますが、アンボックス化タプルでは計算結果が含まれます。そのためタプルを大量に使うような用途ではメモリ効率が向上するようです。それによって計算結果が変わるわけではないため、違いが簡単に分かるような例は示せません。</p>
+
+<ul>
+<li>通常のタプルは<code>(</code>～<code>)</code>で囲むのに対して、アンボックス化タプルは<code>(#</code>～<code>#)</code>で囲みます。</li>
+<li>アンボックス化タプルを扱うには<code>UnboxedTuples</code>という言語拡張が必要です。
+
+<ul>
+<li>言語拡張はソースの先頭に<code>{-# LANGUAGE</code>～<code>#-}</code>と記述します。</li>
+</ul>
+</li>
+<li>アンボックス化タプルは<code>print</code>が受け付けないため、確認するには中身を個別に取り出す必要があります。</li>
+</ul>
+
+<p>例を示します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="cm">{-# LANGUAGE UnboxedTuples #-}</span>
+
+<span class="nf">addsub</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="p">(</span><span class="o">#</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span> <span class="o">#</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="p">(</span><span class="o">#</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">#</span><span class="p">)</span> <span class="ow">=</span> <span class="n">addsub</span> <span class="mi">1</span> <span class="mi">2</span>
+    <span class="n">print</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+(3,-1)
+</pre></div>
+</div>
+
+<p>取扱い方法自体は通常のタプルと大差ないため、これ以上は特に説明することはありません。興味があれば次の資料を参照してください（この資料では非ボックス化と訳されています）。</p>
+
+<ul>
+<li>
+<a href="http://www.kotha.net/ghcguide_ja/7.6.2/primitives.html#unboxed-tuples" rel="nofollow noopener" target="_blank">7.2.2. 非ボックス化タプル</a>（<a href="http://www.kotha.net/ghcguide_ja/7.6.2/" rel="nofollow noopener" target="_blank">栄光のグラスゴーHaskellコンパイルシステム利用の手引き バージョン7.6.2</a>） 2013.2.11</li>
+</ul>
+
+<p>※ ちなみに<code>IOUArray</code>のUもアンボックス化の意味です。</p>
+
+<h2>
+<span id="return" class="fragment"></span><a href="#return"><i class="fa fa-link"></i></a>return</h2>
+
+<p><code>let a = return 1</code>相当のIOモナドを自作します。先ほど述べたように<code>return</code>はファクトリメソッドのようなもので、指定された値を返す関数を作ってIOモナドの中に入れますが、それを手動で行います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/a5516986-62e8-6ccf-57fa-2b9f0357c0e2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/a5516986-62e8-6ccf-57fa-2b9f0357c0e2.png" alt="return.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="cm">{-# LANGUAGE UnboxedTuples #-}</span>
+
+<span class="kr">import</span> <span class="nn">GHC.Base</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">a</span> <span class="ow">=</span> <span class="kt">IO</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="o">#</span> <span class="n">s</span><span class="p">,</span> <span class="mi">1</span> <span class="o">#</span><span class="p">)</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">a</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+</pre></div>
+</div>
+
+<p>ここで見られるIOモナド内の関数の仕様をまとめます。</p>
+
+<ul>
+<li>戻り値は2要素のアンボックス化タプルです。</li>
+<li>第1要素は引数を素通ししたものです。</li>
+<li>第2要素は今まで「アクションから取り出した値」と言っていた値です。</li>
+<li>アンボックス化タプルを使うことで、タプルに格納する際に式が評価されるようにしています。</li>
+</ul>
+
+<p>引数はどこから来るのでしょうか。</p>
+
+<h2>
+<span id="main" class="fragment"></span><a href="#main"><i class="fa fa-link"></i></a>main</h2>
+
+<p>mainの実体もIOモナドのため、関数から自作することが可能です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/78abf5a6-679d-c0dc-0953-2a450a410e5f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/78abf5a6-679d-c0dc-0953-2a450a410e5f.png" alt="main.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="cm">{-# LANGUAGE UnboxedTuples #-}</span>
+
+<span class="kr">import</span> <span class="nn">GHC.Base</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kt">IO</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="o">#</span> <span class="n">s</span><span class="p">,</span> <span class="nb">()</span> <span class="o">#</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+（出力なし）
+</pre></div>
+</div>
+
+<p>引数<code>s</code>はHaskellの処理系によって渡されたもので、自分で作ることはできません。これを取り回すことでIOモナドは実行されていきます。その様子を見ます。</p>
+
+<h2>
+<span id="print" class="fragment"></span><a href="#print"><i class="fa fa-link"></i></a>print</h2>
+
+<p><code>main</code>に渡された引数を<code>print</code>に渡してみます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/c17ad7b2-8caa-c7e0-62d9-a378bc097d42.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/c17ad7b2-8caa-c7e0-62d9-a378bc097d42.png" alt="main_print.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="cm">{-# LANGUAGE UnboxedTuples #-}</span>
+
+<span class="kr">import</span> <span class="nn">GHC.Base</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kt">IO</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span>
+    <span class="kr">let</span> <span class="p">(</span><span class="o">#</span> <span class="n">s1</span><span class="p">,</span> <span class="n">r</span> <span class="o">#</span><span class="p">)</span> <span class="ow">=</span> <span class="n">unIO</span> <span class="p">(</span><span class="n">print</span> <span class="s">"hello"</span><span class="p">)</span> <span class="n">s</span>
+    <span class="kr">in</span>  <span class="p">(</span><span class="o">#</span> <span class="n">s1</span><span class="p">,</span> <span class="n">r</span> <span class="o">#</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"hello"
+</pre></div>
+</div>
+
+<p>引数<code>s</code>が<code>print</code>を通ることで<code>s1</code>に変化して最終的な戻り値となります。</p>
+
+<h2>
+<span id="state-realworld" class="fragment"></span><a href="#state-realworld"><i class="fa fa-link"></i></a>State# RealWorld</h2>
+
+<p>IOモナド内の関数に渡される引数の型は<code>State# RealWorld</code>です。<code>#</code>は<code>'</code>と同じように名前の一部ですが、扱うには言語拡張<code>MagicHash</code>が必要です。あまり触られたくない型や変数に<code>#</code>が付けられているようです。</p>
+
+<p>処理を連続させるには<code>s</code>をバケツリレーします。型注釈を明記します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/0d3e7602-83c9-b076-9ab4-c55c05b94a75.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/0d3e7602-83c9-b076-9ab4-c55c05b94a75.png" alt="main_print3.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="cm">{-# LANGUAGE UnboxedTuples, MagicHash #-}</span>
+
+<span class="kr">import</span> <span class="nn">GHC.Base</span>
+
+<span class="nf">main'</span> <span class="ow">::</span> <span class="kt">State</span><span class="o">#</span> <span class="kt">RealWorld</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="o">#</span> <span class="kt">State</span><span class="o">#</span> <span class="kt">RealWorld</span><span class="p">,</span> <span class="nb">()</span> <span class="o">#</span><span class="p">)</span>
+<span class="nf">main'</span> <span class="n">s</span> <span class="ow">=</span>
+    <span class="kr">let</span> <span class="p">(</span><span class="o">#</span> <span class="n">s1</span><span class="p">,</span> <span class="kr">_</span> <span class="o">#</span><span class="p">)</span> <span class="ow">=</span> <span class="n">unIO</span> <span class="p">(</span><span class="n">print</span> <span class="s">"hello"</span><span class="p">)</span> <span class="n">s</span>
+        <span class="p">(</span><span class="o">#</span> <span class="n">s2</span><span class="p">,</span> <span class="kr">_</span> <span class="o">#</span><span class="p">)</span> <span class="ow">=</span> <span class="n">unIO</span> <span class="p">(</span><span class="n">print</span> <span class="s">"world"</span><span class="p">)</span> <span class="n">s1</span>
+        <span class="p">(</span><span class="o">#</span> <span class="n">s3</span><span class="p">,</span> <span class="n">r</span> <span class="o">#</span><span class="p">)</span> <span class="ow">=</span> <span class="n">unIO</span> <span class="p">(</span><span class="n">print</span> <span class="s">"!!"</span><span class="p">)</span> <span class="n">s2</span>
+    <span class="kr">in</span>  <span class="p">(</span><span class="o">#</span> <span class="n">s3</span><span class="p">,</span> <span class="n">r</span> <span class="o">#</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="nb">()</span>
+<span class="nf">main</span> <span class="ow">=</span>  <span class="kt">IO</span> <span class="n">main'</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"hello"
+"world"
+"!!"
+</pre></div>
+</div>
+
+<p>これは次のように解釈できます。</p>
+
+<ul>
+<li>
+<code>State# RealWorld</code>は<strong>ある時点の実世界の状態</strong>を表す型です。
+
+<ul>
+<li>状態が具体的にどんなデータなのかは不明ですが、識別ID以上の意味はないようです。</li>
+</ul>
+</li>
+<li>その型を持つ変数がバケツリレーされている様子は、副作用のある関数を通ることで<strong>状態が変化している</strong>ことを表現しています。</li>
+<li>最後の状態が関数の戻り値の1つとして返されます。</li>
+</ul>
+
+<p>実世界という表現は大袈裟に感じますが、プログラムは入出力（I/O）により外部とやり取りしているため、実世界と切り離されてはいないという意味合いです。そしてI/Oを取り扱うためのモナドということでIOモナドと呼ばれます。</p>
+
+<p>状態の受け渡しについては、もっと簡単なコードでの例がヒントになるかもしれません。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/7shi" rel="nofollow noopener" target="_blank">@7shi</a>: <a href="http://qiita.com/7shi/items/1e6b5899db3ab6b6a8fc" id="reference-2f7a21b12d9bd7d4a695">Haskell - リストとIOUArray - Qiita</a> 2015.1.11</li>
+</ul>
+
+<p>※ 状態はきちんと順番に受け渡す必要がありますが、言語的に保護されているわけではありません。通常はbindが適切に処理するため、bindによって保護されているとは言えます。他の言語での保護状況や、順番を守らなかったときのことなどに興味があれば、次の記事を参照してください。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/7shi" rel="nofollow noopener" target="_blank">@7shi</a>: <a href="http://qiita.com/7shi/items/ab3b819871d7b0710949" id="reference-c7026e1cac1ac2132740">Clean 一意型 調査メモ</a> 2014.12.5</li>
+<li>
+<a href="https://twitter.com/7shi" rel="nofollow noopener" target="_blank">@7shi</a>: <a href="http://qiita.com/7shi/items/0a90d7ba31355e1c73aa" id="reference-7d12b6d3dc30801b6a56">IOモナドを素手で触ってみた</a> 2014.12.9</li>
+</ul>
+
+<h3>
+<span id="ループとの比較" class="fragment"></span><a href="#%E3%83%AB%E3%83%BC%E3%83%97%E3%81%A8%E3%81%AE%E6%AF%94%E8%BC%83"><i class="fa fa-link"></i></a>ループとの比較</h3>
+
+<p>ループを再帰で実装する際に、ループカウンターを引数で表現することで変数の書き換えを避けることができます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">loop</span> <span class="n">i</span> <span class="o">|</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">3</span> <span class="ow">=</span> <span class="kr">do</span>
+            <span class="n">print</span> <span class="n">i</span>
+            <span class="n">loop</span> <span class="o">$</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">loop</span> <span class="kr">_</span> <span class="ow">=</span> <span class="n">return</span> <span class="nb">()</span>
+    <span class="n">loop</span> <span class="mi">1</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+2
+3
+</pre></div>
+</div>
+
+<p>IOモナド内の関数が受け取る状態は、このループカウンターのようなものだと見なせます。更新されたループカウンターが再帰で渡されるように、更新された状態が後続のIOモナドに受け渡されて行きます。</p>
+
+<h2>
+<span id="do" class="fragment"></span><a href="#do"><i class="fa fa-link"></i></a>do</h2>
+
+<p>3種類の書き方を比較してみます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="cm">{-# LANGUAGE UnboxedTuples #-}</span>
+
+<span class="kr">import</span> <span class="nn">GHC.Base</span>
+
+<span class="nf">test1</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">return</span> <span class="mi">1</span>
+    <span class="n">print</span> <span class="n">a</span>
+
+<span class="nf">test2</span> <span class="ow">=</span>
+    <span class="n">return</span> <span class="mi">2</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">a</span> <span class="ow">-&gt;</span>
+    <span class="n">print</span> <span class="n">a</span>
+
+<span class="nf">test3</span> <span class="ow">=</span> <span class="kt">IO</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span>
+    <span class="kr">let</span> <span class="p">(</span><span class="o">#</span> <span class="n">s1</span><span class="p">,</span> <span class="n">a</span> <span class="o">#</span><span class="p">)</span> <span class="ow">=</span> <span class="n">unIO</span> <span class="p">(</span><span class="n">return</span> <span class="mi">3</span><span class="p">)</span> <span class="n">s</span>
+        <span class="p">(</span><span class="o">#</span> <span class="n">s2</span><span class="p">,</span> <span class="n">r</span> <span class="o">#</span><span class="p">)</span> <span class="ow">=</span> <span class="n">unIO</span> <span class="p">(</span><span class="n">print</span>  <span class="n">a</span><span class="p">)</span> <span class="n">s1</span>
+    <span class="kr">in</span>  <span class="p">(</span><span class="o">#</span> <span class="n">s2</span><span class="p">,</span> <span class="n">r</span> <span class="o">#</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">test1</span> <span class="o">&gt;&gt;</span> <span class="n">test2</span> <span class="o">&gt;&gt;</span> <span class="n">test3</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+2
+3
+</pre></div>
+</div>
+
+<p>隠された仕組みを2段階で明らかにしています。</p>
+
+<ol>
+<li>
+<code>test1</code>→<code>test2</code>：値の受け渡しを明らかにします。</li>
+<li>
+<code>test2</code>→<code>test3</code>：状態の受け渡しを明らかにします。</li>
+</ol>
+
+<p>値と状態の受け渡しを明示的に書くのは面倒です。見せる必要のない仕組みを隠すことで、使いやすくしているわけです。</p>
+
+<h2>
+<span id="ここまでのまとめ" class="fragment"></span><a href="#%E3%81%93%E3%81%93%E3%81%BE%E3%81%A7%E3%81%AE%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>ここまでのまとめ</h2>
+
+<ul>
+<li>IOモナドの中には関数が入っています。</li>
+<li>関数は状態を受け取って、更新された状態と値を返します。
+
+<ul>
+<li>状態の受け渡しを隠せば、IOモナドから値だけを取り出しているように見えます。</li>
+</ul>
+</li>
+<li>状態をバケツリレーすることでコンテキストが構成されます。
+
+<ul>
+<li>
+<code>do</code>ブロックは独自のコンテキストを持つと見なせます。</li>
+</ul>
+</li>
+<li>このモデルで入出力（I/O）による状態変化を取り扱えるため、IOモナドと呼ばれます。</li>
+</ul>
+
+<h2>
+<span id="練習" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問1】次のコードから<code>do</code>を取り除いて、bindや<code>return</code>は使わずに<code>unIO</code>や<code>IO</code>で書き換えてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">System.Random</span>
+
+<span class="nf">shuffle</span> <span class="kt">[]</span> <span class="ow">=</span> <span class="n">return</span> <span class="kt">[]</span>
+<span class="nf">shuffle</span> <span class="n">xs</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">n</span> <span class="ow">&lt;-</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span> <span class="n">xs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="kt">Int</span>
+    <span class="n">xs'</span> <span class="ow">&lt;-</span> <span class="n">shuffle</span> <span class="o">$</span> <span class="n">take</span> <span class="n">n</span> <span class="n">xs</span> <span class="o">++</span> <span class="n">drop</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="n">xs</span>
+    <span class="n">return</span> <span class="o">$</span> <span class="p">(</span><span class="n">xs</span> <span class="o">!!</span> <span class="n">n</span><span class="p">)</span> <span class="kt">:</span> <span class="n">xs'</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">xs</span> <span class="ow">&lt;-</span> <span class="n">shuffle</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">9</span><span class="p">]</span>
+    <span class="n">print</span> <span class="n">xs</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/dfc114f133580ee85686#%E3%82%B7%E3%83%A3%E3%83%83%E3%83%95%E3%83%AB" id="reference-8c9f16f27c58fcf5149f">解答例</a></p>
+
+<h1>
+<span id="bind" class="fragment"></span><a href="#bind"><i class="fa fa-link"></i></a>bind</h1>
+
+<p>bind（<code>&gt;&gt;=</code>）はIOモナドと関数をつなぎます。IOモナドから取り出した値を関数に渡します。関数はIOモナドを返すという縛りがあるため、つないだものは1つの大きなIOモナドになります。</p>
+
+<p><code>m' = m &gt;&gt;= f</code>のイメージを示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/19c5dde4-2b4a-f40c-6ca1-bab6d75001df.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/19c5dde4-2b4a-f40c-6ca1-bab6d75001df.png" alt="m_bind_f.png"></a></p>
+
+<p>複数bindした<code>m' = m &gt;&gt;= f1 &gt;&gt;= f2</code>のイメージを示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/4171934d-af61-548a-65de-330b6763255a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/4171934d-af61-548a-65de-330b6763255a.png" alt="m_bind_f1_bind_f2.png"></a></p>
+
+<p>IOモナドはbindすることでどんどん大きく成長して行きます。これが冒頭で言及した「IOモナドを組み合わせることの具体的なイメージ」です。</p>
+
+<p>コードでも括弧で囲めばIOモナドの階層構造が見えて来ます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">test1</span> <span class="ow">=</span> <span class="p">((</span><span class="n">return</span> <span class="s">"1"</span> <span class="o">&gt;&gt;=</span> <span class="n">putStr</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span><span class="p">)</span>
+<span class="nf">test2</span> <span class="ow">=</span> <span class="n">return</span> <span class="s">"2"</span> <span class="o">&gt;&gt;=</span> <span class="n">putStr</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">test1</span> <span class="o">&gt;&gt;</span> <span class="n">test2</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1()
+2()
+</pre></div>
+</div>
+
+<p><code>test2</code>のようにフラットに書いても左から結合されるため、結果的に<code>test1</code>と同じ構造が形成されます。</p>
+
+<h2>
+<span id="値の動き" class="fragment"></span><a href="#%E5%80%A4%E3%81%AE%E5%8B%95%E3%81%8D"><i class="fa fa-link"></i></a>値の動き</h2>
+
+<p><code>m' = m &gt;&gt;= f</code>と定義される<code>m'</code>から値を取り出す動きを示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/71f0f6a1-2c1e-414a-5404-9081b74a8f81.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/71f0f6a1-2c1e-414a-5404-9081b74a8f81.png" alt="m_bind_f_value.png"></a></p>
+
+<ol>
+<li>
+<code>m</code>から値が取り出されて<code>f</code>に渡されます。</li>
+<li>
+<code>f</code>からIOモナドが返されます。</li>
+<li>2のIOモナドから値を取り出します。</li>
+<li>3の値が<code>m'</code>から取り出した値となります。</li>
+</ol>
+
+<h2>
+<span id="詳細な動き" class="fragment"></span><a href="#%E8%A9%B3%E7%B4%B0%E3%81%AA%E5%8B%95%E3%81%8D"><i class="fa fa-link"></i></a>詳細な動き</h2>
+
+<p>これをIOモナド内の関数を含めた形で細かく見ます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/b3fd6746-bb75-f57c-22a2-a410b145cce1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/b3fd6746-bb75-f57c-22a2-a410b145cce1.png" alt="m_bind_f_func.png"></a></p>
+
+<ol>
+<li>
+<code>m'</code>内の関数（<code>&gt;&gt;=</code>によって作成）に外部から状態が渡されます。</li>
+<li>1で渡された状態は<code>m</code>内の関数に渡されます。</li>
+<li>
+<code>m</code>内の関数から状態と値が返されます。</li>
+<li>3の値が<code>f</code>に渡されます。</li>
+<li>
+<code>f</code>からIOモナドが返されます。</li>
+<li>5のIOモナド内の関数に3の状態が渡されます。</li>
+<li>関数から状態と値が返されます。</li>
+<li>7の状態と値が<code>m'</code>内の関数からの戻り値となります。</li>
+</ol>
+
+<h2>
+<span id="カプセル化" class="fragment"></span><a href="#%E3%82%AB%E3%83%97%E3%82%BB%E3%83%AB%E5%8C%96"><i class="fa fa-link"></i></a>カプセル化</h2>
+
+<p><code>&gt;&gt;=</code>の役割は、適切に状態を受け渡す関数を生成することです。IOモナドの中に関数があることも、状態が受け渡されていることも、普通は意識することはありません。<code>&gt;&gt;=</code>が内々に処理しています。</p>
+
+<p>オブジェクト指向での<a href="http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%97%E3%82%BB%E3%83%AB%E5%8C%96" rel="nofollow noopener" target="_blank">カプセル化</a>に近い考え方です。</p>
+
+<p><code>&gt;&gt;=</code>の他に、<code>return</code>もIOモナドの内部構造を前提に実装されています。</p>
+
+<h2>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h2>
+
+<ul>
+<li>IOモナドの内部には関数があり、状態の受け渡しを行っています。</li>
+<li>IOモナドの内部構造を知っているのは<code>&gt;&gt;=</code>と<code>return</code>だけです。</li>
+<li>
+<code>&gt;&gt;=</code>と<code>return</code>の使い方さえ知っていれば、内部構造を知らなくてもIOモナドは利用できます。</li>
+<li>
+<code>&gt;&gt;=</code>によって、状態は適切に受け渡されることが保証されます。</li>
+<li>結果をアンボックス化タプルに入れることで、順番に評価されることが保証されます。</li>
+</ul>
+
+<h2>
+<span id="練習-1" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-1"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問2】IOモナドを扱う<code>bind</code>と<code>return'</code>を実装してください。<code>&gt;&gt;=</code>, <code>&lt;&lt;=</code>, <code>&lt;-</code>, <code>return</code>は使わないでください。</p>
+
+<p>具体的には次のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">return'</span> <span class="s">"hello"</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="n">putStr</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="n">print</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+hello()
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/dfc114f133580ee85686#%E5%86%8D%E5%AE%9F%E8%A3%85" id="reference-8c9f16f27c58fcf5149f">解答例</a></p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<p>IOモナドについての詳細は次の記事が参考になります。</p>
+
+<ul>
+<li>
+<a href="https://www.haskell.org/haskellwiki/IO_inside" rel="nofollow noopener" target="_blank">IO inside - HaskellWiki</a> 2013.5.22</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/d3d3492ddd90d47160f2" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="EjxMxEHxtYZwTghhFXRvLBKup3z6psGpZCG3Wc6xX/t8vtec2t+MzY+dvX1lgdF1cumDz21im15Y/76iL79RPQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1438325744" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Haskellではモナドと呼ばれる部品を組み合わせてプログラムを作ります。今までアクションとして取り扱っていたのはIOモナドというモナドの一種です。IOモナドの仕組みを調べることで、IOモナドを組み合わせることの具体的なイメージを説明します。モナドについての一般論へ進む前の準備を目的としているため、IO以外のモナドや圏論には言及しません。
+
+シリーズの記事です。
+
+1. [Haskell 超入門](http://qiita.com/7shi/items/145f1234f8ec2af923ef)
+1. [Haskell 代数的データ型 超入門](http://qiita.com/7shi/items/1ce76bde464b4a55c143)
+1. [Haskell アクション 超入門](http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6)
+1. [Haskell ラムダ 超入門](http://qiita.com/7shi/items/1345bf32003faff435cb)
+1. [Haskell アクションとラムダ 超入門](http://qiita.com/7shi/items/4a8a2807bb5186576c61)
+1. Haskell IOモナド 超入門 ← この記事
+1. [Haskell リストモナド 超入門](http://qiita.com/7shi/items/deb19c4cba933590ffbf)
+1. [Haskell Maybeモナド 超入門](http://qiita.com/7shi/items/c7d7eec066af0fe0688d)
+1. [Haskell 状態系モナド 超入門](http://qiita.com/7shi/items/2e9bff5d88302de1a9e9)
+1. [Haskell モナド変換子 超入門](http://qiita.com/7shi/items/4408b76624067c17e933)
+1. [Haskell 例外処理 超入門](http://qiita.com/7shi/items/73e534c47bbebc71b37e)
+1. [Haskell 構文解析 超入門](http://qiita.com/7shi/items/b8c741e78a96ea2c10fe)
+1. 【予定】Haskell 継続モナド 超入門
+1. 【予定】Haskell 型クラス 超入門
+1. 【予定】Haskell モナドとゆかいな仲間たち
+1. 【予定】Haskell Freeモナド 超入門
+1. 【予定】Haskell Operationalモナド 超入門
+1. 【予定】Haskell Effモナド 超入門
+1. 【予定】Haskell アロー 超入門
+
+練習の解答例は別記事に掲載します。
+
+* [【解答例】Haskell IOモナド 超入門](http://qiita.com/7shi/items/dfc114f133580ee85686)
+
+# IOモナド
+
+今まで出て来たアクションはIO型です。
+
+```hs
+dice :: IO Int
+dice = getStdRandom $ randomR (1, 6)
+```
+
+このIO型はIOモナドと呼ばれます。今までアクションと呼んでいたものの実体がIOモナドです。
+
+※ 正確にはIOモナドによるアクションはIOアクションと呼びます。
+
+モナドへの取っ掛かりとして、IOモナドの内部構造を見て行きます。
+
+※ IOモナドの実装は処理系依存ですが、今回はGHCを前提とします。
+
+## 値の取り出し
+
+IOモナドは値を取り出すことができます。挙動にいくつか種類がありますが、復習がてら振り返ります。
+
+![m_value.png](https://qiita-image-store.s3.amazonaws.com/0/32057/42e54acd-7595-ba82-1dfe-efc76ef7dffc.png)
+
+単純に値が入っている例です。
+
+```hs
+main = do
+    let a = return 1
+    print =&lt;&lt; a
+    print =&lt;&lt; a
+```
+```text:実行結果
+1
+1
+```
+
+このようなケースではモナドの中に静的に値が入っているようにイメージできます。
+
+しかし、取り出すたびに値が変わるものもあります。
+
+```hs
+import System.Random
+
+dice :: IO Int
+dice = getStdRandom $ randomR (1, 6)
+
+main = do
+    print =&lt;&lt; dice
+    print =&lt;&lt; dice
+```
+```text:実行結果（毎回異なる）
+5
+3
+```
+
+このようなケースでは、取り出す際に何か処理が行われているため、単純に値が入っているわけではないということが分かります。
+
+値を取り出す以外の影響もあります。
+
+```hs
+main = do
+    let hello = putStr &quot;hello&quot;
+    print =&lt;&lt; hello
+    print =&lt;&lt; hello
+```
+```text:実行結果
+hello()
+hello()
+```
+
+取り出されるのは`()`という意味のない値ですが、取り出す際に文字が表示されるという副作用が発生しています。
+
+## 内部構造
+
+IOモナドから値を取り出す際の挙動は、IOモナドの中に参照透過性が保証されない特殊な関数が隠されていることで実現されています。
+
+![mfunc.png](https://qiita-image-store.s3.amazonaws.com/0/32057/0db1a648-69db-89cb-0f9f-4bd58041ee79.png)
+
+※ 通常はIOモナド内の関数は隠されています。
+
+## 関数の取り出し
+
+IOモナドから隠された関数を取り出してみます。
+
+※ ここで行うのは通常のプログラミングでは一切行わない特殊な処理です。IOモナドの仕組みを説明することが目的で、実用に供することは意図していません。
+
+`GHC.Base.unIO`関数によりIOモナドの中に隠された関数を取り出せます。
+
+![unIO.png](https://qiita-image-store.s3.amazonaws.com/0/32057/4fab8b51-6ae7-f752-9290-75be63203da0.png)
+
+```hs
+import GHC.Base
+
+hello1 = unIO $ return 1
+```
+
+ここで注意しないといけないのは、取り出したのは`1`という値を返す**関数**で、`1`という**値**ではないということです。
+
+※ 取り出した関数は非常に特殊な仕様のため、簡単には呼び出せません。詳細は後述します。
+
+## 関数の格納
+
+取り出した関数を`IO`の中に入れれば、IOモナドを再構築できます。
+
+![IO.png](https://qiita-image-store.s3.amazonaws.com/0/32057/3d992696-f563-60f2-c2e3-555ae54e7647.png)
+
+```hs
+hello2 = IO hello1
+```
+
+※ `IO`はコンストラクタ（構築子）です。今回の範囲では型を構築する特殊な関数だと捉えれば十分です。詳細は[Haskell 代数的データ型 超入門](http://qiita.com/7shi/items/1ce76bde464b4a55c143)で説明します。
+
+## 関数と値
+
+関数と値で出し入れの方法をまとめました。
+
+![IO_funcs.png](https://qiita-image-store.s3.amazonaws.com/0/32057/58a98a91-3819-1d38-fd98-da6d52d110d2.png)
+
+※ 図中の矢印の向きは`&lt;-`に合わせました。
+
+種類|取り出し|格納
+----|--------|----
+関数|`unIO`  |`IO`
+値  |`&lt;-`    |`return`
+
+ここで注目するのは`return`です。コンストラクタ`IO`を直接使うと、通常は存在を意識する必要のない内部関数が表に出てしまいます。`return`により指定された値を返す関数を自動的に作ることで、IOモナドの内部構造を意識させずに利用できるようにしています。オブジェクト指向での[ファクトリメソッド](http://ja.wikipedia.org/wiki/Factory_Method_%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3)に近い考え方です。
+
+関数や値の出し入れを行う例です。
+
+```hs
+import GHC.Base
+
+main = do
+    let m  = return 1
+    print =&lt;&lt; m
+
+    let f  = unIO m
+    let m1 = IO f
+    print =&lt;&lt; m1
+
+    v &lt;- m
+    let m2 = return v
+    print =&lt;&lt; m2
+```
+```text:実行結果
+1
+1
+1
+```
+
+この例では既存のモナドから関数や値を抜き出して、再度入れることでIOモナドを再構築しています。ただ出し入れしただけなので、元と同じIOモナドが出来るのは当たり前です。
+
+※ 当たり前で済ませていますが、値に関しては出し入れで変化しないことがモナド則というルールによって保証されています。今回の範囲を超えるため詳細は省略しますが、興味があれば次の記事を参照してください。
+
+* [@7shi](https://twitter.com/7shi): [モナド則がちょっと分かった？](http://qiita.com/7shi/items/547b6137d7a3c482fe68) 2015.3.9（改訂）
+
+## 自作関数
+
+関数を出し入れするだけではブラックボックスのままです。関数の仕様を調べるため、自作関数でIOモナドを構築してみます。
+
+IOモナドの中にある関数は通常は触るようなものではなく、仕様も特殊です。戻り値はアンボックス化タプルと呼ばれる特殊なタプルです。まずそれについて説明します。
+
+## アンボックス化タプル
+
+内部的な処理が違うタプルです。違いは表面上分かりません。
+
+通常のタプルは計算結果ではなく式を保持しますが、アンボックス化タプルでは計算結果が含まれます。そのためタプルを大量に使うような用途ではメモリ効率が向上するようです。それによって計算結果が変わるわけではないため、違いが簡単に分かるような例は示せません。
+
+* 通常のタプルは`(`～`)`で囲むのに対して、アンボックス化タプルは`(#`～`#)`で囲みます。
+* アンボックス化タプルを扱うには`UnboxedTuples`という言語拡張が必要です。
+    * 言語拡張はソースの先頭に`{-# LANGUAGE`～`#-}`と記述します。
+* アンボックス化タプルは`print`が受け付けないため、確認するには中身を個別に取り出す必要があります。
+
+例を示します。
+
+```hs
+{-# LANGUAGE UnboxedTuples #-}
+
+addsub x y = (# x + y, x - y #)
+
+main = do
+    let (# a, b #) = addsub 1 2
+    print (a, b)
+```
+```text:実行結果
+(3,-1)
+```
+
+取扱い方法自体は通常のタプルと大差ないため、これ以上は特に説明することはありません。興味があれば次の資料を参照してください（この資料では非ボックス化と訳されています）。
+
+* [7.2.2. 非ボックス化タプル](http://www.kotha.net/ghcguide_ja/7.6.2/primitives.html#unboxed-tuples)（[栄光のグラスゴーHaskellコンパイルシステム利用の手引き バージョン7.6.2](http://www.kotha.net/ghcguide_ja/7.6.2/)） 2013.2.11
+
+※ ちなみに`IOUArray`のUもアンボックス化の意味です。
+
+## return
+
+`let a = return 1`相当のIOモナドを自作します。先ほど述べたように`return`はファクトリメソッドのようなもので、指定された値を返す関数を作ってIOモナドの中に入れますが、それを手動で行います。
+
+![return.png](https://qiita-image-store.s3.amazonaws.com/0/32057/a5516986-62e8-6ccf-57fa-2b9f0357c0e2.png)
+
+```hs
+{-# LANGUAGE UnboxedTuples #-}
+
+import GHC.Base
+
+main = do
+    let a = IO $ \s -&gt; (# s, 1 #)
+    print =&lt;&lt; a
+```
+```text:実行結果
+1
+```
+
+ここで見られるIOモナド内の関数の仕様をまとめます。
+
+* 戻り値は2要素のアンボックス化タプルです。
+* 第1要素は引数を素通ししたものです。
+* 第2要素は今まで「アクションから取り出した値」と言っていた値です。
+* アンボックス化タプルを使うことで、タプルに格納する際に式が評価されるようにしています。
+
+引数はどこから来るのでしょうか。
+
+## main
+
+mainの実体もIOモナドのため、関数から自作することが可能です。
+
+![main.png](https://qiita-image-store.s3.amazonaws.com/0/32057/78abf5a6-679d-c0dc-0953-2a450a410e5f.png)
+
+```hs
+{-# LANGUAGE UnboxedTuples #-}
+
+import GHC.Base
+
+main = IO $ \s -&gt; (# s, () #)
+```
+```text:実行結果
+（出力なし）
+```
+
+引数`s`はHaskellの処理系によって渡されたもので、自分で作ることはできません。これを取り回すことでIOモナドは実行されていきます。その様子を見ます。
+
+## print
+
+`main`に渡された引数を`print`に渡してみます。
+
+![main_print.png](https://qiita-image-store.s3.amazonaws.com/0/32057/c17ad7b2-8caa-c7e0-62d9-a378bc097d42.png)
+
+```hs
+{-# LANGUAGE UnboxedTuples #-}
+
+import GHC.Base
+
+main = IO $ \s -&gt;
+    let (# s1, r #) = unIO (print &quot;hello&quot;) s
+    in  (# s1, r #)
+```
+```text:実行結果
+&quot;hello&quot;
+```
+
+引数`s`が`print`を通ることで`s1`に変化して最終的な戻り値となります。
+
+## State# RealWorld
+
+IOモナド内の関数に渡される引数の型は`State# RealWorld`です。`#`は`&#39;`と同じように名前の一部ですが、扱うには言語拡張`MagicHash`が必要です。あまり触られたくない型や変数に`#`が付けられているようです。
+
+処理を連続させるには`s`をバケツリレーします。型注釈を明記します。
+
+![main_print3.png](https://qiita-image-store.s3.amazonaws.com/0/32057/0d3e7602-83c9-b076-9ab4-c55c05b94a75.png)
+
+```hs
+{-# LANGUAGE UnboxedTuples, MagicHash #-}
+
+import GHC.Base
+
+main&#39; :: State# RealWorld -&gt; (# State# RealWorld, () #)
+main&#39; s =
+    let (# s1, _ #) = unIO (print &quot;hello&quot;) s
+        (# s2, _ #) = unIO (print &quot;world&quot;) s1
+        (# s3, r #) = unIO (print &quot;!!&quot;) s2
+    in  (# s3, r #)
+
+main :: IO ()
+main =  IO main&#39;
+```
+```text:実行結果
+&quot;hello&quot;
+&quot;world&quot;
+&quot;!!&quot;
+```
+
+これは次のように解釈できます。
+
+* `State# RealWorld`は**ある時点の実世界の状態**を表す型です。
+    * 状態が具体的にどんなデータなのかは不明ですが、識別ID以上の意味はないようです。
+* その型を持つ変数がバケツリレーされている様子は、副作用のある関数を通ることで**状態が変化している**ことを表現しています。
+* 最後の状態が関数の戻り値の1つとして返されます。
+
+実世界という表現は大袈裟に感じますが、プログラムは入出力（I/O）により外部とやり取りしているため、実世界と切り離されてはいないという意味合いです。そしてI/Oを取り扱うためのモナドということでIOモナドと呼ばれます。
+
+状態の受け渡しについては、もっと簡単なコードでの例がヒントになるかもしれません。
+
+* [@7shi](https://twitter.com/7shi): [Haskell - リストとIOUArray - Qiita](http://qiita.com/7shi/items/1e6b5899db3ab6b6a8fc) 2015.1.11
+
+※ 状態はきちんと順番に受け渡す必要がありますが、言語的に保護されているわけではありません。通常はbindが適切に処理するため、bindによって保護されているとは言えます。他の言語での保護状況や、順番を守らなかったときのことなどに興味があれば、次の記事を参照してください。
+
+* [@7shi](https://twitter.com/7shi): [Clean 一意型 調査メモ](http://qiita.com/7shi/items/ab3b819871d7b0710949) 2014.12.5
+* [@7shi](https://twitter.com/7shi): [IOモナドを素手で触ってみた](http://qiita.com/7shi/items/0a90d7ba31355e1c73aa) 2014.12.9
+
+### ループとの比較
+
+ループを再帰で実装する際に、ループカウンターを引数で表現することで変数の書き換えを避けることができます。
+
+```hs
+main = do
+    let loop i | i &lt;= 3 = do
+            print i
+            loop $ i + 1
+        loop _ = return ()
+    loop 1
+```
+```text:実行結果
+1
+2
+3
+```
+
+IOモナド内の関数が受け取る状態は、このループカウンターのようなものだと見なせます。更新されたループカウンターが再帰で渡されるように、更新された状態が後続のIOモナドに受け渡されて行きます。
+
+## do
+
+3種類の書き方を比較してみます。
+
+```hs
+{-# LANGUAGE UnboxedTuples #-}
+
+import GHC.Base
+
+test1 = do
+    a &lt;- return 1
+    print a
+
+test2 =
+    return 2 &gt;&gt;= \a -&gt;
+    print a
+
+test3 = IO $ \s -&gt;
+    let (# s1, a #) = unIO (return 3) s
+        (# s2, r #) = unIO (print  a) s1
+    in  (# s2, r #)
+
+main = test1 &gt;&gt; test2 &gt;&gt; test3
+```
+```text:実行結果
+1
+2
+3
+```
+
+隠された仕組みを2段階で明らかにしています。
+
+1. `test1`→`test2`：値の受け渡しを明らかにします。
+2. `test2`→`test3`：状態の受け渡しを明らかにします。
+
+値と状態の受け渡しを明示的に書くのは面倒です。見せる必要のない仕組みを隠すことで、使いやすくしているわけです。
+
+## ここまでのまとめ
+
+* IOモナドの中には関数が入っています。
+* 関数は状態を受け取って、更新された状態と値を返します。
+    * 状態の受け渡しを隠せば、IOモナドから値だけを取り出しているように見えます。
+* 状態をバケツリレーすることでコンテキストが構成されます。
+    * `do`ブロックは独自のコンテキストを持つと見なせます。
+* このモデルで入出力（I/O）による状態変化を取り扱えるため、IOモナドと呼ばれます。
+
+## 練習
+
+【問1】次のコードから`do`を取り除いて、bindや`return`は使わずに`unIO`や`IO`で書き換えてください。
+
+```hs
+import System.Random
+
+shuffle [] = return []
+shuffle xs = do
+    n &lt;- getStdRandom $ randomR (0, length xs - 1) :: IO Int
+    xs&#39; &lt;- shuffle $ take n xs ++ drop (n + 1) xs
+    return $ (xs !! n) : xs&#39;
+
+main = do
+    xs &lt;- shuffle [1..9]
+    print xs
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/dfc114f133580ee85686#%E3%82%B7%E3%83%A3%E3%83%83%E3%83%95%E3%83%AB)
+
+# bind
+
+bind（`&gt;&gt;=`）はIOモナドと関数をつなぎます。IOモナドから取り出した値を関数に渡します。関数はIOモナドを返すという縛りがあるため、つないだものは1つの大きなIOモナドになります。
+
+`m&#39; = m &gt;&gt;= f`のイメージを示します。
+
+![m_bind_f.png](https://qiita-image-store.s3.amazonaws.com/0/32057/19c5dde4-2b4a-f40c-6ca1-bab6d75001df.png)
+
+複数bindした`m&#39; = m &gt;&gt;= f1 &gt;&gt;= f2`のイメージを示します。
+
+![m_bind_f1_bind_f2.png](https://qiita-image-store.s3.amazonaws.com/0/32057/4171934d-af61-548a-65de-330b6763255a.png)
+
+IOモナドはbindすることでどんどん大きく成長して行きます。これが冒頭で言及した「IOモナドを組み合わせることの具体的なイメージ」です。
+
+コードでも括弧で囲めばIOモナドの階層構造が見えて来ます。
+
+```hs
+test1 = ((return &quot;1&quot; &gt;&gt;= putStr) &gt;&gt;= print)
+test2 = return &quot;2&quot; &gt;&gt;= putStr &gt;&gt;= print
+
+main = test1 &gt;&gt; test2
+```
+```text:実行結果
+1()
+2()
+```
+
+`test2`のようにフラットに書いても左から結合されるため、結果的に`test1`と同じ構造が形成されます。
+
+## 値の動き
+
+`m&#39; = m &gt;&gt;= f`と定義される`m&#39;`から値を取り出す動きを示します。
+
+![m_bind_f_value.png](https://qiita-image-store.s3.amazonaws.com/0/32057/71f0f6a1-2c1e-414a-5404-9081b74a8f81.png)
+
+1. `m`から値が取り出されて`f`に渡されます。
+2. `f`からIOモナドが返されます。
+3. 2のIOモナドから値を取り出します。
+4. 3の値が`m&#39;`から取り出した値となります。
+
+## 詳細な動き
+
+これをIOモナド内の関数を含めた形で細かく見ます。
+
+![m_bind_f_func.png](https://qiita-image-store.s3.amazonaws.com/0/32057/b3fd6746-bb75-f57c-22a2-a410b145cce1.png)
+
+1. `m&#39;`内の関数（`&gt;&gt;=`によって作成）に外部から状態が渡されます。
+2. 1で渡された状態は`m`内の関数に渡されます。
+3. `m`内の関数から状態と値が返されます。
+4. 3の値が`f`に渡されます。
+5. `f`からIOモナドが返されます。
+6. 5のIOモナド内の関数に3の状態が渡されます。
+7. 関数から状態と値が返されます。
+8. 7の状態と値が`m&#39;`内の関数からの戻り値となります。
+
+## カプセル化
+
+`&gt;&gt;=`の役割は、適切に状態を受け渡す関数を生成することです。IOモナドの中に関数があることも、状態が受け渡されていることも、普通は意識することはありません。`&gt;&gt;=`が内々に処理しています。
+
+オブジェクト指向での[カプセル化](http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%97%E3%82%BB%E3%83%AB%E5%8C%96)に近い考え方です。
+
+`&gt;&gt;=`の他に、`return`もIOモナドの内部構造を前提に実装されています。
+
+## まとめ
+
+* IOモナドの内部には関数があり、状態の受け渡しを行っています。
+* IOモナドの内部構造を知っているのは`&gt;&gt;=`と`return`だけです。
+* `&gt;&gt;=`と`return`の使い方さえ知っていれば、内部構造を知らなくてもIOモナドは利用できます。
+* `&gt;&gt;=`によって、状態は適切に受け渡されることが保証されます。
+* 結果をアンボックス化タプルに入れることで、順番に評価されることが保証されます。
+
+## 練習
+
+【問2】IOモナドを扱う`bind`と`return&#39;`を実装してください。`&gt;&gt;=`, `&lt;&lt;=`, `&lt;-`, `return`は使わないでください。
+
+具体的には次のコードが動くようにしてください。
+
+```hs
+main = return&#39; &quot;hello&quot; `bind` putStr `bind` print
+```
+```text:実行結果
+hello()
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/dfc114f133580ee85686#%E5%86%8D%E5%AE%9F%E8%A3%85)
+
+# 参考
+
+IOモナドについての詳細は次の記事が参考になります。
+
+* [IO inside - HaskellWiki](https://www.haskell.org/haskellwiki/IO_inside) 2013.5.22
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Haskell IOモナド 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Haskell IOモナド 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/d3d3492ddd90d47160f2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#io%E3%83%A2%E3%83%8A%E3%83%89\&quot;\u003eIOモナド\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%80%A4%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97\&quot;\u003e値の取り出し\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E9%83%A8%E6%A7%8B%E9%80%A0\&quot;\u003e内部構造\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%96%A2%E6%95%B0%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97\&quot;\u003e関数の取り出し\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%96%A2%E6%95%B0%E3%81%AE%E6%A0%BC%E7%B4%8D\&quot;\u003e関数の格納\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%96%A2%E6%95%B0%E3%81%A8%E5%80%A4\&quot;\u003e関数と値\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%87%AA%E4%BD%9C%E9%96%A2%E6%95%B0\&quot;\u003e自作関数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%83%B3%E3%83%9C%E3%83%83%E3%82%AF%E3%82%B9%E5%8C%96%E3%82%BF%E3%83%97%E3%83%AB\&quot;\u003eアンボックス化タプル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#return\&quot;\u003ereturn\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#main\&quot;\u003emain\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#print\&quot;\u003eprint\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#state-realworld\&quot;\u003eState# RealWorld\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AB%E3%83%BC%E3%83%97%E3%81%A8%E3%81%AE%E6%AF%94%E8%BC%83\&quot;\u003eループとの比較\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#do\&quot;\u003edo\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%93%E3%81%BE%E3%81%A7%E3%81%AE%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eここまでのまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#bind\&quot;\u003ebind\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%80%A4%E3%81%AE%E5%8B%95%E3%81%8D\&quot;\u003e値の動き\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A9%B3%E7%B4%B0%E3%81%AA%E5%8B%95%E3%81%8D\&quot;\u003e詳細な動き\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AB%E3%83%97%E3%82%BB%E3%83%AB%E5%8C%96\&quot;\u003eカプセル化\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-1\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:38,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;d3d3492ddd90d47160f2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sys_tradingtech"><a itemprop="url" href="/sys_tradingtech"><img alt="sys_tradingtech" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/39556/profile-images/1473688150" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="uchiko"><a itemprop="url" href="/uchiko"><img alt="uchiko" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2278/profile-images/1473681372" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="JunKikuchi"><a itemprop="url" href="/JunKikuchi"><img alt="JunKikuchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13181/profile-images/1473682708" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="moyahima"><a itemprop="url" href="/moyahima"><img alt="moyahima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3366/profile-images/1473683039" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="matt76k"><a itemprop="url" href="/matt76k"><img alt="matt76k" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29439/profile-images/1473685337" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="typista"><a itemprop="url" href="/typista"><img alt="typista" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8200/profile-images/1473680938" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="aminamid"><a itemprop="url" href="/aminamid"><img alt="aminamid" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38680/profile-images/1473687851" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="takano32"><a itemprop="url" href="/takano32"><img alt="takano32" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1644/profile-images/1473683743" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="LightSpeedC"><a itemprop="url" href="/LightSpeedC"><img alt="LightSpeedC" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/16128/profile-images/1473681778" /></a></div></div><div class="ArticleFooter__user"><a href="/7shi/items/d3d3492ddd90d47160f2/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/d3d3492ddd90d47160f2/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/d3d3492ddd90d47160f2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 10 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/dfc114f133580ee85686#_reference-9f1cafff79ee504a956f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />【解答例】Haskell IOモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:11:19+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/145f1234f8ec2af923ef#_reference-aa969ed6c894b83627e2"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:15:38+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/4a8a2807bb5186576c61#_reference-494c3130d318698b4dd9"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell アクションとラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:18:21+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/85afd7bbd5d6c4115ad6#_reference-2a28ef7c861227be81a8"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell アクション 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:20:02+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/1345bf32003faff435cb#_reference-fa6ba11a1a39d6a765f4"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell ラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:22:50+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/0a90d7ba31355e1c73aa#_reference-586a64b8e5ec420074df"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />IOモナドを素手で触ってみた</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:26:56+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/deb19c4cba933590ffbf#_reference-cfe15f8c2d9dbaf43dc0"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell リストモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-18T17:37:24+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/2e9bff5d88302de1a9e9#_reference-42e45a6fab8c1b5ac12a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 状態系モナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-27T01:47:02+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/4408b76624067c17e933#_reference-3b0045e27b91232ccc0d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell モナド変換子 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-04T13:32:38+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/c7d7eec066af0fe0688d#_reference-aa44267e2691a3447684"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell Maybeモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-22T08:10:00+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/547b6137d7a3c482fe68#_reference-520e8d075f4f1e962562"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />モナド則がちょっと分かった？</a><time class="references_datetime js-dateTimeView" datetime="2015-03-09T06:41:11+00:00">almost 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/b6507145ece3a613f91a#_reference-67b1adc16a94e6e309c3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 実践 Haskell 】作業領域別 tutorialサイトまとめ ～ 多変量解析、機械学習、（深層）ニューラル・ネットワー、自然言語処理、FPGA高位合成 etc. </a><time class="references_datetime js-dateTimeView" datetime="2015-06-29T10:59:48+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/73e534c47bbebc71b37e#_reference-9b86345936ccf1c6dbcd"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 例外処理 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-28T09:19:55+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/1ce76bde464b4a55c143#_reference-67d52c7dd50cabbf3d7b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 代数的データ型 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-28T13:19:07+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/b8c741e78a96ea2c10fe#_reference-5ddef01ee351c595f2f4"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 構文解析 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-31T06:47:02+00:00">over 1 year ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Haskell IOモナド 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Haskell IOモナド 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/d3d3492ddd90d47160f2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eモナドというのは結局ラッパーでしかないわけですね。でもモナドという枠組みだけでリストも継続も例外処理も全部同じように取り扱えるというのはすごいことですね。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2014-12-14T23:35:40+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:131264,&quot;is_team&quot;:false,&quot;item_id&quot;:202633,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d3d3492ddd90d47160f2&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;モナドというのは結局ラッパーでしかないわけですね。でもモナドという枠組みだけでリストも継続も例外処理も全部同じように取り扱えるというのはすごいことですね。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/d3d3492ddd90d47160f2#comment-b6a763706fb4cc2c1a2b&quot;,&quot;user&quot;:{&quot;contribution&quot;:4,&quot;created_at&quot;:&quot;2014-12-08T00:08:41+09:00&quot;,&quot;id&quot;:62130,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/62130/profile-images/1473695857&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;iHdkz&quot;},&quot;uuid&quot;:&quot;b6a763706fb4cc2c1a2b&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eはい、そう受け止めていただけて良かったです。その辺を続編で書こうとしていますが、どう話を展開したものか試行錯誤しています。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2014-12-14T23:46:14+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:131266,&quot;is_team&quot;:false,&quot;item_id&quot;:202633,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d3d3492ddd90d47160f2&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;はい、そう受け止めていただけて良かったです。その辺を続編で書こうとしていますが、どう話を展開したものか試行錯誤しています。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/d3d3492ddd90d47160f2#comment-14d84f3afba27a6c20a3&quot;,&quot;user&quot;:{&quot;contribution&quot;:2522,&quot;created_at&quot;:&quot;2013-11-09T10:32:10+09:00&quot;,&quot;id&quot;:32057,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;7shi&quot;},&quot;uuid&quot;:&quot;14d84f3afba27a6c20a3&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eJavaの抽象クラス、Interfaceだ、といえば話は早いですが、話の展開としては確かにどう説明したもんですかね。\u003cbr\u003e\n続編の方楽しみに待っております！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2014-12-16T02:03:45+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:131968,&quot;is_team&quot;:false,&quot;item_id&quot;:202633,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d3d3492ddd90d47160f2&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;Javaの抽象クラス、Interfaceだ、といえば話は早いですが、話の展開としては確かにどう説明したもんですかね。\n続編の方楽しみに待っております！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/d3d3492ddd90d47160f2#comment-cdca6b15e17ae46217ea&quot;,&quot;user&quot;:{&quot;contribution&quot;:4,&quot;created_at&quot;:&quot;2014-12-08T00:08:41+09:00&quot;,&quot;id&quot;:62130,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/62130/profile-images/1473695857&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;iHdkz&quot;},&quot;uuid&quot;:&quot;cdca6b15e17ae46217ea&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:202633,&quot;uuid&quot;:&quot;d3d3492ddd90d47160f2&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;},{&quot;id&quot;:62130,&quot;url_name&quot;:&quot;iHdkz&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/62130/profile-images/1473695857&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="AjQULMq8JxNJMasWLE8x/tazwZuJRJKfkWGB4tEKDP5sto90UZIeWLbiHgpcuo+ntvTlKB6AyGitv4gZMAQCOA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/d3d3492ddd90d47160f2" /><input type="hidden" name="item_uuid" id="item_uuid" value="d3d3492ddd90d47160f2" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/d3d3492ddd90d47160f2", "id": 202633, "uuid": "d3d3492ddd90d47160f2" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="CVVzQAh+urGUdFHnxRPsr1x0glqDFqSIcH/2Q3BJKUdn1+gYk1CD+mun5Pu15lL2PDOm6RTS/n9Mof+4kUcngQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/d3d3492ddd90d47160f2" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

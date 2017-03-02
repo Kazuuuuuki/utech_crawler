@@ -1,0 +1,1986 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>四元数を作ろう - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="四元数の計算規則は複雑に見えます。規則として覚えるのではなく、作り方からのアプローチを紹介します。複素数の知識を前提とします。プログラムで計算を確認しながら進めます。
+
+数を作るという観点から、四元数の定義を一部変えた亜種も紹介します。
+
+
+双複素数（テッサリン）
+分解型複素数（実テッサリン）
+双曲四元数
+
+
+シリーズの記事です。
+
+
+多項式の積を計算
+外積と愉快な仲間たち
+ユークリッド空間のホッジ双対とバブルソート
+四元数を作ろう ← この記事
+四元数と行列で見る内積..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="四元数を作ろう - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/2036e7a739c2a9e04025" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="四元数の計算規則は複雑に見えます。規則として覚えるのではなく、作り方からのアプローチを紹介します。複素数の知識を前提とします。プログラムで計算を確認しながら進めます。
+
+数を作るという観点から、四元数の定義を一部変えた亜種も紹介します..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="ZNLtF5+rrGnaTAp4Y78S1dSQkcr/HomiHwvcn/gK9QAKUHZPBIWVIiWfv2QTSqyMtNe1eWja01Uj1dVkGQT7xg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/%E6%95%B0%E5%AD%A6"><span itemprop="name">数学</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">四元数を作ろう</h1><ul class="TagList"><li class="TagList__item" data-count="503"><a class="u-link-unstyled TagList__label" href="/tags/%E6%95%B0%E5%AD%A6"><img alt="数学" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8fe97b92406365b26c7ffbda350a237c07ef4feb/medium.jpg?1421593187" /><span>数学</span></a></li><li class="TagList__item" data-count="9"><a class="u-link-unstyled TagList__label" href="/tags/%E5%9B%9B%E5%85%83%E6%95%B0"><img alt="四元数" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>四元数</span></a></li><li class="TagList__item" data-count="160"><a class="u-link-unstyled TagList__label" href="/tags/F%23"><img alt="F#" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/ba95a660afc4ec92093e69afbd0b70d04e51245b/medium.jpg?1395581508" /><span>F#</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">0</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:0,&quot;uuid&quot;:&quot;2036e7a739c2a9e04025&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2016-12-03">Edited at <time datetime="2017-01-16T00:08:14+09:00" itemprop="dateModified">2017-01-16</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/2036e7a739c2a9e04025/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">53</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/2036e7a739c2a9e04025/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(53)</span></a></li><li><a href="/7shi/items/2036e7a739c2a9e04025.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-2036e7a739c2a9e04025" itemprop="articleBody"><p>四元数の計算規則は複雑に見えます。規則として覚えるのではなく、作り方からのアプローチを紹介します。複素数の知識を前提とします。プログラムで計算を確認しながら進めます。</p>
+
+<p>数を作るという観点から、四元数の定義を一部変えた亜種も紹介します。</p>
+
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Bicomplex_number" rel="nofollow noopener" target="_blank">双複素数（テッサリン）</a></li>
+<li><a href="https://ja.wikipedia.org/wiki/%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0" rel="nofollow noopener" target="_blank">分解型複素数（実テッサリン）</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Hyperbolic_quaternion" rel="nofollow noopener" target="_blank">双曲四元数</a></li>
+</ul>
+
+<p>シリーズの記事です。</p>
+
+<ol>
+<li><a href="http://qiita.com/7shi/items/4fb60dacad46cb8e63b3" id="reference-71a0df9ebd9f355abb1c">多項式の積を計算</a></li>
+<li><a href="http://qiita.com/7shi/items/017d2d2c758f76071f23" id="reference-b321530e6182d6c033a3">外積と愉快な仲間たち</a></li>
+<li><a href="http://qiita.com/7shi/items/f54302058149d07da592" id="reference-eb63ee555285ec3ef287">ユークリッド空間のホッジ双対とバブルソート</a></li>
+<li>四元数を作ろう ← この記事</li>
+<li><a href="http://qiita.com/7shi/items/a80988a32a0d706e9378" id="reference-1b88fb7d970161b78010">四元数と行列で見る内積と外積の「内」と「外」</a></li>
+<li><a href="http://qiita.com/7shi/items/b34fe724d36fb7d96456" id="reference-918d9d92de0755de3ae6">八元数を作ろう</a></li>
+<li><a href="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" id="reference-90b1ddd21b87bdaaa366">八元数の積をプログラムで確認</a></li>
+<li><a href="http://qiita.com/7shi/items/02c758c03d2fd7038912" id="reference-b1b3447d71596a5f493e">外積の成分をプログラムで確認</a></li>
+<li><a href="http://qiita.com/7shi/items/88be5203769e629df243" id="reference-9fe983243928a65b1ddb">多元数の積の構成</a></li>
+</ol>
+
+<p>プログラムは <a href="https://bitbucket.org/7shi/math7/src/tip/Math7.Quaternion.fsx" rel="nofollow noopener" target="_blank">Math7.Quaternion.fsx</a> から抜粋して引用します。<a href="https://bitbucket.org/7shi/math7/src/tip/Math7.fsx" rel="nofollow noopener" target="_blank">Math7.fsx</a> など個別の依存ファイルについてはリポジトリを参照してください。</p>
+
+<ul>
+<li><a href="https://bitbucket.org/7shi/math7" class="autolink" rel="nofollow noopener" target="_blank">https://bitbucket.org/7shi/math7</a></li>
+</ul>
+
+<h1>
+<span id="複素数" class="fragment"></span><a href="#%E8%A4%87%E7%B4%A0%E6%95%B0"><i class="fa fa-link"></i></a>複素数</h1>
+
+<p>$\sqrt{-1}$ を $i$ と表記して虚数と呼びます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+i=\sqrt{-1} \\
+i^2=-1
+</pre></div></div>
+
+<p>実数と虚数の形式的な和を<strong>複素数</strong>と呼びます。複素数は $a,b$ という2つの実数により $a+bi$ と一般化できます。$b$ は $i$ の係数です。</p>
+
+<h2>
+<span id="積" class="fragment"></span><a href="#%E7%A9%8D"><i class="fa fa-link"></i></a>積</h2>
+
+<p>$i^2=-1$ にだけ注意すれば、通常の代数式と同じです。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">compStr</span> <span class="o">=</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="o">(</span><span class="k">fun</span> <span class="n">e</span> <span class="o">-&gt;</span> <span class="o">[|</span> <span class="s">""</span><span class="o">;</span> <span class="s">"i"</span> <span class="o">|].[</span><span class="n">e</span><span class="o">])</span> <span class="o">&gt;&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strPower</span>
+<span class="k">let</span> <span class="nv">compProd</span> <span class="n">title</span> <span class="o">=</span>
+    <span class="nn">Term</span><span class="p">.</span><span class="n">showProd</span> <span class="n">title</span> <span class="s">""</span> <span class="n">compStr</span>
+        <span class="o">(</span><span class="k">function</span>
+        <span class="o">|</span> <span class="o">[</span><span class="n">x</span><span class="o">;</span> <span class="n">y</span><span class="o">]</span> <span class="k">when</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="n">term</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="o">|</span> <span class="n">es</span> <span class="o">-&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">fromE</span> <span class="n">es</span><span class="o">)</span>
+        <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span>
+<span class="k">let</span> <span class="nv">ca</span> <span class="o">=</span> <span class="o">[</span><span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">);</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_1"</span><span class="o">],</span> <span class="o">[</span><span class="mi">1</span><span class="o">])]</span>
+<span class="k">let</span> <span class="nv">cb</span> <span class="o">=</span> <span class="o">[</span><span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"b_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">);</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"b_1"</span><span class="o">],</span> <span class="o">[</span><span class="mi">1</span><span class="o">])]</span>
+<span class="n">compProd</span> <span class="s">"## 積"</span> <span class="n">ca</span> <span class="n">cb</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i)(b_0+b_1i) \\
+&amp;=a_0(b_0+b_1i) \\
+&amp;\quad +a_1i(b_0+b_1i) \\
+&amp;=a_0b_0+a_0b_1i \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1) \\
+&amp;\quad +(a_0b_1+a_1b_0)i \\
+\end{align}
+</pre></div></div>
+
+<h2>
+<span id="共役" class="fragment"></span><a href="#%E5%85%B1%E5%BD%B9"><i class="fa fa-link"></i></a>共役</h2>
+
+<p>複素数 $a+bi$ の虚数の符号を反転した $a-bi$ を<strong>共役複素数</strong>（複素共役）と呼びます。</p>
+
+<p>共役複素数は ${}^*$ で表します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">conj</span> <span class="o">(</span><span class="n">ts</span><span class="o">:</span><span class="n">term</span> <span class="kt">list</span><span class="o">)</span> <span class="o">=</span>
+    <span class="n">ts</span> <span class="o">|&gt;</span> <span class="nn">List</span><span class="p">.</span><span class="n">map</span> <span class="o">(</span><span class="k">fun</span> <span class="n">t</span> <span class="o">-&gt;</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">E</span> <span class="o">=</span> <span class="bp">[]</span> <span class="k">then</span> <span class="n">t</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">t</span><span class="o">)</span>
+<span class="n">printfn</span> <span class="s">"(%s)^*=%s"</span> <span class="o">(</span><span class="nn">Term</span><span class="p">.</span><span class="n">strs</span> <span class="n">compStr</span> <span class="n">ca</span><span class="o">)</span> <span class="o">(</span><span class="n">conj</span> <span class="n">ca</span> <span class="o">|&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strs</span> <span class="n">compStr</span><span class="o">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a_0+a_1i)^*=a_0-a_1i
+</pre></div></div>
+
+<h2>
+<span id="ノルム" class="fragment"></span><a href="#%E3%83%8E%E3%83%AB%E3%83%A0"><i class="fa fa-link"></i></a>ノルム</h2>
+
+<p>共役複素数に複素数を掛ければ、係数の二乗を足した値が得られます。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="n">compProd</span> <span class="s">"## ノルム"</span> <span class="o">(</span><span class="n">conj</span> <span class="n">ca</span><span class="o">)</span> <span class="n">ca</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0-a_1i)(a_0+a_1i) \\
+&amp;=a_0(a_0+a_1i) \\
+&amp;\quad -a_1i(a_0+a_1i) \\
+&amp;=a_0^2+a_0a_1i \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{-1} \\
+&amp;=a_0^2+a_1^2 \\
+\end{align}
+</pre></div></div>
+
+<p>※ 共役の順番が後でも結果は同じですが、一般的に共役を先に出します。</p>
+
+<p>ピタゴラスの定理 $a^2+b^2=c^2$ より、この平方根は長さを表すと考えられ<strong>ノルム</strong>と呼ばれます。</p>
+
+<h1>
+<span id="ケーリーディクソンの構成法" class="fragment"></span><a href="#%E3%82%B1%E3%83%BC%E3%83%AA%E3%83%BC%E3%83%87%E3%82%A3%E3%82%AF%E3%82%BD%E3%83%B3%E3%81%AE%E6%A7%8B%E6%88%90%E6%B3%95"><i class="fa fa-link"></i></a>ケーリー=ディクソンの構成法</h1>
+
+<p>今まで複素数の係数は実数に制限していましたが、これを複素数にすることを考えます。</p>
+
+<p>2つの複素数 $z,w$ を定義します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\left\{
+\begin{align}
+z &amp;= a+bi \\
+w &amp;= c+di
+\end{align}
+\right.
+</pre></div></div>
+
+<p>これを $z+wi$ に入れてみると、結果は複素数に収まります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+z+wi
+&amp;=(a+bi)+(c+di)i \\
+&amp;=a+bi+ci-d \\
+&amp;=(a-d)+(b+c)i
+\end{align}
+</pre></div></div>
+
+<p>内側（係数）の複素数単位 $i$ と区別するため、外側の複素数単位を $j$ とおいて再度計算します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+z+wj
+&amp;=(a+bi)+(c+di)j \\
+&amp;=a+bi+cj+dij
+\end{align}
+</pre></div></div>
+
+<p>$ij$ をまた別の虚数単位 $k$ とすれば、四元数（とその亜種）が得られます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a+bi)+(c+di)j=a+bi+cj+dk
+</pre></div></div>
+
+<p>このように複素数をネスト（入れ子）にして新しい数体系を作り出す方法を<strong>ケーリー=ディクソンの構成法</strong>と呼びます。</p>
+
+<h2>
+<span id="三元数" class="fragment"></span><a href="#%E4%B8%89%E5%85%83%E6%95%B0"><i class="fa fa-link"></i></a>三元数</h2>
+
+<p>【注】三元数がうまく定義できないことについての紹介です。</p>
+
+<p>$i$ とは別に、虚数単位 $j$ を導入します。$j$ は $i$ とは異なる虚数単位ですが、虚数としての共通性から二乗すれば $-1$ になると定義します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+i^2=j^2=-1
+</pre></div></div>
+
+<p>$i$ と $j$ を使えば三元数 $a+bi+cj$ になりそうです。しかしこのように構成した三元数の積を計算すると、組み合わせから $ij$ が出て来てしまいます。$ij$ は $i$ とも $j$ とも異なり、三元数の枠からはみ出した存在です。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="nn">Term</span><span class="p">.</span><span class="n">showProd</span> <span class="s">"## 積"</span> <span class="s">""</span>
+    <span class="o">(</span><span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="o">(</span><span class="k">fun</span> <span class="n">e</span> <span class="o">-&gt;</span> <span class="o">[</span><span class="s">""</span><span class="o">;</span> <span class="s">"i"</span><span class="o">;</span> <span class="s">"j"</span><span class="o">].[</span><span class="n">e</span><span class="o">])</span> <span class="o">&gt;&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strPower</span><span class="o">)</span>
+    <span class="o">(</span><span class="k">function</span>
+    <span class="o">|</span> <span class="o">[</span><span class="n">x</span><span class="o">;</span> <span class="n">y</span><span class="o">]</span> <span class="k">when</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="n">term</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="o">|</span> <span class="o">[</span><span class="mi">2</span><span class="o">;</span> <span class="mi">1</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="mi">2</span><span class="o">])</span>
+    <span class="o">|</span> <span class="n">es</span> <span class="o">-&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">fromE</span> <span class="n">es</span><span class="o">)</span>
+    <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span>
+    <span class="o">(</span><span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">)::[</span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">2</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="n">sprintf</span> <span class="s">"a_%d"</span> <span class="n">i</span><span class="o">],</span> <span class="o">[</span><span class="n">i</span><span class="o">])])</span>
+    <span class="o">(</span><span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"b_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">)::[</span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">2</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="n">sprintf</span> <span class="s">"b_%d"</span> <span class="n">i</span><span class="o">],</span> <span class="o">[</span><span class="n">i</span><span class="o">])])</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j)(b_0+b_1i+b_2j) \\
+&amp;=a_0(b_0+b_1i+b_2j) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2ij \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{ij}+a_2b_2\underbrace{j^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2) \\
+&amp;\quad +(a_0b_1+a_1b_0)i \\
+&amp;\quad +(a_1b_2+a_2b_1)ij \\
+&amp;\quad +(a_0b_2+a_2b_0)j \\
+\end{align}
+</pre></div></div>
+
+<p>これは三元数の積は三元数で表現できないことを意味しており、「三元数は積について閉じていない」と表現します。</p>
+
+<p>$ij$ は別の虚数単位で四元数へとつながります。四元数を発見したハミルトンも初めは三元数を研究していましたが、積がうまく定義できずに相当悩んだそうです。そして最終的には三元数は断念して四元数の発見へと至ります。</p>
+
+<h1>
+<span id="双複素数" class="fragment"></span><a href="#%E5%8F%8C%E8%A4%87%E7%B4%A0%E6%95%B0"><i class="fa fa-link"></i></a>双複素数</h1>
+
+<p>【注】四元数ではありませんが、分かりやすさから最初に紹介します。</p>
+
+<p>$i$ とは別に、虚数単位 $j$ を導入します。$j$ は $i$ とは異なる虚数単位ですが、虚数としての共通性から二乗すれば $-1$ になると定義します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+i^2=j^2=-1
+</pre></div></div>
+
+<p>$i$ と $j$ を使って複素数をネストさせ $ij=k$ とします。（ケーリー=ディクソンの構成法）</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a+bi)+(c+di)j \\
+&amp;=a+bi+cj+dij \\
+&amp;=a+bi+cj+dk
+\end{align}
+</pre></div></div>
+
+<p>$i^2=j^2=-1$ と $ij=k$ から $k^2$ が求まります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\underbrace{ij=k}_{両辺を二乗} \\
+\underbrace{i^2}_{-1}\underbrace{j^2}_{-1}=k^2 \\
+k^2=1
+</pre></div></div>
+
+<p>※ 後で出て来る四元数とは異なり、積は可換です。通常の文字と同じように扱っても大丈夫です。</p>
+
+<p>この結果を受け入れれば、$k$ は二乗すれば $1$ になる虚数だということになります。このようにして構成した数を<strong>双複素数</strong>と呼びます。これはハミルトンが発見した四元数とは別物で、1892年にセグレによって導入されました。</p>
+
+<p>※ この記事では四元数と対応させるため文字の割り当てを $i,j,ij=k$ としていますが、セグレは $h,i,hi$ を使用しました。</p>
+
+<p>ここまでに出て来た関係から、他の組み合わせも導けます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+j\underbrace{k}_{ij}&amp;=\underbrace{j^2}_{1}i=-i \\
+\underbrace{k}_{ij}i&amp;=\underbrace{i^2}_{-1}j=-j \\
+\underbrace{ij}_{k}k&amp;=k^2=1
+\end{align}
+</pre></div></div>
+
+<p>まとめれば次の通りです。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+i^2=j^2=-1,\ k^2=1,\ ijk=1 \\
+ij=ji=k,\ jk=kj=-i,\ ki=ik=-j
+</pre></div></div>
+
+<p>複素数を2つ組み合わせたことから、2次の複素ベクトルに対応します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a+bi)+(c+di)j=\left(\begin{matrix}a+bi \\ c+di\end{matrix}\right)
+</pre></div></div>
+
+<h2>
+<span id="積-1" class="fragment"></span><a href="#%E7%A9%8D-1"><i class="fa fa-link"></i></a>積</h2>
+
+<p>双複素数の積は双複素数で表すことができます。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">ijk</span> <span class="o">=</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="o">(</span><span class="k">fun</span> <span class="n">e</span> <span class="o">-&gt;</span> <span class="o">[</span><span class="s">""</span><span class="o">;</span> <span class="s">"i"</span><span class="o">;</span> <span class="s">"j"</span><span class="o">;</span> <span class="s">"k"</span><span class="o">].[</span><span class="n">e</span><span class="o">])</span> <span class="o">&gt;&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strPower</span>
+<span class="k">let</span> <span class="nv">dcompProdE</span> <span class="o">=</span> <span class="k">function</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="mi">1</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">2</span><span class="o">;</span> <span class="mi">2</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span> <span class="o">-</span><span class="mi">1</span>            <span class="c1">// ii=jj=-1</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">3</span><span class="o">;</span> <span class="mi">3</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">.</span><span class="n">One</span>                    <span class="c1">// kk=1</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="mi">2</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">2</span><span class="o">;</span> <span class="mi">1</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="mi">3</span><span class="o">])</span>  <span class="c1">// ij=ji=k</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">2</span><span class="o">;</span> <span class="mi">3</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">3</span><span class="o">;</span> <span class="mi">2</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(-</span><span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="mi">1</span><span class="o">])</span>  <span class="c1">// jk=kj=-i</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">3</span><span class="o">;</span> <span class="mi">1</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="mi">3</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(-</span><span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="mi">2</span><span class="o">])</span>  <span class="c1">// ki=ik=-j</span>
+<span class="o">|</span> <span class="n">es</span> <span class="o">-&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">fromE</span> <span class="n">es</span>
+<span class="k">let</span> <span class="nv">dcompProd</span> <span class="n">title</span> <span class="o">=</span>
+    <span class="nn">Term</span><span class="p">.</span><span class="n">showProd</span> <span class="n">title</span> <span class="s">""</span> <span class="n">ijk</span> <span class="n">dcompProdE</span> <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span>
+<span class="k">let</span> <span class="nv">qa</span> <span class="o">=</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">)::[</span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">3</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="n">sprintf</span> <span class="s">"a_%d"</span> <span class="n">i</span><span class="o">],</span> <span class="o">[</span><span class="n">i</span><span class="o">])]</span>
+<span class="k">let</span> <span class="nv">qb</span> <span class="o">=</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"b_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">)::[</span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">3</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="n">sprintf</span> <span class="s">"b_%d"</span> <span class="n">i</span><span class="o">],</span> <span class="o">[</span><span class="n">i</span><span class="o">])]</span>
+<span class="n">dcompProd</span> <span class="s">"## 積"</span> <span class="n">qa</span> <span class="n">qb</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{-i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{-j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2+a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0-a_2b_3-a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0-a_1b_3-a_3b_1)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2+a_2b_1)k \\
+\end{align}
+</pre></div></div>
+
+<h2>
+<span id="共役-1" class="fragment"></span><a href="#%E5%85%B1%E5%BD%B9-1"><i class="fa fa-link"></i></a>共役</h2>
+
+<p>共役はケーリー=ディクソン構成の段階で $j$ の符号を反転させます。$ij=k$ のため $k$ の符号も反転します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">dcompConj</span> <span class="o">(</span><span class="n">ts</span><span class="o">:</span><span class="n">term</span> <span class="kt">list</span><span class="o">)</span> <span class="o">=</span>
+    <span class="n">ts</span> <span class="o">|&gt;</span> <span class="nn">List</span><span class="p">.</span><span class="n">map</span> <span class="o">(</span><span class="k">fun</span> <span class="n">t</span> <span class="o">-&gt;</span> <span class="k">match</span> <span class="n">t</span><span class="o">.</span><span class="n">E</span> <span class="k">with</span> <span class="o">[</span><span class="mi">2</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">3</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">t</span> <span class="o">|</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="n">t</span><span class="o">)</span>
+<span class="n">printfn</span> <span class="s">"(%s)^*=%s"</span> <span class="o">(</span><span class="nn">Term</span><span class="p">.</span><span class="n">strs</span> <span class="n">ijk</span> <span class="n">qa</span><span class="o">)</span> <span class="o">(</span><span class="n">dcompConj</span> <span class="n">qa</span> <span class="o">|&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strs</span> <span class="n">ijk</span><span class="o">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a_0+a_1i+a_2j+a_3k)^*=a_0+a_1i-a_2j-a_3k
+</pre></div></div>
+
+<h2>
+<span id="ノルム-1" class="fragment"></span><a href="#%E3%83%8E%E3%83%AB%E3%83%A0-1"><i class="fa fa-link"></i></a>ノルム</h2>
+
+<p>共役との積でノルムの二乗を計算します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="n">dcompProd</span> <span class="s">"## ノルム"</span> <span class="o">(</span><span class="n">dcompConj</span> <span class="n">qa</span><span class="o">)</span> <span class="n">qa</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad +a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad +a_1a_0i+a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{k}-a_2^2\underbrace{j^2}_{-1}-a_2a_3\underbrace{jk}_{-i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{-j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{1} \\
+&amp;=(a_0^2-a_1^2+a_2^2-a_3^2) \\
+&amp;\quad +2(a_0a_1+a_2a_3)i \\
+\end{align}
+</pre></div></div>
+
+<p>他の数ではノルムの二乗は実数ですが、双複素数では虚数 $i$ が残ります。</p>
+
+<p>この計算は複雑なようですが、もう少し簡単に考えることができます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;\{(a_0+a_1i)+(a_2+a_3i)j\}^*\{(a_0+a_1i)+(a_2+a_3i)j\} \\
+&amp;=\{(a_0+a_1i)-(a_2+a_3i)j\}\{(a_0+a_1i)+(a_2+a_3i)j\} \\
+&amp;=(a_0+a_1i)^2+(a_2+a_3i)^2
+\end{align}
+</pre></div></div>
+
+<p>この形を前提にノルムが定義されていると思われます。</p>
+
+<p>共役の作り方を変えてみても、実数だけにすることはできません。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">showProd</span> <span class="n">f</span> <span class="n">g</span> <span class="n">a</span> <span class="n">b</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">sa</span> <span class="o">=</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strs</span> <span class="n">f</span> <span class="n">a</span> <span class="o">|&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">bracket</span>
+    <span class="k">let</span> <span class="nv">sb</span> <span class="o">=</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strs</span> <span class="n">f</span> <span class="n">b</span> <span class="o">|&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">bracket</span>
+    <span class="k">if</span> <span class="n">sa</span> <span class="o">=</span> <span class="n">sb</span> <span class="k">then</span> <span class="n">printf</span> <span class="s">@"&amp;%s^2="</span> <span class="n">sa</span> <span class="k">else</span> <span class="n">printf</span> <span class="s">@"&amp;%s%s="</span> <span class="n">sa</span> <span class="n">sb</span>
+    <span class="k">let</span> <span class="nv">d</span> <span class="o">=</span>
+        <span class="nn">Term</span><span class="p">.</span><span class="n">prods</span> <span class="n">g</span> <span class="n">a</span> <span class="n">b</span>
+        <span class="o">|&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">simplify</span>
+        <span class="o">|&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">sort</span> <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span>
+    <span class="n">d</span> <span class="o">|&gt;</span> <span class="nn">List</span><span class="p">.</span><span class="n">iteri</span> <span class="o">(</span><span class="k">fun</span> <span class="n">i</span> <span class="n">d1</span> <span class="o">-&gt;</span>
+        <span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="nn">Term</span><span class="p">.</span><span class="n">str3</span> <span class="n">f</span> <span class="n">d1</span>
+        <span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">Length</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">then</span> <span class="nn">Term</span><span class="p">.</span><span class="n">unbracket</span> <span class="n">s</span> <span class="k">else</span> <span class="n">s</span>
+        <span class="n">printf</span> <span class="s">"%s"</span> <span class="o">&lt;|</span> <span class="k">if</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">then</span> <span class="n">s</span> <span class="k">else</span> <span class="nn">Term</span><span class="p">.</span><span class="n">addSign</span> <span class="n">s</span><span class="o">)</span>
+    <span class="n">printfn</span> <span class="s">@" \\"</span>
+<span class="k">for</span> <span class="n">x</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="o">-</span><span class="mi">1</span><span class="o">]</span> <span class="k">do</span>
+    <span class="k">for</span> <span class="n">y</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="o">-</span><span class="mi">1</span><span class="o">]</span> <span class="k">do</span>
+        <span class="k">for</span> <span class="n">z</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="o">-</span><span class="mi">1</span><span class="o">]</span> <span class="k">do</span>
+            <span class="k">let</span> <span class="nv">a</span> <span class="o">=</span> <span class="o">[</span><span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_0"</span><span class="o">],</span> <span class="o">[</span> <span class="o">])</span>
+                     <span class="n">term</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_1"</span><span class="o">],</span> <span class="o">[</span><span class="mi">1</span><span class="o">])</span>
+                     <span class="n">term</span><span class="o">(</span><span class="n">y</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_2"</span><span class="o">],</span> <span class="o">[</span><span class="mi">2</span><span class="o">])</span>
+                     <span class="n">term</span><span class="o">(</span><span class="n">z</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_3"</span><span class="o">],</span> <span class="o">[</span><span class="mi">3</span><span class="o">])]</span>
+            <span class="n">showProd</span> <span class="n">ijk</span> <span class="n">dcompProdE</span> <span class="n">a</span> <span class="n">qa</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)^2=(a_0^2-a_1^2-a_2^2+a_3^2)+2(a_0a_1-a_2a_3)i+2(a_0a_2-a_1a_3)j+2(a_0a_3+a_1a_2)k \\
+&amp;(a_0+a_1i+a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2-a_1^2-a_2^2-a_3^2)+2a_0a_1i+2a_0a_2j+2a_1a_2k \\
+&amp;(a_0+a_1i-a_2j+a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2-a_1^2+a_2^2+a_3^2)+2a_0a_1i-2a_1a_3j+2a_0a_3k \\
+&amp;(a_0+a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2-a_1^2+a_2^2-a_3^2)+2(a_0a_1+a_2a_3)i \\
+&amp;(a_0-a_1i+a_2j+a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2-a_2^2+a_3^2)-2a_2a_3i+2a_0a_2j+2a_0a_3k \\
+&amp;(a_0-a_1i+a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2-a_2^2-a_3^2)+2(a_0a_2+a_1a_3)j \\
+&amp;(a_0-a_1i-a_2j+a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2+a_2^2+a_3^2)+2(a_0a_3-a_1a_2)k \\
+&amp;(a_0-a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2+a_2^2-a_3^2)+2a_2a_3i+2a_1a_3j-2a_1a_2k \\
+\end{align}
+</pre></div></div>
+
+<p>こういう手計算だと手間が掛かることでも簡単に確認できるのがプログラムの良い所です。</p>
+
+<h2>
+<span id="テッサリン" class="fragment"></span><a href="#%E3%83%86%E3%83%83%E3%82%B5%E3%83%AA%E3%83%B3"><i class="fa fa-link"></i></a>テッサリン</h2>
+
+<p>双複素数の亜種で、数学的には同型（できることは同じ）です。</p>
+
+<p>双複素数では $i^2=j^2=-1$ と定義しましたが、$j$ より先に $k$ について $i^2=k^2=-1$ と定義したのが<strong>テッサリン</strong>です。歴史的には双複素数より先で、1848年にコックルによって導入されました。</p>
+
+<p>$i^2=k^2=-1$ と $ij=k$ から $j^2$ が求まります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\underbrace{ij=k}_{両辺を二乗} \\
+\underbrace{i^2}_{-1}j^2=\underbrace{k^2}_{-1} \\
+j^2=1
+</pre></div></div>
+
+<p>ここまでに出て来た関係から、他の組み合わせも導けます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+j\underbrace{k}_{ij}&amp;=\underbrace{j^2}_{1}i=i \\
+\underbrace{k}_{ij}i&amp;=\underbrace{i^2}_{-1}j=-j \\
+\underbrace{ij}_{k}k&amp;=k^2=-1
+\end{align}
+</pre></div></div>
+
+<p>まとめれば次の通りです。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+i^2=k^2=-1,\ j^2=1,\ ijk=-1 \\
+ij=ji=k,\ jk=kj=i,\ ki=ik=-j
+</pre></div></div>
+
+<p>このような定義にした理由は以下の2つではないかと推測します。</p>
+
+<ol>
+<li>元 $1,i,j,k$ をそれぞれ2乗すれば $1,-1,1,-1$ となる。これは $1,-1$ の繰り返しで、$1,i$ と $j,k$ を対として見なせる。</li>
+<li>可換であることを除いては $ijk=-1,ij=k,jk=i$ など四元数に似ている。</li>
+</ol>
+
+<h3>
+<span id="積とノルム" class="fragment"></span><a href="#%E7%A9%8D%E3%81%A8%E3%83%8E%E3%83%AB%E3%83%A0"><i class="fa fa-link"></i></a>積とノルム</h3>
+
+<p>積とノルムを確認しておきます。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">tessProdE</span> <span class="o">=</span> <span class="k">function</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="mi">1</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">3</span><span class="o">;</span> <span class="mi">3</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span> <span class="o">-</span><span class="mi">1</span>            <span class="c1">// ii=kk=-1</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">2</span><span class="o">;</span> <span class="mi">2</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">.</span><span class="n">One</span>                    <span class="c1">// jj=1</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="mi">2</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">2</span><span class="o">;</span> <span class="mi">1</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="mi">3</span><span class="o">])</span>  <span class="c1">// ij=ji=k</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">2</span><span class="o">;</span> <span class="mi">3</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">3</span><span class="o">;</span> <span class="mi">2</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="mi">1</span><span class="o">])</span>  <span class="c1">// jk=kj=i</span>
+<span class="o">|</span> <span class="o">[</span><span class="mi">3</span><span class="o">;</span> <span class="mi">1</span><span class="o">]</span> <span class="o">|</span> <span class="o">[</span><span class="mi">1</span><span class="o">;</span> <span class="mi">3</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(-</span><span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="mi">2</span><span class="o">])</span>  <span class="c1">// ki=ik=-j</span>
+<span class="o">|</span> <span class="n">es</span> <span class="o">-&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">fromE</span> <span class="n">es</span>
+<span class="k">let</span> <span class="nv">tessProd</span> <span class="n">title</span> <span class="o">=</span>
+    <span class="nn">Term</span><span class="p">.</span><span class="n">showProd</span> <span class="n">title</span> <span class="s">""</span> <span class="n">ijk</span> <span class="n">tessProdE</span> <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span>
+<span class="n">tessProd</span> <span class="s">"## 積"</span> <span class="n">qa</span> <span class="n">qb</span>
+<span class="n">tessProd</span> <span class="s">"## ノルム"</span> <span class="o">(</span><span class="n">dcompConj</span> <span class="n">qa</span><span class="o">)</span> <span class="n">qa</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{k}+a_2b_2\underbrace{j^2}_{1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{-j}+a_3b_2\underbrace{kj}_{i}+a_3b_3\underbrace{k^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1+a_2b_2-a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3+a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0-a_1b_3-a_3b_1)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2+a_2b_1)k \\
+\end{align}
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad +a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad +a_1a_0i+a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{k}-a_2^2\underbrace{j^2}_{1}-a_2a_3\underbrace{jk}_{i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{-j}-a_3a_2\underbrace{kj}_{i}-a_3^2\underbrace{k^2}_{-1} \\
+&amp;=(a_0^2-a_1^2-a_2^2+a_3^2) \\
+&amp;\quad +2(a_0a_1-a_2a_3)i \\
+\end{align}
+</pre></div></div>
+
+<h2>
+<span id="可換四元数可換超複素数" class="fragment"></span><a href="#%E5%8F%AF%E6%8F%9B%E5%9B%9B%E5%85%83%E6%95%B0%E5%8F%AF%E6%8F%9B%E8%B6%85%E8%A4%87%E7%B4%A0%E6%95%B0"><i class="fa fa-link"></i></a>可換四元数（可換超複素数）</h2>
+
+<p>双複素数やテッサリンは四元数と同じ記号 $i,j,k$ を使っていることから<strong>可換四元数（可換超複素数）</strong>と呼ばれることがあります。</p>
+
+<p>※ 後で見ますが、四元数では交換法則が成り立たない（非可換）ことと対比した名称です。</p>
+
+<p>次の論文ではテッサリンを可換四元数と呼んでいます。</p>
+
+<ul>
+<li><a href="https://arxiv.org/abs/1306.6009" rel="nofollow noopener" target="_blank">Commutative Quaternion Matrices</a></li>
+</ul>
+
+<p>少し違う定義で再発明されることもあるようですが、これも同型です。</p>
+
+<ul>
+<li><a href="http://xelf.info/knowledge/quaternion.html" rel="nofollow noopener" target="_blank">Commutative Quaternion</a></li>
+</ul>
+
+<h2>
+<span id="応用" class="fragment"></span><a href="#%E5%BF%9C%E7%94%A8"><i class="fa fa-link"></i></a>応用</h2>
+
+<p>双複素数やテッサリンはあまり研究が進んでいませんが、いくつか紹介します。</p>
+
+<p>双複素数を特殊相対論に使う研究があります。</p>
+
+<ul>
+<li>
+<a href="http://link.springer.com/chapter/10.1007%2F978-1-4615-8157-4_14" rel="nofollow noopener" target="_blank">A Commutative Hypercomplex Algebra with Associated Function Theory</a>（<a href="https://books.google.co.jp/books?id=UqbwBwAAQBAJ&amp;lpg=PP1&amp;hl=ja&amp;pg=PA213#v=onepage&amp;q&amp;f=false" rel="nofollow noopener" target="_blank">プレビュー</a>）</li>
+<li><a href="http://www.amazon.co.jp/dp/B00KTHC980" rel="nofollow noopener" target="_blank">The Mathematics of Minkowski Space-Time: With an Introduction to Commutative Hypercomplex Numbers</a></li>
+</ul>
+
+<p>テッサリンをデジタル信号処理に使う研究があります。</p>
+
+<ul>
+<li>【PDF】 <a href="http://www.eurasip.org/Proceedings/Eusipco/Eusipco2006/papers/1568981962.pdf" rel="nofollow noopener" target="_blank">On Families of 2^N-dimensional Hypercomplex Algebras Suitable for Digital Signal Processing</a>
+</li>
+<li>【PDF】 <a href="http://www.dsv.rub.de/imperia/md/content/public/eusipco2007_hyperbolic.pdf" rel="nofollow noopener" target="_blank">On Hyperbolic Complex LTI Digital Systems</a>
+</li>
+</ul>
+
+<p>ニューラルネットワークに使う研究があります。有料記事のため詳細は不明ですが、<a href="https://staff.aist.go.jp/tohru-nitta/jCNN.html" rel="nofollow noopener" target="_blank">複素ニューラルネットワーク</a>の応用だと思われます。</p>
+
+<ul>
+<li><a href="http://ci.nii.ac.jp/naid/110008800912" rel="nofollow noopener" target="_blank">CiNii 論文 -  可換クォータニオンに基づく多値ホップフィールドニューラルネットワーク(知的システム,一般)</a></li>
+</ul>
+
+<h1>
+<span id="分解型複素数" class="fragment"></span><a href="#%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0"><i class="fa fa-link"></i></a>分解型複素数</h1>
+
+<p>テッサリンから $j$ だけを残したのが<strong>分解型複素数</strong>です。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+a+bj\quad(j^2=1)
+</pre></div></div>
+
+<p>テッサリンの亜種として<strong>実テッサリン</strong>と呼ばれることもあります。それ以外にも<strong>双曲複素数</strong>など多くの別称があります。興味があれば<a href="https://ja.wikipedia.org/wiki/%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0#.E5.88.A5.E7.A7.B0" rel="nofollow noopener" target="_blank">Wikipedia</a>を参照してください。</p>
+
+<h2>
+<span id="積-2" class="fragment"></span><a href="#%E7%A9%8D-2"><i class="fa fa-link"></i></a>積</h2>
+
+<p>積が閉じていることを確認します。プログラムはテッサリンの関数が流用できます。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">spca</span> <span class="o">=</span> <span class="o">[</span><span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">);</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_1"</span><span class="o">],</span> <span class="o">[</span><span class="mi">2</span><span class="o">])]</span>
+<span class="k">let</span> <span class="nv">spcb</span> <span class="o">=</span> <span class="o">[</span><span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"b_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">);</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"b_1"</span><span class="o">],</span> <span class="o">[</span><span class="mi">2</span><span class="o">])]</span>
+<span class="n">tessProd</span> <span class="s">"## 積"</span> <span class="n">spca</span> <span class="n">spcb</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1j)(b_0+b_1j) \\
+&amp;=a_0(b_0+b_1j) \\
+&amp;\quad +a_1j(b_0+b_1j) \\
+&amp;=a_0b_0+a_0b_1j \\
+&amp;\quad +a_1b_0j+a_1b_1\underbrace{j^2}_{1} \\
+&amp;=(a_0b_0+a_1b_1) \\
+&amp;\quad +(a_0b_1+a_1b_0)j \\
+\end{align}
+</pre></div></div>
+
+<h2>
+<span id="共役-2" class="fragment"></span><a href="#%E5%85%B1%E5%BD%B9-2"><i class="fa fa-link"></i></a>共役</h2>
+
+<p>共役は虚部の符号反転です。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a+bj)^*=a-bj
+</pre></div></div>
+
+<h2>
+<span id="ノルム-2" class="fragment"></span><a href="#%E3%83%8E%E3%83%AB%E3%83%A0-2"><i class="fa fa-link"></i></a>ノルム</h2>
+
+<p>共役との積でノルムの2乗を求めます。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="n">tessProd</span> <span class="s">"## ノルム"</span> <span class="o">(</span><span class="n">dcompConj</span> <span class="n">spca</span><span class="o">)</span> <span class="n">spca</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0-a_1j)(a_0+a_1j) \\
+&amp;=a_0(a_0+a_1j) \\
+&amp;\quad -a_1j(a_0+a_1j) \\
+&amp;=a_0^2+a_0a_1j \\
+&amp;\quad -a_1a_0j-a_1^2\underbrace{j^2}_{1} \\
+&amp;=a_0^2-a_1^2 \\
+\end{align}
+</pre></div></div>
+
+<p>これは $(+,−)$ 型のミンコフスキーノルムです。このようにノルムの符号が真ん中で別れることが<strong>分解型</strong>と呼ばれる由来です。空間を1次元に制限したローレンツ変換などに使われたようです。</p>
+
+<h1>
+<span id="四元数" class="fragment"></span><a href="#%E5%9B%9B%E5%85%83%E6%95%B0"><i class="fa fa-link"></i></a>四元数</h1>
+
+<p>この節では、1843年にハミルトンが発見した通常の四元数を紹介します。何年もの研究の末、ダブリンのブルーム橋を渡っているときに閃いたという逸話があります。</p>
+
+<p>$i$ と $j$ を使って複素数をネストさせ $ij=k$ とします。（ケーリー=ディクソンの構成法）</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a+bi)+(c+di)j \\
+&amp;=a+bi+cj+dij \\
+&amp;=a+bi+cj+dk
+\end{align}
+</pre></div></div>
+
+<p>$i,j,k$ を対等な虚数とするため $i^2=j^2=k^2=-1$ と定義します。</p>
+
+<p>定義から $ijk=kk=-1$ となります。</p>
+
+<h2>
+<span id="反交換性" class="fragment"></span><a href="#%E5%8F%8D%E4%BA%A4%E6%8F%9B%E6%80%A7"><i class="fa fa-link"></i></a>反交換性</h2>
+
+<p>双複素数では $k^2=1$ ですが、四元数では $k^2=-1$ となるため、どこか計算方法を変える必要があります。</p>
+
+<p>まず $k=ij$ の両辺を二乗して $k^2=(ij)^2$ とします。双複素数では交換法則が成り立っているため、右辺を $(ij)(ij)=i^2j^2$ と変形できます。$i^2=j^2=-1$ より $k^2=1$ となります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+【双複素数】\ k^2=(i\underbrace{j)(i}_{ij}j)=\underbrace{i^2}_{-1}\underbrace{j^2}_{-1}=1
+</pre></div></div>
+
+<p>それに対して四元数では交換法則を諦めて $ij=-ji$ とすることで $k^2=-1$ が成立します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+【四元数】\ k^2=(i\underbrace{j)(i}_{-ij}j)=-\underbrace{i^2}_{-1}\underbrace{j^2}_{-1}=-1
+</pre></div></div>
+
+<p>$ij=-ji$ は「積の因子を<strong>交換</strong>すれば符号が<strong>反</strong>転する」と解釈して<strong>反交換性</strong>と呼びます。</p>
+
+<p>※ 途中に出て来たマイナス符号を前に動かしていますが、反交換性を持つのは $i,j,k$ だけで係数には影響しません。</p>
+
+<h2>
+<span id="巡回性" class="fragment"></span><a href="#%E5%B7%A1%E5%9B%9E%E6%80%A7"><i class="fa fa-link"></i></a>巡回性</h2>
+
+<p>$ij$ 以外の組み合わせも確認します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+jk&amp;=j\underbrace{(ij)}_{-ji}=-\underbrace{(jj)}_{-1}i=i \\
+ki&amp;=\underbrace{(ij)}_{-ji}i=-j\underbrace{(ii)}_{-1}=j
+\end{align}
+</pre></div></div>
+
+<p>まとめれば $ij=k,\ jk=i,\ ki=j$ となります。</p>
+
+<p>この組み合わせをよく見ると、式の要素を順番に回していることが分かります。</p>
+
+<ul>
+<li>①②=③ → ②③=① → ③①=②</li>
+</ul>
+
+<p>このような性質を<strong>巡回性</strong>と呼びます。</p>
+
+<p>$jk, ki$ は反交換性を持ちます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+kj=(ij)j=i\underbrace{(jj)}_{-1}=-i \\
+ik=i(ij)=\underbrace{(ii)}_{-1}j=-j
+\end{align}
+</pre></div></div>
+
+<p>次のようにまとめれば巡回性と反交換性の両方を示せます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+ij=-ji=k,\ jk=-kj=i,\ ki=-ik=j
+</pre></div></div>
+
+<h2>
+<span id="覚え方" class="fragment"></span><a href="#%E8%A6%9A%E3%81%88%E6%96%B9"><i class="fa fa-link"></i></a>覚え方</h2>
+
+<p>実用上は巡回性と反交換性を覚えておけば、他の関係は作れます。</p>
+
+<ol>
+<li>二乗すれば $-1$ となる虚数が3つある： $i^2=j^2=k^2=-1$</li>
+<li>$i,j,k$ には $ij=k$ の関係がある： $ijk=kk=-1$</li>
+<li>巡回性より： $ij=k\ →\ jk=i\ →\ ki=j$</li>
+<li>反交換性より： $ij=-ji,\ jk=-kj,\ ki=-ik$</li>
+</ol>
+
+<p>まとめれば次のようになります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+i^2=j^2=k^2=ijk=-1 \\
+ij=-ji=k,\ jk=-kj=i,\ ki=-ik=j
+</pre></div></div>
+
+<p>この結果だけ覚えるよりも、上記の手順でいつでも作れるようにしておくと良いでしょう。</p>
+
+<h3>
+<span id="乗積表" class="fragment"></span><a href="#%E4%B9%97%E7%A9%8D%E8%A1%A8"><i class="fa fa-link"></i></a>乗積表</h3>
+
+<p>考え方をプログラムで表現して乗積表を生成してみます。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">quatProdE</span> <span class="n">n</span> <span class="o">=</span> <span class="k">function</span>
+<span class="o">|</span> <span class="o">[</span><span class="n">x</span><span class="o">;</span> <span class="n">y</span><span class="o">]</span> <span class="k">when</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="n">term</span> <span class="n">n</span>
+<span class="o">|</span> <span class="o">[</span><span class="n">x</span><span class="o">;</span> <span class="n">y</span><span class="o">]</span> <span class="k">when</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span> <span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="n">y</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="o">])</span>
+<span class="o">|</span> <span class="o">[</span><span class="n">y</span><span class="o">;</span> <span class="n">x</span><span class="o">]</span> <span class="k">when</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(-</span><span class="mi">1</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="o">[</span><span class="n">y</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="o">])</span>
+<span class="o">|</span> <span class="n">es</span> <span class="o">-&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">fromE</span> <span class="n">es</span>
+<span class="k">for</span> <span class="n">x</span> <span class="k">in</span> <span class="o">{</span><span class="mi">0</span><span class="o">..</span><span class="mi">3</span><span class="o">}</span> <span class="k">do</span>
+    <span class="n">seq</span> <span class="o">{</span><span class="k">for</span> <span class="n">y</span> <span class="k">in</span> <span class="o">{</span><span class="mi">0</span><span class="o">..</span><span class="mi">3</span><span class="o">}</span> <span class="o">-&gt;</span> <span class="o">[</span><span class="n">x</span><span class="o">;</span> <span class="n">y</span><span class="o">]</span> <span class="o">|&gt;</span> <span class="nn">List</span><span class="p">.</span><span class="n">filter</span> <span class="o">((&lt;&gt;)</span> <span class="mi">0</span><span class="o">)}</span>
+    <span class="o">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="o">(</span><span class="n">quatProdE</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&gt;&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">str</span> <span class="n">ijk</span> <span class="o">&gt;&gt;</span> <span class="n">sprintf</span> <span class="s">"%2s"</span><span class="o">)</span>
+    <span class="o">|&gt;</span> <span class="nn">String</span><span class="p">.</span><span class="n">concat</span> <span class="s">" "</span>
+    <span class="o">|&gt;</span> <span class="n">printfn</span> <span class="s">"%s"</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+ 1  i  j  k
+ i -1  k -j
+ j -k -1  i
+ k  j -i -1
+</pre></div>
+</div>
+
+<h2>
+<span id="3次元ベクトル" class="fragment"></span><a href="#3%E6%AC%A1%E5%85%83%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB"><i class="fa fa-link"></i></a>3次元ベクトル</h2>
+
+<p>四元数の虚部は3次元ベクトルと同一視できます。実部と虚部で2次元を表す複素平面とは異なり、実部はベクトルの成分には割り当てません。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\vec{a}=\left(\begin{matrix}a_1\\a_2\\a_3\end{matrix}\right)=a_1i+a_2j+a_3k
+</pre></div></div>
+
+<p>四元数で表した3次元ベクトルの積を計算すれば、内積と外積（ベクトル積スタイル）が得られます。このような幾何学的な性質は双複素数では得られないものです。</p>
+
+<p>※ ベクトル積が得られる理由は $ij=k,\ jk=i,\ ki=j$ がベクトル積と同じ計算で、左辺と右辺がホッジ双対の関係になっているためです。</p>
+
+<p>プログラムで確認します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">quatProd</span> <span class="n">title</span> <span class="o">=</span>
+    <span class="nn">Term</span><span class="p">.</span><span class="n">showProd</span> <span class="n">title</span> <span class="s">""</span> <span class="n">ijk</span> <span class="o">(</span><span class="n">quatProdE</span> <span class="o">-</span><span class="mi">1</span><span class="o">)</span> <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span>
+<span class="n">quatProd</span> <span class="s">"## 積（ベクトル）"</span> <span class="o">(</span><span class="nn">List</span><span class="p">.</span><span class="n">tail</span> <span class="n">qa</span><span class="o">)</span> <span class="o">(</span><span class="nn">List</span><span class="p">.</span><span class="n">tail</span> <span class="n">qb</span><span class="o">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\vec{a}\vec{b}
+&amp;=(a_1i+a_2j+a_3k)(b_1i+b_2j+b_3k) \\
+&amp;=a_1i(b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_1i+b_2j+b_3k) \\
+&amp;=a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1} \\
+&amp;=-(\underbrace{a_1b_1+a_2b_2+a_3b_3}_{内積}) \\
+&amp;\quad +\underbrace{(a_2b_3-a_3b_2)i+(a_3b_1-a_1b_3)j+(a_1b_2-a_2b_1)k}_{外積} \\
+&amp;=-\underbrace{\vec{a}\cdot\vec{b}}_{内積}+\underbrace{\vec{a}×\vec{b}}_{外積}
+\end{align}
+</pre></div></div>
+
+<p>※ ベクトルとの対応関係は手作業で追記しています。</p>
+
+<p>実部に内積が現れることから、実部をスカラー、虚部をベクトルと呼ぶことの正当性が得られます。スカラーという用語には単なる数値としてだけでなく、不変量としての意味があります。</p>
+
+<p>スカラーとベクトルを分離すれば都合が良いですし、空間を扱うのにベクトルは3次元で充分なことから、複素平面と違って実部をベクトルの成分として扱う必要がないと考えられます。もし三元数がうまく定義できれば実部と虚部で3次元ベクトルを表せたでしょうし、それがハミルトンの狙いでもありましたが、うまくいかなかったのは前述の通りです。</p>
+
+<p>※ 実部と虚部で4次元を扱えないかについては、双曲四元数で後述します。</p>
+
+<h2>
+<span id="積-3" class="fragment"></span><a href="#%E7%A9%8D-3"><i class="fa fa-link"></i></a>積</h2>
+
+<p>積を確認します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="n">quatProd</span> <span class="s">"## 積"</span> <span class="n">qa</span> <span class="n">qb</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2-a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3-a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0+a_3b_1-a_1b_3)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2-a_2b_1)k \\
+\end{align}
+</pre></div></div>
+
+<p>この計算をスカラーとベクトルの和の積と見なせば、ごく普通の掛け算として構造が見えて来ます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+\vec{a})(b_0+\vec{b}) \\
+&amp;=a_0b_0+a_0\vec{b}+\vec{a}b_0+\vec{a}\vec{b} \\
+&amp;=\underbrace{a_0b_0}_{スカラー積}+\underbrace{a_0\vec{b}+b_0\vec{a}}_{スカラー倍}-\underbrace{\vec{a}\cdot\vec{b}}_{内積}+\underbrace{\vec{a}×\vec{b}}_{外積}
+\end{align}
+</pre></div></div>
+
+<p>$i$ の項を $a_0(b_1)i+b_0(a_1)i+(a_2b_3-a_3b_2)i$ と分離すれば、ベクトルのスカラー倍と外積が重なっていることが確認できます。</p>
+
+<p>この解釈では実部はベクトルの成分ではなく、ベクトルとして扱われるのは虚部の3次元です。実部まで含めた4次元ベクトルとしてうまく解釈できるかは不明です。</p>
+
+<h2>
+<span id="共役-3" class="fragment"></span><a href="#%E5%85%B1%E5%BD%B9-3"><i class="fa fa-link"></i></a>共役</h2>
+
+<p>虚部の符号を反転します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a+bi+cj+dk)^*=a-bi-cj-dk
+</pre></div></div>
+
+<p>※ 双複素数とは異なり $i$ まで反転します。</p>
+
+<h2>
+<span id="ノルム-3" class="fragment"></span><a href="#%E3%83%8E%E3%83%AB%E3%83%A0-3"><i class="fa fa-link"></i></a>ノルム</h2>
+
+<p>共役四元数と四元数の積からノルムの二乗を計算します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="n">quatProd</span> <span class="s">"## ノルム"</span> <span class="o">(</span><span class="n">conj</span> <span class="n">qa</span><span class="o">)</span> <span class="n">qa</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0-a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{-1}-a_1a_2\underbrace{ij}_{k}-a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{-k}-a_2^2\underbrace{j^2}_{-1}-a_2a_3\underbrace{jk}_{i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{-1} \\
+&amp;=a_0^2+a_1^2+a_2^2+a_3^2 \\
+\end{align}
+</pre></div></div>
+
+<p>4次元のユークリッド距離の二乗が出て来ました。双複素数と違い虚部は消えています。</p>
+
+<h1>
+<span id="双曲四元数" class="fragment"></span><a href="#%E5%8F%8C%E6%9B%B2%E5%9B%9B%E5%85%83%E6%95%B0"><i class="fa fa-link"></i></a>双曲四元数</h1>
+
+<p>四元数は3次元空間を扱えると述べましたが、時間軸を加えた4次元時空を扱えないかというのは自然な流れです。しかし4次元時空は単に座標軸を1つ増やしたものではなく、ノルムの定義そのものが異なります。それに合わせて四元数をカスタマイズする必要があります。</p>
+
+<p>双複素数では $i^2=j^2=-1,\ k^2=1$ です。それを $-1$ に揃えて $i^2=j^2=k^2=-1$ としたのが通常の四元数です。それとは逆に $1$ に揃えて $i^2=j^2=k^2=1$ としたのが<strong>双曲四元数</strong>です。</p>
+
+<p>※ これは定義で、何か別のものから導出されたわけではありません。位置付けについての詳細は続編の<a href="http://qiita.com/7shi/items/b34fe724d36fb7d96456">八元数を作ろう</a>で説明します。</p>
+
+<p>双曲四元数における $i,j,k$ の関係は通常の四元数と同じで、巡回性・反交換性を持ちます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+ij=-ji=k,\ jk=-kj=i,\ ki=-ik=j
+</pre></div></div>
+
+<h2>
+<span id="結合法則" class="fragment"></span><a href="#%E7%B5%90%E5%90%88%E6%B3%95%E5%89%87"><i class="fa fa-link"></i></a>結合法則</h2>
+
+<p>双曲四元数では一部の組み合わせは結合法則を満たしません。</p>
+
+<p>満たす: $(ij)k=i(jk)$</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+(ij)k&amp;=kk=1 \\
+i(jk)&amp;=ii=1
+\end{align}
+</pre></div></div>
+
+<p>満たさない: $(ii)j≠i(ij)$</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+(ii)j&amp;=j \\
+i(ij)&amp;=ik=-j
+\end{align}
+</pre></div></div>
+
+<p>$iij$ のような表記は結合法則を前提としているため、結合法則が成り立たない双曲四元数では括弧を省略できません。</p>
+
+<p>※ 八元数でも結合法則は成り立ちません。先に進むごとにどんどん不自由になります。</p>
+
+<h2>
+<span id="積-4" class="fragment"></span><a href="#%E7%A9%8D-4"><i class="fa fa-link"></i></a>積</h2>
+
+<p>積を確認します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">hquatProd</span> <span class="n">title</span> <span class="o">=</span>
+    <span class="nn">Term</span><span class="p">.</span><span class="n">showProd</span> <span class="n">title</span> <span class="s">""</span> <span class="n">ijk</span> <span class="o">(</span><span class="n">quatProdE</span> <span class="mi">1</span><span class="o">)</span> <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span>
+<span class="n">hquatProd</span> <span class="s">"## 積"</span> <span class="n">qa</span> <span class="n">qb</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{1} \\
+&amp;=(a_0b_0+a_1b_1+a_2b_2+a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3-a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0+a_3b_1-a_1b_3)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2-a_2b_1)k \\
+\end{align}
+</pre></div></div>
+
+<p>積の実部 $a_0b_0+a_1b_1+a_2b_2+a_3b_3$ の第2項以降を符号反転するとミンコフスキー内積となります。これは無理矢理な感がありますが、四元数の積の実部 $a_0b_0-a_1b_1-a_2b_2-a_3b_3$ の第2項以降を符号反転してユークリッド内積が得られたのと同じ操作をしています。</p>
+
+<p>四元数と双曲四元数で符号反転しない形が逆なら美しいのですが、なかなかうまくいきません。符号の一致を実現するには、クリフォード代数を応用した時空代数が必要となります。</p>
+
+<p><a href="https://ja.wikipedia.org/wiki/%E3%83%9F%E3%83%B3%E3%82%B3%E3%83%95%E3%82%B9%E3%82%AD%E3%83%BC%E7%A9%BA%E9%96%93" rel="nofollow noopener" target="_blank">Wikipediaのミンコフスキー空間</a>には次のようにあり、乗法についてはあまり気にしなくても良いのかもしれません。</p>
+
+<blockquote>
+<p>1890年代における双曲四元数の発展によりミンコフスキー空間への道が開かれることになった。実際のところ、数学的にはミンコフスキー空間とは双曲四元数の空間から乗法の情報を忘れて双線形形式<br>
+$η(p,q) = −(pq^* + (pq^* )^* )/2$<br>
+（これは双曲四元数の積 $pq^* $ によって定まる）のみを残したものと考えることができる。</p>
+</blockquote>
+
+<h2>
+<span id="共役-4" class="fragment"></span><a href="#%E5%85%B1%E5%BD%B9-4"><i class="fa fa-link"></i></a>共役</h2>
+
+<p>通常の四元数と同様です。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a+bi+cj+dk)^*=a-bi-cj-dk
+</pre></div></div>
+
+<h2>
+<span id="ノルム-4" class="fragment"></span><a href="#%E3%83%8E%E3%83%AB%E3%83%A0-4"><i class="fa fa-link"></i></a>ノルム</h2>
+
+<p>ノルムの二乗を計算します。</p>
+
+<div class="code-frame" data-lang="fsharp"><div class="highlight"><pre>
+<span class="n">hquatProd</span> <span class="s">"## ノルム"</span> <span class="o">(</span><span class="n">conj</span> <span class="n">qa</span><span class="o">)</span> <span class="n">qa</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0-a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{1}-a_1a_2\underbrace{ij}_{k}-a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{-k}-a_2^2\underbrace{j^2}_{1}-a_2a_3\underbrace{jk}_{i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{1} \\
+&amp;=a_0^2-a_1^2-a_2^2-a_3^2 \\
+\end{align}
+</pre></div></div>
+
+<p>$(+,-,-,-)$ 型のミンコフスキーノルムが出て来ました。通常の四元数はユークリッド空間、双曲四元数はミンコフスキー時空に対応します。</p>
+
+<h1>
+<span id="多元数" class="fragment"></span><a href="#%E5%A4%9A%E5%85%83%E6%95%B0"><i class="fa fa-link"></i></a>多元数</h1>
+
+<p><a href="https://ja.wikipedia.org/wiki/%E5%A4%9A%E5%85%83%E6%95%B0" rel="nofollow noopener" target="_blank">多元数</a>のバリエーションをまとめました。</p>
+
+<table>
+<thead>
+<tr>
+<th>基本</th>
+<th>双</th>
+<th>分解型</th>
+<th>分解型双</th>
+<th>双曲</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://ja.wikipedia.org/wiki/%E8%A4%87%E7%B4%A0%E6%95%B0" rel="nofollow noopener" target="_blank">複素数</a></td>
+<td><a href="https://en.wikipedia.org/wiki/bicomplex_number" rel="nofollow noopener" target="_blank">双複素数</a></td>
+<td><a href="https://ja.wikipedia.org/wiki/%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0" rel="nofollow noopener" target="_blank">分解型複素数</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://ja.wikipedia.org/wiki/%E5%9B%9B%E5%85%83%E6%95%B0" rel="nofollow noopener" target="_blank">四元数</a></td>
+<td><a href="https://en.wikipedia.org/wiki/biquaternion" rel="nofollow noopener" target="_blank">双四元数</a></td>
+<td><a href="https://en.wikipedia.org/wiki/Split-quaternion" rel="nofollow noopener" target="_blank">分解型四元数</a></td>
+<td><a href="https://en.wikipedia.org/wiki/split-biquaternion" rel="nofollow noopener" target="_blank">分解型双四元数</a></td>
+<td><a href="https://en.wikipedia.org/wiki/hyperbolic_quaternion" rel="nofollow noopener" target="_blank">双曲四元数</a></td>
+</tr>
+<tr>
+<td><a href="https://ja.wikipedia.org/wiki/%E5%85%AB%E5%85%83%E6%95%B0" rel="nofollow noopener" target="_blank">八元数</a></td>
+<td><a href="https://en.wikipedia.org/wiki/Bioctonion" rel="nofollow noopener" target="_blank">双八元数</a></td>
+<td><a href="https://en.wikipedia.org/wiki/split-octonion" rel="nofollow noopener" target="_blank">分解型八元数</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://ja.wikipedia.org/wiki/%E5%8D%81%E5%85%AD%E5%85%83%E6%95%B0" rel="nofollow noopener" target="_blank">十六元数</a></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/2036e7a739c2a9e04025" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="cX4wGXp1lV1sQq0X0TQ+pip9GBHEJtZUl8ArDMasYlwf/KtB4VusFpORGAuhwYD/Sjo8olPijKOrHiL3J6Jsmg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1484492894" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+四元数の計算規則は複雑に見えます。規則として覚えるのではなく、作り方からのアプローチを紹介します。複素数の知識を前提とします。プログラムで計算を確認しながら進めます。
+
+数を作るという観点から、四元数の定義を一部変えた亜種も紹介します。
+
+* [双複素数（テッサリン）](https://en.wikipedia.org/wiki/Bicomplex_number)
+* [分解型複素数（実テッサリン）](https://ja.wikipedia.org/wiki/%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0)
+* [双曲四元数](https://en.wikipedia.org/wiki/Hyperbolic_quaternion)
+
+シリーズの記事です。
+
+1. [多項式の積を計算](http://qiita.com/7shi/items/4fb60dacad46cb8e63b3)
+1. [外積と愉快な仲間たち](http://qiita.com/7shi/items/017d2d2c758f76071f23)
+1. [ユークリッド空間のホッジ双対とバブルソート](http://qiita.com/7shi/items/f54302058149d07da592)
+1. 四元数を作ろう ← この記事
+1. [四元数と行列で見る内積と外積の「内」と「外」](http://qiita.com/7shi/items/a80988a32a0d706e9378)
+1. [八元数を作ろう](http://qiita.com/7shi/items/b34fe724d36fb7d96456)
+1. [八元数の積をプログラムで確認](http://qiita.com/7shi/items/8495b2d6b888e7b8703f)
+1. [外積の成分をプログラムで確認](http://qiita.com/7shi/items/02c758c03d2fd7038912)
+1. [多元数の積の構成](http://qiita.com/7shi/items/88be5203769e629df243)
+
+プログラムは [Math7.Quaternion.fsx](https://bitbucket.org/7shi/math7/src/tip/Math7.Quaternion.fsx) から抜粋して引用します。[Math7.fsx](https://bitbucket.org/7shi/math7/src/tip/Math7.fsx) など個別の依存ファイルについてはリポジトリを参照してください。
+
+* https://bitbucket.org/7shi/math7
+
+# 複素数
+
+$\sqrt{-1}$ を $i$ と表記して虚数と呼びます。
+
+```math
+i=\sqrt{-1} \\
+i^2=-1
+```
+
+実数と虚数の形式的な和を**複素数**と呼びます。複素数は $a,b$ という2つの実数により $a+bi$ と一般化できます。$b$ は $i$ の係数です。
+
+## 積
+
+$i^2=-1$ にだけ注意すれば、通常の代数式と同じです。
+
+```fsharp
+let compStr = Seq.map (fun e -&gt; [| &quot;&quot;; &quot;i&quot; |].[e]) &gt;&gt; Term.strPower
+let compProd title =
+    Term.showProd title &quot;&quot; compStr
+        (function
+        | [x; y] when x = y -&gt; term -1
+        | es -&gt; Term.fromE es)
+        id Term.byIndexSign (fun _ -&gt; true)
+let ca = [term(1, [&quot;a_0&quot;], []); term(1, [&quot;a_1&quot;], [1])]
+let cb = [term(1, [&quot;b_0&quot;], []); term(1, [&quot;b_1&quot;], [1])]
+compProd &quot;## 積&quot; ca cb
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i)(b_0+b_1i) \\
+&amp;=a_0(b_0+b_1i) \\
+&amp;\quad +a_1i(b_0+b_1i) \\
+&amp;=a_0b_0+a_0b_1i \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1) \\
+&amp;\quad +(a_0b_1+a_1b_0)i \\
+\end{align}
+```
+
+## 共役
+
+複素数 $a+bi$ の虚数の符号を反転した $a-bi$ を**共役複素数**（複素共役）と呼びます。
+
+共役複素数は ${}^*$ で表します。
+
+```fsharp
+let conj (ts:term list) =
+    ts |&gt; List.map (fun t -&gt; if t.E = [] then t else -1 * t)
+printfn &quot;(%s)^*=%s&quot; (Term.strs compStr ca) (conj ca |&gt; Term.strs compStr)
+```
+```math
+(a_0+a_1i)^*=a_0-a_1i
+```
+
+## ノルム
+
+共役複素数に複素数を掛ければ、係数の二乗を足した値が得られます。
+
+```fsharp
+compProd &quot;## ノルム&quot; (conj ca) ca
+```
+```math
+\begin{align}
+&amp;(a_0-a_1i)(a_0+a_1i) \\
+&amp;=a_0(a_0+a_1i) \\
+&amp;\quad -a_1i(a_0+a_1i) \\
+&amp;=a_0^2+a_0a_1i \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{-1} \\
+&amp;=a_0^2+a_1^2 \\
+\end{align}
+```
+
+※ 共役の順番が後でも結果は同じですが、一般的に共役を先に出します。
+
+ピタゴラスの定理 $a^2+b^2=c^2$ より、この平方根は長さを表すと考えられ**ノルム**と呼ばれます。
+
+# ケーリー=ディクソンの構成法
+
+今まで複素数の係数は実数に制限していましたが、これを複素数にすることを考えます。
+
+2つの複素数 $z,w$ を定義します。
+
+```math
+\left\{
+\begin{align}
+z &amp;= a+bi \\
+w &amp;= c+di
+\end{align}
+\right.
+```
+
+これを $z+wi$ に入れてみると、結果は複素数に収まります。
+
+```math
+\begin{align}
+z+wi
+&amp;=(a+bi)+(c+di)i \\
+&amp;=a+bi+ci-d \\
+&amp;=(a-d)+(b+c)i
+\end{align}
+```
+
+内側（係数）の複素数単位 $i$ と区別するため、外側の複素数単位を $j$ とおいて再度計算します。
+
+```math
+\begin{align}
+z+wj
+&amp;=(a+bi)+(c+di)j \\
+&amp;=a+bi+cj+dij
+\end{align}
+```
+
+$ij$ をまた別の虚数単位 $k$ とすれば、四元数（とその亜種）が得られます。
+
+```math
+(a+bi)+(c+di)j=a+bi+cj+dk
+```
+
+このように複素数をネスト（入れ子）にして新しい数体系を作り出す方法を**ケーリー=ディクソンの構成法**と呼びます。
+
+## 三元数
+
+【注】三元数がうまく定義できないことについての紹介です。
+
+$i$ とは別に、虚数単位 $j$ を導入します。$j$ は $i$ とは異なる虚数単位ですが、虚数としての共通性から二乗すれば $-1$ になると定義します。
+
+```math
+i^2=j^2=-1
+```
+
+$i$ と $j$ を使えば三元数 $a+bi+cj$ になりそうです。しかしこのように構成した三元数の積を計算すると、組み合わせから $ij$ が出て来てしまいます。$ij$ は $i$ とも $j$ とも異なり、三元数の枠からはみ出した存在です。
+
+```fsharp
+Term.showProd &quot;## 積&quot; &quot;&quot;
+    (Seq.map (fun e -&gt; [&quot;&quot;; &quot;i&quot;; &quot;j&quot;].[e]) &gt;&gt; Term.strPower)
+    (function
+    | [x; y] when x = y -&gt; term -1
+    | [2; 1] -&gt; term(1, [], [1; 2])
+    | es -&gt; Term.fromE es)
+    id Term.byIndexSign (fun _ -&gt; true)
+    (term(1, [&quot;a_0&quot;], [])::[for i in [1..2] -&gt; term(1, [sprintf &quot;a_%d&quot; i], [i])])
+    (term(1, [&quot;b_0&quot;], [])::[for i in [1..2] -&gt; term(1, [sprintf &quot;b_%d&quot; i], [i])])
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j)(b_0+b_1i+b_2j) \\
+&amp;=a_0(b_0+b_1i+b_2j) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2ij \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{ij}+a_2b_2\underbrace{j^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2) \\
+&amp;\quad +(a_0b_1+a_1b_0)i \\
+&amp;\quad +(a_1b_2+a_2b_1)ij \\
+&amp;\quad +(a_0b_2+a_2b_0)j \\
+\end{align}
+```
+
+これは三元数の積は三元数で表現できないことを意味しており、「三元数は積について閉じていない」と表現します。
+
+$ij$ は別の虚数単位で四元数へとつながります。四元数を発見したハミルトンも初めは三元数を研究していましたが、積がうまく定義できずに相当悩んだそうです。そして最終的には三元数は断念して四元数の発見へと至ります。
+
+# 双複素数
+
+【注】四元数ではありませんが、分かりやすさから最初に紹介します。
+
+$i$ とは別に、虚数単位 $j$ を導入します。$j$ は $i$ とは異なる虚数単位ですが、虚数としての共通性から二乗すれば $-1$ になると定義します。
+
+```math
+i^2=j^2=-1
+```
+
+$i$ と $j$ を使って複素数をネストさせ $ij=k$ とします。（ケーリー=ディクソンの構成法）
+
+```math
+\begin{align}
+&amp;(a+bi)+(c+di)j \\
+&amp;=a+bi+cj+dij \\
+&amp;=a+bi+cj+dk
+\end{align}
+```
+
+$i^2=j^2=-1$ と $ij=k$ から $k^2$ が求まります。
+
+```math
+\underbrace{ij=k}_{両辺を二乗} \\
+\underbrace{i^2}_{-1}\underbrace{j^2}_{-1}=k^2 \\
+k^2=1
+```
+
+※ 後で出て来る四元数とは異なり、積は可換です。通常の文字と同じように扱っても大丈夫です。
+
+この結果を受け入れれば、$k$ は二乗すれば $1$ になる虚数だということになります。このようにして構成した数を**双複素数**と呼びます。これはハミルトンが発見した四元数とは別物で、1892年にセグレによって導入されました。
+
+※ この記事では四元数と対応させるため文字の割り当てを $i,j,ij=k$ としていますが、セグレは $h,i,hi$ を使用しました。
+
+ここまでに出て来た関係から、他の組み合わせも導けます。
+
+```math
+\begin{align}
+j\underbrace{k}_{ij}&amp;=\underbrace{j^2}_{1}i=-i \\
+\underbrace{k}_{ij}i&amp;=\underbrace{i^2}_{-1}j=-j \\
+\underbrace{ij}_{k}k&amp;=k^2=1
+\end{align}
+```
+
+まとめれば次の通りです。
+
+```math
+i^2=j^2=-1,\ k^2=1,\ ijk=1 \\
+ij=ji=k,\ jk=kj=-i,\ ki=ik=-j
+```
+
+複素数を2つ組み合わせたことから、2次の複素ベクトルに対応します。
+
+```math
+(a+bi)+(c+di)j=\left(\begin{matrix}a+bi \\ c+di\end{matrix}\right)
+```
+
+## 積
+
+双複素数の積は双複素数で表すことができます。
+
+```fsharp
+let ijk = Seq.map (fun e -&gt; [&quot;&quot;; &quot;i&quot;; &quot;j&quot;; &quot;k&quot;].[e]) &gt;&gt; Term.strPower
+let dcompProdE = function
+| [1; 1] | [2; 2] -&gt; term -1            // ii=jj=-1
+| [3; 3] -&gt; term.One                    // kk=1
+| [1; 2] | [2; 1] -&gt; term( 1, [], [3])  // ij=ji=k
+| [2; 3] | [3; 2] -&gt; term(-1, [], [1])  // jk=kj=-i
+| [3; 1] | [1; 3] -&gt; term(-1, [], [2])  // ki=ik=-j
+| es -&gt; Term.fromE es
+let dcompProd title =
+    Term.showProd title &quot;&quot; ijk dcompProdE id Term.byIndexSign (fun _ -&gt; true)
+let qa = term(1, [&quot;a_0&quot;], [])::[for i in [1..3] -&gt; term(1, [sprintf &quot;a_%d&quot; i], [i])]
+let qb = term(1, [&quot;b_0&quot;], [])::[for i in [1..3] -&gt; term(1, [sprintf &quot;b_%d&quot; i], [i])]
+dcompProd &quot;## 積&quot; qa qb
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{-i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{-j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2+a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0-a_2b_3-a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0-a_1b_3-a_3b_1)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2+a_2b_1)k \\
+\end{align}
+```
+
+## 共役
+
+共役はケーリー=ディクソン構成の段階で $j$ の符号を反転させます。$ij=k$ のため $k$ の符号も反転します。
+
+```fsharp
+let dcompConj (ts:term list) =
+    ts |&gt; List.map (fun t -&gt; match t.E with [2] | [3] -&gt; -1 * t | _ -&gt; t)
+printfn &quot;(%s)^*=%s&quot; (Term.strs ijk qa) (dcompConj qa |&gt; Term.strs ijk)
+```
+```math
+(a_0+a_1i+a_2j+a_3k)^*=a_0+a_1i-a_2j-a_3k
+```
+
+## ノルム
+
+共役との積でノルムの二乗を計算します。
+
+```fsharp
+dcompProd &quot;## ノルム&quot; (dcompConj qa) qa
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad +a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad +a_1a_0i+a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{k}-a_2^2\underbrace{j^2}_{-1}-a_2a_3\underbrace{jk}_{-i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{-j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{1} \\
+&amp;=(a_0^2-a_1^2+a_2^2-a_3^2) \\
+&amp;\quad +2(a_0a_1+a_2a_3)i \\
+\end{align}
+```
+
+他の数ではノルムの二乗は実数ですが、双複素数では虚数 $i$ が残ります。
+
+この計算は複雑なようですが、もう少し簡単に考えることができます。
+
+```math
+\begin{align}
+&amp;\{(a_0+a_1i)+(a_2+a_3i)j\}^*\{(a_0+a_1i)+(a_2+a_3i)j\} \\
+&amp;=\{(a_0+a_1i)-(a_2+a_3i)j\}\{(a_0+a_1i)+(a_2+a_3i)j\} \\
+&amp;=(a_0+a_1i)^2+(a_2+a_3i)^2
+\end{align}
+```
+
+この形を前提にノルムが定義されていると思われます。
+
+共役の作り方を変えてみても、実数だけにすることはできません。
+
+```fsharp
+let showProd f g a b =
+    let sa = Term.strs f a |&gt; Term.bracket
+    let sb = Term.strs f b |&gt; Term.bracket
+    if sa = sb then printf @&quot;&amp;%s^2=&quot; sa else printf @&quot;&amp;%s%s=&quot; sa sb
+    let d =
+        Term.prods g a b
+        |&gt; Term.simplify
+        |&gt; Term.sort id Term.byIndexSign
+    d |&gt; List.iteri (fun i d1 -&gt;
+        let s = Term.str3 f d1
+        let s = if d.Length = 1 then Term.unbracket s else s
+        printf &quot;%s&quot; &lt;| if i = 0 then s else Term.addSign s)
+    printfn @&quot; \\&quot;
+for x in [1; -1] do
+    for y in [1; -1] do
+        for z in [1; -1] do
+            let a = [term(1, [&quot;a_0&quot;], [ ])
+                     term(x, [&quot;a_1&quot;], [1])
+                     term(y, [&quot;a_2&quot;], [2])
+                     term(z, [&quot;a_3&quot;], [3])]
+            showProd ijk dcompProdE a qa
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)^2=(a_0^2-a_1^2-a_2^2+a_3^2)+2(a_0a_1-a_2a_3)i+2(a_0a_2-a_1a_3)j+2(a_0a_3+a_1a_2)k \\
+&amp;(a_0+a_1i+a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2-a_1^2-a_2^2-a_3^2)+2a_0a_1i+2a_0a_2j+2a_1a_2k \\
+&amp;(a_0+a_1i-a_2j+a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2-a_1^2+a_2^2+a_3^2)+2a_0a_1i-2a_1a_3j+2a_0a_3k \\
+&amp;(a_0+a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2-a_1^2+a_2^2-a_3^2)+2(a_0a_1+a_2a_3)i \\
+&amp;(a_0-a_1i+a_2j+a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2-a_2^2+a_3^2)-2a_2a_3i+2a_0a_2j+2a_0a_3k \\
+&amp;(a_0-a_1i+a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2-a_2^2-a_3^2)+2(a_0a_2+a_1a_3)j \\
+&amp;(a_0-a_1i-a_2j+a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2+a_2^2+a_3^2)+2(a_0a_3-a_1a_2)k \\
+&amp;(a_0-a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k)=(a_0^2+a_1^2+a_2^2-a_3^2)+2a_2a_3i+2a_1a_3j-2a_1a_2k \\
+\end{align}
+```
+
+こういう手計算だと手間が掛かることでも簡単に確認できるのがプログラムの良い所です。
+
+## テッサリン
+
+双複素数の亜種で、数学的には同型（できることは同じ）です。
+
+双複素数では $i^2=j^2=-1$ と定義しましたが、$j$ より先に $k$ について $i^2=k^2=-1$ と定義したのが**テッサリン**です。歴史的には双複素数より先で、1848年にコックルによって導入されました。
+
+$i^2=k^2=-1$ と $ij=k$ から $j^2$ が求まります。
+
+```math
+\underbrace{ij=k}_{両辺を二乗} \\
+\underbrace{i^2}_{-1}j^2=\underbrace{k^2}_{-1} \\
+j^2=1
+```
+
+ここまでに出て来た関係から、他の組み合わせも導けます。
+
+```math
+\begin{align}
+j\underbrace{k}_{ij}&amp;=\underbrace{j^2}_{1}i=i \\
+\underbrace{k}_{ij}i&amp;=\underbrace{i^2}_{-1}j=-j \\
+\underbrace{ij}_{k}k&amp;=k^2=-1
+\end{align}
+```
+
+まとめれば次の通りです。
+
+```math
+i^2=k^2=-1,\ j^2=1,\ ijk=-1 \\
+ij=ji=k,\ jk=kj=i,\ ki=ik=-j
+```
+
+このような定義にした理由は以下の2つではないかと推測します。
+
+1. 元 $1,i,j,k$ をそれぞれ2乗すれば $1,-1,1,-1$ となる。これは $1,-1$ の繰り返しで、$1,i$ と $j,k$ を対として見なせる。
+2. 可換であることを除いては $ijk=-1,ij=k,jk=i$ など四元数に似ている。
+
+### 積とノルム
+
+積とノルムを確認しておきます。
+
+```fsharp
+let tessProdE = function
+| [1; 1] | [3; 3] -&gt; term -1            // ii=kk=-1
+| [2; 2] -&gt; term.One                    // jj=1
+| [1; 2] | [2; 1] -&gt; term( 1, [], [3])  // ij=ji=k
+| [2; 3] | [3; 2] -&gt; term( 1, [], [1])  // jk=kj=i
+| [3; 1] | [1; 3] -&gt; term(-1, [], [2])  // ki=ik=-j
+| es -&gt; Term.fromE es
+let tessProd title =
+    Term.showProd title &quot;&quot; ijk tessProdE id Term.byIndexSign (fun _ -&gt; true)
+tessProd &quot;## 積&quot; qa qb
+tessProd &quot;## ノルム&quot; (dcompConj qa) qa
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{k}+a_2b_2\underbrace{j^2}_{1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{-j}+a_3b_2\underbrace{kj}_{i}+a_3b_3\underbrace{k^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1+a_2b_2-a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3+a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0-a_1b_3-a_3b_1)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2+a_2b_1)k \\
+\end{align}
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad +a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad +a_1a_0i+a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{k}-a_2^2\underbrace{j^2}_{1}-a_2a_3\underbrace{jk}_{i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{-j}-a_3a_2\underbrace{kj}_{i}-a_3^2\underbrace{k^2}_{-1} \\
+&amp;=(a_0^2-a_1^2-a_2^2+a_3^2) \\
+&amp;\quad +2(a_0a_1-a_2a_3)i \\
+\end{align}
+```
+
+## 可換四元数（可換超複素数）
+
+双複素数やテッサリンは四元数と同じ記号 $i,j,k$ を使っていることから**可換四元数（可換超複素数）**と呼ばれることがあります。
+
+※ 後で見ますが、四元数では交換法則が成り立たない（非可換）ことと対比した名称です。
+
+次の論文ではテッサリンを可換四元数と呼んでいます。
+
+* [Commutative Quaternion Matrices](https://arxiv.org/abs/1306.6009)
+
+少し違う定義で再発明されることもあるようですが、これも同型です。
+
+* [Commutative Quaternion](http://xelf.info/knowledge/quaternion.html)
+
+## 応用
+
+双複素数やテッサリンはあまり研究が進んでいませんが、いくつか紹介します。
+
+双複素数を特殊相対論に使う研究があります。
+
+* [A Commutative Hypercomplex Algebra with Associated Function Theory](http://link.springer.com/chapter/10.1007%2F978-1-4615-8157-4_14)（[プレビュー](https://books.google.co.jp/books?id=UqbwBwAAQBAJ&amp;lpg=PP1&amp;hl=ja&amp;pg=PA213#v=onepage&amp;q&amp;f=false)）
+* [The Mathematics of Minkowski Space-Time: With an Introduction to Commutative Hypercomplex Numbers](http://www.amazon.co.jp/dp/B00KTHC980)
+
+テッサリンをデジタル信号処理に使う研究があります。
+
+* 【PDF】 [On Families of 2^N-dimensional Hypercomplex Algebras Suitable for Digital Signal Processing](http://www.eurasip.org/Proceedings/Eusipco/Eusipco2006/papers/1568981962.pdf)
+* 【PDF】 [On Hyperbolic Complex LTI Digital Systems](http://www.dsv.rub.de/imperia/md/content/public/eusipco2007_hyperbolic.pdf)
+
+ニューラルネットワークに使う研究があります。有料記事のため詳細は不明ですが、[複素ニューラルネットワーク](https://staff.aist.go.jp/tohru-nitta/jCNN.html)の応用だと思われます。
+
+* [CiNii 論文 -  可換クォータニオンに基づく多値ホップフィールドニューラルネットワーク(知的システム,一般)](http://ci.nii.ac.jp/naid/110008800912)
+
+# 分解型複素数
+
+テッサリンから $j$ だけを残したのが**分解型複素数**です。
+
+```math
+a+bj\quad(j^2=1)
+```
+
+テッサリンの亜種として**実テッサリン**と呼ばれることもあります。それ以外にも**双曲複素数**など多くの別称があります。興味があれば[Wikipedia](https://ja.wikipedia.org/wiki/%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0#.E5.88.A5.E7.A7.B0)を参照してください。
+
+## 積
+
+積が閉じていることを確認します。プログラムはテッサリンの関数が流用できます。
+
+```fsharp
+let spca = [term(1, [&quot;a_0&quot;], []); term(1, [&quot;a_1&quot;], [2])]
+let spcb = [term(1, [&quot;b_0&quot;], []); term(1, [&quot;b_1&quot;], [2])]
+tessProd &quot;## 積&quot; spca spcb
+```
+```math
+\begin{align}
+&amp;(a_0+a_1j)(b_0+b_1j) \\
+&amp;=a_0(b_0+b_1j) \\
+&amp;\quad +a_1j(b_0+b_1j) \\
+&amp;=a_0b_0+a_0b_1j \\
+&amp;\quad +a_1b_0j+a_1b_1\underbrace{j^2}_{1} \\
+&amp;=(a_0b_0+a_1b_1) \\
+&amp;\quad +(a_0b_1+a_1b_0)j \\
+\end{align}
+```
+
+## 共役
+
+共役は虚部の符号反転です。
+
+```math
+(a+bj)^*=a-bj
+```
+
+## ノルム
+
+共役との積でノルムの2乗を求めます。
+
+```fsharp
+tessProd &quot;## ノルム&quot; (dcompConj spca) spca
+```
+```math
+\begin{align}
+&amp;(a_0-a_1j)(a_0+a_1j) \\
+&amp;=a_0(a_0+a_1j) \\
+&amp;\quad -a_1j(a_0+a_1j) \\
+&amp;=a_0^2+a_0a_1j \\
+&amp;\quad -a_1a_0j-a_1^2\underbrace{j^2}_{1} \\
+&amp;=a_0^2-a_1^2 \\
+\end{align}
+```
+
+これは $(+,−)$ 型のミンコフスキーノルムです。このようにノルムの符号が真ん中で別れることが**分解型**と呼ばれる由来です。空間を1次元に制限したローレンツ変換などに使われたようです。
+
+# 四元数
+
+この節では、1843年にハミルトンが発見した通常の四元数を紹介します。何年もの研究の末、ダブリンのブルーム橋を渡っているときに閃いたという逸話があります。
+
+$i$ と $j$ を使って複素数をネストさせ $ij=k$ とします。（ケーリー=ディクソンの構成法）
+
+```math
+\begin{align}
+&amp;(a+bi)+(c+di)j \\
+&amp;=a+bi+cj+dij \\
+&amp;=a+bi+cj+dk
+\end{align}
+```
+
+$i,j,k$ を対等な虚数とするため $i^2=j^2=k^2=-1$ と定義します。
+
+定義から $ijk=kk=-1$ となります。
+
+## 反交換性
+
+双複素数では $k^2=1$ ですが、四元数では $k^2=-1$ となるため、どこか計算方法を変える必要があります。
+
+まず $k=ij$ の両辺を二乗して $k^2=(ij)^2$ とします。双複素数では交換法則が成り立っているため、右辺を $(ij)(ij)=i^2j^2$ と変形できます。$i^2=j^2=-1$ より $k^2=1$ となります。
+
+```math
+【双複素数】\ k^2=(i\underbrace{j)(i}_{ij}j)=\underbrace{i^2}_{-1}\underbrace{j^2}_{-1}=1
+```
+
+それに対して四元数では交換法則を諦めて $ij=-ji$ とすることで $k^2=-1$ が成立します。
+
+```math
+【四元数】\ k^2=(i\underbrace{j)(i}_{-ij}j)=-\underbrace{i^2}_{-1}\underbrace{j^2}_{-1}=-1
+```
+
+$ij=-ji$ は「積の因子を**交換**すれば符号が**反**転する」と解釈して**反交換性**と呼びます。
+
+※ 途中に出て来たマイナス符号を前に動かしていますが、反交換性を持つのは $i,j,k$ だけで係数には影響しません。
+
+## 巡回性
+
+$ij$ 以外の組み合わせも確認します。
+
+```math
+\begin{align}
+jk&amp;=j\underbrace{(ij)}_{-ji}=-\underbrace{(jj)}_{-1}i=i \\
+ki&amp;=\underbrace{(ij)}_{-ji}i=-j\underbrace{(ii)}_{-1}=j
+\end{align}
+```
+
+まとめれば $ij=k,\ jk=i,\ ki=j$ となります。
+
+この組み合わせをよく見ると、式の要素を順番に回していることが分かります。
+
+* ①②=③ → ②③=① → ③①=②
+
+このような性質を**巡回性**と呼びます。
+
+$jk, ki$ は反交換性を持ちます。
+
+```math
+\begin{align}
+kj=(ij)j=i\underbrace{(jj)}_{-1}=-i \\
+ik=i(ij)=\underbrace{(ii)}_{-1}j=-j
+\end{align}
+```
+
+次のようにまとめれば巡回性と反交換性の両方を示せます。
+
+```math
+ij=-ji=k,\ jk=-kj=i,\ ki=-ik=j
+```
+
+## 覚え方
+
+実用上は巡回性と反交換性を覚えておけば、他の関係は作れます。
+
+1. 二乗すれば $-1$ となる虚数が3つある： $i^2=j^2=k^2=-1$
+2. $i,j,k$ には $ij=k$ の関係がある： $ijk=kk=-1$
+3. 巡回性より： $ij=k\ →\ jk=i\ →\ ki=j$
+4. 反交換性より： $ij=-ji,\ jk=-kj,\ ki=-ik$
+
+まとめれば次のようになります。
+
+```math
+i^2=j^2=k^2=ijk=-1 \\
+ij=-ji=k,\ jk=-kj=i,\ ki=-ik=j
+```
+
+この結果だけ覚えるよりも、上記の手順でいつでも作れるようにしておくと良いでしょう。
+
+### 乗積表
+
+考え方をプログラムで表現して乗積表を生成してみます。
+
+```fsharp
+let quatProdE n = function
+| [x; y] when x = y -&gt; term n
+| [x; y] when x % 3 + 1 = y -&gt; term( 1, [], [y % 3 + 1])
+| [y; x] when x % 3 + 1 = y -&gt; term(-1, [], [y % 3 + 1])
+| es -&gt; Term.fromE es
+for x in {0..3} do
+    seq {for y in {0..3} -&gt; [x; y] |&gt; List.filter ((&lt;&gt;) 0)}
+    |&gt; Seq.map (quatProdE -1 &gt;&gt; Term.str ijk &gt;&gt; sprintf &quot;%2s&quot;)
+    |&gt; String.concat &quot; &quot;
+    |&gt; printfn &quot;%s&quot;
+```
+```text:実行結果
+ 1  i  j  k
+ i -1  k -j
+ j -k -1  i
+ k  j -i -1
+```
+
+## 3次元ベクトル
+
+四元数の虚部は3次元ベクトルと同一視できます。実部と虚部で2次元を表す複素平面とは異なり、実部はベクトルの成分には割り当てません。
+
+```math
+\vec{a}=\left(\begin{matrix}a_1\\a_2\\a_3\end{matrix}\right)=a_1i+a_2j+a_3k
+```
+
+四元数で表した3次元ベクトルの積を計算すれば、内積と外積（ベクトル積スタイル）が得られます。このような幾何学的な性質は双複素数では得られないものです。
+
+※ ベクトル積が得られる理由は $ij=k,\ jk=i,\ ki=j$ がベクトル積と同じ計算で、左辺と右辺がホッジ双対の関係になっているためです。
+
+プログラムで確認します。
+
+```fsharp
+let quatProd title =
+    Term.showProd title &quot;&quot; ijk (quatProdE -1) id Term.byIndexSign (fun _ -&gt; true)
+quatProd &quot;## 積（ベクトル）&quot; (List.tail qa) (List.tail qb)
+```
+```math
+\begin{align}
+\vec{a}\vec{b}
+&amp;=(a_1i+a_2j+a_3k)(b_1i+b_2j+b_3k) \\
+&amp;=a_1i(b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_1i+b_2j+b_3k) \\
+&amp;=a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1} \\
+&amp;=-(\underbrace{a_1b_1+a_2b_2+a_3b_3}_{内積}) \\
+&amp;\quad +\underbrace{(a_2b_3-a_3b_2)i+(a_3b_1-a_1b_3)j+(a_1b_2-a_2b_1)k}_{外積} \\
+&amp;=-\underbrace{\vec{a}\cdot\vec{b}}_{内積}+\underbrace{\vec{a}×\vec{b}}_{外積}
+\end{align}
+```
+
+※ ベクトルとの対応関係は手作業で追記しています。
+
+実部に内積が現れることから、実部をスカラー、虚部をベクトルと呼ぶことの正当性が得られます。スカラーという用語には単なる数値としてだけでなく、不変量としての意味があります。
+
+スカラーとベクトルを分離すれば都合が良いですし、空間を扱うのにベクトルは3次元で充分なことから、複素平面と違って実部をベクトルの成分として扱う必要がないと考えられます。もし三元数がうまく定義できれば実部と虚部で3次元ベクトルを表せたでしょうし、それがハミルトンの狙いでもありましたが、うまくいかなかったのは前述の通りです。
+
+※ 実部と虚部で4次元を扱えないかについては、双曲四元数で後述します。
+
+## 積
+
+積を確認します。
+
+```fsharp
+quatProd &quot;## 積&quot; qa qb
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2-a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3-a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0+a_3b_1-a_1b_3)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2-a_2b_1)k \\
+\end{align}
+```
+
+この計算をスカラーとベクトルの和の積と見なせば、ごく普通の掛け算として構造が見えて来ます。
+
+```math
+\begin{align}
+&amp;(a_0+\vec{a})(b_0+\vec{b}) \\
+&amp;=a_0b_0+a_0\vec{b}+\vec{a}b_0+\vec{a}\vec{b} \\
+&amp;=\underbrace{a_0b_0}_{スカラー積}+\underbrace{a_0\vec{b}+b_0\vec{a}}_{スカラー倍}-\underbrace{\vec{a}\cdot\vec{b}}_{内積}+\underbrace{\vec{a}×\vec{b}}_{外積}
+\end{align}
+```
+
+$i$ の項を $a_0(b_1)i+b_0(a_1)i+(a_2b_3-a_3b_2)i$ と分離すれば、ベクトルのスカラー倍と外積が重なっていることが確認できます。
+
+この解釈では実部はベクトルの成分ではなく、ベクトルとして扱われるのは虚部の3次元です。実部まで含めた4次元ベクトルとしてうまく解釈できるかは不明です。
+
+## 共役
+
+虚部の符号を反転します。
+
+```math
+(a+bi+cj+dk)^*=a-bi-cj-dk
+```
+
+※ 双複素数とは異なり $i$ まで反転します。
+
+## ノルム
+
+共役四元数と四元数の積からノルムの二乗を計算します。
+
+```fsharp
+quatProd &quot;## ノルム&quot; (conj qa) qa
+```
+```math
+\begin{align}
+&amp;(a_0-a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{-1}-a_1a_2\underbrace{ij}_{k}-a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{-k}-a_2^2\underbrace{j^2}_{-1}-a_2a_3\underbrace{jk}_{i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{-1} \\
+&amp;=a_0^2+a_1^2+a_2^2+a_3^2 \\
+\end{align}
+```
+
+4次元のユークリッド距離の二乗が出て来ました。双複素数と違い虚部は消えています。
+
+# 双曲四元数
+
+四元数は3次元空間を扱えると述べましたが、時間軸を加えた4次元時空を扱えないかというのは自然な流れです。しかし4次元時空は単に座標軸を1つ増やしたものではなく、ノルムの定義そのものが異なります。それに合わせて四元数をカスタマイズする必要があります。
+
+双複素数では $i^2=j^2=-1,\ k^2=1$ です。それを $-1$ に揃えて $i^2=j^2=k^2=-1$ としたのが通常の四元数です。それとは逆に $1$ に揃えて $i^2=j^2=k^2=1$ としたのが**双曲四元数**です。
+
+※ これは定義で、何か別のものから導出されたわけではありません。位置付けについての詳細は続編の[八元数を作ろう](http://qiita.com/7shi/items/b34fe724d36fb7d96456)で説明します。
+
+双曲四元数における $i,j,k$ の関係は通常の四元数と同じで、巡回性・反交換性を持ちます。
+
+```math
+ij=-ji=k,\ jk=-kj=i,\ ki=-ik=j
+```
+
+## 結合法則
+
+双曲四元数では一部の組み合わせは結合法則を満たしません。
+
+満たす: $(ij)k=i(jk)$
+
+```math
+\begin{align}
+(ij)k&amp;=kk=1 \\
+i(jk)&amp;=ii=1
+\end{align}
+```
+
+満たさない: $(ii)j≠i(ij)$
+
+```math
+\begin{align}
+(ii)j&amp;=j \\
+i(ij)&amp;=ik=-j
+\end{align}
+```
+
+$iij$ のような表記は結合法則を前提としているため、結合法則が成り立たない双曲四元数では括弧を省略できません。
+
+※ 八元数でも結合法則は成り立ちません。先に進むごとにどんどん不自由になります。
+
+## 積
+
+積を確認します。
+
+```fsharp
+let hquatProd title =
+    Term.showProd title &quot;&quot; ijk (quatProdE 1) id Term.byIndexSign (fun _ -&gt; true)
+hquatProd &quot;## 積&quot; qa qb
+```
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k)(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{1}+a_2b_3\underbrace{jk}_{i} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{1} \\
+&amp;=(a_0b_0+a_1b_1+a_2b_2+a_3b_3) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3-a_3b_2)i \\
+&amp;\quad +(a_0b_2+a_2b_0+a_3b_1-a_1b_3)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2-a_2b_1)k \\
+\end{align}
+```
+
+積の実部 $a_0b_0+a_1b_1+a_2b_2+a_3b_3$ の第2項以降を符号反転するとミンコフスキー内積となります。これは無理矢理な感がありますが、四元数の積の実部 $a_0b_0-a_1b_1-a_2b_2-a_3b_3$ の第2項以降を符号反転してユークリッド内積が得られたのと同じ操作をしています。
+
+四元数と双曲四元数で符号反転しない形が逆なら美しいのですが、なかなかうまくいきません。符号の一致を実現するには、クリフォード代数を応用した時空代数が必要となります。
+
+[Wikipediaのミンコフスキー空間](https://ja.wikipedia.org/wiki/%E3%83%9F%E3%83%B3%E3%82%B3%E3%83%95%E3%82%B9%E3%82%AD%E3%83%BC%E7%A9%BA%E9%96%93)には次のようにあり、乗法についてはあまり気にしなくても良いのかもしれません。
+
+&gt; 1890年代における双曲四元数の発展によりミンコフスキー空間への道が開かれることになった。実際のところ、数学的にはミンコフスキー空間とは双曲四元数の空間から乗法の情報を忘れて双線形形式
+&gt; $η(p,q) = −(pq^* + (pq^* )^* )/2$
+&gt; （これは双曲四元数の積 $pq^* $ によって定まる）のみを残したものと考えることができる。
+
+## 共役
+
+通常の四元数と同様です。
+
+```math
+(a+bi+cj+dk)^*=a-bi-cj-dk
+```
+
+## ノルム
+
+ノルムの二乗を計算します。
+
+```fsharp
+hquatProd &quot;## ノルム&quot; (conj qa) qa
+```
+```math
+\begin{align}
+&amp;(a_0-a_1i-a_2j-a_3k)(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_1i(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{1}-a_1a_2\underbrace{ij}_{k}-a_1a_3\underbrace{ik}_{-j} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{-k}-a_2^2\underbrace{j^2}_{1}-a_2a_3\underbrace{jk}_{i} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{1} \\
+&amp;=a_0^2-a_1^2-a_2^2-a_3^2 \\
+\end{align}
+```
+
+$(+,-,-,-)$ 型のミンコフスキーノルムが出て来ました。通常の四元数はユークリッド空間、双曲四元数はミンコフスキー時空に対応します。
+
+# 多元数
+
+[多元数](https://ja.wikipedia.org/wiki/%E5%A4%9A%E5%85%83%E6%95%B0)のバリエーションをまとめました。
+
+基本|双|分解型|分解型双|双曲
+----|----|----|----|----
+[複素数](https://ja.wikipedia.org/wiki/%E8%A4%87%E7%B4%A0%E6%95%B0)|[双複素数](https://en.wikipedia.org/wiki/bicomplex_number)|[分解型複素数](https://ja.wikipedia.org/wiki/%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0)||
+[四元数](https://ja.wikipedia.org/wiki/%E5%9B%9B%E5%85%83%E6%95%B0)|[双四元数](https://en.wikipedia.org/wiki/biquaternion)|[分解型四元数](https://en.wikipedia.org/wiki/Split-quaternion)|[分解型双四元数](https://en.wikipedia.org/wiki/split-biquaternion)|[双曲四元数](https://en.wikipedia.org/wiki/hyperbolic_quaternion)
+[八元数](https://ja.wikipedia.org/wiki/%E5%85%AB%E5%85%83%E6%95%B0)|[双八元数](https://en.wikipedia.org/wiki/Bioctonion)|[分解型八元数](https://en.wikipedia.org/wiki/split-octonion)||
+[十六元数](https://ja.wikipedia.org/wiki/%E5%8D%81%E5%85%AD%E5%85%83%E6%95%B0)||||
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="四元数を作ろう by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/2036e7a739c2a9e04025" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="四元数を作ろう" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/2036e7a739c2a9e04025" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/2036e7a739c2a9e04025" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/2036e7a739c2a9e04025" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A4%87%E7%B4%A0%E6%95%B0\&quot;\u003e複素数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D\&quot;\u003e積\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%B1%E5%BD%B9\&quot;\u003e共役\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8E%E3%83%AB%E3%83%A0\&quot;\u003eノルム\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B1%E3%83%BC%E3%83%AA%E3%83%BC%E3%83%87%E3%82%A3%E3%82%AF%E3%82%BD%E3%83%B3%E3%81%AE%E6%A7%8B%E6%88%90%E6%B3%95\&quot;\u003eケーリー=ディクソンの構成法\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%89%E5%85%83%E6%95%B0\&quot;\u003e三元数\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%8C%E8%A4%87%E7%B4%A0%E6%95%B0\&quot;\u003e双複素数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D-1\&quot;\u003e積\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%B1%E5%BD%B9-1\&quot;\u003e共役\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8E%E3%83%AB%E3%83%A0-1\&quot;\u003eノルム\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%86%E3%83%83%E3%82%B5%E3%83%AA%E3%83%B3\&quot;\u003eテッサリン\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D%E3%81%A8%E3%83%8E%E3%83%AB%E3%83%A0\&quot;\u003e積とノルム\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%AF%E6%8F%9B%E5%9B%9B%E5%85%83%E6%95%B0%E5%8F%AF%E6%8F%9B%E8%B6%85%E8%A4%87%E7%B4%A0%E6%95%B0\&quot;\u003e可換四元数（可換超複素数）\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%BF%9C%E7%94%A8\&quot;\u003e応用\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%86%E8%A7%A3%E5%9E%8B%E8%A4%87%E7%B4%A0%E6%95%B0\&quot;\u003e分解型複素数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D-2\&quot;\u003e積\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%B1%E5%BD%B9-2\&quot;\u003e共役\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8E%E3%83%AB%E3%83%A0-2\&quot;\u003eノルム\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9B%9B%E5%85%83%E6%95%B0\&quot;\u003e四元数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%8D%E4%BA%A4%E6%8F%9B%E6%80%A7\&quot;\u003e反交換性\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B7%A1%E5%9B%9E%E6%80%A7\&quot;\u003e巡回性\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A6%9A%E3%81%88%E6%96%B9\&quot;\u003e覚え方\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B9%97%E7%A9%8D%E8%A1%A8\&quot;\u003e乗積表\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3%E6%AC%A1%E5%85%83%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB\&quot;\u003e3次元ベクトル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D-3\&quot;\u003e積\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%B1%E5%BD%B9-3\&quot;\u003e共役\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8E%E3%83%AB%E3%83%A0-3\&quot;\u003eノルム\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%8C%E6%9B%B2%E5%9B%9B%E5%85%83%E6%95%B0\&quot;\u003e双曲四元数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E5%90%88%E6%B3%95%E5%89%87\&quot;\u003e結合法則\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D-4\&quot;\u003e積\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%B1%E5%BD%B9-4\&quot;\u003e共役\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8E%E3%83%AB%E3%83%A0-4\&quot;\u003eノルム\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%A4%9A%E5%85%83%E6%95%B0\&quot;\u003e多元数\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:0,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;2036e7a739c2a9e04025&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/2036e7a739c2a9e04025/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/2036e7a739c2a9e04025.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 3 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/a80988a32a0d706e9378#_reference-28283146460d510b5bce"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />四元数と行列で見る内積と外積の「内」と「外」</a><time class="references_datetime js-dateTimeView" datetime="2016-12-03T06:37:06+00:00">3 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/b34fe724d36fb7d96456#_reference-ae2e9e1d9abaf6c6df3a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />八元数を作ろう</a><time class="references_datetime js-dateTimeView" datetime="2016-12-05T17:39:11+00:00">3 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/f54302058149d07da592#_reference-cbe489e5684cae0d63cc"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />ユークリッド空間のホッジ双対とバブルソート</a><time class="references_datetime js-dateTimeView" datetime="2016-12-09T07:53:57+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/8495b2d6b888e7b8703f#_reference-feabd75d0ae99a4d56d4"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />八元数の積をプログラムで確認</a><time class="references_datetime js-dateTimeView" datetime="2016-12-13T10:13:52+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/017d2d2c758f76071f23#_reference-ea2aabefb17745bc112c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />外積と愉快な仲間たち</a><time class="references_datetime js-dateTimeView" datetime="2016-12-15T04:36:33+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/4fb60dacad46cb8e63b3#_reference-f469b430aadfdbc9586d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />多項式の積を計算</a><time class="references_datetime js-dateTimeView" datetime="2016-12-19T05:49:03+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/02c758c03d2fd7038912#_reference-84cfff670d3309f378fd"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />外積の成分をプログラムで確認</a><time class="references_datetime js-dateTimeView" datetime="2016-12-20T09:15:07+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/88be5203769e629df243#_reference-363e008fe31c959a8c5b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />多元数の積の構成</a><time class="references_datetime js-dateTimeView" datetime="2017-01-03T18:42:07+00:00">about 2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="四元数を作ろう by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/2036e7a739c2a9e04025" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="四元数を作ろう" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/2036e7a739c2a9e04025" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/2036e7a739c2a9e04025" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/2036e7a739c2a9e04025" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:443871,&quot;uuid&quot;:&quot;2036e7a739c2a9e04025&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="kMznVyzqeeSpD0rVgl0+oJyNtntur+onkdp7IW6dHMv+TnwPt8RAr1bc/8nyqID5/MqSyPlrsNCtBHLaj5MSDQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/2036e7a739c2a9e04025" /><input type="hidden" name="item_uuid" id="item_uuid" value="2036e7a739c2a9e04025" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/2036e7a739c2a9e04025", "id": 443871, "uuid": "2036e7a739c2a9e04025" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="w4nwtk21NlM9AdsC1Fb/lhujbXUcT8RgitthqCRYI7KtC2vu1psPGMLSbh6ko0HPe+RJxouLnpe2BWhTxVYtdA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/2036e7a739c2a9e04025" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

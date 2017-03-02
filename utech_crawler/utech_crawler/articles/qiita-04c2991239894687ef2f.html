@@ -1,0 +1,1011 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>JSONパーサーを作る - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="パーサー作りの練習としてF#でJSONパーサーを作ってみます。
+
+※ 練習として作るのが目的のため既存のパーサーは使用しません。
+
+この記事で作ったパーサーを利用した記事です。
+
+
+
+HARからファイルを抽出する 2016.12.27
+
+
+この記事ではパーサコンビネータを意識した再帰下降パーサーを手書きします。詳細は以下の記事を参照してください。
+
+
+
+Java 再帰下降構文解析 超入門 2016.05.16
+
+Java パーサコンビネータ 超入門 2016.05.12..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="JSONパーサーを作る - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/04c2991239894687ef2f" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="パーサー作りの練習としてF#でJSONパーサーを作ってみます。
+
+※ 練習として作るのが目的のため既存のパーサーは使用しません。
+
+この記事で作ったパーサーを利用した記事です。
+
+* [HARからファイルを抽出する](http://q..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="SM6CsiV9fzQJ09qwpU9+HbSqaJfV8wXjbQE6ICZ6fqQmTBnqvlNGf/YAb6zVusBE1O1MJEI3XxRR3zPbx3RwYg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/F%23"><span itemprop="name">F#</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">JSONパーサーを作る</h1><ul class="TagList"><li class="TagList__item" data-count="160"><a class="u-link-unstyled TagList__label" href="/tags/F%23"><img alt="F#" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/ba95a660afc4ec92093e69afbd0b70d04e51245b/medium.jpg?1395581508" /><span>F#</span></a></li><li class="TagList__item" data-count="716"><a class="u-link-unstyled TagList__label" href="/tags/JSON"><img alt="JSON" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/c01990c29ce345a67f3b5e85102dfd84276b8e95/medium.jpg?1387911385" /><span>JSON</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">3</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:3,&quot;uuid&quot;:&quot;04c2991239894687ef2f&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="d_nishiyama85"><a itemprop="url" href="/d_nishiyama85"><img alt="d_nishiyama85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28313/profile-images/1473685173" /></a></li><li class="js-hovercard" data-hovercard-target-name="yuuma1991"><a itemprop="url" href="/yuuma1991"><img alt="yuuma1991" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/140020/profile-images/1473721055" /></a></li><li class="js-hovercard" data-hovercard-target-name="tell"><a itemprop="url" href="/tell"><img alt="tell" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14991/profile-images/1473683601" /></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2016-12-26">Edited at <time datetime="2016-12-28T04:20:07+09:00" itemprop="dateModified">2016-12-28</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/04c2991239894687ef2f/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">18</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/04c2991239894687ef2f/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(18)</span></a></li><li><a href="/7shi/items/04c2991239894687ef2f.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-04c2991239894687ef2f" itemprop="articleBody"><p>パーサー作りの練習としてF#でJSONパーサーを作ってみます。</p>
+
+<p>※ 練習として作るのが目的のため既存のパーサーは使用しません。</p>
+
+<p>この記事で作ったパーサーを利用した記事です。</p>
+
+<ul>
+<li>
+<a href="http://qiita.com/7shi/items/2e08418eeb448a343723" id="reference-69d08a6a9eddc498fba6">HARからファイルを抽出する</a> 2016.12.27</li>
+</ul>
+
+<p>この記事ではパーサコンビネータを意識した再帰下降パーサーを手書きします。詳細は以下の記事を参照してください。</p>
+
+<ul>
+<li>
+<a href="http://qiita.com/7shi/items/64261a67081d49f941e3" id="reference-a2443e77ccecd5b6628b">Java 再帰下降構文解析 超入門</a> 2016.05.16</li>
+<li>
+<a href="http://qiita.com/7shi/items/68228e19552c271bea81" id="reference-cda7d4070f557fe023de">Java パーサコンビネータ 超入門</a> 2016.05.12</li>
+<li>
+<a href="http://qiita.com/7shi/items/39a9ddffcc5bdf2c0142" id="reference-72ca2b7a3f542c16418c">Java パーサコンビネータ 超入門 2</a> 2016.05.14</li>
+<li>
+<a href="http://qiita.com/7shi/items/6a12160276a8db358e34" id="reference-3bed51bf5cd6a1f4b57e">C++11 パーサコンビネータ 超入門</a> 2015.11.27</li>
+<li>
+<a href="http://qiita.com/7shi/items/f86f2f7ad68cfff1b399" id="reference-9c82b2d4d8960eaee237">C++11 パーサコンビネータ 超入門 2</a> 2015.11.30</li>
+<li>
+<a href="http://qiita.com/7shi/items/b8c741e78a96ea2c10fe" id="reference-2af297d76406bc381078">Haskell 構文解析 超入門</a> 2015.07.31</li>
+</ul>
+
+<h1>
+<span id="簡易パーサー" class="fragment"></span><a href="#%E7%B0%A1%E6%98%93%E3%83%91%E3%83%BC%E3%82%B5%E3%83%BC"><i class="fa fa-link"></i></a>簡易パーサー</h1>
+
+<p>汎用の簡易パーサーを作ります。関数名は Parsec に似せていますが、オリジナルの関数もあります。</p>
+
+<h2>
+<span id="1文字読み取り" class="fragment"></span><a href="#1%E6%96%87%E5%AD%97%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A"><i class="fa fa-link"></i></a>1文字読み取り</h2>
+
+<p>任意の文字を1文字読み取ります。終端なら例外を発生させます。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx</span></div>
+<div class="highlight"><pre>
+<span class="k">open</span> <span class="nn">System</span>
+<span class="k">open</span> <span class="nn">System.IO</span>
+
+<span class="k">let</span> <span class="nv">parseTest</span> <span class="n">parser</span> <span class="n">src</span> <span class="o">=</span>
+    <span class="k">use</span> <span class="n">sr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringReader</span><span class="o">(</span><span class="n">src</span><span class="o">)</span>
+    <span class="k">try</span>
+        <span class="n">printfn</span> <span class="s">"%A"</span> <span class="o">(</span><span class="n">parser</span> <span class="n">sr</span><span class="o">)</span>
+    <span class="k">with</span> <span class="n">e</span> <span class="o">-&gt;</span>
+        <span class="n">printfn</span> <span class="s">"%s"</span> <span class="n">e</span><span class="o">.</span><span class="n">Message</span>
+
+<span class="k">let</span> <span class="nv">anyChar</span> <span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Read</span><span class="bp">()</span>
+    <span class="k">if</span> <span class="n">ch</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">then</span> <span class="kt">char</span> <span class="n">ch</span> <span class="k">else</span>
+    <span class="n">failwith</span> <span class="s">"anyChar: unexpected end of input"</span>
+
+<span class="n">parseTest</span> <span class="n">anyChar</span> <span class="s">"abc"</span>
+<span class="n">parseTest</span> <span class="n">anyChar</span> <span class="s">""</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+'a'
+anyChar: unexpected end of input
+</pre></div>
+</div>
+
+<h2>
+<span id="連続読み取り" class="fragment"></span><a href="#%E9%80%A3%E7%B6%9A%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A"><i class="fa fa-link"></i></a>連続読み取り</h2>
+
+<p>複数のパーサーをリストで表して連続実行します。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">plist</span> <span class="kt">list</span> <span class="n">tr</span> <span class="o">=</span> <span class="o">[</span><span class="k">for</span> <span class="n">p</span> <span class="k">in</span> <span class="kt">list</span> <span class="o">-&gt;</span> <span class="n">p</span> <span class="n">tr</span><span class="o">]</span>
+
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">plist</span> <span class="o">[</span><span class="n">anyChar</span><span class="o">;</span> <span class="n">anyChar</span><span class="o">])</span> <span class="s">"abc"</span>
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">plist</span> <span class="o">[</span><span class="n">anyChar</span><span class="o">;</span> <span class="n">anyChar</span><span class="o">])</span> <span class="s">"a"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+['a'; 'b']
+anyChar: unexpected end of input
+</pre></div>
+</div>
+
+<h2>
+<span id="文字確認" class="fragment"></span><a href="#%E6%96%87%E5%AD%97%E7%A2%BA%E8%AA%8D"><i class="fa fa-link"></i></a>文字確認</h2>
+
+<p>現在位置を移動せずに文字を確認します。終端なら例外を発生させます。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">peek</span> <span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Peek</span><span class="bp">()</span>
+    <span class="k">if</span> <span class="n">ch</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">then</span> <span class="kt">char</span> <span class="n">ch</span> <span class="k">else</span>
+    <span class="n">failwith</span> <span class="s">"peek: unexpected end of input"</span>
+
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">plist</span> <span class="o">[</span><span class="n">anyChar</span><span class="o">;</span> <span class="n">peek</span><span class="o">;</span> <span class="n">anyChar</span><span class="o">])</span> <span class="s">"abc"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+['a'; 'b'; 'b']
+</pre></div>
+</div>
+
+<h2>
+<span id="指定した文字か確認" class="fragment"></span><a href="#%E6%8C%87%E5%AE%9A%E3%81%97%E3%81%9F%E6%96%87%E5%AD%97%E3%81%8B%E7%A2%BA%E8%AA%8D"><i class="fa fa-link"></i></a>指定した文字か確認</h2>
+
+<p>指定した文字のどれかに該当すれば現在位置を進めて <code>true</code> を返し、そうでなければ <code>false</code> を返します。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">isOneOf</span> <span class="o">(</span><span class="n">s</span><span class="o">:</span><span class="kt">string</span><span class="o">)</span> <span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Peek</span><span class="bp">()</span>
+    <span class="k">if</span> <span class="n">ch</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="n">s</span><span class="o">.</span><span class="n">IndexOf</span><span class="o">(</span><span class="kt">char</span> <span class="n">ch</span><span class="o">)</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">then</span> <span class="k">false</span> <span class="k">else</span>
+    <span class="n">tr</span><span class="o">.</span><span class="n">Read</span><span class="bp">()</span> <span class="o">|&gt;</span> <span class="n">ignore</span>
+    <span class="k">true</span>
+
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">isOneOf</span> <span class="s">"ab"</span><span class="o">)</span> <span class="s">"abc"</span>
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">isOneOf</span> <span class="s">"ab"</span><span class="o">)</span> <span class="s">"def"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+true
+false
+</pre></div>
+</div>
+
+<h2>
+<span id="指定した文字の読み取り" class="fragment"></span><a href="#%E6%8C%87%E5%AE%9A%E3%81%97%E3%81%9F%E6%96%87%E5%AD%97%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A"><i class="fa fa-link"></i></a>指定した文字の読み取り</h2>
+
+<p>指定した文字のどれかに該当すれば読み取って、そうでなければ例外を発生させます。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">oneOf</span> <span class="o">(</span><span class="n">s</span><span class="o">:</span><span class="kt">string</span><span class="o">)</span> <span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Peek</span><span class="bp">()</span>
+    <span class="k">if</span> <span class="n">isOneOf</span> <span class="n">s</span> <span class="n">tr</span> <span class="k">then</span> <span class="kt">char</span> <span class="n">ch</span> <span class="k">else</span>
+    <span class="n">failwith</span> <span class="o">&lt;|</span> <span class="n">sprintf</span> <span class="s">"oneOf: '%c' is not in </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"</span><span class="s">"</span> <span class="o">(</span><span class="kt">char</span> <span class="n">ch</span><span class="o">)</span> <span class="n">s</span>
+
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">oneOf</span> <span class="s">"ab"</span><span class="o">)</span> <span class="s">"abc"</span>
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">oneOf</span> <span class="s">"ab"</span><span class="o">)</span> <span class="s">"def"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+'a'
+oneOf: 'd' is not in "ab"
+</pre></div>
+</div>
+
+<h2>
+<span id="条件に合う限り読み続ける" class="fragment"></span><a href="#%E6%9D%A1%E4%BB%B6%E3%81%AB%E5%90%88%E3%81%86%E9%99%90%E3%82%8A%E8%AA%AD%E3%81%BF%E7%B6%9A%E3%81%91%E3%82%8B"><i class="fa fa-link"></i></a>条件に合う限り読み続ける</h2>
+
+<p>指定した条件に合う限り文字列を読み続けます。1文字も合致しなければ空白が返るため例外は発生しません。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">many</span> <span class="n">f</span> <span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">use</span> <span class="n">sw</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringWriter</span><span class="bp">()</span>
+    <span class="k">let</span> <span class="nv">rec</span> <span class="n">g</span><span class="bp">()</span> <span class="o">=</span>
+        <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Peek</span><span class="bp">()</span>
+        <span class="k">if</span> <span class="n">ch</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">f</span> <span class="o">(</span><span class="kt">char</span> <span class="n">ch</span><span class="o">)</span> <span class="k">then</span>
+            <span class="n">sw</span><span class="o">.</span><span class="n">Write</span><span class="o">(</span><span class="kt">char</span> <span class="n">ch</span><span class="o">)</span>
+            <span class="n">tr</span><span class="o">.</span><span class="n">Read</span><span class="bp">()</span> <span class="o">|&gt;</span> <span class="n">ignore</span>
+            <span class="n">g</span><span class="bp">()</span>
+    <span class="n">g</span><span class="bp">()</span>
+    <span class="n">sw</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span>
+
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">many</span> <span class="nn">Char</span><span class="p">.</span><span class="n">IsDigit</span><span class="o">)</span> <span class="s">"123abc"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"123"
+</pre></div>
+</div>
+
+<h2>
+<span id="空白の読み飛ばし" class="fragment"></span><a href="#%E7%A9%BA%E7%99%BD%E3%81%AE%E8%AA%AD%E3%81%BF%E9%A3%9B%E3%81%B0%E3%81%97"><i class="fa fa-link"></i></a>空白の読み飛ばし</h2>
+
+<p>空白を読み飛ばします。パーサーを結合する演算子を定義します。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">isSpace</span> <span class="o">(</span><span class="n">ch</span><span class="o">:</span><span class="kt">char</span><span class="o">)</span> <span class="o">=</span> <span class="s">" </span><span class="se">\r\n\t</span><span class="s">"</span><span class="o">.</span><span class="n">IndexOf</span> <span class="n">ch</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+
+<span class="k">let</span> <span class="nv">rec</span> <span class="n">spaces</span> <span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Peek</span><span class="bp">()</span>
+    <span class="k">if</span> <span class="n">ch</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">isSpace</span> <span class="o">(</span><span class="kt">char</span> <span class="n">ch</span><span class="o">)</span> <span class="k">then</span>
+        <span class="n">tr</span><span class="o">.</span><span class="n">Read</span><span class="bp">()</span> <span class="o">|&gt;</span> <span class="n">ignore</span>
+        <span class="n">spaces</span> <span class="n">tr</span>
+
+<span class="k">let</span> <span class="o">(@&gt;&gt;)</span> <span class="n">a</span> <span class="n">b</span> <span class="o">=</span> <span class="k">fun</span> <span class="n">tr</span> <span class="o">-&gt;</span> <span class="n">a</span> <span class="n">tr</span> <span class="o">|&gt;</span> <span class="n">ignore</span><span class="o">;</span> <span class="n">b</span> <span class="n">tr</span>
+<span class="k">let</span> <span class="o">(@&lt;&lt;)</span> <span class="n">a</span> <span class="n">b</span> <span class="o">=</span> <span class="k">fun</span> <span class="n">tr</span> <span class="o">-&gt;</span> <span class="k">let</span> <span class="nv">r</span> <span class="o">=</span> <span class="n">a</span> <span class="n">tr</span> <span class="k">in</span> <span class="n">b</span> <span class="n">tr</span> <span class="o">|&gt;</span> <span class="n">ignore</span><span class="o">;</span> <span class="n">r</span>
+
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">spaces</span> <span class="o">@&gt;&gt;</span> <span class="n">anyChar</span><span class="o">)</span> <span class="s">"   123"</span>
+<span class="n">parseTest</span> <span class="o">(</span><span class="n">plist</span> <span class="o">[</span><span class="n">anyChar</span> <span class="o">@&lt;&lt;</span> <span class="n">spaces</span><span class="o">;</span> <span class="n">anyChar</span><span class="o">])</span> <span class="s">"1   23"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+'1'
+['1'; '2']
+</pre></div>
+</div>
+
+<p><code>@&gt;&gt;</code> や <code>@&lt;&lt;</code> は評価順を表しているわけではなく、評価順はどちらも「左→右」です。片方の戻り値は捨てて、片方の戻り値だけを残します（演算子を矢印と見なした時の指す先の関数が残す対象）。</p>
+
+<h1>
+<span id="jsonパーサー" class="fragment"></span><a href="#json%E3%83%91%E3%83%BC%E3%82%B5%E3%83%BC"><i class="fa fa-link"></i></a>JSONパーサー</h1>
+
+<p>基礎的なパーサーができたので、後はこれを利用してJSONパーサーを作ります。</p>
+
+<h2>
+<span id="文字列の読み取り" class="fragment"></span><a href="#%E6%96%87%E5%AD%97%E5%88%97%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A"><i class="fa fa-link"></i></a>文字列の読み取り</h2>
+
+<p>シングルクォートまたはダブルクォートで囲まれた文字列を読み取ります。エスケープシーケンスの処理がやや複雑です。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">jsonHex</span> <span class="n">tr</span> <span class="o">=</span>
+    <span class="k">match</span> <span class="n">anyChar</span> <span class="n">tr</span> <span class="k">with</span>
+    <span class="o">|</span> <span class="n">ch</span> <span class="k">when</span> <span class="sc">'0'</span> <span class="o">&lt;=</span> <span class="n">ch</span> <span class="o">&amp;&amp;</span> <span class="n">ch</span> <span class="o">&lt;=</span> <span class="sc">'9'</span> <span class="o">-&gt;</span> <span class="n">int</span> <span class="n">ch</span> <span class="o">-</span> <span class="n">int</span> <span class="sc">'0'</span>
+    <span class="o">|</span> <span class="n">ch</span> <span class="k">when</span> <span class="sc">'A'</span> <span class="o">&lt;=</span> <span class="n">ch</span> <span class="o">&amp;&amp;</span> <span class="n">ch</span> <span class="o">&lt;=</span> <span class="sc">'F'</span> <span class="o">-&gt;</span> <span class="n">int</span> <span class="n">ch</span> <span class="o">-</span> <span class="n">int</span> <span class="sc">'A'</span> <span class="o">+</span> <span class="mi">10</span>
+    <span class="o">|</span> <span class="n">ch</span> <span class="k">when</span> <span class="sc">'a'</span> <span class="o">&lt;=</span> <span class="n">ch</span> <span class="o">&amp;&amp;</span> <span class="n">ch</span> <span class="o">&lt;=</span> <span class="sc">'f'</span> <span class="o">-&gt;</span> <span class="n">int</span> <span class="n">ch</span> <span class="o">-</span> <span class="n">int</span> <span class="sc">'a'</span> <span class="o">+</span> <span class="mi">10</span>
+    <span class="o">|</span> <span class="n">ch</span> <span class="o">-&gt;</span> <span class="n">failwith</span> <span class="o">&lt;|</span> <span class="n">sprintf</span> <span class="s">"hexChar: '%c' is not hex char"</span> <span class="n">ch</span>
+
+<span class="k">let</span> <span class="nv">jsonUnescape</span> <span class="n">tr</span> <span class="o">=</span>
+    <span class="k">match</span> <span class="n">anyChar</span> <span class="n">tr</span> <span class="k">with</span>
+    <span class="o">|</span> <span class="sc">'b'</span> <span class="o">-&gt;</span> <span class="sc">'\b'</span>
+    <span class="o">|</span> <span class="sc">'t'</span> <span class="o">-&gt;</span> <span class="sc">'\t'</span>
+    <span class="o">|</span> <span class="sc">'n'</span> <span class="o">-&gt;</span> <span class="sc">'\n'</span>
+    <span class="o">|</span> <span class="sc">'v'</span> <span class="o">-&gt;</span> <span class="kt">char</span> <span class="mi">11</span>
+    <span class="o">|</span> <span class="sc">'f'</span> <span class="o">-&gt;</span> <span class="kt">char</span> <span class="mi">12</span>
+    <span class="o">|</span> <span class="sc">'r'</span> <span class="o">-&gt;</span> <span class="sc">'\r'</span>
+    <span class="o">|</span> <span class="sc">'x'</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="n">jsonHex</span> <span class="n">tr</span> <span class="o">&lt;&lt;&lt;</span>  <span class="mi">4</span><span class="o">)</span> <span class="o">|||</span> <span class="o">(</span><span class="n">jsonHex</span> <span class="n">tr</span><span class="o">)</span> <span class="o">|&gt;</span> <span class="kt">char</span>
+    <span class="o">|</span> <span class="sc">'u'</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="n">jsonHex</span> <span class="n">tr</span> <span class="o">&lt;&lt;&lt;</span> <span class="mi">12</span><span class="o">)</span> <span class="o">|||</span> <span class="o">(</span><span class="n">jsonHex</span> <span class="n">tr</span> <span class="o">&lt;&lt;&lt;</span> <span class="mi">8</span><span class="o">)</span> <span class="o">|||</span>
+             <span class="o">(</span><span class="n">jsonHex</span> <span class="n">tr</span> <span class="o">&lt;&lt;&lt;</span>  <span class="mi">4</span><span class="o">)</span> <span class="o">|||</span> <span class="o">(</span><span class="n">jsonHex</span> <span class="n">tr</span><span class="o">)</span> <span class="o">|&gt;</span> <span class="kt">char</span>
+    <span class="o">|</span> <span class="n">ch</span>  <span class="o">-&gt;</span> <span class="n">ch</span>
+
+<span class="k">let</span> <span class="nv">jsonString</span> <span class="n">tr</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">start</span> <span class="o">=</span> <span class="n">oneOf</span> <span class="s">"'</span><span class="se">\"</span><span class="s">"</span> <span class="n">tr</span>
+    <span class="k">use</span> <span class="n">sw</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringWriter</span><span class="bp">()</span>
+    <span class="k">let</span> <span class="nv">rec</span> <span class="n">f</span><span class="bp">()</span> <span class="o">=</span>
+        <span class="k">match</span> <span class="n">anyChar</span> <span class="n">tr</span> <span class="k">with</span>
+        <span class="o">|</span> <span class="n">ch</span> <span class="k">when</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">start</span> <span class="o">-&gt;</span> <span class="bp">()</span>
+        <span class="o">|</span> <span class="sc">'\\'</span> <span class="o">-&gt;</span> <span class="n">sw</span><span class="o">.</span><span class="n">Write</span> <span class="o">(</span><span class="n">jsonUnescape</span> <span class="n">tr</span><span class="o">);</span> <span class="n">f</span><span class="bp">()</span>
+        <span class="o">|</span> <span class="n">ch</span> <span class="o">-&gt;</span> <span class="n">sw</span><span class="o">.</span><span class="n">Write</span> <span class="n">ch</span><span class="o">;</span> <span class="n">f</span><span class="bp">()</span>
+    <span class="n">f</span><span class="bp">()</span>
+    <span class="n">sw</span><span class="o">.</span><span class="n">ToString</span><span class="bp">()</span>
+
+<span class="n">parseTest</span> <span class="n">jsonString</span> <span class="s">"</span><span class="se">\"</span><span class="s">abc</span><span class="se">\"</span><span class="s">"</span>
+<span class="n">parseTest</span> <span class="n">jsonString</span> <span class="s">@"'a\\b\\c'"</span>
+<span class="n">parseTest</span> <span class="n">jsonString</span> <span class="s">@"'A\x42\u0043'"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"abc"
+"a\b\c"
+"ABC"
+</pre></div>
+</div>
+
+<h2>
+<span id="数値の読み取り" class="fragment"></span><a href="#%E6%95%B0%E5%80%A4%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A"><i class="fa fa-link"></i></a>数値の読み取り</h2>
+
+<p>数値を読み取ります。マイナスや小数点もサポートします。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">rec</span> <span class="n">jsonNumber</span> <span class="n">tr</span> <span class="o">=</span>
+    <span class="k">if</span> <span class="n">isOneOf</span> <span class="s">"-"</span> <span class="n">tr</span> <span class="k">then</span> <span class="s">"-"</span> <span class="o">+</span> <span class="n">jsonNumber</span> <span class="n">tr</span> <span class="k">else</span>
+    <span class="k">let</span> <span class="nv">n1</span> <span class="o">=</span> <span class="n">many</span> <span class="nn">Char</span><span class="p">.</span><span class="n">IsDigit</span> <span class="n">tr</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="o">&lt;|</span> <span class="n">isOneOf</span> <span class="s">"."</span> <span class="n">tr</span> <span class="k">then</span> <span class="n">n1</span> <span class="k">else</span>
+    <span class="n">n1</span> <span class="o">+</span> <span class="s">"."</span> <span class="o">+</span> <span class="n">many</span> <span class="nn">Char</span><span class="p">.</span><span class="n">IsDigit</span> <span class="n">tr</span>
+
+<span class="n">parseTest</span> <span class="n">jsonNumber</span> <span class="s">"123"</span>
+<span class="n">parseTest</span> <span class="n">jsonNumber</span> <span class="s">"-3.14"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"123"
+"-3.14"
+</pre></div>
+</div>
+
+<h2>
+<span id="値の読み取り" class="fragment"></span><a href="#%E5%80%A4%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A"><i class="fa fa-link"></i></a>値の読み取り</h2>
+
+<p>文字列または数値またはシンボルを読み取ります。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">jsonValue</span> <span class="n">tr</span> <span class="o">=</span>
+    <span class="k">match</span> <span class="n">peek</span> <span class="n">tr</span> <span class="k">with</span>
+    <span class="o">|</span> <span class="sc">'\''</span> <span class="o">|</span> <span class="sc">'"'</span> <span class="o">-&gt;</span> <span class="n">jsonString</span> <span class="n">tr</span>
+    <span class="o">|</span> <span class="sc">'-'</span>        <span class="o">-&gt;</span> <span class="n">jsonNumber</span> <span class="n">tr</span>
+    <span class="o">|</span> <span class="n">ch</span> <span class="k">when</span> <span class="nn">Char</span><span class="p">.</span><span class="n">IsDigit</span>  <span class="n">ch</span> <span class="o">-&gt;</span> <span class="n">jsonNumber</span> <span class="n">tr</span>
+    <span class="o">|</span> <span class="n">ch</span> <span class="k">when</span> <span class="nn">Char</span><span class="p">.</span><span class="n">IsLetter</span> <span class="n">ch</span> <span class="o">-&gt;</span> <span class="n">many</span> <span class="nn">Char</span><span class="p">.</span><span class="n">IsLetterOrDigit</span> <span class="n">tr</span>
+    <span class="o">|</span> <span class="n">ch</span> <span class="o">-&gt;</span> <span class="n">failwith</span> <span class="o">&lt;|</span> <span class="n">sprintf</span> <span class="s">"jsonValue: unknown '%c'"</span> <span class="n">ch</span>
+
+<span class="n">parseTest</span> <span class="n">jsonValue</span> <span class="s">"abc 456"</span>
+<span class="n">parseTest</span> <span class="n">jsonValue</span> <span class="s">"-1,2"</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"abc"
+"-1"
+</pre></div>
+</div>
+
+<h2>
+<span id="本体" class="fragment"></span><a href="#%E6%9C%AC%E4%BD%93"><i class="fa fa-link"></i></a>本体</h2>
+
+<p>本体を実装します。先に必要な部品を揃えたので、割とあっさり実装できました。</p>
+
+<p>シーケンスでJSONをパースしながら、項目に当たれば <code>yield</code> します。シーケンスの中で再帰するとシーケンスがネストしますが、<code>yield!</code> を使えば外からはフラットに見えます。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">let</span> <span class="nv">jsonParser</span> <span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">rec</span> <span class="n">value</span> <span class="n">stack</span> <span class="o">=</span> <span class="n">seq</span> <span class="o">{</span>
+        <span class="k">match</span> <span class="o">(</span><span class="n">spaces</span> <span class="o">@&gt;&gt;</span> <span class="n">peek</span><span class="o">)</span> <span class="n">tr</span> <span class="k">with</span>
+        <span class="o">|</span> <span class="sc">'{'</span> <span class="o">-&gt;</span>
+            <span class="k">while</span> <span class="n">isOneOf</span> <span class="s">"{,"</span> <span class="n">tr</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">spaces</span> <span class="o">@&gt;&gt;</span> <span class="n">peek</span><span class="o">)</span> <span class="n">tr</span> <span class="o">&lt;&gt;</span> <span class="sc">'}'</span> <span class="k">do</span>
+                <span class="k">match</span> <span class="n">peek</span> <span class="n">tr</span> <span class="k">with</span>
+                <span class="o">|</span> <span class="sc">'\''</span> <span class="o">|</span> <span class="sc">'"'</span> <span class="o">-&gt;</span>
+                    <span class="k">let</span> <span class="nv">name</span> <span class="o">=</span> <span class="o">(</span><span class="n">jsonString</span> <span class="o">@&lt;&lt;</span> <span class="n">spaces</span> <span class="o">@&lt;&lt;</span> <span class="n">oneOf</span> <span class="s">":"</span><span class="o">)</span> <span class="n">tr</span>
+                    <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="o">(</span><span class="n">spaces</span> <span class="o">@&gt;&gt;</span> <span class="n">peek</span><span class="o">)</span> <span class="n">tr</span>
+                    <span class="k">match</span> <span class="n">ch</span> <span class="k">with</span>
+                    <span class="o">|</span> <span class="sc">'{'</span> <span class="o">|</span> <span class="sc">'['</span> <span class="o">-&gt;</span>
+                        <span class="k">yield</span> <span class="n">name</span><span class="o">,</span> <span class="n">ch</span><span class="o">,</span> <span class="s">""</span><span class="o">,</span> <span class="n">stack</span>
+                        <span class="k">yield</span><span class="o">!</span> <span class="n">value</span> <span class="o">(</span><span class="n">name</span><span class="o">::</span><span class="n">stack</span><span class="o">)</span>
+                        <span class="k">yield</span> <span class="n">name</span><span class="o">,</span> <span class="o">(</span><span class="k">if</span> <span class="n">ch</span> <span class="o">=</span> <span class="sc">'{'</span> <span class="k">then</span> <span class="sc">'}'</span> <span class="k">else</span> <span class="sc">']'</span><span class="o">),</span> <span class="s">""</span><span class="o">,</span> <span class="n">stack</span>
+                    <span class="o">|</span> <span class="o">_</span> <span class="o">-&gt;</span>
+                        <span class="k">yield</span> <span class="n">name</span><span class="o">,</span> <span class="sc">':'</span><span class="o">,</span> <span class="n">jsonValue</span> <span class="n">tr</span><span class="o">,</span> <span class="n">stack</span>
+                <span class="o">|</span> <span class="n">ch</span> <span class="o">-&gt;</span>
+                    <span class="n">failwith</span> <span class="o">&lt;|</span> <span class="n">sprintf</span> <span class="s">"jsonParser: unknown '%c'"</span> <span class="n">ch</span>
+            <span class="o">(</span><span class="n">spaces</span> <span class="o">@&lt;&lt;</span> <span class="n">oneOf</span> <span class="s">"}"</span><span class="o">)</span> <span class="n">tr</span>
+        <span class="o">|</span> <span class="sc">'['</span> <span class="o">-&gt;</span>
+            <span class="k">while</span> <span class="n">isOneOf</span> <span class="s">"[,"</span> <span class="n">tr</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">spaces</span> <span class="o">@&gt;&gt;</span> <span class="n">peek</span><span class="o">)</span> <span class="n">tr</span> <span class="o">&lt;&gt;</span> <span class="sc">']'</span> <span class="k">do</span>
+                <span class="k">let</span> <span class="nv">ch</span> <span class="o">=</span> <span class="n">peek</span> <span class="n">tr</span>
+                <span class="k">match</span> <span class="n">ch</span> <span class="k">with</span>
+                <span class="o">|</span> <span class="sc">'{'</span> <span class="o">|</span> <span class="sc">'['</span> <span class="o">-&gt;</span>
+                    <span class="k">yield</span> <span class="s">""</span><span class="o">,</span> <span class="n">ch</span><span class="o">,</span> <span class="s">""</span><span class="o">,</span> <span class="n">stack</span>
+                    <span class="k">yield</span><span class="o">!</span> <span class="n">value</span> <span class="o">(</span><span class="s">""</span><span class="o">::</span><span class="n">stack</span><span class="o">)</span>
+                    <span class="k">yield</span> <span class="s">""</span><span class="o">,</span> <span class="o">(</span><span class="k">if</span> <span class="n">ch</span> <span class="o">=</span> <span class="sc">'{'</span> <span class="k">then</span> <span class="sc">'}'</span> <span class="k">else</span> <span class="sc">']'</span><span class="o">),</span> <span class="s">""</span><span class="o">,</span> <span class="n">stack</span>
+                <span class="o">|</span> <span class="o">_</span> <span class="o">-&gt;</span>
+                    <span class="k">yield</span> <span class="s">""</span><span class="o">,</span> <span class="sc">':'</span><span class="o">,</span> <span class="n">jsonValue</span> <span class="n">tr</span><span class="o">,</span> <span class="n">stack</span>
+            <span class="o">(</span><span class="n">spaces</span> <span class="o">@&lt;&lt;</span> <span class="n">oneOf</span> <span class="s">"]"</span><span class="o">)</span> <span class="n">tr</span>
+        <span class="o">|</span> <span class="n">ch</span> <span class="o">-&gt;</span>
+            <span class="n">failwith</span> <span class="o">&lt;|</span> <span class="n">sprintf</span> <span class="s">"jsonParser: unknown '%c'"</span> <span class="n">ch</span> <span class="o">}</span>
+    <span class="n">value</span> <span class="bp">[]</span>
+
+<span class="k">let</span> <span class="nv">test</span> <span class="o">=</span> <span class="s">"""</span>
+<span class="s">{</span>
+<span class="s">  "log": {</span>
+<span class="s">    "version": "1.1",</span>
+<span class="s">    "creator": {</span>
+<span class="s">      "name": "Foo",</span>
+<span class="s">      "version": "1.0" },</span>
+<span class="s">    "pages": [</span>
+<span class="s">      { "id": "page_1", "title": "Test1" },</span>
+<span class="s">      { "id": "page_2", "title": "Test2" }</span>
+<span class="s">    ],</span>
+<span class="s">    "test": [-1.23, null, [1, 2, 3]]</span>
+<span class="s">  }</span>
+<span class="s">}</span>
+<span class="s">"""</span>
+
+<span class="k">try</span>
+    <span class="k">use</span> <span class="n">sr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringReader</span><span class="o">(</span><span class="n">test</span><span class="o">)</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="n">t</span><span class="o">,</span> <span class="n">v</span><span class="o">,</span> <span class="n">st</span><span class="o">)</span> <span class="k">in</span> <span class="n">jsonParser</span> <span class="n">sr</span> <span class="k">do</span>
+        <span class="k">let</span> <span class="nv">v</span> <span class="o">=</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">Length</span> <span class="o">&lt;</span> <span class="mi">20</span> <span class="k">then</span> <span class="n">v</span> <span class="k">else</span> <span class="n">v</span><span class="o">.[..</span><span class="mi">19</span><span class="o">]</span> <span class="o">+</span> <span class="s">".."</span>
+        <span class="n">printfn</span> <span class="s">"%A %A %c %A"</span> <span class="o">(</span><span class="nn">List</span><span class="p">.</span><span class="n">rev</span> <span class="n">st</span><span class="o">)</span> <span class="n">n</span> <span class="n">t</span> <span class="n">v</span>
+<span class="k">with</span> <span class="n">e</span> <span class="o">-&gt;</span>
+    <span class="n">printf</span> <span class="s">"%A"</span> <span class="n">e</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[] "log" { ""
+["log"] "version" : "1.1"
+["log"] "creator" { ""
+["log"; "creator"] "name" : "Foo"
+["log"; "creator"] "version" : "1.0"
+["log"] "creator" } ""
+["log"] "pages" [ ""
+["log"; "pages"] "" { ""
+["log"; "pages"; ""] "id" : "page_1"
+["log"; "pages"; ""] "title" : "Test1"
+["log"; "pages"] "" } ""
+["log"; "pages"] "" { ""
+["log"; "pages"; ""] "id" : "page_2"
+["log"; "pages"; ""] "title" : "Test2"
+["log"; "pages"] "" } ""
+["log"] "pages" ] ""
+["log"] "test" [ ""
+["log"; "test"] "" : "-1.23"
+["log"; "test"] "" : "null"
+["log"; "test"] "" [ ""
+["log"; "test"; ""] "" : "1"
+["log"; "test"; ""] "" : "2"
+["log"; "test"; ""] "" : "3"
+["log"; "test"] "" ] ""
+["log"] "test" ] ""
+[] "log" } ""
+</pre></div>
+</div>
+
+<p>ネストを把握しやすいように、閉じタグに相当するものを出力しています。</p>
+
+<h2>
+<span id="クラスでラップ" class="fragment"></span><a href="#%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%A7%E3%83%A9%E3%83%83%E3%83%97"><i class="fa fa-link"></i></a>クラスでラップ</h2>
+
+<p>このままだと荒削りで使いにくいので、クラスでラップして検索と子要素の列挙を実装します。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">JSONParser.fsx（続き）</span></div>
+<div class="highlight"><pre>
+<span class="k">type</span> <span class="nc">JSONParser</span><span class="o">(</span><span class="n">tr</span><span class="o">:</span><span class="n">TextReader</span><span class="o">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">en</span> <span class="o">=</span> <span class="o">(</span><span class="n">jsonParser</span> <span class="n">tr</span><span class="o">).</span><span class="n">GetEnumerator</span><span class="bp">()</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Dispose</span><span class="bp">()</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">Dispose</span><span class="bp">()</span>
+    <span class="k">interface</span> <span class="n">IDisposable</span> <span class="k">with</span>
+        <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Dispose</span><span class="bp">()</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">Dispose</span><span class="bp">()</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Current</span> <span class="o">=</span> <span class="n">en</span><span class="o">.</span><span class="n">Current</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Name</span>  <span class="o">=</span> <span class="k">let</span> <span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="o">_,</span> <span class="o">_,</span> <span class="o">_)</span> <span class="o">=</span> <span class="n">en</span><span class="o">.</span><span class="n">Current</span> <span class="k">in</span> <span class="n">n</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Type</span>  <span class="o">=</span> <span class="k">let</span> <span class="o">(_,</span> <span class="n">t</span><span class="o">,</span> <span class="o">_,</span> <span class="o">_)</span> <span class="o">=</span> <span class="n">en</span><span class="o">.</span><span class="n">Current</span> <span class="k">in</span> <span class="n">t</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Value</span> <span class="o">=</span> <span class="k">let</span> <span class="o">(_,</span> <span class="o">_,</span> <span class="n">v</span><span class="o">,</span> <span class="o">_)</span> <span class="o">=</span> <span class="n">en</span><span class="o">.</span><span class="n">Current</span> <span class="k">in</span> <span class="n">v</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Stack</span> <span class="o">=</span> <span class="k">let</span> <span class="o">(_,</span> <span class="o">_,</span> <span class="o">_,</span> <span class="n">s</span><span class="o">)</span> <span class="o">=</span> <span class="n">en</span><span class="o">.</span><span class="n">Current</span> <span class="k">in</span> <span class="n">s</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Read</span><span class="bp">()</span> <span class="o">=</span> <span class="n">en</span><span class="o">.</span><span class="n">MoveNext</span><span class="bp">()</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Find</span><span class="o">(</span><span class="n">name</span><span class="o">:</span><span class="kt">string</span><span class="o">)</span> <span class="o">=</span>
+        <span class="k">let</span> <span class="nv">rec</span> <span class="n">f</span><span class="bp">()</span> <span class="o">=</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="o">&lt;|</span> <span class="n">x</span><span class="o">.</span><span class="n">Read</span><span class="bp">()</span> <span class="k">then</span> <span class="k">false</span>
+            <span class="k">elif</span> <span class="n">x</span><span class="o">.</span><span class="n">Name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">then</span> <span class="k">true</span> <span class="k">else</span> <span class="n">f</span><span class="bp">()</span>
+        <span class="n">f</span><span class="bp">()</span>
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Each</span><span class="bp">()</span> <span class="o">=</span>
+        <span class="k">let</span> <span class="nv">len</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">Stack</span><span class="o">.</span><span class="n">Length</span>
+        <span class="k">let</span> <span class="nv">num</span> <span class="o">=</span> <span class="n">ref</span> <span class="mi">0</span>
+        <span class="n">seq</span> <span class="o">{</span>
+            <span class="k">while</span> <span class="n">x</span><span class="o">.</span><span class="n">Read</span><span class="bp">()</span> <span class="o">&amp;&amp;</span> <span class="n">x</span><span class="o">.</span><span class="n">Stack</span><span class="o">.</span><span class="n">Length</span> <span class="o">&lt;&gt;</span> <span class="n">len</span> <span class="k">do</span>
+                <span class="k">yield</span> <span class="o">!</span><span class="n">num</span>
+                <span class="n">num</span> <span class="o">:=</span> <span class="o">!</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">}</span>
+
+<span class="k">try</span>
+    <span class="k">use</span> <span class="n">jp</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JSONParser</span><span class="o">(</span><span class="k">new</span> <span class="n">StringReader</span><span class="o">(</span><span class="n">test</span><span class="o">))</span>
+    <span class="k">if</span> <span class="n">jp</span><span class="o">.</span><span class="n">Find</span> <span class="s">"pages"</span> <span class="k">then</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">jp</span><span class="o">.</span><span class="n">Each</span><span class="bp">()</span> <span class="k">do</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="k">in</span> <span class="n">jp</span><span class="o">.</span><span class="n">Each</span><span class="bp">()</span> <span class="k">do</span>
+        <span class="n">printfn</span> <span class="s">"%d:%d. %s = %s"</span> <span class="n">i</span> <span class="n">j</span> <span class="n">jp</span><span class="o">.</span><span class="n">Name</span> <span class="n">jp</span><span class="o">.</span><span class="n">Value</span>
+<span class="k">with</span> <span class="n">e</span> <span class="o">-&gt;</span>
+    <span class="n">printf</span> <span class="s">"%A"</span> <span class="n">e</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+0:0. id = page_1
+0:1. title = Test1
+1:0. id = page_2
+1:1. title = Test2
+</pre></div>
+</div>
+
+<p>手っ取り早くデータの一部を取り出すには、これだけあれば大抵の用は足りるのではないでしょうか。</p>
+
+<p>このインターフェースは以前作ったXMLパーサーを参考にしています。</p>
+
+<ul>
+<li>
+<a href="http://7shi.hateblo.jp/entry/2012/07/01/223222" rel="nofollow noopener" target="_blank">Pythonでスクレイピング</a> 2012.07.01</li>
+</ul>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<p>コード全体は以下に掲載します。</p>
+
+<ul>
+<li><a href="http://ideone.com/4V8oNB" class="autolink" rel="nofollow noopener" target="_blank">http://ideone.com/4V8oNB</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/04c2991239894687ef2f" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="pFVktskaR3KMZxCJdIEADaBJxTZbiJYLBgP76Lb/zwbK1//uUjR+OXO0pZUEdL5UwA7hhcxMzPw63fITV/HBwA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1482866407" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+パーサー作りの練習としてF#でJSONパーサーを作ってみます。
+
+※ 練習として作るのが目的のため既存のパーサーは使用しません。
+
+この記事で作ったパーサーを利用した記事です。
+
+* [HARからファイルを抽出する](http://qiita.com/7shi/items/2e08418eeb448a343723) 2016.12.27
+
+この記事ではパーサコンビネータを意識した再帰下降パーサーを手書きします。詳細は以下の記事を参照してください。
+
+* [Java 再帰下降構文解析 超入門](http://qiita.com/7shi/items/64261a67081d49f941e3) 2016.05.16
+* [Java パーサコンビネータ 超入門](http://qiita.com/7shi/items/68228e19552c271bea81) 2016.05.12
+* [Java パーサコンビネータ 超入門 2](http://qiita.com/7shi/items/39a9ddffcc5bdf2c0142) 2016.05.14
+* [C++11 パーサコンビネータ 超入門](http://qiita.com/7shi/items/6a12160276a8db358e34) 2015.11.27
+* [C++11 パーサコンビネータ 超入門 2](http://qiita.com/7shi/items/f86f2f7ad68cfff1b399) 2015.11.30
+* [Haskell 構文解析 超入門](http://qiita.com/7shi/items/b8c741e78a96ea2c10fe) 2015.07.31
+
+# 簡易パーサー
+
+汎用の簡易パーサーを作ります。関数名は Parsec に似せていますが、オリジナルの関数もあります。
+
+## 1文字読み取り
+
+任意の文字を1文字読み取ります。終端なら例外を発生させます。
+
+```fsharp:JSONParser.fsx
+open System
+open System.IO
+
+let parseTest parser src =
+    use sr = new StringReader(src)
+    try
+        printfn &quot;%A&quot; (parser sr)
+    with e -&gt;
+        printfn &quot;%s&quot; e.Message
+
+let anyChar (tr:TextReader) =
+    let ch = tr.Read()
+    if ch &gt;= 0 then char ch else
+    failwith &quot;anyChar: unexpected end of input&quot;
+
+parseTest anyChar &quot;abc&quot;
+parseTest anyChar &quot;&quot;
+```
+```text:実行結果
+&#39;a&#39;
+anyChar: unexpected end of input
+```
+
+## 連続読み取り
+
+複数のパーサーをリストで表して連続実行します。
+
+```fsharp:JSONParser.fsx（続き）
+let plist list tr = [for p in list -&gt; p tr]
+
+parseTest (plist [anyChar; anyChar]) &quot;abc&quot;
+parseTest (plist [anyChar; anyChar]) &quot;a&quot;
+```
+```text:実行結果
+[&#39;a&#39;; &#39;b&#39;]
+anyChar: unexpected end of input
+```
+
+## 文字確認
+
+現在位置を移動せずに文字を確認します。終端なら例外を発生させます。
+
+```fsharp:JSONParser.fsx（続き）
+let peek (tr:TextReader) =
+    let ch = tr.Peek()
+    if ch &gt;= 0 then char ch else
+    failwith &quot;peek: unexpected end of input&quot;
+
+parseTest (plist [anyChar; peek; anyChar]) &quot;abc&quot;
+```
+```text:実行結果
+[&#39;a&#39;; &#39;b&#39;; &#39;b&#39;]
+```
+
+## 指定した文字か確認
+
+指定した文字のどれかに該当すれば現在位置を進めて `true` を返し、そうでなければ `false` を返します。
+
+```fsharp:JSONParser.fsx（続き）
+let isOneOf (s:string) (tr:TextReader) =
+    let ch = tr.Peek()
+    if ch = -1 || s.IndexOf(char ch) &lt; 0 then false else
+    tr.Read() |&gt; ignore
+    true
+
+parseTest (isOneOf &quot;ab&quot;) &quot;abc&quot;
+parseTest (isOneOf &quot;ab&quot;) &quot;def&quot;
+```
+```text:実行結果
+true
+false
+```
+
+## 指定した文字の読み取り
+
+指定した文字のどれかに該当すれば読み取って、そうでなければ例外を発生させます。
+
+```fsharp:JSONParser.fsx（続き）
+let oneOf (s:string) (tr:TextReader) =
+    let ch = tr.Peek()
+    if isOneOf s tr then char ch else
+    failwith &lt;| sprintf &quot;oneOf: &#39;%c&#39; is not in \&quot;%s\&quot;&quot; (char ch) s
+
+parseTest (oneOf &quot;ab&quot;) &quot;abc&quot;
+parseTest (oneOf &quot;ab&quot;) &quot;def&quot;
+```
+```text:実行結果
+&#39;a&#39;
+oneOf: &#39;d&#39; is not in &quot;ab&quot;
+```
+
+## 条件に合う限り読み続ける
+
+指定した条件に合う限り文字列を読み続けます。1文字も合致しなければ空白が返るため例外は発生しません。
+
+```fsharp:JSONParser.fsx（続き）
+let many f (tr:TextReader) =
+    use sw = new StringWriter()
+    let rec g() =
+        let ch = tr.Peek()
+        if ch &gt;= 0 &amp;&amp; f (char ch) then
+            sw.Write(char ch)
+            tr.Read() |&gt; ignore
+            g()
+    g()
+    sw.ToString()
+
+parseTest (many Char.IsDigit) &quot;123abc&quot;
+```
+```text:実行結果
+&quot;123&quot;
+```
+
+## 空白の読み飛ばし
+
+空白を読み飛ばします。パーサーを結合する演算子を定義します。
+
+```fsharp:JSONParser.fsx（続き）
+let isSpace (ch:char) = &quot; \r\n\t&quot;.IndexOf ch &gt;= 0
+
+let rec spaces (tr:TextReader) =
+    let ch = tr.Peek()
+    if ch &gt;= 0 &amp;&amp; isSpace (char ch) then
+        tr.Read() |&gt; ignore
+        spaces tr
+
+let (@&gt;&gt;) a b = fun tr -&gt; a tr |&gt; ignore; b tr
+let (@&lt;&lt;) a b = fun tr -&gt; let r = a tr in b tr |&gt; ignore; r
+
+parseTest (spaces @&gt;&gt; anyChar) &quot;   123&quot;
+parseTest (plist [anyChar @&lt;&lt; spaces; anyChar]) &quot;1   23&quot;
+```
+```text:実行結果
+&#39;1&#39;
+[&#39;1&#39;; &#39;2&#39;]
+```
+
+`@&gt;&gt;` や `@&lt;&lt;` は評価順を表しているわけではなく、評価順はどちらも「左→右」です。片方の戻り値は捨てて、片方の戻り値だけを残します（演算子を矢印と見なした時の指す先の関数が残す対象）。
+
+# JSONパーサー
+
+基礎的なパーサーができたので、後はこれを利用してJSONパーサーを作ります。
+
+## 文字列の読み取り
+
+シングルクォートまたはダブルクォートで囲まれた文字列を読み取ります。エスケープシーケンスの処理がやや複雑です。
+
+```fsharp:JSONParser.fsx（続き）
+let jsonHex tr =
+    match anyChar tr with
+    | ch when &#39;0&#39; &lt;= ch &amp;&amp; ch &lt;= &#39;9&#39; -&gt; int ch - int &#39;0&#39;
+    | ch when &#39;A&#39; &lt;= ch &amp;&amp; ch &lt;= &#39;F&#39; -&gt; int ch - int &#39;A&#39; + 10
+    | ch when &#39;a&#39; &lt;= ch &amp;&amp; ch &lt;= &#39;f&#39; -&gt; int ch - int &#39;a&#39; + 10
+    | ch -&gt; failwith &lt;| sprintf &quot;hexChar: &#39;%c&#39; is not hex char&quot; ch
+
+let jsonUnescape tr =
+    match anyChar tr with
+    | &#39;b&#39; -&gt; &#39;\b&#39;
+    | &#39;t&#39; -&gt; &#39;\t&#39;
+    | &#39;n&#39; -&gt; &#39;\n&#39;
+    | &#39;v&#39; -&gt; char 11
+    | &#39;f&#39; -&gt; char 12
+    | &#39;r&#39; -&gt; &#39;\r&#39;
+    | &#39;x&#39; -&gt; (jsonHex tr &lt;&lt;&lt;  4) ||| (jsonHex tr) |&gt; char
+    | &#39;u&#39; -&gt; (jsonHex tr &lt;&lt;&lt; 12) ||| (jsonHex tr &lt;&lt;&lt; 8) |||
+             (jsonHex tr &lt;&lt;&lt;  4) ||| (jsonHex tr) |&gt; char
+    | ch  -&gt; ch
+
+let jsonString tr =
+    let start = oneOf &quot;&#39;\&quot;&quot; tr
+    use sw = new StringWriter()
+    let rec f() =
+        match anyChar tr with
+        | ch when ch = start -&gt; ()
+        | &#39;\\&#39; -&gt; sw.Write (jsonUnescape tr); f()
+        | ch -&gt; sw.Write ch; f()
+    f()
+    sw.ToString()
+
+parseTest jsonString &quot;\&quot;abc\&quot;&quot;
+parseTest jsonString @&quot;&#39;a\\b\\c&#39;&quot;
+parseTest jsonString @&quot;&#39;A\x42\u0043&#39;&quot;
+```
+```text:実行結果
+&quot;abc&quot;
+&quot;a\b\c&quot;
+&quot;ABC&quot;
+```
+
+## 数値の読み取り
+
+数値を読み取ります。マイナスや小数点もサポートします。
+
+```fsharp:JSONParser.fsx（続き）
+let rec jsonNumber tr =
+    if isOneOf &quot;-&quot; tr then &quot;-&quot; + jsonNumber tr else
+    let n1 = many Char.IsDigit tr
+    if not &lt;| isOneOf &quot;.&quot; tr then n1 else
+    n1 + &quot;.&quot; + many Char.IsDigit tr
+
+parseTest jsonNumber &quot;123&quot;
+parseTest jsonNumber &quot;-3.14&quot;
+```
+```text:実行結果
+&quot;123&quot;
+&quot;-3.14&quot;
+```
+
+## 値の読み取り
+
+文字列または数値またはシンボルを読み取ります。
+
+```fsharp:JSONParser.fsx（続き）
+let jsonValue tr =
+    match peek tr with
+    | &#39;\&#39;&#39; | &#39;&quot;&#39; -&gt; jsonString tr
+    | &#39;-&#39;        -&gt; jsonNumber tr
+    | ch when Char.IsDigit  ch -&gt; jsonNumber tr
+    | ch when Char.IsLetter ch -&gt; many Char.IsLetterOrDigit tr
+    | ch -&gt; failwith &lt;| sprintf &quot;jsonValue: unknown &#39;%c&#39;&quot; ch
+
+parseTest jsonValue &quot;abc 456&quot;
+parseTest jsonValue &quot;-1,2&quot;
+```
+```text:実行結果
+&quot;abc&quot;
+&quot;-1&quot;
+```
+
+## 本体
+
+本体を実装します。先に必要な部品を揃えたので、割とあっさり実装できました。
+
+シーケンスでJSONをパースしながら、項目に当たれば `yield` します。シーケンスの中で再帰するとシーケンスがネストしますが、`yield!` を使えば外からはフラットに見えます。
+
+```fsharp:JSONParser.fsx（続き）
+let jsonParser (tr:TextReader) =
+    let rec value stack = seq {
+        match (spaces @&gt;&gt; peek) tr with
+        | &#39;{&#39; -&gt;
+            while isOneOf &quot;{,&quot; tr &amp;&amp; (spaces @&gt;&gt; peek) tr &lt;&gt; &#39;}&#39; do
+                match peek tr with
+                | &#39;\&#39;&#39; | &#39;&quot;&#39; -&gt;
+                    let name = (jsonString @&lt;&lt; spaces @&lt;&lt; oneOf &quot;:&quot;) tr
+                    let ch = (spaces @&gt;&gt; peek) tr
+                    match ch with
+                    | &#39;{&#39; | &#39;[&#39; -&gt;
+                        yield name, ch, &quot;&quot;, stack
+                        yield! value (name::stack)
+                        yield name, (if ch = &#39;{&#39; then &#39;}&#39; else &#39;]&#39;), &quot;&quot;, stack
+                    | _ -&gt;
+                        yield name, &#39;:&#39;, jsonValue tr, stack
+                | ch -&gt;
+                    failwith &lt;| sprintf &quot;jsonParser: unknown &#39;%c&#39;&quot; ch
+            (spaces @&lt;&lt; oneOf &quot;}&quot;) tr
+        | &#39;[&#39; -&gt;
+            while isOneOf &quot;[,&quot; tr &amp;&amp; (spaces @&gt;&gt; peek) tr &lt;&gt; &#39;]&#39; do
+                let ch = peek tr
+                match ch with
+                | &#39;{&#39; | &#39;[&#39; -&gt;
+                    yield &quot;&quot;, ch, &quot;&quot;, stack
+                    yield! value (&quot;&quot;::stack)
+                    yield &quot;&quot;, (if ch = &#39;{&#39; then &#39;}&#39; else &#39;]&#39;), &quot;&quot;, stack
+                | _ -&gt;
+                    yield &quot;&quot;, &#39;:&#39;, jsonValue tr, stack
+            (spaces @&lt;&lt; oneOf &quot;]&quot;) tr
+        | ch -&gt;
+            failwith &lt;| sprintf &quot;jsonParser: unknown &#39;%c&#39;&quot; ch }
+    value []
+
+let test = &quot;&quot;&quot;
+{
+  &quot;log&quot;: {
+    &quot;version&quot;: &quot;1.1&quot;,
+    &quot;creator&quot;: {
+      &quot;name&quot;: &quot;Foo&quot;,
+      &quot;version&quot;: &quot;1.0&quot; },
+    &quot;pages&quot;: [
+      { &quot;id&quot;: &quot;page_1&quot;, &quot;title&quot;: &quot;Test1&quot; },
+      { &quot;id&quot;: &quot;page_2&quot;, &quot;title&quot;: &quot;Test2&quot; }
+    ],
+    &quot;test&quot;: [-1.23, null, [1, 2, 3]]
+  }
+}
+&quot;&quot;&quot;
+
+try
+    use sr = new StringReader(test)
+    for (n, t, v, st) in jsonParser sr do
+        let v = if v.Length &lt; 20 then v else v.[..19] + &quot;..&quot;
+        printfn &quot;%A %A %c %A&quot; (List.rev st) n t v
+with e -&gt;
+    printf &quot;%A&quot; e
+```
+```text:実行結果
+[] &quot;log&quot; { &quot;&quot;
+[&quot;log&quot;] &quot;version&quot; : &quot;1.1&quot;
+[&quot;log&quot;] &quot;creator&quot; { &quot;&quot;
+[&quot;log&quot;; &quot;creator&quot;] &quot;name&quot; : &quot;Foo&quot;
+[&quot;log&quot;; &quot;creator&quot;] &quot;version&quot; : &quot;1.0&quot;
+[&quot;log&quot;] &quot;creator&quot; } &quot;&quot;
+[&quot;log&quot;] &quot;pages&quot; [ &quot;&quot;
+[&quot;log&quot;; &quot;pages&quot;] &quot;&quot; { &quot;&quot;
+[&quot;log&quot;; &quot;pages&quot;; &quot;&quot;] &quot;id&quot; : &quot;page_1&quot;
+[&quot;log&quot;; &quot;pages&quot;; &quot;&quot;] &quot;title&quot; : &quot;Test1&quot;
+[&quot;log&quot;; &quot;pages&quot;] &quot;&quot; } &quot;&quot;
+[&quot;log&quot;; &quot;pages&quot;] &quot;&quot; { &quot;&quot;
+[&quot;log&quot;; &quot;pages&quot;; &quot;&quot;] &quot;id&quot; : &quot;page_2&quot;
+[&quot;log&quot;; &quot;pages&quot;; &quot;&quot;] &quot;title&quot; : &quot;Test2&quot;
+[&quot;log&quot;; &quot;pages&quot;] &quot;&quot; } &quot;&quot;
+[&quot;log&quot;] &quot;pages&quot; ] &quot;&quot;
+[&quot;log&quot;] &quot;test&quot; [ &quot;&quot;
+[&quot;log&quot;; &quot;test&quot;] &quot;&quot; : &quot;-1.23&quot;
+[&quot;log&quot;; &quot;test&quot;] &quot;&quot; : &quot;null&quot;
+[&quot;log&quot;; &quot;test&quot;] &quot;&quot; [ &quot;&quot;
+[&quot;log&quot;; &quot;test&quot;; &quot;&quot;] &quot;&quot; : &quot;1&quot;
+[&quot;log&quot;; &quot;test&quot;; &quot;&quot;] &quot;&quot; : &quot;2&quot;
+[&quot;log&quot;; &quot;test&quot;; &quot;&quot;] &quot;&quot; : &quot;3&quot;
+[&quot;log&quot;; &quot;test&quot;] &quot;&quot; ] &quot;&quot;
+[&quot;log&quot;] &quot;test&quot; ] &quot;&quot;
+[] &quot;log&quot; } &quot;&quot;
+```
+
+ネストを把握しやすいように、閉じタグに相当するものを出力しています。
+
+## クラスでラップ
+
+このままだと荒削りで使いにくいので、クラスでラップして検索と子要素の列挙を実装します。
+
+```fsharp:JSONParser.fsx（続き）
+type JSONParser(tr:TextReader) =
+    let en = (jsonParser tr).GetEnumerator()
+    member x.Dispose() = tr.Dispose()
+    interface IDisposable with
+        member x.Dispose() = x.Dispose()
+    member x.Current = en.Current
+    member x.Name  = let (n, _, _, _) = en.Current in n
+    member x.Type  = let (_, t, _, _) = en.Current in t
+    member x.Value = let (_, _, v, _) = en.Current in v
+    member x.Stack = let (_, _, _, s) = en.Current in s
+    member x.Read() = en.MoveNext()
+    member x.Find(name:string) =
+        let rec f() =
+            if not &lt;| x.Read() then false
+            elif x.Name = name then true else f()
+        f()
+    member x.Each() =
+        let len = x.Stack.Length
+        let num = ref 0
+        seq {
+            while x.Read() &amp;&amp; x.Stack.Length &lt;&gt; len do
+                yield !num
+                num := !num + 1 }
+
+try
+    use jp = new JSONParser(new StringReader(test))
+    if jp.Find &quot;pages&quot; then
+        for i in jp.Each() do
+        for j in jp.Each() do
+        printfn &quot;%d:%d. %s = %s&quot; i j jp.Name jp.Value
+with e -&gt;
+    printf &quot;%A&quot; e
+```
+```text:実行結果
+0:0. id = page_1
+0:1. title = Test1
+1:0. id = page_2
+1:1. title = Test2
+```
+
+手っ取り早くデータの一部を取り出すには、これだけあれば大抵の用は足りるのではないでしょうか。
+
+このインターフェースは以前作ったXMLパーサーを参考にしています。
+
+* [Pythonでスクレイピング](http://7shi.hateblo.jp/entry/2012/07/01/223222) 2012.07.01
+
+# まとめ
+
+コード全体は以下に掲載します。
+
+* http://ideone.com/4V8oNB
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="JSONパーサーを作る by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/04c2991239894687ef2f" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="JSONパーサーを作る" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/04c2991239894687ef2f" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/04c2991239894687ef2f" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/04c2991239894687ef2f" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B0%A1%E6%98%93%E3%83%91%E3%83%BC%E3%82%B5%E3%83%BC\&quot;\u003e簡易パーサー\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1%E6%96%87%E5%AD%97%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A\&quot;\u003e1文字読み取り\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%80%A3%E7%B6%9A%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A\&quot;\u003e連続読み取り\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%87%E5%AD%97%E7%A2%BA%E8%AA%8D\&quot;\u003e文字確認\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%8C%87%E5%AE%9A%E3%81%97%E3%81%9F%E6%96%87%E5%AD%97%E3%81%8B%E7%A2%BA%E8%AA%8D\&quot;\u003e指定した文字か確認\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%8C%87%E5%AE%9A%E3%81%97%E3%81%9F%E6%96%87%E5%AD%97%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A\&quot;\u003e指定した文字の読み取り\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9D%A1%E4%BB%B6%E3%81%AB%E5%90%88%E3%81%86%E9%99%90%E3%82%8A%E8%AA%AD%E3%81%BF%E7%B6%9A%E3%81%91%E3%82%8B\&quot;\u003e条件に合う限り読み続ける\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%BA%E7%99%BD%E3%81%AE%E8%AA%AD%E3%81%BF%E9%A3%9B%E3%81%B0%E3%81%97\&quot;\u003e空白の読み飛ばし\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#json%E3%83%91%E3%83%BC%E3%82%B5%E3%83%BC\&quot;\u003eJSONパーサー\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%87%E5%AD%97%E5%88%97%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A\&quot;\u003e文字列の読み取り\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%95%B0%E5%80%A4%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A\&quot;\u003e数値の読み取り\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%80%A4%E3%81%AE%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A\&quot;\u003e値の読み取り\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9C%AC%E4%BD%93\&quot;\u003e本体\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%A7%E3%83%A9%E3%83%83%E3%83%97\&quot;\u003eクラスでラップ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:3,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;04c2991239894687ef2f&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="d_nishiyama85"><a itemprop="url" href="/d_nishiyama85"><img alt="d_nishiyama85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28313/profile-images/1473685173" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yuuma1991"><a itemprop="url" href="/yuuma1991"><img alt="yuuma1991" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/140020/profile-images/1473721055" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tell"><a itemprop="url" href="/tell"><img alt="tell" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14991/profile-images/1473683601" /></a></div></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/04c2991239894687ef2f/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/04c2991239894687ef2f.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 2 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/64261a67081d49f941e3#_reference-6fd3f140ffb9447d83bb"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Java 再帰下降構文解析 超入門</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T17:31:28+00:00">2 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/68228e19552c271bea81#_reference-a696e9c462d4629e145b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Java パーサコンビネータ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T17:32:55+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/39a9ddffcc5bdf2c0142#_reference-f3bde9707a9cce58e1e7"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Java パーサコンビネータ 超入門 2</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T17:33:34+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/6a12160276a8db358e34#_reference-3a0c8307a3794ac552b5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />C++11 パーサコンビネータ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T17:34:35+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/f86f2f7ad68cfff1b399#_reference-5c29d45b29c38fcf160d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />C++11 パーサコンビネータ 超入門 2</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T17:35:23+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/b8c741e78a96ea2c10fe#_reference-b60774f21a6d08a9b839"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 構文解析 超入門</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T17:36:21+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/2e08418eeb448a343723#_reference-a2c6af04a47562dfddb1"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />HARからファイルを抽出する</a><time class="references_datetime js-dateTimeView" datetime="2016-12-27T07:50:08+00:00">2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="JSONパーサーを作る by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/04c2991239894687ef2f" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="JSONパーサーを作る" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/04c2991239894687ef2f" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/04c2991239894687ef2f" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/04c2991239894687ef2f" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:455589,&quot;uuid&quot;:&quot;04c2991239894687ef2f&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="/ZBCR/kATuY1MgCHe/JhUfw6DoFFDx5emU7YIYVMSL2TEtkfYi53rcrhtZsLB98InH0qMtLLRKmlkNHaZEJGew==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/04c2991239894687ef2f" /><input type="hidden" name="item_uuid" id="item_uuid" value="04c2991239894687ef2f" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/04c2991239894687ef2f", "id": 455589, "uuid": "04c2991239894687ef2f" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="zgTgppCia26089HJeQq+3O+8TgEgxr3iuPLzwD0fWAOghnv+C4xSJUsgZNUJ/wCFj/tqsrcC5xWELPo73BFWxQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/04c2991239894687ef2f" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

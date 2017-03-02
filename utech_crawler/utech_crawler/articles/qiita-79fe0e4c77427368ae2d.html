@@ -1,0 +1,547 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【解答例】Haskell モナド変換子 超入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Haskell モナド変換子 超入門の解答例です。
+
+
+Stateモナド
+
+【問1】Stateモナドを扱うreturnをStateTを使って、runStateをrunStateTを使って再実装してください。
+
+
+import Control.Monad.Identity
+import Control.Monad.State hiding (return, runState)
+
+return&#39; x = StateT $ \s -&gt; Identity (x, s)
+runS..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="【解答例】Haskell モナド変換子 超入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/79fe0e4c77427368ae2d" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="[Haskell モナド変換子 超入門](http://qiita.com/7shi/items/4408b76624067c17e933)の解答例です。
+
+# Stateモナド
+
+【問1】Stateモナドを扱う`return`を`S..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="Ng6j5GTk1L70ptHqe/VkJUC8noKxQrprmU663H33utdYjDi8/8rt9Qt1ZPYLANp8IPu6MSaG4JylkLMnnPm0EQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/Haskell"><span itemprop="name">Haskell</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">【解答例】Haskell モナド変換子 超入門</h1><ul class="TagList"><li class="TagList__item" data-count="1345"><a class="u-link-unstyled TagList__label" href="/tags/Haskell"><img alt="Haskell" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/373b3b0595a92712b2a45616f53dae97bc1a04e5/medium.jpg?1387913155" /><span>Haskell</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">1</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:1,&quot;uuid&quot;:&quot;79fe0e4c77427368ae2d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="shigemk2"><a itemprop="url" href="/shigemk2"><img alt="shigemk2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465" /></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2015-01-04">Edited at <time datetime="2016-01-04T23:12:21+09:00" itemprop="dateModified">2016-01-04</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/79fe0e4c77427368ae2d/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">6</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/79fe0e4c77427368ae2d/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(6)</span></a></li><li><a href="/7shi/items/79fe0e4c77427368ae2d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-79fe0e4c77427368ae2d" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p><a href="http://qiita.com/7shi/items/4408b76624067c17e933" id="reference-c5079394392c1ac5e78c">Haskell モナド変換子 超入門</a>の解答例です。</p>
+
+<h1>
+<span id="stateモナド" class="fragment"></span><a href="#state%E3%83%A2%E3%83%8A%E3%83%89"><i class="fa fa-link"></i></a>Stateモナド</h1>
+
+<p>【問1】Stateモナドを扱う<code>return</code>を<code>StateT</code>を使って、<code>runState</code>を<code>runStateT</code>を使って再実装してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Control.Monad.Identity</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.State</span> <span class="k">hiding</span> <span class="p">(</span><span class="nf">return</span><span class="p">,</span> <span class="nf">runState</span><span class="p">)</span>
+
+<span class="nf">return'</span> <span class="n">x</span> <span class="ow">=</span> <span class="kt">StateT</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span> <span class="kt">Identity</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="nf">runState'</span> <span class="n">st</span> <span class="ow">=</span> <span class="n">runIdentity</span> <span class="o">.</span> <span class="n">runStateT</span> <span class="n">st</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">st</span> <span class="ow">=</span> <span class="n">return'</span> <span class="mi">1</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">runState'</span> <span class="n">st</span> <span class="nb">()</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+(1,())
+</pre></div>
+</div>
+
+<p>Identityモナドが挟まっていることを意識します。</p>
+
+<h1>
+<span id="statetモナド変換子" class="fragment"></span><a href="#statet%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90"><i class="fa fa-link"></i></a>StateTモナド変換子</h1>
+
+<h2>
+<span id="再実装" class="fragment"></span><a href="#%E5%86%8D%E5%AE%9F%E8%A3%85"><i class="fa fa-link"></i></a>再実装</h2>
+
+<p>【問2】StateTモナド変換子を扱う<code>bind</code>, <code>get</code>, <code>modify</code>, <code>lift</code>を実装してください。<code>do</code>は使わないでください。<code>&gt;&gt;=</code>はStateTモナド変換子以外にのみ使ってください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Control.Monad</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.State</span> <span class="k">hiding</span> <span class="p">(</span><span class="nf">get</span><span class="p">,</span> <span class="nf">modify</span><span class="p">,</span> <span class="nf">lift</span><span class="p">)</span>
+
+<span class="nf">a</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="n">b</span> <span class="ow">=</span> <span class="kt">StateT</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span>
+    <span class="n">runStateT</span>  <span class="n">a</span>    <span class="n">s</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">s1</span><span class="p">)</span> <span class="ow">-&gt;</span>
+    <span class="n">runStateT</span> <span class="p">(</span><span class="n">b</span> <span class="n">r</span><span class="p">)</span> <span class="n">s1</span>
+
+<span class="nf">get</span> <span class="ow">=</span> <span class="kt">StateT</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span> <span class="n">return</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="nf">modify</span> <span class="n">f</span> <span class="ow">=</span> <span class="kt">StateT</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span> <span class="n">return</span> <span class="p">(</span><span class="nb">()</span><span class="p">,</span> <span class="n">f</span> <span class="n">s</span><span class="p">)</span>
+<span class="nf">lift</span> <span class="n">m</span> <span class="ow">=</span> <span class="kt">StateT</span> <span class="o">$</span> <span class="nf">\</span><span class="n">s</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">return</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+<span class="nf">fact</span> <span class="n">x</span> <span class="ow">=</span> <span class="p">(`</span><span class="n">execStateT</span><span class="p">`</span> <span class="mi">1</span><span class="p">)</span> <span class="o">$</span>
+    <span class="n">forM_</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="n">x</span><span class="p">]</span> <span class="o">$</span> <span class="nf">\</span><span class="n">i</span> <span class="ow">-&gt;</span>
+        <span class="n">modify</span> <span class="p">(</span><span class="o">*</span> <span class="n">i</span><span class="p">)</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="nf">\</span><span class="kr">_</span> <span class="ow">-&gt;</span>
+        <span class="n">get</span> <span class="p">`</span><span class="n">bind</span><span class="p">`</span> <span class="nf">\</span><span class="n">v</span> <span class="ow">-&gt;</span>
+        <span class="n">lift</span> <span class="o">$</span> <span class="n">putStrLn</span> <span class="o">$</span> <span class="s">"*"</span> <span class="o">++</span> <span class="n">show</span> <span class="n">i</span> <span class="o">++</span> <span class="s">" -&gt; "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">v</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">fact</span> <span class="mi">5</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+*1 -&gt; 1
+*2 -&gt; 2
+*3 -&gt; 6
+*4 -&gt; 24
+*5 -&gt; 120
+()
+</pre></div>
+</div>
+
+<h2>
+<span id="書き直し" class="fragment"></span><a href="#%E6%9B%B8%E3%81%8D%E7%9B%B4%E3%81%97"><i class="fa fa-link"></i></a>書き直し</h2>
+
+<p>【問3】問2の<code>fact</code>を<code>do</code>と<code>&lt;-</code>で書き直してください。問2で再実装した関数は使わないでください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Control.Monad</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.State</span>
+
+<span class="nf">fact</span> <span class="n">x</span> <span class="ow">=</span> <span class="p">(`</span><span class="n">execStateT</span><span class="p">`</span> <span class="mi">1</span><span class="p">)</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">forM_</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="n">x</span><span class="p">]</span> <span class="o">$</span> <span class="nf">\</span><span class="n">i</span> <span class="ow">-&gt;</span> <span class="kr">do</span>
+        <span class="n">modify</span> <span class="p">(</span><span class="o">*</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">v</span> <span class="ow">&lt;-</span> <span class="n">get</span>
+        <span class="n">lift</span> <span class="o">$</span> <span class="n">putStrLn</span> <span class="o">$</span> <span class="s">"*"</span> <span class="o">++</span> <span class="n">show</span> <span class="n">i</span> <span class="o">++</span> <span class="s">" -&gt; "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">v</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">fact</span> <span class="mi">5</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+*1 -&gt; 1
+*2 -&gt; 2
+*3 -&gt; 6
+*4 -&gt; 24
+*5 -&gt; 120
+()
+</pre></div>
+</div>
+
+<h1>
+<span id="モナド変換子で合成" class="fragment"></span><a href="#%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90%E3%81%A7%E5%90%88%E6%88%90"><i class="fa fa-link"></i></a>モナド変換子で合成</h1>
+
+<h2>
+<span id="maybeモナド" class="fragment"></span><a href="#maybe%E3%83%A2%E3%83%8A%E3%83%89"><i class="fa fa-link"></i></a>Maybeモナド</h2>
+
+<p>【問4】次のコードは種類を判別しながら文字列を読み進めることを意図しています。Maybeモナドを使ってエラーが起きないように修正してください。モナド変換子は使わないでください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Data.Char</span>
+
+<span class="nf">getch</span> <span class="n">f</span> <span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span> <span class="o">|</span> <span class="n">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+<span class="nf">getch</span> <span class="kr">_</span> <span class="kr">_</span>            <span class="ow">=</span> <span class="kt">Nothing</span>
+
+<span class="nf">test</span> <span class="n">s0</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="p">(</span><span class="n">ch1</span><span class="p">,</span> <span class="n">s1</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">getch</span> <span class="n">isUpper</span> <span class="n">s0</span>
+    <span class="p">(</span><span class="n">ch2</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">getch</span> <span class="n">isLower</span> <span class="n">s1</span>
+    <span class="p">(</span><span class="n">ch3</span><span class="p">,</span> <span class="n">s3</span><span class="p">)</span> <span class="ow">&lt;-</span> <span class="n">getch</span> <span class="n">isDigit</span> <span class="n">s2</span>
+    <span class="n">return</span> <span class="p">[</span><span class="n">ch1</span><span class="p">,</span> <span class="n">ch2</span><span class="p">,</span> <span class="n">ch3</span><span class="p">]</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test</span> <span class="s">"Aa0"</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test</span> <span class="s">"abc"</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="実行結果"><div class="highlight"><pre>
+Just "Aa0"
+Nothing
+</pre></div></div>
+
+<h2>
+<span id="statetモナド変換子-1" class="fragment"></span><a href="#statet%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90-1"><i class="fa fa-link"></i></a>StateTモナド変換子</h2>
+
+<p>【問5】問4の解答をStateTモナド変換子を使って書き直してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Data.Char</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.State</span>
+
+<span class="nf">getch</span> <span class="n">f</span> <span class="ow">=</span> <span class="kt">StateT</span> <span class="n">getch</span> <span class="kr">where</span>
+    <span class="n">getch</span> <span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span> <span class="o">|</span> <span class="n">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="n">getch</span> <span class="kr">_</span>            <span class="ow">=</span> <span class="kt">Nothing</span>
+
+<span class="nf">test</span> <span class="ow">=</span> <span class="n">evalStateT</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">ch1</span> <span class="ow">&lt;-</span> <span class="n">getch</span> <span class="n">isUpper</span>
+    <span class="n">ch2</span> <span class="ow">&lt;-</span> <span class="n">getch</span> <span class="n">isLower</span>
+    <span class="n">ch3</span> <span class="ow">&lt;-</span> <span class="n">getch</span> <span class="n">isDigit</span>
+    <span class="n">return</span> <span class="p">[</span><span class="n">ch1</span><span class="p">,</span> <span class="n">ch2</span><span class="p">,</span> <span class="n">ch3</span><span class="p">]</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test</span> <span class="s">"Aa0"</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test</span> <span class="s">"abc"</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="実行結果"><div class="highlight"><pre>
+Just "Aa0"
+Nothing
+</pre></div></div>
+
+<h1>
+<span id="他のモナド変換子" class="fragment"></span><a href="#%E4%BB%96%E3%81%AE%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90"><i class="fa fa-link"></i></a>他のモナド変換子</h1>
+
+<p>【問6】次のコードの<code>print</code>を<code>main</code>から各<code>test*</code>の<code>do</code>の中に移動してください。実行結果が同じになるように調整してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Control.Monad.Reader</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.Writer</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.List</span>
+
+<span class="nf">testR</span> <span class="n">x</span> <span class="ow">=</span> <span class="p">(`</span><span class="n">runReaderT</span><span class="p">`</span> <span class="n">x</span><span class="p">)</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">ask</span>
+    <span class="n">lift</span> <span class="o">$</span> <span class="n">print</span> <span class="o">$</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">testW</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">runWriterT</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">tell</span> <span class="o">$</span> <span class="n">show</span> <span class="n">x</span>
+    <span class="n">lift</span> <span class="o">$</span> <span class="n">print</span> <span class="o">$</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">testL</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">runListT</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">lift</span> <span class="o">$</span> <span class="n">print</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">testR</span> <span class="mi">0</span>
+    <span class="n">testW</span> <span class="mi">0</span>
+    <span class="n">testL</span> <span class="mi">0</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+1
+[1]
+</pre></div>
+</div>
+
+<p>モナド変換子の評価結果がIOモナドで返ってくるため、<code>main</code>の中に直接記述できます。</p>
+
+<h1>
+<span id="liftio" class="fragment"></span><a href="#liftio"><i class="fa fa-link"></i></a>liftIO</h1>
+
+<p>【問7】問6を<code>liftIO</code>で解いてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Control.Monad.Reader</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.Writer</span>
+<span class="kr">import</span> <span class="nn">Control.Monad.List</span>
+
+<span class="nf">testR</span> <span class="n">x</span> <span class="ow">=</span> <span class="p">(`</span><span class="n">runReaderT</span><span class="p">`</span> <span class="n">x</span><span class="p">)</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">ask</span>
+    <span class="n">liftIO</span> <span class="o">$</span> <span class="n">print</span> <span class="o">$</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">testW</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">runWriterT</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">tell</span> <span class="o">$</span> <span class="n">show</span> <span class="n">x</span>
+    <span class="n">liftIO</span> <span class="o">$</span> <span class="n">print</span> <span class="o">$</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">testL</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">runListT</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">liftIO</span> <span class="o">$</span> <span class="n">print</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">testR</span> <span class="mi">0</span>
+    <span class="n">testW</span> <span class="mi">0</span>
+    <span class="n">testL</span> <span class="mi">0</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+1
+[1]
+</pre></div>
+</div>
+
+<h1>
+<span id="liftm" class="fragment"></span><a href="#liftm"><i class="fa fa-link"></i></a>liftM</h1>
+
+<p>【問8】次のリスト内包表記を<code>liftM</code>系の関数で書き直してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Control.Monad</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">liftM2</span> <span class="p">(,)</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">liftM2</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[(0,0),(0,2),(1,0),(1,2)]
+[0,2,1,3]
+</pre></div>
+</div>
+
+<p><code>(+)</code>だけだと動きが分かりにくいので、<code>(,)</code>と比較してみてください。</p>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/79fe0e4c77427368ae2d" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="/hhMMpM/PzPgHNFNquW9JRur4Rtwcx0zV8XMbnd/zA6QmtdqCBEGeB/PZFHaEAN8e+zFqOe3R8RrG8WVlnHCyA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1451916741" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+[Haskell モナド変換子 超入門](http://qiita.com/7shi/items/4408b76624067c17e933)の解答例です。
+
+# Stateモナド
+
+【問1】Stateモナドを扱う`return`を`StateT`を使って、`runState`を`runStateT`を使って再実装してください。
+
+```hs
+import Control.Monad.Identity
+import Control.Monad.State hiding (return, runState)
+
+return&#39; x = StateT $ \s -&gt; Identity (x, s)
+runState&#39; st = runIdentity . runStateT st
+
+main = do
+    let st = return&#39; 1
+    print $ runState&#39; st ()
+```
+```text:実行結果
+(1,())
+```
+
+Identityモナドが挟まっていることを意識します。
+
+# StateTモナド変換子
+
+## 再実装
+
+【問2】StateTモナド変換子を扱う`bind`, `get`, `modify`, `lift`を実装してください。`do`は使わないでください。`&gt;&gt;=`はStateTモナド変換子以外にのみ使ってください。
+
+```hs
+import Control.Monad
+import Control.Monad.State hiding (get, modify, lift)
+
+a `bind` b = StateT $ \s -&gt;
+    runStateT  a    s &gt;&gt;= \(r, s1) -&gt;
+    runStateT (b r) s1
+
+get = StateT $ \s -&gt; return (s, s)
+modify f = StateT $ \s -&gt; return ((), f s)
+lift m = StateT $ \s -&gt; m &gt;&gt;= \a -&gt; return (a, s)
+
+fact x = (`execStateT` 1) $
+    forM_ [1..x] $ \i -&gt;
+        modify (* i) `bind` \_ -&gt;
+        get `bind` \v -&gt;
+        lift $ putStrLn $ &quot;*&quot; ++ show i ++ &quot; -&gt; &quot; ++ show v
+
+main = fact 5 &gt;&gt;= print
+```
+```text:実行結果
+*1 -&gt; 1
+*2 -&gt; 2
+*3 -&gt; 6
+*4 -&gt; 24
+*5 -&gt; 120
+()
+```
+
+## 書き直し
+
+【問3】問2の`fact`を`do`と`&lt;-`で書き直してください。問2で再実装した関数は使わないでください。
+
+```hs
+import Control.Monad
+import Control.Monad.State
+
+fact x = (`execStateT` 1) $ do
+    forM_ [1..x] $ \i -&gt; do
+        modify (* i)
+        v &lt;- get
+        lift $ putStrLn $ &quot;*&quot; ++ show i ++ &quot; -&gt; &quot; ++ show v
+
+main = fact 5 &gt;&gt;= print
+```
+```text:実行結果
+*1 -&gt; 1
+*2 -&gt; 2
+*3 -&gt; 6
+*4 -&gt; 24
+*5 -&gt; 120
+()
+```
+
+# モナド変換子で合成
+
+## Maybeモナド
+
+【問4】次のコードは種類を判別しながら文字列を読み進めることを意図しています。Maybeモナドを使ってエラーが起きないように修正してください。モナド変換子は使わないでください。
+
+```hs
+import Data.Char
+
+getch f (x:xs) | f x = Just (x, xs)
+getch _ _            = Nothing
+
+test s0 = do
+    (ch1, s1) &lt;- getch isUpper s0
+    (ch2, s2) &lt;- getch isLower s1
+    (ch3, s3) &lt;- getch isDigit s2
+    return [ch1, ch2, ch3]
+
+main = do
+    print $ test &quot;Aa0&quot;
+    print $ test &quot;abc&quot;
+```
+```実行結果
+Just &quot;Aa0&quot;
+Nothing
+```
+
+## StateTモナド変換子
+
+【問5】問4の解答をStateTモナド変換子を使って書き直してください。
+
+```hs
+import Data.Char
+import Control.Monad.State
+
+getch f = StateT getch where
+    getch (x:xs) | f x = Just (x, xs)
+    getch _            = Nothing
+
+test = evalStateT $ do
+    ch1 &lt;- getch isUpper
+    ch2 &lt;- getch isLower
+    ch3 &lt;- getch isDigit
+    return [ch1, ch2, ch3]
+
+main = do
+    print $ test &quot;Aa0&quot;
+    print $ test &quot;abc&quot;
+```
+```実行結果
+Just &quot;Aa0&quot;
+Nothing
+```
+
+# 他のモナド変換子
+
+【問6】次のコードの`print`を`main`から各`test*`の`do`の中に移動してください。実行結果が同じになるように調整してください。
+
+```hs
+import Control.Monad.Reader
+import Control.Monad.Writer
+import Control.Monad.List
+
+testR x = (`runReaderT` x) $ do
+    a &lt;- ask
+    lift $ print $ a + 1
+
+testW x = runWriterT $ do
+    tell $ show x
+    lift $ print $ x + 1
+
+testL x = runListT $ do
+    lift $ print [x + 1]
+
+main = do
+    testR 0
+    testW 0
+    testL 0
+```
+```text:実行結果
+1
+1
+[1]
+```
+
+モナド変換子の評価結果がIOモナドで返ってくるため、`main`の中に直接記述できます。
+
+# liftIO
+
+【問7】問6を`liftIO`で解いてください。
+
+```hs
+import Control.Monad.Reader
+import Control.Monad.Writer
+import Control.Monad.List
+
+testR x = (`runReaderT` x) $ do
+    a &lt;- ask
+    liftIO $ print $ a + 1
+
+testW x = runWriterT $ do
+    tell $ show x
+    liftIO $ print $ x + 1
+
+testL x = runListT $ do
+    liftIO $ print [x + 1]
+
+main = do
+    testR 0
+    testW 0
+    testL 0
+```
+```text:実行結果
+1
+1
+[1]
+```
+
+# liftM
+
+【問8】次のリスト内包表記を`liftM`系の関数で書き直してください。
+
+```hs
+import Control.Monad
+
+main = do
+    print $ liftM2 (,) [0, 1] [0, 2]
+    print $ liftM2 (+) [0, 1] [0, 2]
+```
+```text:実行結果
+[(0,0),(0,2),(1,0),(1,2)]
+[0,2,1,3]
+```
+
+`(+)`だけだと動きが分かりにくいので、`(,)`と比較してみてください。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【解答例】Haskell モナド変換子 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/79fe0e4c77427368ae2d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【解答例】Haskell モナド変換子 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/79fe0e4c77427368ae2d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/79fe0e4c77427368ae2d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/79fe0e4c77427368ae2d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#state%E3%83%A2%E3%83%8A%E3%83%89\&quot;\u003eStateモナド\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#statet%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90\&quot;\u003eStateTモナド変換子\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%8D%E5%AE%9F%E8%A3%85\&quot;\u003e再実装\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9B%B8%E3%81%8D%E7%9B%B4%E3%81%97\&quot;\u003e書き直し\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90%E3%81%A7%E5%90%88%E6%88%90\&quot;\u003eモナド変換子で合成\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#maybe%E3%83%A2%E3%83%8A%E3%83%89\&quot;\u003eMaybeモナド\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#statet%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90-1\&quot;\u003eStateTモナド変換子\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BB%96%E3%81%AE%E3%83%A2%E3%83%8A%E3%83%89%E5%A4%89%E6%8F%9B%E5%AD%90\&quot;\u003e他のモナド変換子\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#liftio\&quot;\u003eliftIO\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#liftm\&quot;\u003eliftM\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:1,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;79fe0e4c77427368ae2d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shigemk2"><a itemprop="url" href="/shigemk2"><img alt="shigemk2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465" /></a></div></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/79fe0e4c77427368ae2d/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/79fe0e4c77427368ae2d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/4408b76624067c17e933#_reference-7d6be221a8e5938ed0ab"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell モナド変換子 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-04T13:34:25+00:00">about 2 years ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【解答例】Haskell モナド変換子 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/79fe0e4c77427368ae2d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【解答例】Haskell モナド変換子 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/79fe0e4c77427368ae2d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/79fe0e4c77427368ae2d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/79fe0e4c77427368ae2d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:219409,&quot;uuid&quot;:&quot;79fe0e4c77427368ae2d&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="6Uld7wSC/cMuDtK9o5d8kKnwVSzSRPN3/YOEXgk/6zqHy8a3n6zEiNHdZ6HTYsLJybdxn0WAqYDBXY2l6DHl/A==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/79fe0e4c77427368ae2d" /><input type="hidden" name="item_uuid" id="item_uuid" value="79fe0e4c77427368ae2d" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/79fe0e4c77427368ae2d", "id": 219409, "uuid": "79fe0e4c77427368ae2d" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="FuBVuDXn9jhKCMR9GDM3nf18qTs2f4w4EiKPnNd5qDF4Ys7grsnPc7XbcWFoxonEnTuNiKG71s8u/IZnNnem9w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/79fe0e4c77427368ae2d" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>MSYS2における正しいパッケージの更新方法 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="MSYS2のpacmanを使ってパッケージを更新する場合、正しい手順を踏まないとパッケージが正常に更新できない場合があります。
+
+pacmanの開発元であるArch Linuxでは、パッケージデータベースの更新とパッケージの更新をまとめて、単純に pacman -Syu というコマンドで実行できますが、MSYS2ではpacmanのバージョンによって、異なる手順が必要となっています。
+
+※ 20160921版のインストーラからは、新しいpacmanが含まれるようになったた..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="k_takata" name="twitter:creator" /><meta content="MSYS2における正しいパッケージの更新方法 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/k-takata/items/373ec7f23d5d7541f982" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="MSYS2のpacmanを使ってパッケージを更新する場合、正しい手順を踏まないとパッケージが正常に更新できない場合があります。
+
+pacmanの開発元であるArch Linuxでは、パッケージデータベースの更新とパッケージの更新をまと..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="bH2PICjjQxJylREqI7fkJBQ6DCUpUUA8135nOpjB4WsC/xR4s816WY1GpDZTQlp9dH0olr6VGsvroG7Bec/vrQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/msys2"><span itemprop="name">msys2</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">MSYS2における正しいパッケージの更新方法</h1><ul class="TagList"><li class="TagList__item" data-count="84"><a class="u-link-unstyled TagList__label" href="/tags/msys2"><img alt="msys2" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/7da673a6abb3f735184c6ca48c127c21152758ad/medium.jpg?1429594522" /><span>msys2</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">76</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:76,&quot;uuid&quot;:&quot;373ec7f23d5d7541f982&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="hokorobi"><a itemprop="url" href="/hokorobi"><img alt="hokorobi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24711/profile-images/1473684175" /></a></li><li class="js-hovercard" data-hovercard-target-name="ykominami"><a itemprop="url" href="/ykominami"><img alt="ykominami" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4321/profile-images/1473756115" /></a></li><li class="js-hovercard" data-hovercard-target-name="lambdasakura@github"><a itemprop="url" href="/lambdasakura@github"><img alt="lambdasakura@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/23433/profile-images/1473683838" /></a></li><li class="js-hovercard" data-hovercard-target-name="7shi"><a itemprop="url" href="/7shi"><img alt="7shi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></li><li class="js-hovercard" data-hovercard-target-name="bzgyma"><a itemprop="url" href="/bzgyma"><img alt="bzgyma" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90611/profile-images/1473705146" /></a></li><li class="js-hovercard" data-hovercard-target-name="cd01"><a itemprop="url" href="/cd01"><img alt="cd01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24596/profile-images/1473684151" /></a></li><li class="js-hovercard" data-hovercard-target-name="baboocon"><a itemprop="url" href="/baboocon"><img alt="baboocon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24530/profile-images/1473684135" /></a></li><li class="js-hovercard" data-hovercard-target-name="TEVASAKI"><a itemprop="url" href="/TEVASAKI"><img alt="TEVASAKI" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49595/profile-images/1473691786" /></a></li><li class="js-hovercard" data-hovercard-target-name="zephel01"><a itemprop="url" href="/zephel01"><img alt="zephel01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42415/profile-images/1473689150" /></a></li><li><a href="/k-takata/items/373ec7f23d5d7541f982/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/k-takata"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/59454/profile-images/1473694934" alt="1473694934" /></a> <a class="u-link-unstyled" href="/k-takata">k-takata</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2015-07-07">Edited at <time datetime="2016-10-13T13:41:05+09:00" itemprop="dateModified">2016-10-13</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/k-takata/items/373ec7f23d5d7541f982/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">14</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/k-takata/items/373ec7f23d5d7541f982/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(14)</span></a></li><li><a href="/k-takata/items/373ec7f23d5d7541f982.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-373ec7f23d5d7541f982" itemprop="articleBody"><p>MSYS2のpacmanを使ってパッケージを更新する場合、正しい手順を踏まないとパッケージが正常に更新できない場合があります。</p>
+
+<p>pacmanの開発元であるArch Linuxでは、パッケージデータベースの更新とパッケージの更新をまとめて、単純に <code>pacman -Syu</code> というコマンドで実行できますが、MSYS2ではpacmanのバージョンによって、異なる手順が必要となっています。</p>
+
+<p>※ 20160921版のインストーラからは、新しいpacmanが含まれるようになったため、<code>pacman -Syu</code> が使えるようになりました。詳しくは、<a href="#1-pacman-5016403%E4%BB%A5%E9%99%8D%E3%81%82%E3%82%8B%E3%81%84%E3%81%AF501-1%E4%BB%A5%E9%99%8D%E3%81%8C%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B%E5%A0%B4%E5%90%88">1.</a> を参照してください。</p>
+
+<h1>
+<span id="0-pacmanのバージョン確認" class="fragment"></span><a href="#0-pacman%E3%81%AE%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E7%A2%BA%E8%AA%8D"><i class="fa fa-link"></i></a>0. pacmanのバージョン確認</h1>
+
+<p>まずは、pacmanのバージョンを確認します。例えば以下のようにして確認できます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman -Sl | grep 'pacman '
+msys pacman 5.0.1.6403.07ca798-1 [インストール済み]
+</pre></div></div>
+
+<p>この場合、5.0.1.6403 がインストールされていることが分かります。<br>
+一方、以下のように表示された場合は、5.0.1.6403 が入手可能だが、インストールされているのは 5.0.1.6391 であることを示しています。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman -Sl | grep 'pacman '
+msys pacman 5.0.1.6403.07ca798-1 [インストール済み: 5.0.1.6391.6f124b6-1]
+</pre></div></div>
+
+<p>以降は、インストールされているpacmanのバージョンにしたがって作業を行ってください。</p>
+
+<h1>
+<span id="1-pacman-5016403以降あるいは501-1以降がインストールされている場合" class="fragment"></span><a href="#1-pacman-5016403%E4%BB%A5%E9%99%8D%E3%81%82%E3%82%8B%E3%81%84%E3%81%AF501-1%E4%BB%A5%E9%99%8D%E3%81%8C%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>1. pacman 5.0.1.6403以降、あるいは5.0.1-1以降がインストールされている場合</h1>
+
+<p>(以前用意されていた<code>update-core</code>コマンドは削除されました。)<br>
+Arch Linuxと同様に、単純に、</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman -Syuu
+</pre></div></div>
+
+<p>で、パッケージデータベースの更新(<code>-Sy</code>)とパッケージの更新(<code>-Suu</code>)をまとめて行えます。<code>-Su</code>ではなく、<code>-Suu</code>としているのはダウングレードも許可するためです。後は表示されるメッセージにしたがって作業を行ってください。<br>
+以下のようなメッセージが表示された場合は、<code>Alt-F4</code> あるいはクローズボタンでMSYS2 (mintty)のウィンドウを一旦閉じてから、再度立ち上げて、同じコマンドを再度実行してください。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+警告: terminate MSYS2 without returning to shell and check for updates again
+警告: for example close your terminal window instead of calling exit
+</pre></div></div>
+
+<p>更新するパッケージがなくなるまで、何回かこの手順を繰り返してください。<br>
+なお、2回目以降は、パッケージデータベースが更新済みなので、</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman -Suu
+</pre></div></div>
+
+<p>でも問題ありません。</p>
+
+<h1>
+<span id="2-pacman-4216187以降がインストールされている場合" class="fragment"></span><a href="#2-pacman-4216187%E4%BB%A5%E9%99%8D%E3%81%8C%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>2. pacman 4.2.1.6187以降がインストールされている場合</h1>
+
+<p>このバージョンのpacmanには、<code>update-core</code>というコアパッケージを更新するための専用コマンドが用意されています。<br>
+20150916版以降のインストーラを使ってインストールした場合など、比較的新しい環境がこれに相当します。</p>
+
+<h2>
+<span id="21-最小限のパッケージの更新" class="fragment"></span><a href="#21-%E6%9C%80%E5%B0%8F%E9%99%90%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0"><i class="fa fa-link"></i></a>2.1. 最小限のパッケージの更新</h2>
+
+<p>まずは、</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ update-core
+</pre></div></div>
+
+<p>を実行します。パッケージの更新があった場合には以下のような表示が出ます。(バージョンにより異なる可能性あり)</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+==&gt; Checking if there are critical packages to upgrade.
+msys2-runtime 2.3.0.16701.d6cd1b3-1 -&gt; 2.4.0.16752.6eb10ef-1
+==&gt; Core packages require updating.
+==&gt; Please close all other MSYS2 derived windows (e.g. terminal
+==&gt; windows, Bash sessions, etc) before proceeding.
+==&gt; 警告: When the update has completed, you MUST close this MSYS2 window
+==&gt; 警告: (use Alt-F4 or red [ X ], etc.), rather than 'exit'!!!
+Press [Enter] key when ready to start update...
+</pre></div></div>
+
+<p><code>Enter</code> キーを押して更新を開始し、終わったら必ず <code>Alt-F4</code> あるいはクローズボタンでMSYS2 (mintty)のウィンドウを閉じてから、MSYS2を再度立ち上げて手順2.2に進みます。<br>
+<code>exit</code>で終了してはいけません。（エラーが発生します。）</p>
+
+<p>コアパッケージの更新が無かった場合は、MSYS2の再起動は不要です。そのまま次の手順に進んでください。</p>
+
+<h2>
+<span id="22-残りのパッケージの更新" class="fragment"></span><a href="#22-%E6%AE%8B%E3%82%8A%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0"><i class="fa fa-link"></i></a>2.2. 残りのパッケージの更新</h2>
+
+<p>MSYS2の再起動が完了したら、</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman -Suu
+</pre></div></div>
+
+<p>を実行します。forkエラーなどが出ていなければ完了です。</p>
+
+<h1>
+<span id="3-それ以前のバージョンの場合" class="fragment"></span><a href="#3-%E3%81%9D%E3%82%8C%E4%BB%A5%E5%89%8D%E3%81%AE%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E3%81%AE%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>3. それ以前のバージョンの場合</h1>
+
+<p>20150512版あるいはそれ以前のインストーラを使ってインストールした直後がこれに相当します。このバージョンには、<code>update-core</code>コマンドがありません。</p>
+
+<h2>
+<span id="31-最小限のパッケージの更新" class="fragment"></span><a href="#31-%E6%9C%80%E5%B0%8F%E9%99%90%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0"><i class="fa fa-link"></i></a>3.1. 最小限のパッケージの更新</h2>
+
+<p>まずは、</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman --needed -Sy bash pacman pacman-mirrors msys2-runtime
+</pre></div></div>
+
+<p>を実行します。もしも、</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+依存関係を解決しています...
+衝突するパッケージがないか確認しています...
+エラー: 処理の準備に失敗しました (依存関係を解決できませんでした)
+:: msys2-runtime-devel: msys2-runtime=2.1.0.16538.304f5d4 を必要としています
+</pre></div></div>
+
+<p>のようなエラーが出た場合は、依存関係にある msys2-runtime-devel も追加して、以下のように実行します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman --needed -Sy bash pacman pacman-mirrors msys2-runtime msys2-runtime-devel
+</pre></div></div>
+
+<p>ここで指定したパッケージのいずれかに更新があった場合は、必ず <code>Alt-F4</code> あるいはクローズボタンでMSYS2 (mintty)のウィンドウを閉じてから、MSYS2を再度立ち上げて手順3.2に進みます。</p>
+
+<p>以下のように一切更新が行われなかった場合は、MSYS2の再起動は不要です。そのまま次の手順に進んでください。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+警告: bash-4.3.039-2 は最新です -- スキップ
+警告: pacman-4.2.1.6159.e038c19-1 は最新です -- スキップ
+警告: pacman-mirrors-20150619-1 は最新です -- スキップ
+警告: msys2-runtime-2.1.0.16553.a38932f-1 は最新です -- スキップ
+警告: msys2-runtime-devel-2.1.0.16553.a38932f-1 は最新です -- スキップ
+ 何も行うことがありません
+</pre></div></div>
+
+<h2>
+<span id="32-残りのパッケージの更新" class="fragment"></span><a href="#32-%E6%AE%8B%E3%82%8A%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0"><i class="fa fa-link"></i></a>3.2. 残りのパッケージの更新</h2>
+
+<p>MSYS2の再起動が完了したら、</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman -Suu
+</pre></div></div>
+
+<p>を実行します。forkエラーなどが出ていなければ完了です。</p>
+
+<h1>
+<span id="forkエラーが発生してしまった場合は" class="fragment"></span><a href="#fork%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%8C%E7%99%BA%E7%94%9F%E3%81%97%E3%81%A6%E3%81%97%E3%81%BE%E3%81%A3%E3%81%9F%E5%A0%B4%E5%90%88%E3%81%AF"><i class="fa fa-link"></i></a>forkエラーが発生してしまった場合は</h1>
+
+<p>pacman実行中に以下のようなforkエラーが発生した場合、pacman自体は正常終了しているように見えますが、そのパッケージの更新に失敗しています。そのため、forkエラーが発生したパッケージを手動で再インストールする必要があります。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+37845597 [main] pacman 7492 fork: child -1 - forked process 8716 died unexpectedly, retry 0, exit code 0xC0000005, errno 11
+エラー: 新しいプロセスをフォークできません (Resource temporarily unavailable)
+</pre></div></div>
+
+<p>forkエラーが発生したパッケージをメモっておき、MSYS2を再起動してから、以下のコマンドを実行します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ pacman -S package1 package2 ...
+</pre></div></div>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<ul>
+<li><a href="http://sourceforge.net/p/msys2/wiki/MSYS2%20installation/#iii-updating-packages" title="MSYS2 / Wiki / MSYS2 installation" rel="nofollow noopener" target="_blank">MSYS2 / Wiki / MSYS2 installation / III. Updating packages</a></li>
+<li><a href="https://wiki.archlinuxjp.org/index.php/Pacman" title="pacman - ArchWiki" rel="nofollow noopener" target="_blank">pacman - ArchWiki</a></li>
+<li><a href="http://qiita.com/k-takata/items/fcb2f1f9ca564fd78597" title="MSYS2でパッケージのダウンロードに失敗するときの対処 - Qiita" id="reference-73090a82d7f5303553ef">MSYS2でパッケージのダウンロードに失敗するときの対処 - Qiita</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/k-takata/items/373ec7f23d5d7541f982" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="dt9TVqjkvkId7nbq1DmEEDlaq48lvVpdGaOo7NPDeXgYXcgOM8qHCeI9w/akzDpJWR2PPLJ5AKolfaEXMs13vg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1476333665" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+MSYS2のpacmanを使ってパッケージを更新する場合、正しい手順を踏まないとパッケージが正常に更新できない場合があります。
+
+pacmanの開発元であるArch Linuxでは、パッケージデータベースの更新とパッケージの更新をまとめて、単純に `pacman -Syu` というコマンドで実行できますが、MSYS2ではpacmanのバージョンによって、異なる手順が必要となっています。
+
+※ 20160921版のインストーラからは、新しいpacmanが含まれるようになったため、`pacman -Syu` が使えるようになりました。詳しくは、[1.](#1-pacman-5016403以降あるいは501-1以降がインストールされている場合) を参照してください。
+
+# 0. pacmanのバージョン確認
+
+まずは、pacmanのバージョンを確認します。例えば以下のようにして確認できます。
+
+```
+$ pacman -Sl | grep &#39;pacman &#39;
+msys pacman 5.0.1.6403.07ca798-1 [インストール済み]
+```
+
+この場合、5.0.1.6403 がインストールされていることが分かります。
+一方、以下のように表示された場合は、5.0.1.6403 が入手可能だが、インストールされているのは 5.0.1.6391 であることを示しています。
+
+```
+$ pacman -Sl | grep &#39;pacman &#39;
+msys pacman 5.0.1.6403.07ca798-1 [インストール済み: 5.0.1.6391.6f124b6-1]
+```
+
+以降は、インストールされているpacmanのバージョンにしたがって作業を行ってください。
+
+# 1. pacman 5.0.1.6403以降、あるいは5.0.1-1以降がインストールされている場合
+
+(以前用意されていた`update-core`コマンドは削除されました。)
+Arch Linuxと同様に、単純に、
+
+```
+$ pacman -Syuu
+```
+
+で、パッケージデータベースの更新(`-Sy`)とパッケージの更新(`-Suu`)をまとめて行えます。`-Su`ではなく、`-Suu`としているのはダウングレードも許可するためです。後は表示されるメッセージにしたがって作業を行ってください。
+以下のようなメッセージが表示された場合は、`Alt-F4` あるいはクローズボタンでMSYS2 (mintty)のウィンドウを一旦閉じてから、再度立ち上げて、同じコマンドを再度実行してください。
+
+```
+警告: terminate MSYS2 without returning to shell and check for updates again
+警告: for example close your terminal window instead of calling exit
+```
+
+更新するパッケージがなくなるまで、何回かこの手順を繰り返してください。
+なお、2回目以降は、パッケージデータベースが更新済みなので、
+
+```
+$ pacman -Suu
+```
+
+でも問題ありません。
+
+
+# 2. pacman 4.2.1.6187以降がインストールされている場合
+
+このバージョンのpacmanには、`update-core`というコアパッケージを更新するための専用コマンドが用意されています。
+20150916版以降のインストーラを使ってインストールした場合など、比較的新しい環境がこれに相当します。
+
+## 2.1. 最小限のパッケージの更新
+
+まずは、
+
+```
+$ update-core
+```
+
+を実行します。パッケージの更新があった場合には以下のような表示が出ます。(バージョンにより異なる可能性あり)
+
+```
+==&gt; Checking if there are critical packages to upgrade.
+msys2-runtime 2.3.0.16701.d6cd1b3-1 -&gt; 2.4.0.16752.6eb10ef-1
+==&gt; Core packages require updating.
+==&gt; Please close all other MSYS2 derived windows (e.g. terminal
+==&gt; windows, Bash sessions, etc) before proceeding.
+==&gt; 警告: When the update has completed, you MUST close this MSYS2 window
+==&gt; 警告: (use Alt-F4 or red [ X ], etc.), rather than &#39;exit&#39;!!!
+Press [Enter] key when ready to start update...
+```
+
+`Enter` キーを押して更新を開始し、終わったら必ず `Alt-F4` あるいはクローズボタンでMSYS2 (mintty)のウィンドウを閉じてから、MSYS2を再度立ち上げて手順2.2に進みます。
+`exit`で終了してはいけません。（エラーが発生します。）
+
+コアパッケージの更新が無かった場合は、MSYS2の再起動は不要です。そのまま次の手順に進んでください。
+
+
+## 2.2. 残りのパッケージの更新
+
+MSYS2の再起動が完了したら、
+
+```
+$ pacman -Suu
+```
+
+を実行します。forkエラーなどが出ていなければ完了です。
+
+
+# 3. それ以前のバージョンの場合
+
+20150512版あるいはそれ以前のインストーラを使ってインストールした直後がこれに相当します。このバージョンには、`update-core`コマンドがありません。
+
+## 3.1. 最小限のパッケージの更新
+
+まずは、
+
+```
+$ pacman --needed -Sy bash pacman pacman-mirrors msys2-runtime
+```
+
+を実行します。もしも、
+
+```
+依存関係を解決しています...
+衝突するパッケージがないか確認しています...
+エラー: 処理の準備に失敗しました (依存関係を解決できませんでした)
+:: msys2-runtime-devel: msys2-runtime=2.1.0.16538.304f5d4 を必要としています
+```
+
+のようなエラーが出た場合は、依存関係にある msys2-runtime-devel も追加して、以下のように実行します。
+
+```
+$ pacman --needed -Sy bash pacman pacman-mirrors msys2-runtime msys2-runtime-devel
+```
+
+ここで指定したパッケージのいずれかに更新があった場合は、必ず `Alt-F4` あるいはクローズボタンでMSYS2 (mintty)のウィンドウを閉じてから、MSYS2を再度立ち上げて手順3.2に進みます。
+
+以下のように一切更新が行われなかった場合は、MSYS2の再起動は不要です。そのまま次の手順に進んでください。
+
+```
+警告: bash-4.3.039-2 は最新です -- スキップ
+警告: pacman-4.2.1.6159.e038c19-1 は最新です -- スキップ
+警告: pacman-mirrors-20150619-1 は最新です -- スキップ
+警告: msys2-runtime-2.1.0.16553.a38932f-1 は最新です -- スキップ
+警告: msys2-runtime-devel-2.1.0.16553.a38932f-1 は最新です -- スキップ
+ 何も行うことがありません
+```
+
+## 3.2. 残りのパッケージの更新
+
+MSYS2の再起動が完了したら、
+
+```
+$ pacman -Suu
+```
+
+を実行します。forkエラーなどが出ていなければ完了です。
+
+
+# forkエラーが発生してしまった場合は
+
+pacman実行中に以下のようなforkエラーが発生した場合、pacman自体は正常終了しているように見えますが、そのパッケージの更新に失敗しています。そのため、forkエラーが発生したパッケージを手動で再インストールする必要があります。
+
+```
+37845597 [main] pacman 7492 fork: child -1 - forked process 8716 died unexpectedly, retry 0, exit code 0xC0000005, errno 11
+エラー: 新しいプロセスをフォークできません (Resource temporarily unavailable)
+```
+
+forkエラーが発生したパッケージをメモっておき、MSYS2を再起動してから、以下のコマンドを実行します。
+
+```
+$ pacman -S package1 package2 ...
+```
+
+
+# 参考
+
+* [MSYS2 / Wiki / MSYS2 installation / III. Updating packages](http://sourceforge.net/p/msys2/wiki/MSYS2%20installation/#iii-updating-packages &quot;MSYS2 / Wiki / MSYS2 installation&quot;)
+* [pacman - ArchWiki](https://wiki.archlinuxjp.org/index.php/Pacman &quot;pacman - ArchWiki&quot;)
+* [MSYS2でパッケージのダウンロードに失敗するときの対処 - Qiita](http://qiita.com/k-takata/items/fcb2f1f9ca564fd78597 &quot;MSYS2でパッケージのダウンロードに失敗するときの対処 - Qiita&quot;)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="MSYS2における正しいパッケージの更新方法 by @k_takata on @Qiita" data-url="http://qiita.com/k-takata/items/373ec7f23d5d7541f982" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="MSYS2における正しいパッケージの更新方法" href="http://b.hatena.ne.jp/entry/http://qiita.com/k-takata/items/373ec7f23d5d7541f982" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/k-takata/items/373ec7f23d5d7541f982" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/k-takata/items/373ec7f23d5d7541f982" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/k-takata"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/59454/profile-images/1473694934" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/k-takata">k-takata</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">365</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;k-takata&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/k-takata/items/373ec7f23d5d7541f982">MSYS2における正しいパッケージの更新方法</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/k-takata/items/36c240a23f88d699ce86">Vim 8.0用のプラグインマネージャを作ってみた話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/k-takata/items/b45da9df7a4041bac404">go-qmlをWindowsで使う</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/k-takata/items/4e45121081c83d3d5bfd">鬼雲に非包含オペレータを実装した話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/k-takata/items/fcb2f1f9ca564fd78597">MSYS2でパッケージのダウンロードに失敗するときの対処</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#0-pacman%E3%81%AE%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E7%A2%BA%E8%AA%8D\&quot;\u003e0. pacmanのバージョン確認\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1-pacman-5016403%E4%BB%A5%E9%99%8D%E3%81%82%E3%82%8B%E3%81%84%E3%81%AF501-1%E4%BB%A5%E9%99%8D%E3%81%8C%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B%E5%A0%B4%E5%90%88\&quot;\u003e1. pacman 5.0.1.6403以降、あるいは5.0.1-1以降がインストールされている場合\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-pacman-4216187%E4%BB%A5%E9%99%8D%E3%81%8C%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B%E5%A0%B4%E5%90%88\&quot;\u003e2. pacman 4.2.1.6187以降がインストールされている場合\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#21-%E6%9C%80%E5%B0%8F%E9%99%90%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0\&quot;\u003e2.1. 最小限のパッケージの更新\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#22-%E6%AE%8B%E3%82%8A%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0\&quot;\u003e2.2. 残りのパッケージの更新\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-%E3%81%9D%E3%82%8C%E4%BB%A5%E5%89%8D%E3%81%AE%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E3%81%AE%E5%A0%B4%E5%90%88\&quot;\u003e3. それ以前のバージョンの場合\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#31-%E6%9C%80%E5%B0%8F%E9%99%90%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0\&quot;\u003e3.1. 最小限のパッケージの更新\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#32-%E6%AE%8B%E3%82%8A%E3%81%AE%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8%E3%81%AE%E6%9B%B4%E6%96%B0\&quot;\u003e3.2. 残りのパッケージの更新\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#fork%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%8C%E7%99%BA%E7%94%9F%E3%81%97%E3%81%A6%E3%81%97%E3%81%BE%E3%81%A3%E3%81%9F%E5%A0%B4%E5%90%88%E3%81%AF\&quot;\u003eforkエラーが発生してしまった場合は\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:76,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;373ec7f23d5d7541f982&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hokorobi"><a itemprop="url" href="/hokorobi"><img alt="hokorobi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24711/profile-images/1473684175" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ykominami"><a itemprop="url" href="/ykominami"><img alt="ykominami" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4321/profile-images/1473756115" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="lambdasakura@github"><a itemprop="url" href="/lambdasakura@github"><img alt="lambdasakura@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/23433/profile-images/1473683838" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="7shi"><a itemprop="url" href="/7shi"><img alt="7shi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="bzgyma"><a itemprop="url" href="/bzgyma"><img alt="bzgyma" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90611/profile-images/1473705146" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="cd01"><a itemprop="url" href="/cd01"><img alt="cd01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24596/profile-images/1473684151" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="baboocon"><a itemprop="url" href="/baboocon"><img alt="baboocon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24530/profile-images/1473684135" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TEVASAKI"><a itemprop="url" href="/TEVASAKI"><img alt="TEVASAKI" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49595/profile-images/1473691786" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zephel01"><a itemprop="url" href="/zephel01"><img alt="zephel01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42415/profile-images/1473689150" /></a></div></div><div class="ArticleFooter__user"><a href="/k-takata/items/373ec7f23d5d7541f982/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/373ec7f23d5d7541f982/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/k-takata/items/373ec7f23d5d7541f982.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/894fdd849658880bf6c9#_reference-79cb67d51f5ea3a17651"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />MSYS2でRicty Diminishedを使う設定など</a><time class="references_datetime js-dateTimeView" datetime="2015-09-07T07:10:43+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/remyroez/items/757b7b769e9c5a2c4ae7#_reference-9b9606867e21a5661e86"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/48725/profile-images/1473691456" />MSYS2 にてコマンドライン環境をつくる: セットアップ編</a><time class="references_datetime js-dateTimeView" datetime="2016-01-30T16:28:40+00:00">about 1 year ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="MSYS2における正しいパッケージの更新方法 by @k_takata on @Qiita" data-url="http://qiita.com/k-takata/items/373ec7f23d5d7541f982" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="MSYS2における正しいパッケージの更新方法" href="http://b.hatena.ne.jp/entry/http://qiita.com/k-takata/items/373ec7f23d5d7541f982" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/k-takata/items/373ec7f23d5d7541f982" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/k-takata/items/373ec7f23d5d7541f982" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:314244,&quot;uuid&quot;:&quot;373ec7f23d5d7541f982&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;k-takata&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:59454,&quot;url_name&quot;:&quot;k-takata&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/59454/profile-images/1473694934&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="pLo9IpBB2Qs5XvANQEB5OqJBB0n4NCnfM7iFVuzAscPKOKZ6C2/gQMaNRREwtcdjwgYj+m/wcygPZoytDc6/BQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/k-takata/items/373ec7f23d5d7541f982" /><input type="hidden" name="item_uuid" id="item_uuid" value="373ec7f23d5d7541f982" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/k-takata/items/373ec7f23d5d7541f982", "id": 314244, "uuid": "373ec7f23d5d7541f982" }</script><script class="js-user" type="application/json">{&quot;id&quot;:59454,&quot;url_name&quot;:&quot;k-takata&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/59454/profile-images/1473694934&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="9QiYPkcnbsjQvmdtzVIM4UHhWMgSgSaHHiKPiekL5uabigNm3AlXgy9t0nG9p7K4IaZ8e4VFfHAi/IZyCAXoIA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/k-takata/items/373ec7f23d5d7541f982" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

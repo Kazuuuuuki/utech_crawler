@@ -10,6 +10,6 @@ class ScrapLinks:
                 links_list = soup.select('a[href^="http://qiita"]')
                 self.href = []
                 for a in links_list:
-                        self.href.append = a.attrs['href']
+                        self.href.append(a.attrs['href'])
         def output(self):
-                print(self.href)
+                return self.href

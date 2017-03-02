@@ -1,0 +1,2738 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Haskell アクション 超入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Haskellではアクションと呼ばれる機能により副作用が扱えます。アクションの使い方の初歩を説明します。ライブラリで用意されたアクションを手っ取り早く使うことを目的としているため、モナドや圏論には言及しません。
+
+シリーズの記事です。
+
+
+Haskell 超入門
+Haskell 代数的データ型 超入門
+Haskell アクション 超入門 ← この記事
+Haskell ラムダ 超入門
+Haskell アクションとラムダ 超入門
+Haskell IOモナド 超入門
+Hask..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="Haskell アクション 超入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Haskellではアクションと呼ばれる機能により副作用が扱えます。アクションの使い方の初歩を説明します。ライブラリで用意されたアクションを手っ取り早く使うことを目的としているため、モナドや圏論には言及しません。
+
+シリーズの記事です。..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="AyzBp639mn5Guzh9Icl/YlCwqMQQ7EFtyUn+EM9otQptrlr/NtOjNblojWFRPME7MPeMd4coG5r1l/frLma7zA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/Haskell"><span itemprop="name">Haskell</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">Haskell アクション 超入門</h1><ul class="TagList"><li class="TagList__item" data-count="1345"><a class="u-link-unstyled TagList__label" href="/tags/Haskell"><img alt="Haskell" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/373b3b0595a92712b2a45616f53dae97bc1a04e5/medium.jpg?1387913155" /><span>Haskell</span></a></li><li class="TagList__item" data-count="13003"><a class="u-link-unstyled TagList__label" href="/tags/JavaScript"><img alt="JavaScript" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/58f69837141ae3efa0c530ed53de128cacb49b66/medium.jpg?1421232838" /><span>JavaScript</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">94</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="5 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>5</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:94,&quot;uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="tkr_hko625"><a itemprop="url" href="/tkr_hko625"><img alt="tkr_hko625" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19416/profile-images/1473758527" /></a></li><li class="js-hovercard" data-hovercard-target-name="Reds"><a itemprop="url" href="/Reds"><img alt="Reds" class="thumb thumb--xs" src="https://0.gravatar.com/avatar/e751888e30cdc35253c1a3b241977adf?d=https%3A%2F%2Fidenticons.github.com%2F0e2f15414d97b8b642022be91ff105e0.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="objectx"><a itemprop="url" href="/objectx"><img alt="objectx" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9635/profile-images/1473681490" /></a></li><li class="js-hovercard" data-hovercard-target-name="skatsuta"><a itemprop="url" href="/skatsuta"><img alt="skatsuta" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48191/profile-images/1473691262" /></a></li><li class="js-hovercard" data-hovercard-target-name="SuperAlloyZZ"><a itemprop="url" href="/SuperAlloyZZ"><img alt="SuperAlloyZZ" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46744/profile-images/1473690751" /></a></li><li class="js-hovercard" data-hovercard-target-name="quenhulu"><a itemprop="url" href="/quenhulu"><img alt="quenhulu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14708/profile-images/1473683459" /></a></li><li class="js-hovercard" data-hovercard-target-name="jikumaruy"><a itemprop="url" href="/jikumaruy"><img alt="jikumaruy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50578/profile-images/1473692151" /></a></li><li class="js-hovercard" data-hovercard-target-name="sbjib"><a itemprop="url" href="/sbjib"><img alt="sbjib" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19630/profile-images/1473682775" /></a></li><li class="js-hovercard" data-hovercard-target-name="kazica"><a itemprop="url" href="/kazica"><img alt="kazica" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26813/profile-images/1473684707" /></a></li><li class="js-hovercard" data-hovercard-target-name="cookienote"><a itemprop="url" href="/cookienote"><img alt="cookienote" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43662/profile-images/1473689604" /></a></li><li><a href="/7shi/items/85afd7bbd5d6c4115ad6/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2014-10-09">Edited at <time datetime="2017-01-06T20:11:09+09:00" itemprop="dateModified">2017-01-06</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/85afd7bbd5d6c4115ad6/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">77</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/85afd7bbd5d6c4115ad6/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(77)</span></a></li><li><a href="/7shi/items/85afd7bbd5d6c4115ad6.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-85afd7bbd5d6c4115ad6" itemprop="articleBody"><p>Haskellではアクションと呼ばれる機能により副作用が扱えます。アクションの使い方の初歩を説明します。ライブラリで用意されたアクションを手っ取り早く使うことを目的としているため、モナドや圏論には言及しません。</p>
+
+<p>シリーズの記事です。</p>
+
+<ol>
+<li><a href="http://qiita.com/7shi/items/145f1234f8ec2af923ef" id="reference-37bb769b51bee39f89ef">Haskell 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/1ce76bde464b4a55c143" id="reference-9229271452f86170a3bf">Haskell 代数的データ型 超入門</a></li>
+<li>Haskell アクション 超入門 ← この記事</li>
+<li><a href="http://qiita.com/7shi/items/1345bf32003faff435cb" id="reference-836ed0540579f39b97e2">Haskell ラムダ 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/4a8a2807bb5186576c61" id="reference-822092dffbfad01ace37">Haskell アクションとラムダ 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" id="reference-2a28ef7c861227be81a8">Haskell IOモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/deb19c4cba933590ffbf" id="reference-57ae05b4d35cce0037e2">Haskell リストモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/c7d7eec066af0fe0688d" id="reference-0759d343fc57d9352cbd">Haskell Maybeモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/2e9bff5d88302de1a9e9" id="reference-932ba2f26ff622b4107e">Haskell 状態系モナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/4408b76624067c17e933" id="reference-b6d2f2b41e262196e3e4">Haskell モナド変換子 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/73e534c47bbebc71b37e" id="reference-2be7cac6961750f6d388">Haskell 例外処理 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/b8c741e78a96ea2c10fe" id="reference-9bfa2bc3015e264ade35">Haskell 構文解析 超入門</a></li>
+<li>【予定】Haskell 継続モナド 超入門</li>
+<li>【予定】Haskell 型クラス 超入門</li>
+<li>【予定】Haskell モナドとゆかいな仲間たち</li>
+<li>【予定】Haskell Freeモナド 超入門</li>
+<li>【予定】Haskell Operationalモナド 超入門</li>
+<li>【予定】Haskell Effモナド 超入門</li>
+<li>【予定】Haskell アロー 超入門</li>
+</ol>
+
+<p>練習の解答例は別記事に掲載します。</p>
+
+<ul>
+<li><a href="http://qiita.com/7shi/items/623fd55b8b68398becdc" id="reference-752ed6e3bd032cfe15c0">【解答例】Haskell アクション 超入門</a></li>
+</ul>
+
+<h1>
+<span id="参照透過性" class="fragment"></span><a href="#%E5%8F%82%E7%85%A7%E9%80%8F%E9%81%8E%E6%80%A7"><i class="fa fa-link"></i></a>参照透過性</h1>
+
+<p>Haskellの関数は同じ引数に対しては常に同じ値を返します。この性質を<a href="http://ja.wikipedia.org/wiki/%E5%8F%82%E7%85%A7%E9%80%8F%E9%81%8E%E6%80%A7" rel="nofollow noopener" target="_blank">参照透過性</a>と呼びます。</p>
+
+<p>以下の例では<code>add 1 2</code>は常に<code>3</code>を返します。何か特定の条件下で結果が変化することはありません。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">例</span></div>
+<div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add</span> <span class="mi">1</span> <span class="mi">2</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+</pre></div>
+</div>
+
+<h2>
+<span id="副作用" class="fragment"></span><a href="#%E5%89%AF%E4%BD%9C%E7%94%A8"><i class="fa fa-link"></i></a>副作用</h2>
+
+<p>Haskellでは参照透過性のない関数は定義できません。具体的には、乱数のように毎回異なる結果を返す関数は定義できません。</p>
+
+<p>毎回異なる結果を返すようなものは内部に何らかの状態を持っており、結果を返すための処理などで状態が変化していると考えられます。状態が変化することを<a href="http://ja.wikipedia.org/wiki/%E5%89%AF%E4%BD%9C%E7%94%A8_%28%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%29" rel="nofollow noopener" target="_blank">副作用</a>と呼びます。</p>
+
+<p>状態に影響を受けて結果が変化する処理には参照透過性がありません。つまり副作用は参照透過性と対立する概念です。</p>
+
+<h1>
+<span id="アクション" class="fragment"></span><a href="#%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3"><i class="fa fa-link"></i></a>アクション</h1>
+
+<p>副作用が扱えないと困ることもありますが、例えば乱数を返す関数のようなものを定義することは可能です。それを関数とは区別して<strong>アクション</strong>と呼びます。</p>
+
+<p>乱数に限らず、時刻取得やファイル読み込みなど、結果が変化する可能性があるものはすべてアクションを使います。</p>
+
+<h2>
+<span id="乱数" class="fragment"></span><a href="#%E4%B9%B1%E6%95%B0"><i class="fa fa-link"></i></a>乱数</h2>
+
+<p>'A'～'Z'までの任意の文字をランダムに返すアクション<code>randAlpha</code>を定義する例を示します。</p>
+
+<p>※ パッケージrandomが必要です。<a href="http://qiita.com/7shi/items/d1e5a0c22be6cf61d286" id="reference-cdda659133bab5857c65">Leksah</a>ではdependenciesに追加します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">System.Random</span>
+
+<span class="nf">randAlpha</span> <span class="ow">=</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="n">'A'</span><span class="p">,</span> <span class="n">'Z'</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">r</span> <span class="ow">&lt;-</span> <span class="n">randAlpha</span>
+    <span class="n">print</span> <span class="n">r</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">randAlpha</span>
+    <span class="n">randAlpha</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+'E'
+'P'
+'I'
+</pre></div>
+</div>
+
+<p>アクションは使用方法も関数とは異なり、見慣れない演算子が出て来ます。それらを説明します。</p>
+
+<h2>
+<span id="-" class="fragment"></span><a href="#-"><i class="fa fa-link"></i></a>&lt;-</h2>
+
+<p>アクションから値を取り出すには<code>&lt;-</code>を使います。矢印（←）をイメージした記号です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/9e2da171-e568-5552-1fde-4bf8e5062444.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/9e2da171-e568-5552-1fde-4bf8e5062444.png" alt="v_bind_m.png"></a></p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">OK</span></div>
+<div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">r</span> <span class="ow">&lt;-</span> <span class="n">randAlpha</span>
+    <span class="n">print</span> <span class="n">r</span>
+</pre></div>
+</div>
+
+<p>アクションに関連付けられた処理（この場合は乱数生成）は<code>&lt;-</code>で値を取り出す際に行われます。</p>
+
+<h3>
+<span id="注意点" class="fragment"></span><a href="#%E6%B3%A8%E6%84%8F%E7%82%B9"><i class="fa fa-link"></i></a>注意点</h3>
+
+<p><code>&lt;-</code>は<code>do</code>ブロックの中でしか使えません。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">NG</span></div>
+<div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span>
+    <span class="n">r</span> <span class="ow">&lt;-</span> <span class="n">randAlpha</span>
+    <span class="n">print</span> <span class="n">r</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">エラー内容</span></div>
+<div class="highlight"><pre>
+parse error on input `&lt;-'
+</pre></div>
+</div>
+
+<p>※ <code>do</code>なしで<code>&lt;-</code>相当の処理を書くことは可能ですが、ラムダについて説明する必要があります。詳細は続編の<a href="http://qiita.com/7shi/items/4a8a2807bb5186576c61">Haskell アクションとラムダ 超入門</a>で説明します。</p>
+
+<h2>
+<span id="" class="fragment"></span><a href="#"><i class="fa fa-link"></i></a>=&lt;&lt;</h2>
+
+<p>一時変数を経由せずにアクションから値を取り出そうとしてもうまくいきません。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">NG</span></div>
+<div class="highlight"><pre>
+<span class="nf">test</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="n">randAlpha</span> <span class="c1">-- エラー</span>
+</pre></div>
+</div>
+
+<p>アクションから値を取り出して関数に渡すには専用の演算子<code>=&lt;&lt;</code>を使用します。他の言語では見ない形ですが、直感的には<strong>漏斗のようなもの</strong>でアクションから関数に値を<strong>ドリップ</strong>しているとイメージすれば良いでしょう。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/26c8e418-c41e-2bf3-dcf8-cb2d4d9cadfb.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/26c8e418-c41e-2bf3-dcf8-cb2d4d9cadfb.png" alt="f_rbind_m.png"></a> <a href="https://qiita-image-store.s3.amazonaws.com/0/32057/0db6cbec-252e-4714-483d-578bf8323dad.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/0db6cbec-252e-4714-483d-578bf8323dad.png" alt="coffee.png"></a></p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">OK</span></div>
+<div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">randAlpha</span>
+</pre></div>
+</div>
+
+<p>アクション版の<code>$</code>だと捉えておけば良いでしょう。</p>
+
+<h3>
+<span id="イメージ" class="fragment"></span><a href="#%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8"><i class="fa fa-link"></i></a>イメージ</h3>
+
+<p>C++をご存知の方は、iostreamの<code>&lt;&lt;</code>をイメージすれば良いかもしれません。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"abc"</span><span class="p">;</span>
+</pre></div></div>
+
+<h3>
+<span id="-1" class="fragment"></span><a href="#-1"><i class="fa fa-link"></i></a>&gt;&gt;=</h3>
+
+<p>逆向きもあります。<code>&gt;&gt;=</code>はbindと呼ばれます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/053234a0-674f-ad0f-0198-b27d9b9d93fc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/053234a0-674f-ad0f-0198-b27d9b9d93fc.png" alt="m_bind_f.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">randAlpha</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+</pre></div></div>
+
+<p>説明の都合上<code>=&lt;&lt;</code>を先に出しましたが、実は<code>&gt;&gt;=</code>が基本で、<code>=&lt;&lt;</code>はその逆です。</p>
+
+<p>※ <code>do</code>と<code>&gt;&gt;=</code>には密接な関係があります。詳細は続編の<a href="http://qiita.com/7shi/items/4a8a2807bb5186576c61">Haskell アクションとラムダ 超入門</a>で説明します。</p>
+
+<h2>
+<span id="let" class="fragment"></span><a href="#let"><i class="fa fa-link"></i></a>let</h2>
+
+<p><code>let</code>でアクションから値を取り出すことはできません。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">NG</span></div>
+<div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">r</span> <span class="ow">=</span> <span class="n">randAlpha</span>
+    <span class="n">print</span> <span class="n">r</span> <span class="c1">-- エラー</span>
+</pre></div>
+</div>
+
+<p><code>let</code>と組み合わせることは可能ですが、アクションを変数に束縛する意味となります。値を取り出しているわけではないことに注意してください。<code>let</code>を使っても、値を取り出すには依然として<code>&lt;-</code>などを使う必要があります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">r</span> <span class="ow">=</span> <span class="n">randAlpha</span>
+    <span class="n">r'</span> <span class="ow">&lt;-</span> <span class="n">r</span>
+    <span class="n">print</span> <span class="n">r'</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">r</span>
+    <span class="n">r</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+'Q'
+'D'
+'A'
+</pre></div>
+</div>
+
+<h2>
+<span id="呼び出し" class="fragment"></span><a href="#%E5%91%BC%E3%81%B3%E5%87%BA%E3%81%97"><i class="fa fa-link"></i></a>呼び出し</h2>
+
+<p><code>main</code>以外で<code>do</code>を使って、<code>main</code>から呼び出せます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">test</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">r</span> <span class="ow">&lt;-</span> <span class="n">randAlpha</span>
+    <span class="n">print</span> <span class="n">r</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">test</span>
+    <span class="n">test</span>
+    <span class="n">test</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+'S'
+'P'
+'T'
+</pre></div>
+</div>
+
+<p><code>do</code>ブロック全体で1つのアクションを構成します。testには引数がないため関数ではなく、アクションが束縛された変数です。</p>
+
+<h3>
+<span id="main" class="fragment"></span><a href="#main"><i class="fa fa-link"></i></a>main</h3>
+
+<p>実は<code>main</code>も同じ構造です。今まで曖昧なまま進めてきましたが、<code>main</code>は関数ではなくアクションが束縛された変数です。プログラムの起動時に自動的に呼び出される点が特殊です。</p>
+
+<h2>
+<span id="練習" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問1】ランダムにアルファベット小文字の1文字表示を繰り返してください。<code>'z'</code>が現れたら<code>"END"</code>と表示して終了してください。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">動作イメージ（毎回異なる）</span></div>
+<div class="highlight"><pre>
+'j'
+'m'
+'z'
+"END"
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%A9%E3%83%B3%E3%83%80%E3%83%A0%E8%A1%A8%E7%A4%BA" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="return" class="fragment"></span><a href="#return"><i class="fa fa-link"></i></a>return</h1>
+
+<p><code>return</code>は値を入れてアクションを作る関数です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/820088e0-1504-8fa9-e093-3cec017cae69.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/820088e0-1504-8fa9-e093-3cec017cae69.png" alt="return.png"></a></p>
+
+<p>アクションを作って、すぐに値を取り出してみます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">return</span> <span class="mi">1</span>
+    <span class="n">print</span> <span class="n">a</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">return</span> <span class="mi">2</span>
+    <span class="n">return</span> <span class="mi">3</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+2
+3
+</pre></div>
+</div>
+
+<p>繰り返しますが、<code>let</code>では値を取り出すことはできません。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">NG</span></div>
+<div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">return</span> <span class="mi">1</span>
+    <span class="n">print</span> <span class="n">a</span> <span class="c1">-- エラー</span>
+</pre></div>
+</div>
+
+<p>束縛されたアクションから、アクション用の演算子で値を取り出します。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">OK</span></div>
+<div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">return</span> <span class="mi">1</span>
+    <span class="n">a'</span> <span class="ow">&lt;-</span> <span class="n">a</span>
+    <span class="n">print</span> <span class="n">a'</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">a</span>
+    <span class="n">a</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+1
+1
+</pre></div>
+</div>
+
+<h2>
+<span id="アクションを返す関数" class="fragment"></span><a href="#%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%92%E8%BF%94%E3%81%99%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>アクションを返す関数</h2>
+
+<p>関数の戻り値に<code>return</code>を通すと、アクションを返す関数が作れます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">return</span> <span class="o">$</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">add</span> <span class="mi">1</span> <span class="mi">2</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+</pre></div>
+</div>
+
+<p>C言語などで<code>return</code>により値を返すのに似ていますが、返されるのは値ではなくアクションである点が異なります。そのためアクション用の演算子で値を取り出す必要があります。</p>
+
+<h2>
+<span id="doとreturn" class="fragment"></span><a href="#do%E3%81%A8return"><i class="fa fa-link"></i></a>doとreturn</h2>
+
+<p><code>do</code>と組み合わせれば、<code>print</code>などを使って最後に<code>return</code>する関数が作れます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="n">x</span>
+    <span class="n">print</span> <span class="n">y</span>
+    <span class="n">return</span> <span class="o">$</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">add</span> <span class="mi">1</span> <span class="mi">2</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+2
+3
+</pre></div>
+</div>
+
+<p>ますますC言語などに似て来ます。</p>
+
+<h3>
+<span id="注意点-1" class="fragment"></span><a href="#%E6%B3%A8%E6%84%8F%E7%82%B9-1"><i class="fa fa-link"></i></a>注意点</h3>
+
+<p><code>return</code>は単にそういう名前の関数で、C言語のように関数から抜ける機能はありません。後ろにコードがあれば、抜けずにそのまま続行します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="s">"abc"</span>
+    <span class="n">return</span> <span class="mi">1</span>    <span class="c1">-- 素通り</span>
+    <span class="n">print</span> <span class="s">"def"</span> <span class="c1">-- 実行される</span>
+    <span class="n">return</span> <span class="mi">2</span>    <span class="c1">-- 戻り値</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"abc"
+"def"
+</pre></div>
+</div>
+
+<p><code>return</code>は関数の最後でアクションを返すのに使われることが多いため、そのような使い方をしている限りはC言語などに見た目が似せられるということです。</p>
+
+<h2>
+<span id="練習-1" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-1"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問2】階乗を求める関数<code>fact</code>を、アクションを返す関数に書き換えてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">fact</span> <span class="mi">0</span> <span class="ow">=</span> <span class="mi">1</span>
+<span class="nf">fact</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">fact</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">fact</span> <span class="mi">5</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+120
+</pre></div>
+</div>
+
+<p>ヒント: <code>fact 0 = return 1</code></p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E9%9A%8E%E4%B9%97" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="io" class="fragment"></span><a href="#io"><i class="fa fa-link"></i></a>IO</h1>
+
+<p>今回出て来るアクションはすべてIOと呼ばれる型で、型名は<code>IO＋型</code>で表記されます。</p>
+
+<p>※ IO以外にもアクションはありますが、今回は分かりやすさを優先してIOアクションを単にアクションとして扱います。IO以外のアクションは続編の<a href="http://qiita.com/7shi/items/2e9bff5d88302de1a9e9">Haskell 状態系モナド 超入門</a>で取り上げます。</p>
+
+<p>とりあえず実用的には以下のように認識すれば使えます。</p>
+
+<p>例: <code>IO Int</code> → 数値が取り出せるアクション</p>
+
+<ul>
+<li>
+<code>IO Int</code>で1つの型を表します。</li>
+<li>
+<code>IO</code>がアクション、<code>Int</code>が取り出される型を表します。</li>
+</ul>
+
+<h2>
+<span id="型注釈" class="fragment"></span><a href="#%E5%9E%8B%E6%B3%A8%E9%87%88"><i class="fa fa-link"></i></a>型注釈</h2>
+
+<p>型を明示するには<strong>型注釈</strong>と呼ばれる行を追加します。一般的には本体の上に書きます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">randAlpha</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="kt">Char</span>
+<span class="nf">randAlpha</span> <span class="ow">=</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="n">'A'</span><span class="p">,</span> <span class="n">'Z'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>なお、一行で書くこともできます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">randAlpha</span> <span class="ow">=</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="n">'A'</span><span class="p">,</span> <span class="n">'Z'</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="kt">Char</span>
+</pre></div></div>
+
+<p>大抵は型注釈を書かなくても型推論により型が決まります。型推論がうまくいかないケースでは型注釈が必須です。そのような例を次に示します。</p>
+
+<h2>
+<span id="サイコロ" class="fragment"></span><a href="#%E3%82%B5%E3%82%A4%E3%82%B3%E3%83%AD"><i class="fa fa-link"></i></a>サイコロ</h2>
+
+<p><code>randomR</code>で数値を指定するには型注釈が必須です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">System.Random</span>
+
+<span class="nf">dice</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="kt">Int</span>
+<span class="nf">dice</span> <span class="ow">=</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">dice</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">dice</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">dice</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+2
+3
+1
+</pre></div>
+</div>
+
+<p>型注釈を省略するとエラーになります。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">エラー内容</span></div>
+<div class="highlight"><pre>
+No instance for (Random a0) arising from a use of `randomR'
+The type variable `a0' is ambiguous
+Possible cause: the monomorphism restriction applied to the following:
+  dice :: IO a0 (bound at src\Main.hs:3:1)
+Probable fix: give these definition(s) an explicit type signature
+              or use -XNoMonomorphismRestriction
+Note: there are several potential instances:
+  instance Random Bool -- Defined in `System.Random'
+  instance Random Foreign.C.Types.CChar -- Defined in `System.Random'
+  instance Random Foreign.C.Types.CDouble
+    -- Defined in `System.Random'
+  ...plus 33 others
+（略）
+</pre></div>
+</div>
+
+<p><code>dice</code>から取り出せる型が<code>Bool</code>, <code>Foreign.C.Types.CChar</code>, <code>Foreign.C.Types.CDouble</code>, その他33種類のうちどの型か曖昧だというエラーメッセージです。</p>
+
+<h2>
+<span id="練習-2" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-2"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問3】リストをランダムに並べ替える関数<code>shuffle</code>を実装してください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">shuffle</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">9</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+[3,5,4,9,2,7,8,6,1]
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%82%B7%E3%83%A3%E3%83%83%E3%83%95%E3%83%AB" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<p>【問4】<a href="http://ja.wikipedia.org/wiki/%E3%83%9C%E3%82%B4%E3%82%BD%E3%83%BC%E3%83%88" rel="nofollow noopener" target="_blank">ボゴソート</a>を実装してください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">xs</span> <span class="ow">&lt;-</span> <span class="n">shuffle</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">9</span><span class="p">]</span>
+    <span class="n">print</span> <span class="n">xs</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">bogosort</span> <span class="n">xs</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+[7,1,9,4,2,8,5,3,6]
+[1,2,3,4,5,6,7,8,9]
+</pre></div>
+</div>
+
+<p>ヒント: ソート済みかを<code>True</code>/<code>False</code>で返す関数<code>isSorted</code>を実装します。</p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%9C%E3%82%B4%E3%82%BD%E3%83%BC%E3%83%88" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="unit" class="fragment"></span><a href="#unit"><i class="fa fa-link"></i></a>unit</h1>
+
+<p>空のタプル<code>()</code>は値がないことを表し<strong>unit</strong>と読みます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">ignore</span> <span class="kr">_</span> <span class="ow">=</span> <span class="nb">()</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">ignore</span> <span class="s">"foo"</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+()
+</pre></div>
+</div>
+
+<p>関数は必ず値を返す必要がありますが、返す値がないときには<code>()</code>を返します。C言語などで値を返さない<code>void</code>関数に相当します。</p>
+
+<h2>
+<span id="空のmain" class="fragment"></span><a href="#%E7%A9%BA%E3%81%AEmain"><i class="fa fa-link"></i></a>空のmain</h2>
+
+<p>何もしない<code>main</code>を定義してみます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">return</span> <span class="nb">()</span>
+</pre></div></div>
+
+<p><code>main</code>はアクションとなる必要があるため<code>return</code>必須です。</p>
+
+<h3>
+<span id="終了ステータス" class="fragment"></span><a href="#%E7%B5%82%E4%BA%86%E3%82%B9%E3%83%86%E3%83%BC%E3%82%BF%E3%82%B9"><i class="fa fa-link"></i></a>終了ステータス</h3>
+
+<p>C言語では<code>main()</code>の戻り値がプロセスの終了ステータスとなります。</p>
+
+<div class="code-frame" data-lang="c">
+<div class="code-lang"><span class="bold">main.c</span></div>
+<div class="highlight"><pre>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="mi">5</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">シェルで確認</span></div>
+<div class="highlight"><pre>
+$ gcc main.c
+$ ./a.out
+$ echo $?
+5
+</pre></div>
+</div>
+
+<p>Haskellでは<code>main</code>から返されるアクションの値は捨てられるため、C言語のようにプロセスの終了ステータスとして扱われるわけではありません。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">main.hs</span></div>
+<div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="n">return</span> <span class="mi">5</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">シェルで確認</span></div>
+<div class="highlight"><pre>
+$ ghc main.hs
+$ ./main
+$ echo $?
+0
+</pre></div>
+</div>
+
+<p>runhaskellで実行すると<code>main</code>から取り出された値は表示されますが、終了ステータスとして扱われるわけではありません。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">シェルで確認</span></div>
+<div class="highlight"><pre>
+$ runhaskell main.hs
+5
+$ echo $?
+0
+</pre></div>
+</div>
+
+<p>終了ステータスを返すには<a href="http://hackage.haskell.org/package/base-4.7.0.1/docs/System-Exit.html" rel="nofollow noopener" target="_blank">System.Exit</a>モジュールを使います。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">exit.hs</span></div>
+<div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">System.Exit</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">exitWith</span> <span class="o">$</span> <span class="kt">ExitFailure</span> <span class="mi">5</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">シェルで確認</span></div>
+<div class="highlight"><pre>
+$ ghc exit.hs
+$ ./exit
+$ echo $?
+5
+</pre></div>
+</div>
+
+<h2>
+<span id="print" class="fragment"></span><a href="#print"><i class="fa fa-link"></i></a>print</h2>
+
+<p>今まで意識せずに使ってきた<code>print</code>はアクションを返す関数です。文字が表示されるのは関数が呼ばれるタイミングではなく、関数が返したアクションから値を取り出すタイミングでの<strong>副作用</strong>です。</p>
+
+<ul>
+<li>
+<code>print</code>: 関数</li>
+<li>
+<code>print "abc"</code>: 関数を呼んで、戻り値がアクション</li>
+<li>
+<code>let a = print "abc"</code>: 戻り値のアクションを束縛</li>
+<li>
+<code>_ &lt;- print "abc"</code>: 戻り値のアクションから値を取り出し、副作用として文字を表示</li>
+</ul>
+
+<p>確認します。まず値を取り出してみます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">_</span> <span class="ow">&lt;-</span> <span class="n">print</span> <span class="s">"hello"</span>
+    <span class="n">return</span> <span class="nb">()</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"hello"
+</pre></div>
+</div>
+
+<p>取り出した値を表示して確認してみます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">print</span> <span class="s">"hello"</span>
+    <span class="n">print</span> <span class="n">a</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"hello"
+()
+</pre></div>
+</div>
+
+<p><code>()</code>が取り出されます。<code>()</code>自体に値としての意味はなく、副作用として文字が表示されることに狙いがあります。</p>
+
+<p><code>do</code>ブロックの末尾で<code>return</code>ではなく<code>print</code>を使うことができるのは、<code>print</code>がアクションを返すためです。</p>
+
+<h2>
+<span id="暗黙の取り出し" class="fragment"></span><a href="#%E6%9A%97%E9%BB%99%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97"><i class="fa fa-link"></i></a>暗黙の取り出し</h2>
+
+<p><code>print</code>から返されるアクションを<code>let</code>で束縛して、後で値の取り出しを試みます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">print</span> <span class="s">"hello"</span>
+    <span class="kr">_</span> <span class="ow">&lt;-</span> <span class="n">a</span>
+    <span class="kr">_</span> <span class="ow">&lt;-</span> <span class="n">a</span>
+    <span class="n">a</span>
+    <span class="n">a</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+"hello"
+"hello"
+"hello"
+"hello"
+</pre></div>
+</div>
+
+<p><code>&lt;-</code>により明示的に値を取り出さなくても、<code>do</code>の中にアクションを置くだけで自動的に値が取り出されます。これがアクション呼び出しの仕組みです。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">再掲</span></div>
+<div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">System.Random</span>
+
+<span class="nf">randAlpha</span> <span class="ow">=</span> <span class="n">getStdRandom</span> <span class="o">$</span> <span class="n">randomR</span> <span class="p">(</span><span class="n">'A'</span><span class="p">,</span> <span class="n">'Z'</span><span class="p">)</span>
+
+<span class="nf">test</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">r</span> <span class="ow">&lt;-</span> <span class="n">randAlpha</span>
+    <span class="n">print</span> <span class="n">r</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">test</span>
+    <span class="n">test</span>
+    <span class="n">test</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+'S'
+'P'
+'T'
+</pre></div>
+</div>
+
+<p>暗黙的に取り出された値は捨てられます。</p>
+
+<h2>
+<span id="練習-3" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-3"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問5】1～6の乱数を表示して返すアクションにより、暗黙の取り出しで値が捨てられていることを確認してください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">showDice</span>
+    <span class="n">showDice</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">showDice</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果（毎回異なる）</span></div>
+<div class="highlight"><pre>
+5
+2
+6
+6
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E6%9A%97%E9%BB%99%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="bind" class="fragment"></span><a href="#bind"><i class="fa fa-link"></i></a>bind</h1>
+
+<p><code>&gt;&gt;=</code>は「アクションと、アクションを返す関数とを<strong>結びつける</strong>」ため<strong>bind</strong>と呼ばれます。ここでは向きに関係なく<code>=&lt;&lt;</code>も含めてbindとして扱います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/86db414e-bf95-0a53-cf9f-1f1bbe4d16b7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/86db414e-bf95-0a53-cf9f-1f1bbe4d16b7.png" alt="m_bind_f_m2.png"></a><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/32057/3adbacc6-e0f0-338f-efc3-d111165b27ce.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/3adbacc6-e0f0-338f-efc3-d111165b27ce.png" alt="f_rbind_m_m2.png"></a></p>
+
+<p>bindの結合先がただの「関数」ではなく「アクションを返す関数」なのを確認します。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">OK</span></div>
+<div class="highlight"><pre>
+<span class="nf">inc</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">return</span> <span class="o">$</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">return</span> <span class="mi">2</span> <span class="o">&gt;&gt;=</span> <span class="n">inc</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">inc</span> <span class="o">=&lt;&lt;</span> <span class="n">return</span> <span class="mi">2</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+3
+</pre></div>
+</div>
+
+<p>アクションを返さない関数にはbindできないことを確認します。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">NG</span></div>
+<div class="highlight"><pre>
+<span class="nf">inc</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">inc</span> <span class="o">=&lt;&lt;</span> <span class="n">return</span> <span class="mi">2</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">エラー内容</span></div>
+<div class="highlight"><pre>
+No instance for (Show (m0 b0)) arising from a use of `print'
+The type variables `m0', `b0' are ambiguous
+Possible fix: add a type signature that fixes these type variable(s)
+（略・以下多数）
+</pre></div>
+</div>
+
+<p>この仕様は、一度アクションに値を入れたら、その値を使った計算もアクションに閉じ込めることを目的としています。これにより副作用がアクションの中に閉じ込められ、アクションの外では参照透過性が保たれます。</p>
+
+<p><code>&lt;-</code>はアクションの外に値を取り出しているように見えますが、<code>do</code>ブロックの中でしか使えず、<code>do</code>ブロックは最後に<code>return</code>などでアクションを返すことから、結果としてアクションの中に閉じ込められたままです。</p>
+
+<h2>
+<span id="applicativeスタイル" class="fragment"></span><a href="#applicative%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB"><i class="fa fa-link"></i></a>Applicativeスタイル</h2>
+
+<p>bindの結合先はアクションを返す関数という制限がありますが、アクションから値を外に出さないことが目的なら「自動的に入れてくれれば良い」と感じるかもしれません。</p>
+
+<p>実際にそういう方法もサポートされていて<strong>Applicative（アプリカティブ）スタイル</strong>と呼ばれます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/15d1cbf2-a00d-db22-d973-27ad0b099c26.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/15d1cbf2-a00d-db22-d973-27ad0b099c26.png" alt="applicative_style.png"></a></p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Control.Applicative</span>
+
+<span class="nf">inc</span> <span class="n">x</span>   <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">inc</span> <span class="o">&lt;$&gt;</span> <span class="n">return</span> <span class="mi">1</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">add</span> <span class="o">&lt;$&gt;</span> <span class="n">return</span> <span class="mi">1</span> <span class="o">&lt;*&gt;</span> <span class="n">return</span> <span class="mi">2</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2
+3
+</pre></div>
+</div>
+
+<p><code>&lt;$&gt;</code>は次のような働きをします。</p>
+
+<ol>
+<li>アクションから値を取り出して関数に引数として渡す</li>
+<li>関数の戻り値をアクションに閉じ込める</li>
+</ol>
+
+<p>引数が複数あるときは<code>&lt;*&gt;</code>でつなぎます。</p>
+
+<p>詳細は次の記事が参考になります。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20101211/1292021817" rel="nofollow noopener" target="_blank">Applicativeのススメ - あどけない話</a> 2010.12.11</li>
+</ul>
+
+<h2>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h2>
+
+<p>bind</p>
+
+<ul>
+<li>アクション <code>&gt;&gt;=</code> 関数(アクションを返す)</li>
+<li>関数(アクションを返す) <code>=&lt;&lt;</code> アクション</li>
+</ul>
+
+<p>Applicativeスタイル</p>
+
+<ul>
+<li>関数 <code>&lt;$&gt;</code> アクション</li>
+<li>関数 <code>&lt;$&gt;</code> アクション <code>&lt;*&gt;</code> アクション</li>
+</ul>
+
+<p>どちらも最終的に得られるのはアクションです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32057/43cd2018-cd41-dc83-916c-15fbb19bbaf8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32057/43cd2018-cd41-dc83-916c-15fbb19bbaf8.png" alt="coffee2.png"></a></p>
+
+<p>※ この絵に深い意味はありません。</p>
+
+<h2>
+<span id="練習-4" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-4"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問6】Applicativeスタイルを使って、次のコードから<code>&lt;-</code>を排除してください。</p>
+
+<p>※ 具体的には<code>fib n ...</code>の定義だけを修正してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">fib</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">return</span> <span class="mi">0</span>
+<span class="nf">fib</span> <span class="mi">1</span> <span class="ow">=</span> <span class="n">return</span> <span class="mi">1</span>
+<span class="nf">fib</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">fib</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">b</span> <span class="ow">&lt;-</span> <span class="n">fib</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">return</span> <span class="o">$</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">fib</span> <span class="mi">6</span>
+</pre></div></div>
+
+<p>ヒント: 演算子の関数化<code>(+)</code></p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#applicative%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="デバッグ" class="fragment"></span><a href="#%E3%83%87%E3%83%90%E3%83%83%E3%82%B0"><i class="fa fa-link"></i></a>デバッグ</h1>
+
+<p><code>trace</code>によるデバッグを<code>putStrLn</code>に書き替えて比較します。デバッグには<code>trace</code>を使った方が簡単ですが、デバッグ以外の理由でアクションを使うこともあるため、書き方の例として示します。</p>
+
+<p>元となるデバッグなしのコードです。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">fact</span> <span class="mi">0</span> <span class="ow">=</span> <span class="mi">0</span>
+<span class="nf">fact</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">fact</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">fact</span> <span class="mi">5</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+120
+</pre></div>
+</div>
+
+<p><code>trace</code>で途中経過を表示します。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">trace</span></div>
+<div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Debug.Trace</span>
+
+<span class="nf">fact</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">trace</span> <span class="s">"fact 0 = 1"</span> <span class="mi">1</span>
+<span class="nf">fact</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">trace</span> <span class="n">dbg0</span> <span class="o">$</span> <span class="n">trace</span> <span class="n">dbg1</span> <span class="n">ret</span>
+    <span class="kr">where</span>
+        <span class="n">ret</span>  <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">fn1</span>
+        <span class="n">fn1</span>  <span class="ow">=</span> <span class="n">fact</span> <span class="o">$</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">dbg0</span> <span class="ow">=</span> <span class="s">"fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span>
+               <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">dbg1</span> <span class="ow">=</span> <span class="n">dbg0</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span>
+               <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">fn1</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">ret</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">traceIO</span> <span class="o">$</span> <span class="n">show</span> <span class="o">$</span> <span class="n">fact</span> <span class="mi">5</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+</pre></div>
+</div>
+
+<p><code>putStrLn</code>で途中経過を表示します。<code>print</code>を使わないのは、文字列が<code>""</code>で囲まれて表示されるのを回避するためです。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">アクション</span></div>
+<div class="highlight"><pre>
+<span class="nf">fact</span> <span class="mi">0</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">putStrLn</span> <span class="s">"fact 0 = 1"</span>
+    <span class="n">return</span> <span class="mi">1</span>
+<span class="nf">fact</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">dbg</span> <span class="ow">=</span> <span class="s">"fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span>
+              <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">putStrLn</span> <span class="n">dbg</span>
+    <span class="n">n'</span> <span class="ow">&lt;-</span> <span class="n">fact</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="kr">let</span> <span class="n">ret</span> <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n'</span>
+    <span class="n">putStrLn</span> <span class="o">$</span> <span class="n">dbg</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n'</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">ret</span>
+    <span class="n">return</span> <span class="n">ret</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">fact</span> <span class="mi">5</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+</pre></div>
+</div>
+
+<p>アクションを使うと関数の戻り値もアクションにする必要があるため、戻り値の取り回しに影響します。</p>
+
+<p>※ 手続型言語のようなコードになっています。</p>
+
+<p>デバッグについての詳細は次の記事が参考になります。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20120606/1338957783" rel="nofollow noopener" target="_blank">Haskell でのデバッグ - あどけない話</a> 2012.6.6</li>
+</ul>
+
+<h2>
+<span id="練習-5" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-5"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問7】次のクイックソートの途中経過を<code>trace</code>ではなく<code>putStrLn</code>で表示するように修正してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Debug.Trace</span>
+
+<span class="nf">qsort</span> <span class="kt">[]</span>     <span class="ow">=</span> <span class="kt">[]</span>
+<span class="nf">qsort</span> <span class="p">(</span><span class="n">n</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span> <span class="ow">=</span> <span class="n">trace</span> <span class="n">dbg</span> <span class="o">$</span> <span class="n">qsort</span> <span class="n">lt</span> <span class="o">++</span> <span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">++</span> <span class="n">qsort</span> <span class="n">gteq</span>
+    <span class="kr">where</span>
+        <span class="n">dbg</span>  <span class="ow">=</span> <span class="s">"qsort "</span> <span class="o">++</span> <span class="n">show</span> <span class="p">(</span><span class="n">n</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span> <span class="o">++</span> <span class="s">" = qsort "</span> <span class="o">++</span>
+               <span class="n">show</span> <span class="n">lt</span> <span class="o">++</span> <span class="s">" ++ "</span> <span class="o">++</span> <span class="n">show</span> <span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">++</span> <span class="s">" ++ "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">gteq</span>
+        <span class="n">lt</span>   <span class="ow">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="n">xs</span><span class="p">,</span> <span class="n">x</span> <span class="o">&lt;</span>  <span class="n">n</span><span class="p">]</span>
+        <span class="n">gteq</span> <span class="ow">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="n">xs</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">n</span><span class="p">]</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">traceIO</span> <span class="o">$</span> <span class="n">show</span> <span class="o">$</span> <span class="n">qsort</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E3%82%BD%E3%83%BC%E3%83%88" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="ioref" class="fragment"></span><a href="#ioref"><i class="fa fa-link"></i></a>IORef</h1>
+
+<p>アクションによって値が変更できる変数のようなものです。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Data.IORef</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">newIORef</span> <span class="mi">1</span>
+    <span class="n">b</span> <span class="ow">&lt;-</span> <span class="n">readIORef</span> <span class="n">a</span>
+    <span class="n">writeIORef</span> <span class="n">a</span> <span class="mi">2</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">readIORef</span> <span class="n">a</span>
+    <span class="n">print</span> <span class="n">b</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2
+1
+</pre></div>
+</div>
+
+<p><code>a</code>は変更可能な値への参照<code>IORef</code>です。アクションを通して値を読み書きします。</p>
+
+<table>
+<thead>
+<tr>
+<th>関数</th>
+<th>引数</th>
+<th>戻り値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>newIORef</td>
+<td>初期値</td>
+<td>IORefを作成するアクション</td>
+</tr>
+<tr>
+<td>readIORef</td>
+<td>参照</td>
+<td>値を読み取るアクション</td>
+</tr>
+<tr>
+<td>writeIORef</td>
+<td>参照→値</td>
+<td>値を書き込むアクション</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<span id="練習-6" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-6"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問8】次のJavaScriptでよく見掛けるサンプルコードを移植してください。</p>
+
+<div class="code-frame" data-lang="js">
+<div class="code-lang"><span class="bold">JavaScript</span></div>
+<div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">counter</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">++</span><span class="nx">c</span><span class="p">;</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">f</span> <span class="o">=</span> <span class="nx">counter</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">f</span><span class="p">());</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">f</span><span class="p">());</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">f</span><span class="p">());</span>
+</pre></div>
+</div>
+
+<p>ヒント: <code>return $ do</code></p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%82%AB%E3%82%A6%E3%83%B3%E3%82%BF%E3%83%BC" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="ループ" class="fragment"></span><a href="#%E3%83%AB%E3%83%BC%E3%83%97"><i class="fa fa-link"></i></a>ループ</h1>
+
+<p>手続型言語ではループを頻繁に使います。</p>
+
+<div class="code-frame" data-lang="js">
+<div class="code-lang"><span class="bold">JavaScript</span></div>
+<div class="highlight"><pre>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>IORefで移植すると大袈裟なコードになります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Data.IORef</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">i</span> <span class="ow">&lt;-</span> <span class="n">newIORef</span> <span class="mi">0</span>
+    <span class="kr">let</span> <span class="n">loop</span> <span class="ow">=</span> <span class="kr">do</span>
+        <span class="n">i'</span> <span class="ow">&lt;-</span> <span class="n">readIORef</span> <span class="n">i</span>
+        <span class="kr">if</span> <span class="n">i'</span> <span class="o">&lt;</span> <span class="mi">5</span>
+            <span class="kr">then</span> <span class="kr">do</span>
+                <span class="n">print</span> <span class="n">i'</span>
+                <span class="n">writeIORef</span> <span class="n">i</span> <span class="o">$</span> <span class="n">i'</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">loop</span>
+            <span class="kr">else</span> <span class="n">return</span> <span class="nb">()</span>
+    <span class="n">loop</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+0
+1
+2
+3
+4
+</pre></div>
+</div>
+
+<p>ループカウンターを引数にすると簡単になります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">loop</span> <span class="n">i</span> <span class="o">|</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="ow">=</span> <span class="kr">do</span>
+            <span class="n">print</span> <span class="n">i</span>
+            <span class="n">loop</span> <span class="o">$</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">loop</span> <span class="kr">_</span> <span class="ow">=</span> <span class="n">return</span> <span class="nb">()</span>
+    <span class="n">loop</span> <span class="mi">0</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+0
+1
+2
+3
+4
+</pre></div>
+</div>
+
+<p>※ ループを実現するには<code>forM</code>という関数もありますが、活用するにはラムダが必要です。詳細は続編の<a href="http://qiita.com/7shi/items/4a8a2807bb5186576c61">Haskell アクションとラムダ 超入門</a>で説明します。</p>
+
+<h2>
+<span id="練習-7" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-7"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問9】次のJavaScriptのコードを移植してください。<code>s</code>だけ<code>IORef</code>を使ってください。</p>
+
+<div class="code-frame" data-lang="js">
+<div class="code-lang"><span class="bold">JavaScript</span></div>
+<div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">s</span> <span class="o">+=</span> <span class="nx">i</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">s</span><span class="p">);</span>
+</pre></div>
+</div>
+
+<p>【問10】問9のコードから<code>IORef</code>を排除してください。<code>sum</code>は使わないでください。</p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%AB%E3%83%BC%E3%83%97" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="iouarray" class="fragment"></span><a href="#iouarray"><i class="fa fa-link"></i></a>IOUArray</h1>
+
+<p>IORefの配列版です。パッケージarrayが必要です。<a href="http://qiita.com/7shi/items/d1e5a0c22be6cf61d286">Leksah</a>ではdependenciesに追加します。</p>
+
+<p>※ <code>U</code>はアンボックス化を意味しています。詳細は続編の<a href="http://qiita.com/7shi/items/d3d3492ddd90d47160f2">Haskell IOモナド 超入門</a>で説明します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">Data.Array.IO</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">a</span> <span class="ow">&lt;-</span> <span class="n">newArray</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="mi">0</span> <span class="ow">::</span> <span class="kt">IO</span> <span class="p">(</span><span class="kt">IOUArray</span> <span class="kt">Int</span> <span class="kt">Int</span><span class="p">)</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">getElems</span> <span class="n">a</span>
+    <span class="n">writeArray</span> <span class="n">a</span> <span class="mi">0</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">readArray</span> <span class="n">a</span> <span class="mi">0</span>
+    <span class="n">writeArray</span> <span class="n">a</span> <span class="mi">1</span> <span class="mi">6</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">getElems</span> <span class="n">a</span>
+    <span class="n">writeArray</span> <span class="n">a</span> <span class="mi">2</span> <span class="mi">7</span>
+    <span class="n">print</span> <span class="o">=&lt;&lt;</span> <span class="n">getElems</span> <span class="n">a</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[0,0,0]
+3
+[3,6,0]
+[3,6,7]
+</pre></div>
+</div>
+
+<p><code>a</code>は値が変更可能な配列<code>IOUArray</code>です。アクションを通して値を読み書きします。<code>newArray</code>では型を指定する必要があります。</p>
+
+<ul>
+<li>
+<code>IOUArray</code> <code>Int</code>(インデックスの型) <code>Int</code>(値の型)</li>
+</ul>
+
+<table>
+<thead>
+<tr>
+<th>関数</th>
+<th>引数</th>
+<th>戻り値</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>newArray</td>
+<td>範囲→初期値</td>
+<td>配列を作成するアクション</td>
+</tr>
+<tr>
+<td>readArray</td>
+<td>配列→インデックス</td>
+<td>値を読み取るアクション</td>
+</tr>
+<tr>
+<td>writeArray</td>
+<td>配列→インデックス→値</td>
+<td>値を書き込むアクション</td>
+</tr>
+<tr>
+<td>getElems</td>
+<td>配列</td>
+<td>すべての値をリストで取得するアクション</td>
+</tr>
+</tbody>
+</table>
+
+<p>HaskellにはIOUArray以外にも配列があります。詳細は次のスライドが参考になります。</p>
+
+<ul>
+<li><a href="http://www.slideshare.net/xenophobia__/ss-14558187" rel="nofollow noopener" target="_blank">すごい配列楽しく学ぼう</a></li>
+</ul>
+
+<h2>
+<span id="練習-8" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-8"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問11】次のJavaScriptで実装された<a href="http://ja.wikipedia.org/wiki/Brainfuck" rel="nofollow noopener" target="_blank">Brainf*ck</a>インタプリタを移植してください。</p>
+
+<div class="code-frame" data-lang="js">
+<div class="code-lang"><span class="bold">JavaScript</span></div>
+<div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">bf</span> <span class="o">=</span> <span class="s2">"&gt;+++++++++[&lt;++++++++&gt;-]&lt;.&gt;+++++++[&lt;++++&gt;"</span> <span class="o">+</span>
+         <span class="s2">"-]&lt;+.+++++++..+++.[-]&gt;++++++++[&lt;++++&gt;-]&lt;"</span> <span class="o">+</span>
+         <span class="s2">".&gt;+++++++++++[&lt;+++++&gt;-]&lt;.&gt;++++++++[&lt;+++&gt;"</span> <span class="o">+</span>
+         <span class="s2">"-]&lt;.+++.------.--------.[-]&gt;++++++++[&lt;++"</span> <span class="o">+</span>
+         <span class="s2">"++&gt;-]&lt;+.[-]++++++++++."</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">jmp</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint32Array</span><span class="p">(</span><span class="nx">bf</span><span class="p">.</span><span class="nx">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">loops</span> <span class="o">=</span> <span class="p">[];</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">bf</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="nx">bf</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="s1">'['</span><span class="o">:</span>
+        <span class="nx">loops</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="s1">']'</span><span class="o">:</span>
+        <span class="kd">var</span> <span class="nx">start</span> <span class="o">=</span> <span class="nx">loops</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+        <span class="nx">jmp</span><span class="p">[</span><span class="nx">start</span><span class="p">]</span> <span class="o">=</span> <span class="nx">i</span><span class="p">;</span>
+        <span class="nx">jmp</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">start</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">pc</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">r</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">m</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">(</span><span class="mi">30000</span><span class="p">);</span>
+<span class="k">while</span> <span class="p">(</span><span class="nx">pc</span> <span class="o">&lt;</span> <span class="nx">bf</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="nx">bf</span><span class="p">[</span><span class="nx">pc</span><span class="p">])</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="s1">'+'</span><span class="o">:</span> <span class="o">++</span><span class="nx">m</span><span class="p">[</span><span class="nx">r</span><span class="p">];</span> <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="s1">'-'</span><span class="o">:</span> <span class="o">--</span><span class="nx">m</span><span class="p">[</span><span class="nx">r</span><span class="p">];</span> <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="s1">'&gt;'</span><span class="o">:</span> <span class="o">++</span><span class="nx">r</span><span class="p">;</span> <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="s1">'&lt;'</span><span class="o">:</span> <span class="o">--</span><span class="nx">r</span><span class="p">;</span> <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="s1">'.'</span><span class="o">:</span>
+        <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(</span><span class="nx">m</span><span class="p">[</span><span class="nx">r</span><span class="p">]));</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="s1">'['</span><span class="o">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">m</span><span class="p">[</span><span class="nx">r</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="nx">pc</span> <span class="o">=</span> <span class="nx">jmp</span><span class="p">[</span><span class="nx">pc</span><span class="p">];</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="s1">']'</span><span class="o">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">m</span><span class="p">[</span><span class="nx">r</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="nx">pc</span> <span class="o">=</span> <span class="nx">jmp</span><span class="p">[</span><span class="nx">pc</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="o">++</span><span class="nx">pc</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+Hello World!
+</pre></div>
+</div>
+
+<p>ヒント: <code>putChar</code>, <code>Data.Word.Word8</code>, <code>fromIntegral</code></p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#brainfck" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<p>JavaScript内にハードコーディングされているBrainf*ckコードの出典です。</p>
+
+<ul>
+<li>
+<a href="http://www.kmonos.net/alang/etc/brainfuck.php" rel="nofollow noopener" target="_blank">Brainf*ck</a> - <a href="http://www.kmonos.net/alang/etc/" rel="nofollow noopener" target="_blank">いろんなげんご</a> @ <a href="http://www.kmonos.net/alang/" rel="nofollow noopener" target="_blank">人工言語世界</a>
+</li>
+</ul>
+
+<h1>
+<span id="unsafeperformio" class="fragment"></span><a href="#unsafeperformio"><i class="fa fa-link"></i></a>unsafePerformIO</h1>
+
+<p>アクションから値を引き剥がす関数です。<code>&lt;-</code>や<code>=&lt;&lt;</code>などを回避できます。</p>
+
+<p><strong>【注】参照透過性を破壊するため、特別な事情がない限り使わないでください。あくまで参考程度の紹介です。</strong></p>
+
+<p>デバッグで示した<code>putStrLn</code>による例を書き替えます。<code>fact</code>の戻り値がアクションではなくなっていることに注意してください。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">非推奨</span></div>
+<div class="highlight"><pre>
+<span class="kr">import</span> <span class="nn">System.IO.Unsafe</span>
+
+<span class="nf">fact</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">unsafePerformIO</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="n">putStrLn</span> <span class="s">"fact 0 = 1"</span>
+    <span class="n">return</span> <span class="mi">1</span>
+<span class="nf">fact</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">unsafePerformIO</span> <span class="o">$</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">dbg</span> <span class="ow">=</span> <span class="s">"fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span>
+              <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">putStrLn</span> <span class="n">dbg</span>
+    <span class="kr">let</span> <span class="n">n'</span> <span class="ow">=</span> <span class="n">fact</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="kr">let</span> <span class="n">ret</span> <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n'</span>
+    <span class="n">putStrLn</span> <span class="o">$</span> <span class="n">dbg</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n'</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">ret</span>
+    <span class="n">return</span> <span class="n">ret</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">fact</span> <span class="mi">5</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+</pre></div>
+</div>
+
+<p>このコードは次の記事を参考にしました。</p>
+
+<ul>
+<li><a href="http://qiita.com/gfx/items/8260137b1835790ade87" id="reference-fe9662341e8351b97983">print debug on Haskell</a></li>
+</ul>
+
+<p>何のために<code>unsafePerformIO</code>が存在するかは、次の記事が参考になります。</p>
+
+<ul>
+<li><a href="http://d.hatena.ne.jp/sirocco/20110610/1307694359" rel="nofollow noopener" target="_blank">unsafePerformIO を使って IO を外す - sirocco の書いてもすぐに忘れるメモ</a></li>
+</ul>
+
+<h2>
+<span id="練習-9" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-9"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問12】<code>unsafePerformIO</code>と<code>putStrLn</code>を使って、<code>trace</code>の標準出力版関数<code>trace'</code>を実装してください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<p>【注】ghciでは挙動が変わります。解答例はコンパイルしたときにのみ正常動作します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">fact</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">trace'</span> <span class="s">"fact 0 = 1"</span> <span class="mi">1</span>
+<span class="nf">fact</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">trace'</span> <span class="n">dbg0</span> <span class="o">$</span> <span class="n">trace'</span> <span class="n">dbg1</span> <span class="n">ret</span>
+    <span class="kr">where</span>
+        <span class="n">ret</span>  <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">fn1</span>
+        <span class="n">fn1</span>  <span class="ow">=</span> <span class="n">fact</span> <span class="o">$</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">dbg0</span> <span class="ow">=</span> <span class="s">"fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span>
+               <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * fact "</span> <span class="o">++</span> <span class="n">show</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">dbg1</span> <span class="ow">=</span> <span class="n">dbg0</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span>
+               <span class="n">show</span> <span class="n">n</span> <span class="o">++</span> <span class="s">" * "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">fn1</span> <span class="o">++</span> <span class="s">" = "</span> <span class="o">++</span> <span class="n">show</span> <span class="n">ret</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">fact</span> <span class="mi">5</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9" id="reference-752ed6e3bd032cfe15c0">解答例</a></p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<p>アクションについての詳細は次の記事が参考になります。</p>
+
+<ul>
+<li><a href="http://www.haskell.org/haskellwiki/Hakell_I/O%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E7%B4%B9%E4%BB%8B" rel="nofollow noopener" target="_blank">Haskell I/Oアクションの紹介 - HaskellWiki</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/85afd7bbd5d6c4115ad6" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="UKflK7lIgUwUnCQiY/3ibAqmyFKt+qXN0dow96NckPY+JX5zIma4B+tPkT4TCFw1auHs4To+/zrtBDkMQlKeMA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1483701069" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Haskellではアクションと呼ばれる機能により副作用が扱えます。アクションの使い方の初歩を説明します。ライブラリで用意されたアクションを手っ取り早く使うことを目的としているため、モナドや圏論には言及しません。
+
+シリーズの記事です。
+
+1. [Haskell 超入門](http://qiita.com/7shi/items/145f1234f8ec2af923ef)
+1. [Haskell 代数的データ型 超入門](http://qiita.com/7shi/items/1ce76bde464b4a55c143)
+1. Haskell アクション 超入門 ← この記事
+1. [Haskell ラムダ 超入門](http://qiita.com/7shi/items/1345bf32003faff435cb)
+1. [Haskell アクションとラムダ 超入門](http://qiita.com/7shi/items/4a8a2807bb5186576c61)
+1. [Haskell IOモナド 超入門](http://qiita.com/7shi/items/d3d3492ddd90d47160f2)
+1. [Haskell リストモナド 超入門](http://qiita.com/7shi/items/deb19c4cba933590ffbf)
+1. [Haskell Maybeモナド 超入門](http://qiita.com/7shi/items/c7d7eec066af0fe0688d)
+1. [Haskell 状態系モナド 超入門](http://qiita.com/7shi/items/2e9bff5d88302de1a9e9)
+1. [Haskell モナド変換子 超入門](http://qiita.com/7shi/items/4408b76624067c17e933)
+1. [Haskell 例外処理 超入門](http://qiita.com/7shi/items/73e534c47bbebc71b37e)
+1. [Haskell 構文解析 超入門](http://qiita.com/7shi/items/b8c741e78a96ea2c10fe)
+1. 【予定】Haskell 継続モナド 超入門
+1. 【予定】Haskell 型クラス 超入門
+1. 【予定】Haskell モナドとゆかいな仲間たち
+1. 【予定】Haskell Freeモナド 超入門
+1. 【予定】Haskell Operationalモナド 超入門
+1. 【予定】Haskell Effモナド 超入門
+1. 【予定】Haskell アロー 超入門
+
+練習の解答例は別記事に掲載します。
+
+* [【解答例】Haskell アクション 超入門](http://qiita.com/7shi/items/623fd55b8b68398becdc)
+
+# 参照透過性
+
+Haskellの関数は同じ引数に対しては常に同じ値を返します。この性質を[参照透過性](http://ja.wikipedia.org/wiki/%E5%8F%82%E7%85%A7%E9%80%8F%E9%81%8E%E6%80%A7)と呼びます。
+
+以下の例では`add 1 2`は常に`3`を返します。何か特定の条件下で結果が変化することはありません。
+
+```hs:例
+add x y = x + y
+
+main = do
+    print $ add 1 2
+```
+```text:実行結果
+3
+```
+
+## 副作用
+
+Haskellでは参照透過性のない関数は定義できません。具体的には、乱数のように毎回異なる結果を返す関数は定義できません。
+
+毎回異なる結果を返すようなものは内部に何らかの状態を持っており、結果を返すための処理などで状態が変化していると考えられます。状態が変化することを[副作用](http://ja.wikipedia.org/wiki/%E5%89%AF%E4%BD%9C%E7%94%A8_%28%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%29)と呼びます。
+
+状態に影響を受けて結果が変化する処理には参照透過性がありません。つまり副作用は参照透過性と対立する概念です。
+
+# アクション
+
+副作用が扱えないと困ることもありますが、例えば乱数を返す関数のようなものを定義することは可能です。それを関数とは区別して**アクション**と呼びます。
+
+乱数に限らず、時刻取得やファイル読み込みなど、結果が変化する可能性があるものはすべてアクションを使います。
+
+## 乱数
+
+&#39;A&#39;～&#39;Z&#39;までの任意の文字をランダムに返すアクション`randAlpha`を定義する例を示します。
+
+※ パッケージrandomが必要です。[Leksah](http://qiita.com/7shi/items/d1e5a0c22be6cf61d286)ではdependenciesに追加します。
+
+```hs
+import System.Random
+
+randAlpha = getStdRandom $ randomR (&#39;A&#39;, &#39;Z&#39;)
+
+main = do
+    r &lt;- randAlpha
+    print r
+    print =&lt;&lt; randAlpha
+    randAlpha &gt;&gt;= print
+```
+```text:実行結果（毎回異なる）
+&#39;E&#39;
+&#39;P&#39;
+&#39;I&#39;
+```
+
+アクションは使用方法も関数とは異なり、見慣れない演算子が出て来ます。それらを説明します。
+
+## &lt;-
+
+アクションから値を取り出すには`&lt;-`を使います。矢印（←）をイメージした記号です。
+
+![v_bind_m.png](https://qiita-image-store.s3.amazonaws.com/0/32057/9e2da171-e568-5552-1fde-4bf8e5062444.png)
+
+```hs:OK
+main = do
+    r &lt;- randAlpha
+    print r
+```
+
+アクションに関連付けられた処理（この場合は乱数生成）は`&lt;-`で値を取り出す際に行われます。
+
+### 注意点
+
+`&lt;-`は`do`ブロックの中でしか使えません。
+
+```hs:NG
+main =
+    r &lt;- randAlpha
+    print r
+```
+```text:エラー内容
+parse error on input `&lt;-&#39;
+```
+
+※ `do`なしで`&lt;-`相当の処理を書くことは可能ですが、ラムダについて説明する必要があります。詳細は続編の[Haskell アクションとラムダ 超入門](http://qiita.com/7shi/items/4a8a2807bb5186576c61)で説明します。
+
+## =&lt;&lt;
+
+一時変数を経由せずにアクションから値を取り出そうとしてもうまくいきません。
+
+```hs:NG
+test = do
+    print randAlpha -- エラー
+```
+
+アクションから値を取り出して関数に渡すには専用の演算子`=&lt;&lt;`を使用します。他の言語では見ない形ですが、直感的には**漏斗のようなもの**でアクションから関数に値を**ドリップ**しているとイメージすれば良いでしょう。
+
+![f_rbind_m.png](https://qiita-image-store.s3.amazonaws.com/0/32057/26c8e418-c41e-2bf3-dcf8-cb2d4d9cadfb.png) ![coffee.png](https://qiita-image-store.s3.amazonaws.com/0/32057/0db6cbec-252e-4714-483d-578bf8323dad.png)
+
+```hs:OK
+main = do
+    print =&lt;&lt; randAlpha
+```
+
+アクション版の`$`だと捉えておけば良いでしょう。
+
+### イメージ
+
+C++をご存知の方は、iostreamの`&lt;&lt;`をイメージすれば良いかもしれません。
+
+```cpp
+cout &lt;&lt; &quot;abc&quot;;
+```
+
+### &gt;&gt;=
+
+逆向きもあります。`&gt;&gt;=`はbindと呼ばれます。
+
+![m_bind_f.png](https://qiita-image-store.s3.amazonaws.com/0/32057/053234a0-674f-ad0f-0198-b27d9b9d93fc.png)
+
+```hs
+main = do
+    randAlpha &gt;&gt;= print
+```
+
+説明の都合上`=&lt;&lt;`を先に出しましたが、実は`&gt;&gt;=`が基本で、`=&lt;&lt;`はその逆です。
+
+※ `do`と`&gt;&gt;=`には密接な関係があります。詳細は続編の[Haskell アクションとラムダ 超入門](http://qiita.com/7shi/items/4a8a2807bb5186576c61)で説明します。
+
+## let
+
+`let`でアクションから値を取り出すことはできません。
+
+```hs:NG
+main = do
+    let r = randAlpha
+    print r -- エラー
+```
+
+`let`と組み合わせることは可能ですが、アクションを変数に束縛する意味となります。値を取り出しているわけではないことに注意してください。`let`を使っても、値を取り出すには依然として`&lt;-`などを使う必要があります。
+
+```hs
+main = do
+    let r = randAlpha
+    r&#39; &lt;- r
+    print r&#39;
+    print =&lt;&lt; r
+    r &gt;&gt;= print
+```
+```text:実行結果（毎回異なる）
+&#39;Q&#39;
+&#39;D&#39;
+&#39;A&#39;
+```
+
+## 呼び出し
+
+`main`以外で`do`を使って、`main`から呼び出せます。
+
+```hs
+test = do
+    r &lt;- randAlpha
+    print r
+
+main = do
+    test
+    test
+    test
+```
+```text:実行結果（毎回異なる）
+&#39;S&#39;
+&#39;P&#39;
+&#39;T&#39;
+```
+
+`do`ブロック全体で1つのアクションを構成します。testには引数がないため関数ではなく、アクションが束縛された変数です。
+
+### main
+
+実は`main`も同じ構造です。今まで曖昧なまま進めてきましたが、`main`は関数ではなくアクションが束縛された変数です。プログラムの起動時に自動的に呼び出される点が特殊です。
+
+## 練習
+
+【問1】ランダムにアルファベット小文字の1文字表示を繰り返してください。`&#39;z&#39;`が現れたら`&quot;END&quot;`と表示して終了してください。
+
+```text:動作イメージ（毎回異なる）
+&#39;j&#39;
+&#39;m&#39;
+&#39;z&#39;
+&quot;END&quot;
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%A9%E3%83%B3%E3%83%80%E3%83%A0%E8%A1%A8%E7%A4%BA)
+
+# return
+
+`return`は値を入れてアクションを作る関数です。
+
+![return.png](https://qiita-image-store.s3.amazonaws.com/0/32057/820088e0-1504-8fa9-e093-3cec017cae69.png)
+
+アクションを作って、すぐに値を取り出してみます。
+
+```hs
+main = do
+    a &lt;- return 1
+    print a
+    print =&lt;&lt; return 2
+    return 3 &gt;&gt;= print
+```
+```text:実行結果
+1
+2
+3
+```
+
+繰り返しますが、`let`では値を取り出すことはできません。
+
+```hs:NG
+main = do
+    let a = return 1
+    print a -- エラー
+```
+
+束縛されたアクションから、アクション用の演算子で値を取り出します。
+
+```hs:OK
+main = do
+    let a = return 1
+    a&#39; &lt;- a
+    print a&#39;
+    print =&lt;&lt; a
+    a &gt;&gt;= print
+```
+```text:実行結果
+1
+1
+1
+```
+
+## アクションを返す関数
+
+関数の戻り値に`return`を通すと、アクションを返す関数が作れます。
+
+```hs
+add x y = return $ x + y
+
+main = do
+    print =&lt;&lt; add 1 2
+```
+```text:実行結果
+3
+```
+
+C言語などで`return`により値を返すのに似ていますが、返されるのは値ではなくアクションである点が異なります。そのためアクション用の演算子で値を取り出す必要があります。
+
+## doとreturn
+
+`do`と組み合わせれば、`print`などを使って最後に`return`する関数が作れます。
+
+```hs
+add x y = do
+    print x
+    print y
+    return $ x + y
+
+main = do
+    print =&lt;&lt; add 1 2
+```
+```text:実行結果
+1
+2
+3
+```
+
+ますますC言語などに似て来ます。
+
+### 注意点
+
+`return`は単にそういう名前の関数で、C言語のように関数から抜ける機能はありません。後ろにコードがあれば、抜けずにそのまま続行します。
+
+```hs
+main = do
+    print &quot;abc&quot;
+    return 1    -- 素通り
+    print &quot;def&quot; -- 実行される
+    return 2    -- 戻り値
+```
+```text:実行結果
+&quot;abc&quot;
+&quot;def&quot;
+```
+
+`return`は関数の最後でアクションを返すのに使われることが多いため、そのような使い方をしている限りはC言語などに見た目が似せられるということです。
+
+## 練習
+
+【問2】階乗を求める関数`fact`を、アクションを返す関数に書き換えてください。
+
+```hs
+fact 0 = 1
+fact n | n &gt; 0 = n * fact (n - 1)
+
+main = do
+    print $ fact 5
+```
+```text:実行結果
+120
+```
+
+ヒント: `fact 0 = return 1`
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E9%9A%8E%E4%B9%97)
+
+# IO
+
+今回出て来るアクションはすべてIOと呼ばれる型で、型名は`IO＋型`で表記されます。
+
+※ IO以外にもアクションはありますが、今回は分かりやすさを優先してIOアクションを単にアクションとして扱います。IO以外のアクションは続編の[Haskell 状態系モナド 超入門](http://qiita.com/7shi/items/2e9bff5d88302de1a9e9)で取り上げます。
+
+とりあえず実用的には以下のように認識すれば使えます。
+
+例: `IO Int` → 数値が取り出せるアクション
+
+* `IO Int`で1つの型を表します。
+* `IO`がアクション、`Int`が取り出される型を表します。
+
+## 型注釈
+
+型を明示するには**型注釈**と呼ばれる行を追加します。一般的には本体の上に書きます。
+
+```hs
+randAlpha :: IO Char
+randAlpha = getStdRandom $ randomR (&#39;A&#39;, &#39;Z&#39;)
+```
+
+なお、一行で書くこともできます。
+
+```hs
+randAlpha = getStdRandom $ randomR (&#39;A&#39;, &#39;Z&#39;) :: IO Char
+```
+
+大抵は型注釈を書かなくても型推論により型が決まります。型推論がうまくいかないケースでは型注釈が必須です。そのような例を次に示します。
+
+## サイコロ
+
+`randomR`で数値を指定するには型注釈が必須です。
+
+```hs
+import System.Random
+
+dice :: IO Int
+dice = getStdRandom $ randomR (1, 6)
+
+main = do
+    print =&lt;&lt; dice
+    print =&lt;&lt; dice
+    print =&lt;&lt; dice
+```
+```text:実行結果（毎回異なる）
+2
+3
+1
+```
+
+型注釈を省略するとエラーになります。
+
+```text:エラー内容
+No instance for (Random a0) arising from a use of `randomR&#39;
+The type variable `a0&#39; is ambiguous
+Possible cause: the monomorphism restriction applied to the following:
+  dice :: IO a0 (bound at src\Main.hs:3:1)
+Probable fix: give these definition(s) an explicit type signature
+              or use -XNoMonomorphismRestriction
+Note: there are several potential instances:
+  instance Random Bool -- Defined in `System.Random&#39;
+  instance Random Foreign.C.Types.CChar -- Defined in `System.Random&#39;
+  instance Random Foreign.C.Types.CDouble
+    -- Defined in `System.Random&#39;
+  ...plus 33 others
+（略）
+```
+
+`dice`から取り出せる型が`Bool`, `Foreign.C.Types.CChar`, `Foreign.C.Types.CDouble`, その他33種類のうちどの型か曖昧だというエラーメッセージです。
+
+## 練習
+
+【問3】リストをランダムに並べ替える関数`shuffle`を実装してください。
+
+具体的には以下のコードが動くようにしてください。
+
+```hs
+main = do
+    print =&lt;&lt; shuffle [1..9]
+```
+```text:実行結果（毎回異なる）
+[3,5,4,9,2,7,8,6,1]
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%82%B7%E3%83%A3%E3%83%83%E3%83%95%E3%83%AB)
+
+【問4】[ボゴソート](http://ja.wikipedia.org/wiki/%E3%83%9C%E3%82%B4%E3%82%BD%E3%83%BC%E3%83%88)を実装してください。
+
+具体的には以下のコードが動くようにしてください。
+
+```hs
+main = do
+    xs &lt;- shuffle [1..9]
+    print xs
+    print =&lt;&lt; bogosort xs
+```
+```text:実行結果（毎回異なる）
+[7,1,9,4,2,8,5,3,6]
+[1,2,3,4,5,6,7,8,9]
+```
+
+ヒント: ソート済みかを`True`/`False`で返す関数`isSorted`を実装します。
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%9C%E3%82%B4%E3%82%BD%E3%83%BC%E3%83%88)
+
+# unit
+
+空のタプル`()`は値がないことを表し**unit**と読みます。
+
+```hs
+ignore _ = ()
+
+main = do
+    print $ ignore &quot;foo&quot;
+```
+```text:実行結果
+()
+```
+
+関数は必ず値を返す必要がありますが、返す値がないときには`()`を返します。C言語などで値を返さない`void`関数に相当します。
+
+## 空のmain
+
+何もしない`main`を定義してみます。
+
+```hs
+main = return ()
+```
+
+`main`はアクションとなる必要があるため`return`必須です。
+
+### 終了ステータス
+
+C言語では`main()`の戻り値がプロセスの終了ステータスとなります。
+
+```c:main.c
+int main() {
+    return 5;
+}
+```
+```text:シェルで確認
+$ gcc main.c
+$ ./a.out
+$ echo $?
+5
+```
+
+Haskellでは`main`から返されるアクションの値は捨てられるため、C言語のようにプロセスの終了ステータスとして扱われるわけではありません。
+
+```hs:main.hs
+main = return 5
+```
+```text:シェルで確認
+$ ghc main.hs
+$ ./main
+$ echo $?
+0
+```
+
+runhaskellで実行すると`main`から取り出された値は表示されますが、終了ステータスとして扱われるわけではありません。
+
+```text:シェルで確認
+$ runhaskell main.hs
+5
+$ echo $?
+0
+```
+
+終了ステータスを返すには[System.Exit](http://hackage.haskell.org/package/base-4.7.0.1/docs/System-Exit.html)モジュールを使います。
+
+```hs:exit.hs
+import System.Exit
+
+main = do
+    exitWith $ ExitFailure 5
+```
+```text:シェルで確認
+$ ghc exit.hs
+$ ./exit
+$ echo $?
+5
+```
+
+## print
+
+今まで意識せずに使ってきた`print`はアクションを返す関数です。文字が表示されるのは関数が呼ばれるタイミングではなく、関数が返したアクションから値を取り出すタイミングでの**副作用**です。
+
+* `print`: 関数
+* `print &quot;abc&quot;`: 関数を呼んで、戻り値がアクション
+* `let a = print &quot;abc&quot;`: 戻り値のアクションを束縛
+* `_ &lt;- print &quot;abc&quot;`: 戻り値のアクションから値を取り出し、副作用として文字を表示
+
+確認します。まず値を取り出してみます。
+
+```hs
+main = do
+    _ &lt;- print &quot;hello&quot;
+    return ()
+```
+```text:実行結果
+&quot;hello&quot;
+```
+
+取り出した値を表示して確認してみます。
+
+```hs
+main = do
+    a &lt;- print &quot;hello&quot;
+    print a
+```
+```text:実行結果
+&quot;hello&quot;
+()
+```
+
+`()`が取り出されます。`()`自体に値としての意味はなく、副作用として文字が表示されることに狙いがあります。
+
+`do`ブロックの末尾で`return`ではなく`print`を使うことができるのは、`print`がアクションを返すためです。
+
+## 暗黙の取り出し
+
+`print`から返されるアクションを`let`で束縛して、後で値の取り出しを試みます。
+
+```hs
+main = do
+    let a = print &quot;hello&quot;
+    _ &lt;- a
+    _ &lt;- a
+    a
+    a
+```
+```text:実行結果
+&quot;hello&quot;
+&quot;hello&quot;
+&quot;hello&quot;
+&quot;hello&quot;
+```
+
+`&lt;-`により明示的に値を取り出さなくても、`do`の中にアクションを置くだけで自動的に値が取り出されます。これがアクション呼び出しの仕組みです。
+
+```hs:再掲
+import System.Random
+
+randAlpha = getStdRandom $ randomR (&#39;A&#39;, &#39;Z&#39;)
+
+test = do
+    r &lt;- randAlpha
+    print r
+
+main = do
+    test
+    test
+    test
+```
+```text:実行結果（毎回異なる）
+&#39;S&#39;
+&#39;P&#39;
+&#39;T&#39;
+```
+
+暗黙的に取り出された値は捨てられます。
+
+## 練習
+
+【問5】1～6の乱数を表示して返すアクションにより、暗黙の取り出しで値が捨てられていることを確認してください。
+
+具体的には以下のコードが動くようにしてください。
+
+```hs
+main = do
+    showDice
+    showDice
+    print =&lt;&lt; showDice
+```
+```text:実行結果（毎回異なる）
+5
+2
+6
+6
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E6%9A%97%E9%BB%99%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97)
+
+# bind
+
+`&gt;&gt;=`は「アクションと、アクションを返す関数とを**結びつける**」ため**bind**と呼ばれます。ここでは向きに関係なく`=&lt;&lt;`も含めてbindとして扱います。
+
+![m_bind_f_m2.png](https://qiita-image-store.s3.amazonaws.com/0/32057/86db414e-bf95-0a53-cf9f-1f1bbe4d16b7.png)
+![f_rbind_m_m2.png](https://qiita-image-store.s3.amazonaws.com/0/32057/3adbacc6-e0f0-338f-efc3-d111165b27ce.png)
+
+bindの結合先がただの「関数」ではなく「アクションを返す関数」なのを確認します。
+
+```hs:OK
+inc x = return $ x + 1
+
+main = do
+    return 2 &gt;&gt;= inc &gt;&gt;= print
+    print =&lt;&lt; inc =&lt;&lt; return 2
+```
+```text:実行結果
+3
+3
+```
+
+アクションを返さない関数にはbindできないことを確認します。
+
+```hs:NG
+inc x = x + 1
+
+main = do
+    print $ inc =&lt;&lt; return 2
+```
+```text:エラー内容
+No instance for (Show (m0 b0)) arising from a use of `print&#39;
+The type variables `m0&#39;, `b0&#39; are ambiguous
+Possible fix: add a type signature that fixes these type variable(s)
+（略・以下多数）
+```
+
+この仕様は、一度アクションに値を入れたら、その値を使った計算もアクションに閉じ込めることを目的としています。これにより副作用がアクションの中に閉じ込められ、アクションの外では参照透過性が保たれます。
+
+`&lt;-`はアクションの外に値を取り出しているように見えますが、`do`ブロックの中でしか使えず、`do`ブロックは最後に`return`などでアクションを返すことから、結果としてアクションの中に閉じ込められたままです。
+
+## Applicativeスタイル
+
+bindの結合先はアクションを返す関数という制限がありますが、アクションから値を外に出さないことが目的なら「自動的に入れてくれれば良い」と感じるかもしれません。
+
+実際にそういう方法もサポートされていて**Applicative（アプリカティブ）スタイル**と呼ばれます。
+
+![applicative_style.png](https://qiita-image-store.s3.amazonaws.com/0/32057/15d1cbf2-a00d-db22-d973-27ad0b099c26.png)
+
+```hs
+import Control.Applicative
+
+inc x   = x + 1
+add x y = x + y
+
+main = do
+    print =&lt;&lt; inc &lt;$&gt; return 1
+    print =&lt;&lt; add &lt;$&gt; return 1 &lt;*&gt; return 2
+```
+```text:実行結果
+2
+3
+```
+
+`&lt;$&gt;`は次のような働きをします。
+
+1. アクションから値を取り出して関数に引数として渡す
+2. 関数の戻り値をアクションに閉じ込める
+
+引数が複数あるときは`&lt;*&gt;`でつなぎます。
+
+詳細は次の記事が参考になります。
+
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [Applicativeのススメ - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20101211/1292021817) 2010.12.11
+
+## まとめ
+
+bind
+
+* アクション `&gt;&gt;=` 関数(アクションを返す)
+* 関数(アクションを返す) `=&lt;&lt;` アクション
+
+Applicativeスタイル
+
+* 関数 `&lt;$&gt;` アクション
+* 関数 `&lt;$&gt;` アクション `&lt;*&gt;` アクション
+
+どちらも最終的に得られるのはアクションです。
+
+![coffee2.png](https://qiita-image-store.s3.amazonaws.com/0/32057/43cd2018-cd41-dc83-916c-15fbb19bbaf8.png)
+
+※ この絵に深い意味はありません。
+
+## 練習
+
+【問6】Applicativeスタイルを使って、次のコードから`&lt;-`を排除してください。
+
+※ 具体的には`fib n ...`の定義だけを修正してください。
+
+```hs
+fib 0 = return 0
+fib 1 = return 1
+fib n | n &gt; 1 = do
+    a &lt;- fib (n - 2)
+    b &lt;- fib (n - 1)
+    return $ a + b
+
+main = do
+    print =&lt;&lt; fib 6
+```
+
+ヒント: 演算子の関数化`(+)`
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#applicative%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB)
+
+# デバッグ
+
+`trace`によるデバッグを`putStrLn`に書き替えて比較します。デバッグには`trace`を使った方が簡単ですが、デバッグ以外の理由でアクションを使うこともあるため、書き方の例として示します。
+
+元となるデバッグなしのコードです。
+
+```hs
+fact 0 = 0
+fact n | n &gt; 0 = n * fact (n - 1)
+
+main = do
+    print $ fact 5
+```
+```text:実行結果
+120
+```
+
+`trace`で途中経過を表示します。
+
+```hs:trace
+import Debug.Trace
+
+fact 0 = trace &quot;fact 0 = 1&quot; 1
+fact n | n &gt; 0 = trace dbg0 $ trace dbg1 ret
+    where
+        ret  = n * fn1
+        fn1  = fact $ n - 1
+        dbg0 = &quot;fact &quot; ++ show n ++ &quot; = &quot; ++
+               show n ++ &quot; * fact &quot; ++ show (n - 1)
+        dbg1 = dbg0 ++ &quot; = &quot; ++
+               show n ++ &quot; * &quot; ++ show fn1 ++ &quot; = &quot; ++ show ret
+
+main = do
+    traceIO $ show $ fact 5
+```
+```text:実行結果
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+```
+
+`putStrLn`で途中経過を表示します。`print`を使わないのは、文字列が`&quot;&quot;`で囲まれて表示されるのを回避するためです。
+
+```hs:アクション
+fact 0 = do
+    putStrLn &quot;fact 0 = 1&quot;
+    return 1
+fact n | n &gt; 0 = do
+    let dbg = &quot;fact &quot; ++ show n ++ &quot; = &quot; ++
+              show n ++ &quot; * fact &quot; ++ show (n - 1)
+    putStrLn dbg
+    n&#39; &lt;- fact (n - 1)
+    let ret = n * n&#39;
+    putStrLn $ dbg ++ &quot; = &quot; ++ show n ++ &quot; * &quot; ++ show n&#39; ++ &quot; = &quot; ++ show ret
+    return ret
+
+main = do
+    print =&lt;&lt; fact 5
+```
+```text:実行結果
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+```
+
+アクションを使うと関数の戻り値もアクションにする必要があるため、戻り値の取り回しに影響します。
+
+※ 手続型言語のようなコードになっています。
+
+デバッグについての詳細は次の記事が参考になります。
+
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [Haskell でのデバッグ - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20120606/1338957783) 2012.6.6
+
+## 練習
+
+【問7】次のクイックソートの途中経過を`trace`ではなく`putStrLn`で表示するように修正してください。
+
+```hs
+import Debug.Trace
+
+qsort []     = []
+qsort (n:xs) = trace dbg $ qsort lt ++ [n] ++ qsort gteq
+    where
+        dbg  = &quot;qsort &quot; ++ show (n:xs) ++ &quot; = qsort &quot; ++
+               show lt ++ &quot; ++ &quot; ++ show [n] ++ &quot; ++ &quot; ++ show gteq
+        lt   = [x | x &lt;- xs, x &lt;  n]
+        gteq = [x | x &lt;- xs, x &gt;= n]
+
+main = do
+    traceIO $ show $ qsort [4, 6, 9, 8, 3, 5, 1, 7, 2]
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E3%82%BD%E3%83%BC%E3%83%88)
+
+# IORef
+
+アクションによって値が変更できる変数のようなものです。
+
+```hs
+import Data.IORef
+
+main = do
+    a &lt;- newIORef 1
+    b &lt;- readIORef a
+    writeIORef a 2
+    print =&lt;&lt; readIORef a
+    print b
+```
+```text:実行結果
+2
+1
+```
+
+`a`は変更可能な値への参照`IORef`です。アクションを通して値を読み書きします。
+
+関数|引数|戻り値
+---|---|---
+newIORef|初期値|IORefを作成するアクション
+readIORef|参照|値を読み取るアクション
+writeIORef|参照→値|値を書き込むアクション
+
+## 練習
+
+【問8】次のJavaScriptでよく見掛けるサンプルコードを移植してください。
+
+```js:JavaScript
+function counter() {
+    var c = 0;
+    return function() {
+        return ++c;
+    };
+}
+
+var f = counter();
+console.log(f());
+console.log(f());
+console.log(f());
+```
+
+ヒント: `return $ do`
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%82%AB%E3%82%A6%E3%83%B3%E3%82%BF%E3%83%BC)
+
+# ループ
+
+手続型言語ではループを頻繁に使います。
+
+```js:JavaScript
+for (var i = 0; i &lt; 5; ++i) {
+    console.log(i);
+}
+```
+
+IORefで移植すると大袈裟なコードになります。
+
+```hs
+import Data.IORef
+
+main = do
+    i &lt;- newIORef 0
+    let loop = do
+        i&#39; &lt;- readIORef i
+        if i&#39; &lt; 5
+            then do
+                print i&#39;
+                writeIORef i $ i&#39; + 1
+                loop
+            else return ()
+    loop
+```
+```text:実行結果
+0
+1
+2
+3
+4
+```
+
+ループカウンターを引数にすると簡単になります。
+
+```hs
+main = do
+    let loop i | i &lt; 5 = do
+            print i
+            loop $ i + 1
+        loop _ = return ()
+    loop 0
+```
+```text:実行結果
+0
+1
+2
+3
+4
+```
+
+※ ループを実現するには`forM`という関数もありますが、活用するにはラムダが必要です。詳細は続編の[Haskell アクションとラムダ 超入門](http://qiita.com/7shi/items/4a8a2807bb5186576c61)で説明します。
+
+## 練習
+
+【問9】次のJavaScriptのコードを移植してください。`s`だけ`IORef`を使ってください。
+
+```js:JavaScript
+var s = 0;
+for (var i = 1; i &lt;= 100; ++i) {
+    s += i;
+}
+console.log(s);
+```
+
+【問10】問9のコードから`IORef`を排除してください。`sum`は使わないでください。
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%AB%E3%83%BC%E3%83%97)
+
+# IOUArray
+
+IORefの配列版です。パッケージarrayが必要です。[Leksah](http://qiita.com/7shi/items/d1e5a0c22be6cf61d286)ではdependenciesに追加します。
+
+※ `U`はアンボックス化を意味しています。詳細は続編の[Haskell IOモナド 超入門](http://qiita.com/7shi/items/d3d3492ddd90d47160f2)で説明します。
+
+```hs
+import Data.Array.IO
+
+main = do
+    a &lt;- newArray (0, 2) 0 :: IO (IOUArray Int Int)
+    print =&lt;&lt; getElems a
+    writeArray a 0 3
+    print =&lt;&lt; readArray a 0
+    writeArray a 1 6
+    print =&lt;&lt; getElems a
+    writeArray a 2 7
+    print =&lt;&lt; getElems a
+```
+```text:実行結果
+[0,0,0]
+3
+[3,6,0]
+[3,6,7]
+```
+
+`a`は値が変更可能な配列`IOUArray`です。アクションを通して値を読み書きします。`newArray`では型を指定する必要があります。
+
+* `IOUArray` `Int`(インデックスの型) `Int`(値の型)
+
+関数|引数|戻り値
+---|---|---
+newArray|範囲→初期値|配列を作成するアクション
+readArray|配列→インデックス|値を読み取るアクション
+writeArray|配列→インデックス→値|値を書き込むアクション
+getElems|配列|すべての値をリストで取得するアクション
+
+HaskellにはIOUArray以外にも配列があります。詳細は次のスライドが参考になります。
+
+* [すごい配列楽しく学ぼう](http://www.slideshare.net/xenophobia__/ss-14558187)
+
+## 練習
+
+【問11】次のJavaScriptで実装された[Brainf*ck](http://ja.wikipedia.org/wiki/Brainfuck)インタプリタを移植してください。
+
+```js:JavaScript
+var bf = &quot;&gt;+++++++++[&lt;++++++++&gt;-]&lt;.&gt;+++++++[&lt;++++&gt;&quot; +
+         &quot;-]&lt;+.+++++++..+++.[-]&gt;++++++++[&lt;++++&gt;-]&lt;&quot; +
+         &quot;.&gt;+++++++++++[&lt;+++++&gt;-]&lt;.&gt;++++++++[&lt;+++&gt;&quot; +
+         &quot;-]&lt;.+++.------.--------.[-]&gt;++++++++[&lt;++&quot; +
+         &quot;++&gt;-]&lt;+.[-]++++++++++.&quot;;
+
+var jmp = new Uint32Array(bf.length + 1);
+for (var i = 0, loops = []; i &lt; bf.length; ++i) {
+    switch (bf[i]) {
+    case &#39;[&#39;:
+        loops.push(i);
+        break;
+    case &#39;]&#39;:
+        var start = loops.pop();
+        jmp[start] = i;
+        jmp[i] = start;
+        break;
+    }
+}
+
+var pc = 0, r = 0, m = new Uint8Array(30000);
+while (pc &lt; bf.length) {
+    switch (bf[pc]) {
+    case &#39;+&#39;: ++m[r]; break;
+    case &#39;-&#39;: --m[r]; break;
+    case &#39;&gt;&#39;: ++r; break;
+    case &#39;&lt;&#39;: --r; break;
+    case &#39;.&#39;:
+        process.stdout.write(String.fromCharCode(m[r]));
+        break;
+    case &#39;[&#39;:
+        if (m[r] == 0) pc = jmp[pc];
+        break;
+    case &#39;]&#39;:
+        if (m[r] != 0) pc = jmp[pc] - 1;
+        break;
+    }
+    ++pc;
+}
+```
+```text:実行結果
+Hello World!
+```
+
+ヒント: `putChar`, `Data.Word.Word8`, `fromIntegral`
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#brainfck)
+
+JavaScript内にハードコーディングされているBrainf*ckコードの出典です。
+
+* [Brainf*ck](http://www.kmonos.net/alang/etc/brainfuck.php) - [いろんなげんご](http://www.kmonos.net/alang/etc/) @ [人工言語世界](http://www.kmonos.net/alang/)
+
+# unsafePerformIO
+
+アクションから値を引き剥がす関数です。`&lt;-`や`=&lt;&lt;`などを回避できます。
+
+**【注】参照透過性を破壊するため、特別な事情がない限り使わないでください。あくまで参考程度の紹介です。**
+
+デバッグで示した`putStrLn`による例を書き替えます。`fact`の戻り値がアクションではなくなっていることに注意してください。
+
+```hs:非推奨
+import System.IO.Unsafe
+
+fact 0 = unsafePerformIO $ do
+    putStrLn &quot;fact 0 = 1&quot;
+    return 1
+fact n | n &gt; 0 = unsafePerformIO $ do
+    let dbg = &quot;fact &quot; ++ show n ++ &quot; = &quot; ++
+              show n ++ &quot; * fact &quot; ++ show (n - 1)
+    putStrLn dbg
+    let n&#39; = fact (n - 1)
+    let ret = n * n&#39;
+    putStrLn $ dbg ++ &quot; = &quot; ++ show n ++ &quot; * &quot; ++ show n&#39; ++ &quot; = &quot; ++ show ret
+    return ret
+
+main = do
+    print $ fact 5
+```
+```text:実行結果
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+```
+
+このコードは次の記事を参考にしました。
+
+* [print debug on Haskell](http://qiita.com/gfx/items/8260137b1835790ade87)
+
+何のために`unsafePerformIO`が存在するかは、次の記事が参考になります。
+
+* [unsafePerformIO を使って IO を外す - sirocco の書いてもすぐに忘れるメモ](http://d.hatena.ne.jp/sirocco/20110610/1307694359)
+
+## 練習
+
+【問12】`unsafePerformIO`と`putStrLn`を使って、`trace`の標準出力版関数`trace&#39;`を実装してください。
+
+具体的には以下のコードが動くようにしてください。
+
+【注】ghciでは挙動が変わります。解答例はコンパイルしたときにのみ正常動作します。
+
+```hs
+fact 0 = trace&#39; &quot;fact 0 = 1&quot; 1
+fact n | n &gt; 0 = trace&#39; dbg0 $ trace&#39; dbg1 ret
+    where
+        ret  = n * fn1
+        fn1  = fact $ n - 1
+        dbg0 = &quot;fact &quot; ++ show n ++ &quot; = &quot; ++
+               show n ++ &quot; * fact &quot; ++ show (n - 1)
+        dbg1 = dbg0 ++ &quot; = &quot; ++
+               show n ++ &quot; * &quot; ++ show fn1 ++ &quot; = &quot; ++ show ret
+
+main = do
+    print $ fact 5
+```
+```text:実行結果
+fact 5 = 5 * fact 4
+fact 4 = 4 * fact 3
+fact 3 = 3 * fact 2
+fact 2 = 2 * fact 1
+fact 1 = 1 * fact 0
+fact 0 = 1
+fact 1 = 1 * fact 0 = 1 * 1 = 1
+fact 2 = 2 * fact 1 = 2 * 1 = 2
+fact 3 = 3 * fact 2 = 3 * 2 = 6
+fact 4 = 4 * fact 3 = 4 * 6 = 24
+fact 5 = 5 * fact 4 = 5 * 24 = 120
+120
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/623fd55b8b68398becdc#%E3%83%88%E3%83%AC%E3%83%BC%E3%82%B9)
+
+# 参考
+
+アクションについての詳細は次の記事が参考になります。
+
+* [Haskell I/Oアクションの紹介 - HaskellWiki](http://www.haskell.org/haskellwiki/Hakell_I/O%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AE%E7%B4%B9%E4%BB%8B)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Haskell アクション 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Haskell アクション 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E7%85%A7%E9%80%8F%E9%81%8E%E6%80%A7\&quot;\u003e参照透過性\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%89%AF%E4%BD%9C%E7%94%A8\&quot;\u003e副作用\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3\&quot;\u003eアクション\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B9%B1%E6%95%B0\&quot;\u003e乱数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#\&quot;\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B3%A8%E6%84%8F%E7%82%B9\&quot;\u003e注意点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-1\&quot;\u003e=\u0026lt;\u0026lt;\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8\&quot;\u003eイメージ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-2\&quot;\u003e\u0026gt;\u0026gt;=\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#let\&quot;\u003elet\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%91%BC%E3%81%B3%E5%87%BA%E3%81%97\&quot;\u003e呼び出し\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#main\&quot;\u003emain\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#return\&quot;\u003ereturn\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%92%E8%BF%94%E3%81%99%E9%96%A2%E6%95%B0\&quot;\u003eアクションを返す関数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#do%E3%81%A8return\&quot;\u003edoとreturn\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B3%A8%E6%84%8F%E7%82%B9-1\&quot;\u003e注意点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-1\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#io\&quot;\u003eIO\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9E%8B%E6%B3%A8%E9%87%88\&quot;\u003e型注釈\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B5%E3%82%A4%E3%82%B3%E3%83%AD\&quot;\u003eサイコロ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-2\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#unit\&quot;\u003eunit\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%BA%E3%81%AEmain\&quot;\u003e空のmain\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%82%E4%BA%86%E3%82%B9%E3%83%86%E3%83%BC%E3%82%BF%E3%82%B9\&quot;\u003e終了ステータス\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#print\&quot;\u003eprint\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9A%97%E9%BB%99%E3%81%AE%E5%8F%96%E3%82%8A%E5%87%BA%E3%81%97\&quot;\u003e暗黙の取り出し\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-3\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#bind\&quot;\u003ebind\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#applicative%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB\&quot;\u003eApplicativeスタイル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-4\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%90%E3%83%83%E3%82%B0\&quot;\u003eデバッグ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-5\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#ioref\&quot;\u003eIORef\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-6\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AB%E3%83%BC%E3%83%97\&quot;\u003eループ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-7\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#iouarray\&quot;\u003eIOUArray\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-8\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#unsafeperformio\&quot;\u003eunsafePerformIO\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-9\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:94,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tkr_hko625"><a itemprop="url" href="/tkr_hko625"><img alt="tkr_hko625" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19416/profile-images/1473758527" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Reds"><a itemprop="url" href="/Reds"><img alt="Reds" class="thumb thumb--xs" src="https://0.gravatar.com/avatar/e751888e30cdc35253c1a3b241977adf?d=https%3A%2F%2Fidenticons.github.com%2F0e2f15414d97b8b642022be91ff105e0.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="objectx"><a itemprop="url" href="/objectx"><img alt="objectx" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9635/profile-images/1473681490" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="skatsuta"><a itemprop="url" href="/skatsuta"><img alt="skatsuta" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48191/profile-images/1473691262" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="SuperAlloyZZ"><a itemprop="url" href="/SuperAlloyZZ"><img alt="SuperAlloyZZ" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46744/profile-images/1473690751" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="quenhulu"><a itemprop="url" href="/quenhulu"><img alt="quenhulu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14708/profile-images/1473683459" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="jikumaruy"><a itemprop="url" href="/jikumaruy"><img alt="jikumaruy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50578/profile-images/1473692151" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sbjib"><a itemprop="url" href="/sbjib"><img alt="sbjib" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19630/profile-images/1473682775" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kazica"><a itemprop="url" href="/kazica"><img alt="kazica" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26813/profile-images/1473684707" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="cookienote"><a itemprop="url" href="/cookienote"><img alt="cookienote" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43662/profile-images/1473689604" /></a></div></div><div class="ArticleFooter__user"><a href="/7shi/items/85afd7bbd5d6c4115ad6/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/85afd7bbd5d6c4115ad6/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/85afd7bbd5d6c4115ad6.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 9 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/145f1234f8ec2af923ef#_reference-01c873c43fb77258b12c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-10-08T15:14:27+00:00">over 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/026839b2bc193dbfb0cb#_reference-4713f824d94e60633b82"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskellによる8086逆アセンブラ開発入門</a><time class="references_datetime js-dateTimeView" datetime="2014-10-08T15:16:19+00:00">over 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/623fd55b8b68398becdc#_reference-bd21fa2bcb3017c741bf"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />【解答例】Haskell アクション 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-10-09T03:22:45+00:00">over 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/4a8a2807bb5186576c61#_reference-9f3037d04e7417e00321"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell アクションとラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-03T06:12:36+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/d3d3492ddd90d47160f2#_reference-b335cc8da7511a3bd08a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell IOモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:10:57+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/deb19c4cba933590ffbf#_reference-dee5f8711e2a395d051a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell リストモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-18T17:37:24+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/1345bf32003faff435cb#_reference-3f2be93dc6b52a464119"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell ラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-26T23:34:46+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/2e9bff5d88302de1a9e9#_reference-3c68a0bb47f79738ae75"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 状態系モナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-27T01:47:02+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/4408b76624067c17e933#_reference-82e61704dff0037e235f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell モナド変換子 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-04T13:32:38+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/c7d7eec066af0fe0688d#_reference-837112245ef992d19181"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell Maybeモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-22T08:10:00+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/547b6137d7a3c482fe68#_reference-5808d187fd3451eec263"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />モナド則がちょっと分かった？</a><time class="references_datetime js-dateTimeView" datetime="2015-03-09T06:41:11+00:00">almost 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/73e534c47bbebc71b37e#_reference-2db138fef10f2ceb16b9"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 例外処理 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-28T09:19:55+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/1ce76bde464b4a55c143#_reference-66ccf2c30afd45f4fc4e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 代数的データ型 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-28T13:19:07+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/b8c741e78a96ea2c10fe#_reference-349814e993418384d0c8"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 構文解析 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-31T06:47:02+00:00">over 1 year ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Haskell アクション 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Haskell アクション 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e質問があります\u003cbr\u003e\nhaskell初心者なんですが\u003cbr\u003e\nこの記事のトレースの部分で\u003cbr\u003e\n自分で作ったtrace&#39;でコードを動かしてみたところ\u003cbr\u003e\n結果が答えと異なりました\u003cbr\u003e\nそこで解答のtrace&#39;を使ってコードを動かしたところ\u003cbr\u003e\nそれも結果が異なりました\u003cbr\u003e\nそしてその結果は自分で作ったtrace&#39;と同じものになりました。\u003c/p\u003e\n\n\u003cp\u003efact 5=5*fact 4=5 *fact 4=4*fact 3\u003cbr\u003e\n...\u003cbr\u003e\nfact 1=1*fact 0=1*fact 0=1\u003cbr\u003e\n1=1\u003cbr\u003e\n...\u003cbr\u003e\n24=120\u003cbr\u003e\n120\u003cbr\u003e\nなどのように表示されます。\u003cbr\u003e\n私の環境はwindows何ですがそれのせいでしょうか？\u003cbr\u003e\nそれとも通常のtraceとtrace&#39;の評価の順序が違うせいなのでしょうか？\u003cbr\u003e\n教えていただけるとうれしいです。\u003c/p\u003e\n\n\u003cp\u003eまたtrace&#39;に原因がある場合は正しい結果が得られるコードを教えていただけると助かります。なにぶん初心者なもんで仕様を良く知らないので\u003cbr\u003e\n正しいコードを書くのが難しいものですから。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-01-05T17:29:45+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:710361,&quot;is_team&quot;:false,&quot;item_id&quot;:149679,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;質問があります\nhaskell初心者なんですが\nこの記事のトレースの部分で\n自分で作ったtrace&#39;でコードを動かしてみたところ\n結果が答えと異なりました\nそこで解答のtrace&#39;を使ってコードを動かしたところ\nそれも結果が異なりました\nそしてその結果は自分で作ったtrace&#39;と同じものになりました。\n\nfact 5=5*fact 4=5 *fact 4=4*fact 3\n...\nfact 1=1*fact 0=1*fact 0=1\n1=1\n...\n24=120\n120\nなどのように表示されます。\n私の環境はwindows何ですがそれのせいでしょうか？\nそれとも通常のtraceとtrace&#39;の評価の順序が違うせいなのでしょうか？\n教えていただけるとうれしいです。\n\nまたtrace&#39;に原因がある場合は正しい結果が得られるコードを教えていただけると助かります。なにぶん初心者なもんで仕様を良く知らないので\n正しいコードを書くのが難しいものですから。\n\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6#comment-7e64bfd21de19a25b798&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2017-01-05T16:59:30+09:00&quot;,&quot;id&quot;:158290,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://avatars.githubusercontent.com/u/22390066?v=3&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;noname-hatsutaiken&quot;},&quot;uuid&quot;:&quot;7e64bfd21de19a25b798&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eWindows 10 (x64) GHC-8.0.1 (64bit) で動作確認しましたが、特に問題ありませんでした。\u003cbr\u003e\n以下のサイトでの実行結果と同じです。\u003cbr\u003e\n\u003ca href=\&quot;http://melpon.org/wandbox/permlink/AhHWhIkwbXTVGEhG\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttp://melpon.org/wandbox/permlink/AhHWhIkwbXTVGEhG\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003e申し訳ありませんが、原因は分かりません。\u003cbr\u003e\n評価順は追求すると大変難しいため、飛ばしていただけないでしょうか。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-01-05T18:59:18+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:710468,&quot;is_team&quot;:false,&quot;item_id&quot;:149679,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;Windows 10 (x64) GHC-8.0.1 (64bit) で動作確認しましたが、特に問題ありませんでした。\n以下のサイトでの実行結果と同じです。\nhttp://melpon.org/wandbox/permlink/AhHWhIkwbXTVGEhG\n\n申し訳ありませんが、原因は分かりません。\n評価順は追求すると大変難しいため、飛ばしていただけないでしょうか。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6#comment-ed53dc71b4afcc9a2278&quot;,&quot;user&quot;:{&quot;contribution&quot;:2522,&quot;created_at&quot;:&quot;2013-11-09T10:32:10+09:00&quot;,&quot;id&quot;:32057,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;7shi&quot;},&quot;uuid&quot;:&quot;ed53dc71b4afcc9a2278&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e早い対応ありがとうございます。\u003cbr\u003e\nあの後ソースコードを間違えたかなあと思ってもう一度コピペしたところやはり変わりませんでした。\u003cbr\u003e\n結果を貼り付けます。\u003cbr\u003e\nc:\\TEST\u0026gt;ghci\u003cbr\u003e\nGHCi, version 8.0.1: \u003ca href=\&quot;http://www.haskell.org/ghc/\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttp://www.haskell.org/ghc/\u003c/a\u003e  :? for help\u003cbr\u003e\nPrelude\u0026gt; :l sample.hs\u003cbr\u003e\n[1 of 1] Compiling Main             ( sample.hs, interpreted )\u003cbr\u003e\nOk, modules loaded: Main.\u003cbr\u003e\n*Main\u0026gt; main\u003cbr\u003e\nfact 5 = 5 * fact 4\u003cbr\u003e\nfact 5 = 5 * fact 4 = 5 * fact 4 = 4 * fact 3\u003cbr\u003e\nfact 4 = 4 * fact 3 = 4 * fact 3 = 3 * fact 2\u003cbr\u003e\nfact 3 = 3 * fact 2 = 3 * fact 2 = 2 * fact 1\u003cbr\u003e\nfact 2 = 2 * fact 1 = 2 * fact 1 = 1 * fact 0\u003cbr\u003e\nfact 1 = 1 * fact 0 = 1 * fact 0 = 1\u003cbr\u003e\n1 = 1\u003cbr\u003e\n1 = 2\u003cbr\u003e\n2 = 6\u003cbr\u003e\n6 = 24\u003cbr\u003e\n24 = 120\u003cbr\u003e\n120\u003c/p\u003e\n\n\u003cp\u003eもしかすると私の環境がおかしいのかもしれません。\u003cbr\u003e\nわたしもwindows10　64bitなのですが\u003cbr\u003e\nHaskell-platformをつかってインストールしたのですが\u003cbr\u003e\nstack,cabal関連がことごとくエラーを起こします。\u003cbr\u003e\nghc-modが使いたいと思っても\u003cbr\u003e\nsegmentation-faultが起こったり\u003cbr\u003e\nなにやらバージョンが決定できないなどのエラーが起きてまともにインストールができません。\u003cbr\u003e\n調べて回ってもなかなか解決しなくて困ってます。\u003cbr\u003e\n再インストールなどは試してみましたがダメでした。\u003cbr\u003e\n解決法をお知りでしたら教えていただけないでしょうか。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-01-06T19:46:00+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:711437,&quot;is_team&quot;:false,&quot;item_id&quot;:149679,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;早い対応ありがとうございます。\nあの後ソースコードを間違えたかなあと思ってもう一度コピペしたところやはり変わりませんでした。\n結果を貼り付けます。\nc:\\TEST\u003eghci\nGHCi, version 8.0.1: http://www.haskell.org/ghc/  :? for help\nPrelude\u003e :l sample.hs\n[1 of 1] Compiling Main             ( sample.hs, interpreted )\nOk, modules loaded: Main.\n*Main\u003e main\nfact 5 = 5 * fact 4\nfact 5 = 5 * fact 4 = 5 * fact 4 = 4 * fact 3\nfact 4 = 4 * fact 3 = 4 * fact 3 = 3 * fact 2\nfact 3 = 3 * fact 2 = 3 * fact 2 = 2 * fact 1\nfact 2 = 2 * fact 1 = 2 * fact 1 = 1 * fact 0\nfact 1 = 1 * fact 0 = 1 * fact 0 = 1\n1 = 1\n1 = 2\n2 = 6\n6 = 24\n24 = 120\n120\n\nもしかすると私の環境がおかしいのかもしれません。\nわたしもwindows10　64bitなのですが\nHaskell-platformをつかってインストールしたのですが\nstack,cabal関連がことごとくエラーを起こします。\nghc-modが使いたいと思っても\nsegmentation-faultが起こったり\nなにやらバージョンが決定できないなどのエラーが起きてまともにインストールができません。\n調べて回ってもなかなか解決しなくて困ってます。\n再インストールなどは試してみましたがダメでした。\n解決法をお知りでしたら教えていただけないでしょうか。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6#comment-1f12af797c239b719ceb&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2017-01-05T16:59:30+09:00&quot;,&quot;id&quot;:158290,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://avatars.githubusercontent.com/u/22390066?v=3&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;noname-hatsutaiken&quot;},&quot;uuid&quot;:&quot;1f12af797c239b719ceb&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eghciでは確かにご指摘の通りになることを確認しました。\u003cbr\u003e\nghciではなく、コンパイルしてEXEファイルを実行すれば、正常動作するはずです。\u003cbr\u003e\nなぜ動作結果が変わるのかは不明ですが、注意を書き加えておきました。\u003cbr\u003e\n申し訳ありませんが、今はHaskellから離れたため、環境の不具合等についての知見はありません。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-01-06T20:08:26+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:711452,&quot;is_team&quot;:false,&quot;item_id&quot;:149679,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ghciでは確かにご指摘の通りになることを確認しました。\nghciではなく、コンパイルしてEXEファイルを実行すれば、正常動作するはずです。\nなぜ動作結果が変わるのかは不明ですが、注意を書き加えておきました。\n申し訳ありませんが、今はHaskellから離れたため、環境の不具合等についての知見はありません。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6#comment-a3aa4e9da8c903d1f536&quot;,&quot;user&quot;:{&quot;contribution&quot;:2522,&quot;created_at&quot;:&quot;2013-11-09T10:32:10+09:00&quot;,&quot;id&quot;:32057,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;7shi&quot;},&quot;uuid&quot;:&quot;a3aa4e9da8c903d1f536&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eghcでコンパイルしたところ正常動作しました。\u003cbr\u003e\nありがとうございました。\u003cbr\u003e\n環境のほうについてはもう少し頑張ってみようと思います。\u003cbr\u003e\n一応この入門の範囲は実行できるみたいなので入門が終わってからまた調べてみようと思います。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-01-06T20:15:46+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:711460,&quot;is_team&quot;:false,&quot;item_id&quot;:149679,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ghcでコンパイルしたところ正常動作しました。\nありがとうございました。\n環境のほうについてはもう少し頑張ってみようと思います。\n一応この入門の範囲は実行できるみたいなので入門が終わってからまた調べてみようと思います。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6#comment-3d219fbc8466ec5bec78&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2017-01-05T16:59:30+09:00&quot;,&quot;id&quot;:158290,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://avatars.githubusercontent.com/u/22390066?v=3&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;noname-hatsutaiken&quot;},&quot;uuid&quot;:&quot;3d219fbc8466ec5bec78&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:149679,&quot;uuid&quot;:&quot;85afd7bbd5d6c4115ad6&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;},{&quot;id&quot;:158290,&quot;url_name&quot;:&quot;noname-hatsutaiken&quot;,&quot;profile_image_url&quot;:&quot;https://avatars.githubusercontent.com/u/22390066?v=3&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="rCKfvdIXsHRq4U3Vo98T4jZyNeqEMx7kj0ySm1ceJ9HCoATlSTmJP5Uy+MnTKq27VjURWRP3RBOzkptgthApFw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/85afd7bbd5d6c4115ad6" /><input type="hidden" name="item_uuid" id="item_uuid" value="85afd7bbd5d6c4115ad6" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6", "id": 149679, "uuid": "85afd7bbd5d6c4115ad6" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="CaDDHED0TUmvl9WFJd3OkeldAtHs7knLahiBK7p3hPJnIlhE29p0AlBEYJlVKHDIiRomYnsqEzxWxojQW3mKNA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/85afd7bbd5d6c4115ad6" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

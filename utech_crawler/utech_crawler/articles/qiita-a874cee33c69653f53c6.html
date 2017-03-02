@@ -1,0 +1,959 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>(&gt;&gt;=) を (&gt;=&gt;) に書き換える - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="綱渡りと Category (と，Kleisli) ← 前の記事
+
+今回は少しカテゴリーの話から離れて，モナドの bind 演算子 (&gt;&gt;=) を (&gt;=&gt;) に書き換えることを考えてみます．
+
+次の記事 → Category から Arrow へ
+
+
+(&gt;&gt;=) と (&gt;=&gt;)
+
+
+
+(&gt;&gt;=)
+
+
+
+(&gt;&gt;=) :: Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+
+
+おなじみ bind 演算子です．この演算子は「モナド値」と「普通の値をとっ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="CyLomw" name="twitter:creator" /><meta content="(&gt;&gt;=) を (&gt;=&gt;) に書き換える - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/CyLomw/items/a874cee33c69653f53c6" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="[綱渡りと Category (と，Kleisli)](http://qiita.com/CyLomw/items/ff1e5d1600291c952c5e &quot;綱渡りと Category (と，Kleisli)&quot;) ← 前の記事
+
+今..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="lhIpHvxDMx6TAQSKm3cAlKU5/VM4ChpdLTdGJvA+jY/4kLJGZ20KVWzSsZbrgr7NxX7Z4K/OQKoR6U/dETCDSQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/Haskell"><span itemprop="name">Haskell</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">(&gt;&gt;=) を (&gt;=&gt;) に書き換える</h1><ul class="TagList"><li class="TagList__item" data-count="1345"><a class="u-link-unstyled TagList__label" href="/tags/Haskell"><img alt="Haskell" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/373b3b0595a92712b2a45616f53dae97bc1a04e5/medium.jpg?1387913155" /><span>Haskell</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">7</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:7,&quot;uuid&quot;:&quot;a874cee33c69653f53c6&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="7shi"><a itemprop="url" href="/7shi"><img alt="7shi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a></li><li class="js-hovercard" data-hovercard-target-name="ykominami"><a itemprop="url" href="/ykominami"><img alt="ykominami" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4321/profile-images/1473756115" /></a></li><li class="js-hovercard" data-hovercard-target-name="KatagiriSo"><a itemprop="url" href="/KatagiriSo"><img alt="KatagiriSo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6734/profile-images/1473683193" /></a></li><li class="js-hovercard" data-hovercard-target-name="zfhrp6"><a itemprop="url" href="/zfhrp6"><img alt="zfhrp6" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47550/profile-images/1473691033" /></a></li><li class="js-hovercard" data-hovercard-target-name="warlock-mw"><a itemprop="url" href="/warlock-mw"><img alt="warlock-mw" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47391/profile-images/1473690969" /></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/CyLomw"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64300/profile-images/1473696539" alt="1473696539" /></a> <a class="u-link-unstyled" href="/CyLomw">CyLomw</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2014-12-30">Edited at <time datetime="2015-01-03T00:49:58+09:00" itemprop="dateModified">2015-01-03</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/CyLomw/items/a874cee33c69653f53c6/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">6</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/CyLomw/items/a874cee33c69653f53c6/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(6)</span></a></li><li><a href="/CyLomw/items/a874cee33c69653f53c6.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-a874cee33c69653f53c6" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p><a href="http://qiita.com/CyLomw/items/ff1e5d1600291c952c5e" title="綱渡りと Category (と，Kleisli)" id="reference-e57a9d9cd3c4037e9e7e">綱渡りと Category (と，Kleisli)</a> ← 前の記事</p>
+
+<p>今回は少しカテゴリーの話から離れて，モナドの bind 演算子 <code>(&gt;&gt;=)</code> を <code>(&gt;=&gt;)</code> に書き換えることを考えてみます．</p>
+
+<p>次の記事 → <a href="http://qiita.com/CyLomw/items/688942f19a5bc3a25037" title="Category から Arrow へ" id="reference-f95467a428b3ceadd5ae">Category から Arrow へ</a></p>
+
+<h1>
+<span id="-と-" class="fragment"></span><a href="#-%E3%81%A8-"><i class="fa fa-link"></i></a><code>(&gt;&gt;=)</code> と <code>(&gt;=&gt;)</code>
+</h1>
+
+<h2>
+<span id="" class="fragment"></span><a href="#"><i class="fa fa-link"></i></a><code>(&gt;&gt;=)</code>
+</h2>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Monad</span> <span class="n">m</span> <span class="ow">=&gt;</span> <span class="n">m</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span>
+</pre></div></div>
+
+<p>おなじみ bind 演算子です．この演算子は「モナド値」と「普通の値をとってモナド値を返す函数」をとります．</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">ghci</span></div>
+<div class="highlight"><pre>
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="kt">Just</span> <span class="mi">3</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="kt">Just</span> <span class="mi">6</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">]</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">x</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="o">-</span><span class="mi">30</span><span class="p">]</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="n">return</span> <span class="s">"Hello, World!"</span> <span class="o">&gt;&gt;=</span> <span class="n">print</span>
+<span class="s">"Hello, World!"</span>
+</pre></div>
+</div>
+
+<p>また逆向きの <code>(=&lt;&lt;)</code> も存在します．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="o">=&lt;&lt;</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Monad</span> <span class="n">m</span> <span class="ow">=&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span>
+<span class="p">(</span><span class="o">=&lt;&lt;</span><span class="p">)</span> <span class="ow">=</span> <span class="n">flip</span> <span class="p">(</span><span class="o">&gt;&gt;=</span><span class="p">)</span>
+</pre></div></div>
+
+<h2>
+<span id="-1" class="fragment"></span><a href="#-1"><i class="fa fa-link"></i></a><code>(&gt;=&gt;)</code>
+</h2>
+
+<p>この演算子は <code>Control.Monad</code> モジュール内で定義されています．</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">Control.Monad</span></div>
+<div class="highlight"><pre>
+<span class="c1">-- | Left-to-right Kleisli composition of monads.</span>
+<span class="p">(</span><span class="o">&gt;=&gt;</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Monad</span> <span class="n">m</span> <span class="ow">=&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">b</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">c</span><span class="p">)</span>
+<span class="nf">f</span> <span class="o">&gt;=&gt;</span> <span class="n">g</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">f</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="n">g</span>
+</pre></div>
+</div>
+
+<p>ここで一つ注意ですが，<br>
+<code>\x -&gt; f x &gt;&gt;= g</code> は <code>\x -&gt; (f x &gt;&gt;= g)</code> であって <code>(\x -&gt; f x) &gt;&gt;= g</code> とはなりません．<br>
+わかりやすくするため以降はなるべく括弧をつけていきます．</p>
+
+<p>さて，<code>(&gt;=&gt;)</code> は「普通の値をとってモナド値を返す函数」を二つとり合成します．</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">ghci</span></div>
+<div class="highlight"><pre>
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="kt">:</span><span class="kr">module</span> <span class="nn">Control.Monad</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">3</span><span class="p">))</span> <span class="o">$</span> <span class="mi">10</span>
+<span class="kt">Just</span> <span class="mi">33</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">show</span> <span class="n">x</span><span class="p">,</span> <span class="n">reverse</span> <span class="p">(</span><span class="n">show</span> <span class="n">x</span><span class="p">)])</span> <span class="o">$</span> <span class="mi">25</span>
+<span class="p">[</span><span class="s">"24"</span><span class="p">,</span><span class="s">"42"</span><span class="p">,</span><span class="s">"26"</span><span class="p">,</span><span class="s">"62"</span><span class="p">]</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="kt">Data</span><span class="o">.</span><span class="kt">List</span><span class="o">.</span><span class="n">inits</span> <span class="o">&gt;=&gt;</span> <span class="kt">Data</span><span class="o">.</span><span class="kt">List</span><span class="o">.</span><span class="n">group</span> <span class="o">$</span> <span class="s">"Hello!"</span>
+<span class="p">[</span><span class="s">"H"</span><span class="p">,</span><span class="s">"H"</span><span class="p">,</span><span class="s">"e"</span><span class="p">,</span><span class="s">"H"</span><span class="p">,</span><span class="s">"e"</span><span class="p">,</span><span class="s">"l"</span><span class="p">,</span><span class="s">"H"</span><span class="p">,</span><span class="s">"e"</span><span class="p">,</span><span class="s">"ll"</span><span class="p">,</span><span class="s">"H"</span><span class="p">,</span><span class="s">"e"</span><span class="p">,</span><span class="s">"ll"</span><span class="p">,</span><span class="s">"o"</span><span class="p">,</span><span class="s">"H"</span><span class="p">,</span><span class="s">"e"</span><span class="p">,</span><span class="s">"ll"</span><span class="p">,</span><span class="s">"o"</span><span class="p">,</span><span class="s">"!"</span><span class="p">]</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="n">const</span> <span class="n">getLine</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="n">return</span> <span class="o">.</span> <span class="n">reverse</span><span class="p">)</span> <span class="o">&gt;=&gt;</span> <span class="n">print</span> <span class="o">$</span> <span class="nb">()</span>
+<span class="kt">Is</span> <span class="n">the</span> <span class="n">order</span> <span class="n">a</span> <span class="n">rabbit</span><span class="o">?</span>
+<span class="s">"?tibbar a redro eht sI"</span>
+</pre></div>
+</div>
+
+<p>また逆向きの <code>(&lt;=&lt;)</code> も存在します．</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">Control.Monad</span></div>
+<div class="highlight"><pre>
+<span class="c1">-- | Right-to-left Kleisli composition of monads. @('&gt;=&gt;')@, with the arguments flipped</span>
+<span class="p">(</span><span class="o">&lt;=&lt;</span><span class="p">)</span> <span class="ow">::</span> <span class="kt">Monad</span> <span class="n">m</span> <span class="ow">=&gt;</span> <span class="p">(</span><span class="n">b</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">a</span> <span class="ow">-&gt;</span> <span class="n">m</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">(</span><span class="o">&lt;=&lt;</span><span class="p">)</span> <span class="ow">=</span> <span class="n">flip</span> <span class="p">(</span><span class="o">&gt;=&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<h2>
+<span id="-を--に書き換える" class="fragment"></span><a href="#-%E3%82%92--%E3%81%AB%E6%9B%B8%E3%81%8D%E6%8F%9B%E3%81%88%E3%82%8B"><i class="fa fa-link"></i></a><code>(&gt;&gt;=)</code> を <code>(&gt;=&gt;)</code> に書き換える</h2>
+
+<p>定義に従って， <code>f &gt;=&gt; g</code> は <code>\x -&gt; (f x &gt;&gt;= g)</code> と書き直すことができます．<br>
+では，逆に <code>(&gt;&gt;=)</code> を <code>(&gt;=&gt;)</code> を使って書き直すことはできるか考えてみます．</p>
+
+<h1>
+<span id="初級" class="fragment"></span><a href="#%E5%88%9D%E7%B4%9A"><i class="fa fa-link"></i></a>初級</h1>
+
+<h2>
+<span id="定義通りの場合" class="fragment"></span><a href="#%E5%AE%9A%E7%BE%A9%E9%80%9A%E3%82%8A%E3%81%AE%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>定義通りの場合</h2>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Just</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<p>まず，<code>Just (x * 3)</code> は <code>(Just . (*3)) x</code> と書き換えられます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">((</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">3</span><span class="p">))</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<p>これはちょうど <code>(&gt;=&gt;)</code> の定義の形になっているので，次のように書き換えられます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">3</span><span class="p">))</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<p><code>\y -&gt; Just (y * 2)</code> も <code>Just . (*2)</code> と書き換えられるので次のようにも書けます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">3</span><span class="p">))</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<h2>
+<span id="x-が現れない場合" class="fragment"></span><a href="#x-%E3%81%8C%E7%8F%BE%E3%82%8C%E3%81%AA%E3%81%84%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a><code>x</code> が現れない場合</h2>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<p>似たような例ですが，<code>Just x</code> の部分が <code>Just 3</code> になってしまっています．<br>
+そのため，まず <code>Just 3</code> を <code>(\_ -&gt; Just 3) x</code> と変形してみます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">((</span><span class="nf">\</span><span class="kr">_</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="mi">3</span><span class="p">)</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<p>これで <code>(&gt;=&gt;)</code> の定義の形に持ち込むことができたので，次のようになります．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="nf">\</span><span class="kr">_</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<p><code>\y -&gt; Just (y * 2)</code> は <code>Just . (*2)</code> と書き換えられます．<br>
+また，<code>(\_ -&gt; Just 3)</code> は <code>const (Just 3)</code> とも書けます<sup id="fnref1"><a href="#fn1" rel="footnote" title="const :: a -&gt; b -&gt; a は第二引数を無視して第一引数を返す函数です．即ち，const x _ = x より const x = \_ -&gt; x となります．">1</a></sup>．よって次のようになります．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">const</span> <span class="p">(</span><span class="kt">Just</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span>
+</pre></div></div>
+
+<h1>
+<span id="中級" class="fragment"></span><a href="#%E4%B8%AD%E7%B4%9A"><i class="fa fa-link"></i></a>中級</h1>
+
+<h2>
+<span id="x-が後ろまで現れる場合" class="fragment"></span><a href="#x-%E3%81%8C%E5%BE%8C%E3%82%8D%E3%81%BE%E3%81%A7%E7%8F%BE%E3%82%8C%E3%82%8B%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a><code>x</code> が後ろまで現れる場合</h2>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Just</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span>
+</pre></div></div>
+
+<p>初級の問題と同じように <code>(&gt;=&gt;)</code> の定義の形そのままに見えるので，次のように書き換えてみます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span>
+</pre></div></div>
+
+<p>でもこれってどこかおかしくないでしょうか．<br>
+<code>x</code> と <code>y</code> はあくまでラムダ式 <code>\x</code>, <code>\y</code> の仮引数だったのに，<code>\x</code> が消えた後まで <code>x</code> が残ってしまっています．</p>
+
+<p>実はこのような例は簡単には <code>(&gt;=&gt;)</code> で書き換えることができません．</p>
+
+<p><code>(&gt;=&gt;)</code> は二つの函数を結合するため，<br>
+<code>(一つ目の函数) &gt;=&gt; (二つ目の函数)</code><br>
+という形をとります．</p>
+
+<p>そのため，一つ目の函数の引数は二つ目の函数からは見えません．</p>
+
+<p>しかし，<code>Just (x * 2) &gt;&gt;= \y -&gt; Just (y * x)</code> の例では二つ目の函数となるはずの <code>\y -&gt; Just (y * x)</code> が一つ目の函数の引数 <code>x</code> を使ってしまっているのです．</p>
+
+<h2>
+<span id="どうする" class="fragment"></span><a href="#%E3%81%A9%E3%81%86%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>どうする</h2>
+
+<ul>
+<li>アプローチ 1: ラムダ式で保持</li>
+</ul>
+
+<p>ラムダ式が消えてしまったのが問題であるならば，ラムダ式を残すようにすればいい．</p>
+
+<p><code>\x -&gt; ((一つ目の函数) &gt;=&gt; (二つ目の函数))</code></p>
+
+<p>みたいな感じでいけそうな気がします．</p>
+
+<ul>
+<li>アプローチ 2: タプルで保持</li>
+</ul>
+
+<p>問題は，二つ目の函数から一つ目の函数の引数が見えないということでした．<br>
+しかし，二つ目の函数から一つ目の函数の引数が見えないのであれば，一つ目の関数が二つ目の函数に自分の引数を教えてあげればよいのです．</p>
+
+<p>即ち，一つ目の函数が，結果と一緒に自分の引数も返してあげればよい，ということになります．</p>
+
+<p>例えば一つ目の函数が <code>\x -&gt; Just (x * 2)</code> であるとするならば，これを <code>\x -&gt; (Just (x * 2), x)</code> のようにしてあげればいい……いや，<code>(&gt;=&gt;)</code> で合成できるのは「普通の値をとってモナド値を返す函数」でした．従って，<code>\x -&gt; Just (2 * x, x)</code> としてあげるのがよいでしょう．</p>
+
+<h2>
+<span id="アプローチ-1" class="fragment"></span><a href="#%E3%82%A2%E3%83%97%E3%83%AD%E3%83%BC%E3%83%81-1"><i class="fa fa-link"></i></a>アプローチ 1</h2>
+
+<p>まず，函数合成を使うと問題の式は次のように書き換えられます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">))</span> <span class="p">)</span>
+</pre></div></div>
+
+<p>見やすくするために，<code>f = Just . (*2)</code>，<code>g = Just . (*x)</code> とおくと</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">f</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="n">g</span><span class="p">)</span>
+</pre></div></div>
+
+<p>となります．ただし注意してください，<code>g</code> は内部に <code>x</code> を持っています<sup id="fnref2"><a href="#fn2" rel="footnote" title="g のような函数をクロージャ (函数閉包) と呼びます">2</a></sup>．(だから <code>(&gt;=&gt;)</code> に書き換えられないのでした．)</p>
+
+<p>さて，<code>f x &gt;&gt;= g</code> の部分だけを取り出して考えます．</p>
+
+<p>値 <code>v</code> を <code>(\t -&gt; v) ()</code> と書き換える要領で，この部分は下のように書き換えられます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">f</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="n">g</span><span class="p">))</span> <span class="nb">()</span>
+</pre></div></div>
+
+<p>さらに <code>f x</code> は <code>(\_ -&gt; f x) y</code>，と書きかえることができ，これは <code>const (f x) y</code> とも書くことができます．</p>
+
+<p>よって</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">const</span> <span class="p">(</span><span class="n">f</span> <span class="n">x</span><span class="p">)</span> <span class="n">y</span> <span class="o">&gt;&gt;=</span> <span class="n">g</span><span class="p">))</span> <span class="nb">()</span>
+</pre></div></div>
+
+<p>前半部分は <code>(&gt;=&gt;)</code> の定義の形になっているので，次のように書き換えられます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="n">const</span> <span class="p">(</span><span class="n">f</span> <span class="n">x</span><span class="p">)</span> <span class="o">&gt;=&gt;</span> <span class="n">g</span><span class="p">)</span> <span class="nb">()</span>
+</pre></div></div>
+
+<p>よって，問題の式は次のようになりました．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span> <span class="p">(</span><span class="n">const</span> <span class="p">(</span><span class="n">f</span> <span class="n">x</span><span class="p">)</span> <span class="o">&gt;=&gt;</span> <span class="n">g</span><span class="p">)</span> <span class="nb">()</span> <span class="p">)</span>
+</pre></div></div>
+
+<p><code>f</code>, <code>g</code> を元に戻すと次のようになります．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span> <span class="p">(</span><span class="n">const</span> <span class="p">((</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="n">x</span><span class="p">)</span> <span class="o">&gt;=&gt;</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)))</span> <span class="nb">()</span> <span class="p">)</span>
+</pre></div></div>
+
+<p>これ以上いじるのは難しそうです．</p>
+
+<p><code>(&gt;&gt;=)</code> から <code>(&gt;=&gt;)</code> へ書き換えることはできましたが，きれいに <code>(一つ目の函数) &gt;=&gt; (二つ目の函数)</code> の形にはなりませんでした．</p>
+
+<h2>
+<span id="タプル操作関数" class="fragment"></span><a href="#%E3%82%BF%E3%83%97%E3%83%AB%E6%93%8D%E4%BD%9C%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>タプル操作関数</h2>
+
+<p>アプローチ 2 ではタプルをいじっていくので，ここでちょっと脱線してタプルを操作する函数をいくつか作っておきます．</p>
+
+<h3>
+<span id="ペア3の要素を入れ替えたペアを返す-swap" class="fragment"></span><a href="#%E3%83%9A%E3%82%A23%E3%81%AE%E8%A6%81%E7%B4%A0%E3%82%92%E5%85%A5%E3%82%8C%E6%9B%BF%E3%81%88%E3%81%9F%E3%83%9A%E3%82%A2%E3%82%92%E8%BF%94%E3%81%99-swap"><i class="fa fa-link"></i></a>ペア<sup id="fnref3"><a href="#fn3" rel="footnote" title="サイズ 2 のタプルのこと">3</a></sup>の要素を入れ替えたペアを返す <code>swap</code>
+</h3>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">swap</span> <span class="ow">::</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="nf">swap</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">=</span> <span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</pre></div></div>
+
+<p><code>swap</code> 函数は <code>Data.Tuple</code> モジュール内で定義されているのでそれを使ってもいいです．</p>
+
+<h3>
+<span id="ペアの一番目の要素にのみ函数を適用する函数-first" class="fragment"></span><a href="#%E3%83%9A%E3%82%A2%E3%81%AE%E4%B8%80%E7%95%AA%E7%9B%AE%E3%81%AE%E8%A6%81%E7%B4%A0%E3%81%AB%E3%81%AE%E3%81%BF%E5%87%BD%E6%95%B0%E3%82%92%E9%81%A9%E7%94%A8%E3%81%99%E3%82%8B%E5%87%BD%E6%95%B0-first"><i class="fa fa-link"></i></a>ペアの一番目の要素にのみ函数を適用する函数 <code>first</code>
+</h3>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">first</span> <span class="ow">::</span> <span class="p">(</span><span class="n">b</span> <span class="ow">-&gt;</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="nf">first</span> <span class="n">f</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">=</span> <span class="p">(</span><span class="n">f</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div></div>
+
+<h3>
+<span id="ペアの二番目の要素にのみ函数を適用する函数-second" class="fragment"></span><a href="#%E3%83%9A%E3%82%A2%E3%81%AE%E4%BA%8C%E7%95%AA%E7%9B%AE%E3%81%AE%E8%A6%81%E7%B4%A0%E3%81%AB%E3%81%AE%E3%81%BF%E5%87%BD%E6%95%B0%E3%82%92%E9%81%A9%E7%94%A8%E3%81%99%E3%82%8B%E5%87%BD%E6%95%B0-second"><i class="fa fa-link"></i></a>ペアの二番目の要素にのみ函数を適用する函数 <code>second</code>
+</h3>
+
+<p>ちょっとまわりくどいですが，<code>second</code> は次のように <code>swap</code> と <code>first</code> を利用して作ることができます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">second</span> <span class="ow">::</span> <span class="p">(</span><span class="n">b</span> <span class="ow">-&gt;</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="nf">second</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">swap</span> <span class="o">.</span> <span class="n">first</span> <span class="n">f</span> <span class="o">.</span> <span class="n">swap</span>
+</pre></div></div>
+
+<h3>
+<span id="ペアの一番目二番目の要素にそれぞれ異なる函数を適用する函数-" class="fragment"></span><a href="#%E3%83%9A%E3%82%A2%E3%81%AE%E4%B8%80%E7%95%AA%E7%9B%AE%E4%BA%8C%E7%95%AA%E7%9B%AE%E3%81%AE%E8%A6%81%E7%B4%A0%E3%81%AB%E3%81%9D%E3%82%8C%E3%81%9E%E3%82%8C%E7%95%B0%E3%81%AA%E3%82%8B%E5%87%BD%E6%95%B0%E3%82%92%E9%81%A9%E7%94%A8%E3%81%99%E3%82%8B%E5%87%BD%E6%95%B0-"><i class="fa fa-link"></i></a>ペアの一番目，二番目の要素にそれぞれ異なる函数を適用する函数 <code>(***)</code>
+</h3>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="p">(</span><span class="o">***</span><span class="p">)</span> <span class="ow">::</span> <span class="p">(</span><span class="n">b</span> <span class="ow">-&gt;</span> <span class="n">c</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">b'</span> <span class="ow">-&gt;</span> <span class="n">c'</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">b'</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c'</span><span class="p">)</span>
+<span class="nf">f</span> <span class="o">***</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">second</span> <span class="n">g</span> <span class="o">.</span> <span class="n">first</span> <span class="n">f</span>
+</pre></div></div>
+
+<p>この函数 (演算子) は次のように動きます．</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">ghci</span></div>
+<div class="highlight"><pre>
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="p">(</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span> <span class="o">***</span> <span class="p">(</span><span class="o">+</span><span class="mi">10</span><span class="p">)</span> <span class="o">$</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">13</span><span class="p">)</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="kt">Just</span> <span class="o">***</span> <span class="n">id</span> <span class="o">$</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">(</span><span class="kt">Just</span> <span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64300/89284b11-ea90-fb1d-6f65-35dcf4cfefbc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64300/89284b11-ea90-fb1d-6f65-35dcf4cfefbc.png" alt="prod.png"></a></p>
+
+<h3>
+<span id="一つの値に二つの函数-f-g-を適用した結果をペアで返す函数-" class="fragment"></span><a href="#%E4%B8%80%E3%81%A4%E3%81%AE%E5%80%A4%E3%81%AB%E4%BA%8C%E3%81%A4%E3%81%AE%E5%87%BD%E6%95%B0-f-g-%E3%82%92%E9%81%A9%E7%94%A8%E3%81%97%E3%81%9F%E7%B5%90%E6%9E%9C%E3%82%92%E3%83%9A%E3%82%A2%E3%81%A7%E8%BF%94%E3%81%99%E5%87%BD%E6%95%B0-"><i class="fa fa-link"></i></a>一つの値に二つの函数 <code>f</code>, <code>g</code> を適用した結果をペアで返す函数 <code>(&amp;&amp;&amp;)</code>
+</h3>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+(&amp;&amp;&amp;) :: (b -&gt; c) -&gt; (b -&gt; c') -&gt; b -&gt; (c, c')
+f &amp;&amp;&amp; g = (f *** g) . (\x -&gt; (x, x))
+</pre></div></div>
+
+<p>引数を複製して片方には <code>f</code>, 片方には <code>g</code> を適用する，という感じです．</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">ghci</span></div>
+<div class="highlight"><pre>
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="p">(</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span> <span class="o">&amp;&amp;&amp;</span> <span class="p">(</span><span class="o">+</span><span class="mi">10</span><span class="p">)</span> <span class="o">$</span> <span class="mi">2</span>
+<span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">12</span><span class="p">)</span>
+
+<span class="nf">ghci</span><span class="o">&gt;</span> <span class="kt">Just</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">id</span> <span class="o">$</span> <span class="mi">3</span>
+<span class="p">(</span><span class="kt">Just</span> <span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64300/3439c4d6-f433-141c-2f5c-0e057767e8e3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64300/3439c4d6-f433-141c-2f5c-0e057767e8e3.png" alt="dup.png"></a></p>
+
+<h2>
+<span id="アプローチ-2" class="fragment"></span><a href="#%E3%82%A2%E3%83%97%E3%83%AD%E3%83%BC%E3%83%81-2"><i class="fa fa-link"></i></a>アプローチ 2</h2>
+
+<p>もう一度先ほどの問題を見てみます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="kt">Just</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span>
+</pre></div></div>
+
+<p>函数合成を使うと次のように書き換えられます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="mi">2</span><span class="p">))</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">))</span> <span class="p">)</span>
+</pre></div></div>
+
+<p>見やすくするために <code>f = Just . (*2)</code>, <code>g = Just . (*x)</code> とおくと，</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">f</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="n">g</span><span class="p">)</span>
+</pre></div></div>
+
+<p>となります．繰り返しになりますが，<code>g</code> は内部に <code>x</code> を持っているためそのまま <code>(&gt;=&gt;)</code> に書き換えることはできません．</p>
+
+<p>まず一つ目の函数 <code>f</code> を，結果と一緒に自分の引数を返すような函数 <code>f'</code> に書き換えてみましょう．</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64300/0b935b5f-6440-6d77-f630-592271511340.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64300/0b935b5f-6440-6d77-f630-592271511340.png" alt="img1.png"></a></p>
+
+<p>このような函数は，先ほど定義した <code>(&amp;&amp;&amp;)</code> 函数を用いることで書くことができます．</p>
+
+<p>よって</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64300/36185d21-d412-e87f-af73-d00ab48cc456.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64300/36185d21-d412-e87f-af73-d00ab48cc456.png" alt="img2.png"></a></p>
+
+<p>これより，</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f'</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="o">.</span> <span class="p">((</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">id</span><span class="p">)</span>
+</pre></div></div>
+
+<p>と書けることがわかりました．</p>
+
+<p>さて，函数 <code>f' :: Num t =&gt; t -&gt; Maybe (t, t)</code> はタプル (モナドに包まれたタプル) を返すので，<code>g</code> の方もタプルを受け取る函数 <code>g'</code> に書き換える必要があります．</p>
+
+<p><code>f' = Just . (*2) &amp;&amp;&amp; id</code> より，<code>f'</code> が返すタプルの一番目の値が「結果」，二番目の値が「引数をそのまま返したもの」です．</p>
+
+<p>よって <code>g'</code> は次のようにします．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">g'</span> <span class="ow">=</span> <span class="nf">\</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="kt">Just</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+</pre></div></div>
+
+<p>これは，函数 <code>uncurry</code> を用いて次のように書き換えられます<sup id="fnref4"><a href="#fn4" rel="footnote" title="uncurry :: (b -&gt; c -&gt; d) -&gt; ((b, c) -&gt; d) はニ引数函数をタプルをとる函数に変換します．">4</a></sup>．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">g'</span> <span class="ow">=</span> <span class="kt">Just</span> <span class="o">.</span> <span class="n">uncurry</span> <span class="p">(</span><span class="o">*</span><span class="p">)</span>
+</pre></div></div>
+
+<p>以上より，<code>\x -&gt; (f x &gt;&gt;= g)</code> は次のように <code>f'</code> と <code>g'</code> を用いて書くことができます．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span><span class="n">f'</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="n">g'</span><span class="p">)</span>
+</pre></div></div>
+
+<p><code>\x -&gt; (f x &gt;&gt;= g)</code> のときと異なるのは，<code>g'</code> の内部に <code>x</code> が存在しない，ということです．即ち，これは <code>(&gt;=&gt;)</code> の定義の形ということができます！</p>
+
+<p>先に <code>f'</code>, <code>g'</code> を定義前の形に戻してみると次のようになります．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">(</span> <span class="p">(</span><span class="kt">Just</span> <span class="o">.</span> <span class="p">((</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">id</span><span class="p">))</span> <span class="n">x</span> <span class="o">&gt;&gt;=</span> <span class="kt">Just</span> <span class="o">.</span> <span class="n">uncurry</span> <span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="p">)</span>
+</pre></div></div>
+
+<p><code>(&gt;=&gt;)</code> の定義の形に持ち込むことができたので，最終的に次のようになります．</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="kt">Just</span> <span class="o">.</span> <span class="p">((</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">id</span><span class="p">)</span> <span class="o">&gt;=&gt;</span> <span class="kt">Just</span> <span class="o">.</span> <span class="n">uncurry</span> <span class="p">(</span><span class="o">*</span><span class="p">)</span>
+</pre></div></div>
+
+<p>アプローチ 1 の結果と異なり，きれいに <code>(一つ目の函数) &gt;=&gt; (二つ目の函数)</code> の形が得られました！</p>
+
+<h1>
+<span id="上級" class="fragment"></span><a href="#%E4%B8%8A%E7%B4%9A"><i class="fa fa-link"></i></a>上級</h1>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;&gt;=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="p">[</span><span class="n">y</span><span class="o">..</span><span class="n">x</span><span class="p">]</span>
+</pre></div></div>
+
+<p>を <code>f &gt;=&gt; g</code> の形に書き換えてみてください．</p>
+
+<h1>
+<span id="あとがき" class="fragment"></span><a href="#%E3%81%82%E3%81%A8%E3%81%8C%E3%81%8D"><i class="fa fa-link"></i></a>あとがき</h1>
+
+<p>もし次回があれば，函数 <code>arr</code>, <code>first</code>, <code>second</code>, <code>(***)</code>, <code>(&amp;&amp;&amp;)</code> を提供する型クラス <code>Arrow</code> を紹介したいです．</p>
+
+<h1>
+<span id="参考文献" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><i class="fa fa-link"></i></a>参考文献</h1>
+
+<p>Jeremy Gibbons and Oege de Moor 編，山下伸夫訳 「関数プログラミングの楽しみ」 (オーム社) 2010, 215-238</p>
+
+<p>Miran Lipovača 著，田中英行・村主崇行訳 「すごい Haskell たのしく学ぼう！」 (オーム社) 2012</p>
+
+<h1>
+<span id="注釈" class="fragment"></span><a href="#%E6%B3%A8%E9%87%88"><i class="fa fa-link"></i></a>注釈</h1>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p><code>const :: a -&gt; b -&gt; a</code> は第二引数を無視して第一引数を返す函数です．即ち，<code>const x _ = x</code> より <code>const x = \_ -&gt; x</code> となります． <a href="#fnref1">↩</a></p>
+</li>
+
+<li id="fn2">
+<p><code>g</code> のような函数をクロージャ (函数閉包) と呼びます <a href="#fnref2">↩</a></p>
+</li>
+
+<li id="fn3">
+<p>サイズ 2 のタプルのこと <a href="#fnref3">↩</a></p>
+</li>
+
+<li id="fn4">
+<p><code>uncurry :: (b -&gt; c -&gt; d) -&gt; ((b, c) -&gt; d)</code> はニ引数函数をタプルをとる函数に変換します． <a href="#fnref4">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/CyLomw/items/a874cee33c69653f53c6" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="Uls2vkPFbHVfliALGJ1B8/EFQovKjW1bq3qv8MhnEtg82a3m2OtVPqBFlRdoaP+qkUJmOF1JN6yXpKYLKWkcHg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1420213798" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+[綱渡りと Category (と，Kleisli)](http://qiita.com/CyLomw/items/ff1e5d1600291c952c5e &quot;綱渡りと Category (と，Kleisli)&quot;) ← 前の記事
+
+今回は少しカテゴリーの話から離れて，モナドの bind 演算子 `(&gt;&gt;=)` を `(&gt;=&gt;)` に書き換えることを考えてみます．
+
+次の記事 → [Category から Arrow へ](http://qiita.com/CyLomw/items/688942f19a5bc3a25037 &quot;Category から Arrow へ&quot;)
+
+# `(&gt;&gt;=)` と `(&gt;=&gt;)`
+
+## `(&gt;&gt;=)`
+
+```hs
+(&gt;&gt;=) :: Monad m =&gt; m a -&gt; (a -&gt; m b) -&gt; m b
+```
+
+おなじみ bind 演算子です．この演算子は「モナド値」と「普通の値をとってモナド値を返す函数」をとります．
+
+
+```hs:ghci
+ghci&gt; Just 3 &gt;&gt;= \x -&gt; Just (x * 2)
+Just 6
+
+ghci&gt; [10, 20, 30] &gt;&gt;= \x -&gt; [x, -x]
+[10,-10,20,-20,30,-30]
+
+ghci&gt; return &quot;Hello, World!&quot; &gt;&gt;= print
+&quot;Hello, World!&quot;
+```
+
+また逆向きの `(=&lt;&lt;)` も存在します．
+
+```hs
+(=&lt;&lt;) :: Monad m =&gt; (a -&gt; m b) -&gt; m a -&gt; m b
+(=&lt;&lt;) = flip (&gt;&gt;=)
+```
+
+## `(&gt;=&gt;)`
+
+この演算子は `Control.Monad` モジュール内で定義されています．
+
+```hs:Control.Monad
+-- | Left-to-right Kleisli composition of monads.
+(&gt;=&gt;) :: Monad m =&gt; (a -&gt; m b) -&gt; (b -&gt; m c) -&gt; (a -&gt; m c)
+f &gt;=&gt; g = \x -&gt; f x &gt;&gt;= g
+```
+
+ここで一つ注意ですが，
+`\x -&gt; f x &gt;&gt;= g` は `\x -&gt; (f x &gt;&gt;= g)` であって `(\x -&gt; f x) &gt;&gt;= g` とはなりません．
+わかりやすくするため以降はなるべく括弧をつけていきます．
+
+さて，`(&gt;=&gt;)` は「普通の値をとってモナド値を返す函数」を二つとり合成します．
+
+```hs:ghci
+ghci&gt; :module Control.Monad
+
+ghci&gt; (\x -&gt; Just (x * 3)) &gt;=&gt; (\x -&gt; Just (x + 3)) $ 10
+Just 33
+
+ghci&gt; (\x -&gt; [x - 1, x + 1]) &gt;=&gt; (\x -&gt; [show x, reverse (show x)]) $ 25
+[&quot;24&quot;,&quot;42&quot;,&quot;26&quot;,&quot;62&quot;]
+
+ghci&gt; Data.List.inits &gt;=&gt; Data.List.group $ &quot;Hello!&quot;
+[&quot;H&quot;,&quot;H&quot;,&quot;e&quot;,&quot;H&quot;,&quot;e&quot;,&quot;l&quot;,&quot;H&quot;,&quot;e&quot;,&quot;ll&quot;,&quot;H&quot;,&quot;e&quot;,&quot;ll&quot;,&quot;o&quot;,&quot;H&quot;,&quot;e&quot;,&quot;ll&quot;,&quot;o&quot;,&quot;!&quot;]
+
+ghci&gt; const getLine &gt;=&gt; (return . reverse) &gt;=&gt; print $ ()
+Is the order a rabbit?
+&quot;?tibbar a redro eht sI&quot;
+```
+
+また逆向きの `(&lt;=&lt;)` も存在します．
+
+```hs:Control.Monad
+-- | Right-to-left Kleisli composition of monads. @(&#39;&gt;=&gt;&#39;)@, with the arguments flipped
+(&lt;=&lt;) :: Monad m =&gt; (b -&gt; m c) -&gt; (a -&gt; m b) -&gt; (a -&gt; m c)
+(&lt;=&lt;) = flip (&gt;=&gt;)
+```
+
+
+## `(&gt;&gt;=)` を `(&gt;=&gt;)` に書き換える
+
+定義に従って， `f &gt;=&gt; g` は `\x -&gt; (f x &gt;&gt;= g)` と書き直すことができます．
+では，逆に `(&gt;&gt;=)` を `(&gt;=&gt;)` を使って書き直すことはできるか考えてみます．
+
+# 初級
+
+## 定義通りの場合
+
+```hs
+\x -&gt; (Just (x * 3) &gt;&gt;= \y -&gt; Just (y * 2))
+```
+
+まず，`Just (x * 3)` は `(Just . (*3)) x` と書き換えられます．
+
+```hs
+\x -&gt; ((Just . (*3)) x &gt;&gt;= \y -&gt; Just (y * 2))
+```
+ 
+これはちょうど `(&gt;=&gt;)` の定義の形になっているので，次のように書き換えられます．
+
+```hs
+(Just . (*3)) &gt;=&gt; (\y -&gt; Just (y * 2))
+```
+
+`\y -&gt; Just (y * 2)` も `Just . (*2)` と書き換えられるので次のようにも書けます．
+
+```hs
+(Just . (*3)) &gt;=&gt; (Just . (*2))
+```
+
+## `x` が現れない場合
+
+```hs
+\x -&gt; (Just 3 &gt;&gt;= \y -&gt; Just (y * 2))
+```
+
+似たような例ですが，`Just x` の部分が `Just 3` になってしまっています．
+そのため，まず `Just 3` を `(\_ -&gt; Just 3) x` と変形してみます．
+
+```hs
+\x -&gt; ((\_ -&gt; Just 3) x &gt;&gt;= \y -&gt; Just (y * 2))
+```
+
+これで `(&gt;=&gt;)` の定義の形に持ち込むことができたので，次のようになります．
+
+```hs
+(\_ -&gt; Just 3) &gt;=&gt; (\y -&gt; Just (y * 2))
+```
+
+`\y -&gt; Just (y * 2)` は `Just . (*2)` と書き換えられます．
+また，`(\_ -&gt; Just 3)` は `const (Just 3)` とも書けます[^1]．よって次のようになります．
+
+```hs
+const (Just 3) &gt;=&gt; (Just . (*2))
+```
+
+# 中級
+
+## `x` が後ろまで現れる場合
+
+```hs
+\x -&gt; (Just (x * 2) &gt;&gt;= \y -&gt; Just (y * x))
+```
+
+初級の問題と同じように `(&gt;=&gt;)` の定義の形そのままに見えるので，次のように書き換えてみます．
+
+```hs
+(Just . (*2)) &gt;=&gt; (\y -&gt; Just (y * x))
+```
+
+でもこれってどこかおかしくないでしょうか．
+`x` と `y` はあくまでラムダ式 `\x`, `\y` の仮引数だったのに，`\x` が消えた後まで `x` が残ってしまっています．
+
+実はこのような例は簡単には `(&gt;=&gt;)` で書き換えることができません．
+
+`(&gt;=&gt;)` は二つの函数を結合するため，
+`(一つ目の函数) &gt;=&gt; (二つ目の函数)`
+という形をとります．
+
+そのため，一つ目の函数の引数は二つ目の函数からは見えません．
+
+しかし，`Just (x * 2) &gt;&gt;= \y -&gt; Just (y * x)` の例では二つ目の函数となるはずの `\y -&gt; Just (y * x)` が一つ目の函数の引数 `x` を使ってしまっているのです．
+
+
+## どうする
+
+- アプローチ 1: ラムダ式で保持
+
+ラムダ式が消えてしまったのが問題であるならば，ラムダ式を残すようにすればいい．
+
+`\x -&gt; ((一つ目の函数) &gt;=&gt; (二つ目の函数))`
+
+みたいな感じでいけそうな気がします．
+
+- アプローチ 2: タプルで保持
+
+問題は，二つ目の函数から一つ目の函数の引数が見えないということでした．
+しかし，二つ目の函数から一つ目の函数の引数が見えないのであれば，一つ目の関数が二つ目の函数に自分の引数を教えてあげればよいのです．
+
+即ち，一つ目の函数が，結果と一緒に自分の引数も返してあげればよい，ということになります．
+
+例えば一つ目の函数が `\x -&gt; Just (x * 2)` であるとするならば，これを `\x -&gt; (Just (x * 2), x)` のようにしてあげればいい……いや，`(&gt;=&gt;)` で合成できるのは「普通の値をとってモナド値を返す函数」でした．従って，`\x -&gt; Just (2 * x, x)` としてあげるのがよいでしょう．
+
+## アプローチ 1
+
+まず，函数合成を使うと問題の式は次のように書き換えられます．
+
+```hs
+\x -&gt; ( (Just . (*2)) x &gt;&gt;= (Just . (*x)) )
+```
+
+見やすくするために，`f = Just . (*2)`，`g = Just . (*x)` とおくと
+
+```hs
+\x -&gt; (f x &gt;&gt;= g)
+```
+
+となります．ただし注意してください，`g` は内部に `x` を持っています[^2]．(だから `(&gt;=&gt;)` に書き換えられないのでした．)
+
+さて，`f x &gt;&gt;= g` の部分だけを取り出して考えます．
+
+値 `v` を `(\t -&gt; v) ()` と書き換える要領で，この部分は下のように書き換えられます．
+
+```hs
+(\y -&gt; (f x &gt;&gt;= g)) ()
+```
+
+さらに `f x` は `(\_ -&gt; f x) y`，と書きかえることができ，これは `const (f x) y` とも書くことができます．
+
+
+
+よって
+
+```hs
+(\y -&gt; (const (f x) y &gt;&gt;= g)) ()
+```
+
+前半部分は `(&gt;=&gt;)` の定義の形になっているので，次のように書き換えられます．
+
+```hs
+(const (f x) &gt;=&gt; g) ()
+```
+
+よって，問題の式は次のようになりました．
+
+```hs
+\x -&gt; ( (const (f x) &gt;=&gt; g) () )
+```
+
+`f`, `g` を元に戻すと次のようになります．
+
+```hs
+\x -&gt; ( (const ((Just . (*2)) x) &gt;=&gt; (Just . (*x))) () )
+```
+
+これ以上いじるのは難しそうです．
+
+`(&gt;&gt;=)` から `(&gt;=&gt;)` へ書き換えることはできましたが，きれいに `(一つ目の函数) &gt;=&gt; (二つ目の函数)` の形にはなりませんでした．
+
+
+
+## タプル操作関数
+
+アプローチ 2 ではタプルをいじっていくので，ここでちょっと脱線してタプルを操作する函数をいくつか作っておきます．
+
+### ペア[^3]の要素を入れ替えたペアを返す `swap`
+
+```hs
+swap :: (b, c) -&gt; (c, b)
+swap (x, y) = (y, x)
+```
+
+`swap` 函数は `Data.Tuple` モジュール内で定義されているのでそれを使ってもいいです．
+
+### ペアの一番目の要素にのみ函数を適用する函数 `first`
+
+```hs
+first :: (b -&gt; c) -&gt; (b, d) -&gt; (c, d)
+first f (x, y) = (f x, y)
+```
+
+### ペアの二番目の要素にのみ函数を適用する函数 `second`
+
+ちょっとまわりくどいですが，`second` は次のように `swap` と `first` を利用して作ることができます．
+
+```hs
+second :: (b -&gt; c) -&gt; (d, b) -&gt; (d, c)
+second f = swap . first f . swap
+```
+
+### ペアの一番目，二番目の要素にそれぞれ異なる函数を適用する函数 `(***)`
+
+```hs
+(***) :: (b -&gt; c) -&gt; (b&#39; -&gt; c&#39;) -&gt; (b, b&#39;) -&gt; (c, c&#39;)
+f *** g = second g . first f
+```
+
+この函数 (演算子) は次のように動きます．
+
+```hs:ghci
+ghci&gt; (*10) *** (+10) $ (2, 3)
+(20,13)
+
+ghci&gt; Just *** id $ (2, 3)
+(Just 2,3)
+```
+
+![prod.png](https://qiita-image-store.s3.amazonaws.com/0/64300/89284b11-ea90-fb1d-6f65-35dcf4cfefbc.png)
+
+### 一つの値に二つの函数 `f`, `g` を適用した結果をペアで返す函数 `(&amp;&amp;&amp;)`
+
+```
+(&amp;&amp;&amp;) :: (b -&gt; c) -&gt; (b -&gt; c&#39;) -&gt; b -&gt; (c, c&#39;)
+f &amp;&amp;&amp; g = (f *** g) . (\x -&gt; (x, x))
+```
+
+引数を複製して片方には `f`, 片方には `g` を適用する，という感じです．
+
+```hs:ghci
+ghci&gt; (*10) &amp;&amp;&amp; (+10) $ 2
+(20,12)
+
+ghci&gt; Just &amp;&amp;&amp; id $ 3
+(Just 3,3)
+```
+
+![dup.png](https://qiita-image-store.s3.amazonaws.com/0/64300/3439c4d6-f433-141c-2f5c-0e057767e8e3.png)
+
+## アプローチ 2
+
+もう一度先ほどの問題を見てみます．
+
+```hs
+\x -&gt; (Just (x * 2) &gt;&gt;= \y -&gt; Just (y * x))
+```
+
+函数合成を使うと次のように書き換えられます．
+
+```hs
+\x -&gt; ( (Just . (*2)) x &gt;&gt;= (Just . (*x)) )
+```
+
+見やすくするために `f = Just . (*2)`, `g = Just . (*x)` とおくと，
+
+```hs
+\x -&gt; (f x &gt;&gt;= g)
+```
+
+となります．繰り返しになりますが，`g` は内部に `x` を持っているためそのまま `(&gt;=&gt;)` に書き換えることはできません．
+
+まず一つ目の函数 `f` を，結果と一緒に自分の引数を返すような函数 `f&#39;` に書き換えてみましょう．
+
+![img1.png](https://qiita-image-store.s3.amazonaws.com/0/64300/0b935b5f-6440-6d77-f630-592271511340.png)
+
+このような函数は，先ほど定義した `(&amp;&amp;&amp;)` 函数を用いることで書くことができます．
+
+よって
+
+![img2.png](https://qiita-image-store.s3.amazonaws.com/0/64300/36185d21-d412-e87f-af73-d00ab48cc456.png)
+
+これより，
+
+```hs
+f&#39; = Just . ((*2) &amp;&amp;&amp; id)
+```
+
+と書けることがわかりました．
+
+さて，函数 `f&#39; :: Num t =&gt; t -&gt; Maybe (t, t)` はタプル (モナドに包まれたタプル) を返すので，`g` の方もタプルを受け取る函数 `g&#39;` に書き換える必要があります．
+
+`f&#39; = Just . (*2) &amp;&amp;&amp; id` より，`f&#39;` が返すタプルの一番目の値が「結果」，二番目の値が「引数をそのまま返したもの」です．
+
+よって `g&#39;` は次のようにします．
+
+```hs
+g&#39; = \(y, x) -&gt; Just (y * x)
+```
+
+これは，函数 `uncurry` を用いて次のように書き換えられます[^4]．
+
+```hs
+g&#39; = Just . uncurry (*)
+```
+
+以上より，`\x -&gt; (f x &gt;&gt;= g)` は次のように `f&#39;` と `g&#39;` を用いて書くことができます．
+
+
+```hs
+\x -&gt; (f&#39; x &gt;&gt;= g&#39;)
+```
+
+`\x -&gt; (f x &gt;&gt;= g)` のときと異なるのは，`g&#39;` の内部に `x` が存在しない，ということです．即ち，これは `(&gt;=&gt;)` の定義の形ということができます！
+
+先に `f&#39;`, `g&#39;` を定義前の形に戻してみると次のようになります．
+
+```hs
+\x -&gt; ( (Just . ((*2) &amp;&amp;&amp; id)) x &gt;&gt;= Just . uncurry (*) )
+```
+
+`(&gt;=&gt;)` の定義の形に持ち込むことができたので，最終的に次のようになります．
+
+```hs
+Just . ((*2) &amp;&amp;&amp; id) &gt;=&gt; Just . uncurry (*)
+```
+
+アプローチ 1 の結果と異なり，きれいに `(一つ目の函数) &gt;=&gt; (二つ目の函数)` の形が得られました！
+
+# 上級
+
+```hs
+\x -&gt; [1..x] &gt;&gt;= \y -&gt; [y..x]
+```
+
+を `f &gt;=&gt; g` の形に書き換えてみてください．
+
+# あとがき
+
+もし次回があれば，函数 `arr`, `first`, `second`, `(***)`, `(&amp;&amp;&amp;)` を提供する型クラス `Arrow` を紹介したいです．
+
+# 参考文献
+
+Jeremy Gibbons and Oege de Moor 編，山下伸夫訳 「関数プログラミングの楽しみ」 (オーム社) 2010, 215-238
+
+Miran Lipovača 著，田中英行・村主崇行訳 「すごい Haskell たのしく学ぼう！」 (オーム社) 2012
+
+# 注釈
+
+[^1]: `const :: a -&gt; b -&gt; a` は第二引数を無視して第一引数を返す函数です．即ち，`const x _ = x` より `const x = \_ -&gt; x` となります．
+[^2]: `g` のような函数をクロージャ (函数閉包) と呼びます
+[^3]: サイズ 2 のタプルのこと
+[^4]: `uncurry :: (b -&gt; c -&gt; d) -&gt; ((b, c) -&gt; d)` はニ引数函数をタプルをとる函数に変換します．
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="(&gt;&gt;=) を (&gt;=&gt;) に書き換える by @CyLomw on @Qiita" data-url="http://qiita.com/CyLomw/items/a874cee33c69653f53c6" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="(&gt;&gt;=) を (&gt;=&gt;) に書き換える" href="http://b.hatena.ne.jp/entry/http://qiita.com/CyLomw/items/a874cee33c69653f53c6" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/CyLomw/items/a874cee33c69653f53c6" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/CyLomw/items/a874cee33c69653f53c6" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/CyLomw"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/64300/profile-images/1473696539" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/CyLomw">CyLomw</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">181</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;CyLomw&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/CyLomw/items/61b247f209a6d49e5017">Haskell 上で簡単なプログラミング言語を作る</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/CyLomw/items/a618b7c7326d9abede63">多価関数と Category</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/CyLomw/items/82362e2766e10561641a">Haskell でノベルゲームスクリプトのようなものを作る</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/CyLomw/items/eb543cff8715e4f441a3">Arrow を理解する (まとめ)</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/CyLomw/items/7e72e98cfe1c8026df2a">GHC 拡張を使って直積っぽい型の表記とかしてみる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-%E3%81%A8-\&quot;\u003e\u003ccode\u003e(\u0026gt;\u0026gt;=)\u003c/code\u003e と \u003ccode\u003e(\u0026gt;=\u0026gt;)\u003c/code\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#\&quot;\u003e\u003ccode\u003e(\u0026gt;\u0026gt;=)\u003c/code\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-1\&quot;\u003e\u003ccode\u003e(\u0026gt;=\u0026gt;)\u003c/code\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-%E3%82%92--%E3%81%AB%E6%9B%B8%E3%81%8D%E6%8F%9B%E3%81%88%E3%82%8B\&quot;\u003e\u003ccode\u003e(\u0026gt;\u0026gt;=)\u003c/code\u003e を \u003ccode\u003e(\u0026gt;=\u0026gt;)\u003c/code\u003e に書き換える\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%9D%E7%B4%9A\&quot;\u003e初級\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9A%E7%BE%A9%E9%80%9A%E3%82%8A%E3%81%AE%E5%A0%B4%E5%90%88\&quot;\u003e定義通りの場合\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#x-%E3%81%8C%E7%8F%BE%E3%82%8C%E3%81%AA%E3%81%84%E5%A0%B4%E5%90%88\&quot;\u003e\u003ccode\u003ex\u003c/code\u003e が現れない場合\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%AD%E7%B4%9A\&quot;\u003e中級\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#x-%E3%81%8C%E5%BE%8C%E3%82%8D%E3%81%BE%E3%81%A7%E7%8F%BE%E3%82%8C%E3%82%8B%E5%A0%B4%E5%90%88\&quot;\u003e\u003ccode\u003ex\u003c/code\u003e が後ろまで現れる場合\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%A9%E3%81%86%E3%81%99%E3%82%8B\&quot;\u003eどうする\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%83%97%E3%83%AD%E3%83%BC%E3%83%81-1\&quot;\u003eアプローチ 1\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BF%E3%83%97%E3%83%AB%E6%93%8D%E4%BD%9C%E9%96%A2%E6%95%B0\&quot;\u003eタプル操作関数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9A%E3%82%A23%E3%81%AE%E8%A6%81%E7%B4%A0%E3%82%92%E5%85%A5%E3%82%8C%E6%9B%BF%E3%81%88%E3%81%9F%E3%83%9A%E3%82%A2%E3%82%92%E8%BF%94%E3%81%99-swap\&quot;\u003eペア[^3]の要素を入れ替えたペアを返す \u003ccode\u003eswap\u003c/code\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9A%E3%82%A2%E3%81%AE%E4%B8%80%E7%95%AA%E7%9B%AE%E3%81%AE%E8%A6%81%E7%B4%A0%E3%81%AB%E3%81%AE%E3%81%BF%E5%87%BD%E6%95%B0%E3%82%92%E9%81%A9%E7%94%A8%E3%81%99%E3%82%8B%E5%87%BD%E6%95%B0-first\&quot;\u003eペアの一番目の要素にのみ函数を適用する函数 \u003ccode\u003efirst\u003c/code\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9A%E3%82%A2%E3%81%AE%E4%BA%8C%E7%95%AA%E7%9B%AE%E3%81%AE%E8%A6%81%E7%B4%A0%E3%81%AB%E3%81%AE%E3%81%BF%E5%87%BD%E6%95%B0%E3%82%92%E9%81%A9%E7%94%A8%E3%81%99%E3%82%8B%E5%87%BD%E6%95%B0-second\&quot;\u003eペアの二番目の要素にのみ函数を適用する函数 \u003ccode\u003esecond\u003c/code\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9A%E3%82%A2%E3%81%AE%E4%B8%80%E7%95%AA%E7%9B%AE%E4%BA%8C%E7%95%AA%E7%9B%AE%E3%81%AE%E8%A6%81%E7%B4%A0%E3%81%AB%E3%81%9D%E3%82%8C%E3%81%9E%E3%82%8C%E7%95%B0%E3%81%AA%E3%82%8B%E5%87%BD%E6%95%B0%E3%82%92%E9%81%A9%E7%94%A8%E3%81%99%E3%82%8B%E5%87%BD%E6%95%B0-\&quot;\u003eペアの一番目，二番目の要素にそれぞれ異なる函数を適用する函数 \u003ccode\u003e(***)\u003c/code\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%80%E3%81%A4%E3%81%AE%E5%80%A4%E3%81%AB%E4%BA%8C%E3%81%A4%E3%81%AE%E5%87%BD%E6%95%B0-f-g-%E3%82%92%E9%81%A9%E7%94%A8%E3%81%97%E3%81%9F%E7%B5%90%E6%9E%9C%E3%82%92%E3%83%9A%E3%82%A2%E3%81%A7%E8%BF%94%E3%81%99%E5%87%BD%E6%95%B0-\&quot;\u003e一つの値に二つの函数 \u003ccode\u003ef\u003c/code\u003e, \u003ccode\u003eg\u003c/code\u003e を適用した結果をペアで返す函数 \u003ccode\u003e(\u0026amp;\u0026amp;\u0026amp;)\u003c/code\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%83%97%E3%83%AD%E3%83%BC%E3%83%81-2\&quot;\u003eアプローチ 2\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%8A%E7%B4%9A\&quot;\u003e上級\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%82%E3%81%A8%E3%81%8C%E3%81%8D\&quot;\u003eあとがき\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE\&quot;\u003e参考文献\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B3%A8%E9%87%88\&quot;\u003e注釈\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:7,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;a874cee33c69653f53c6&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="7shi"><a itemprop="url" href="/7shi"><img alt="7shi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ykominami"><a itemprop="url" href="/ykominami"><img alt="ykominami" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4321/profile-images/1473756115" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="KatagiriSo"><a itemprop="url" href="/KatagiriSo"><img alt="KatagiriSo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6734/profile-images/1473683193" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zfhrp6"><a itemprop="url" href="/zfhrp6"><img alt="zfhrp6" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47550/profile-images/1473691033" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="warlock-mw"><a itemprop="url" href="/warlock-mw"><img alt="warlock-mw" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47391/profile-images/1473690969" /></a></div></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/a874cee33c69653f53c6/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/CyLomw/items/a874cee33c69653f53c6.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/CyLomw/items/ff1e5d1600291c952c5e#_reference-9860b0ec9d36a4006c45"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/64300/profile-images/1473696539" />綱渡りと Category (と，Kleisli)</a><time class="references_datetime js-dateTimeView" datetime="2014-12-30T13:59:11+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/CyLomw/items/688942f19a5bc3a25037#_reference-2934059b2fdb5277de94"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/64300/profile-images/1473696539" />Category から Arrow へ</a><time class="references_datetime js-dateTimeView" datetime="2015-01-02T15:47:45+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/CyLomw/items/eb543cff8715e4f441a3#_reference-7fae8a72a73703a8651a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/64300/profile-images/1473696539" />Arrow を理解する (まとめ)</a><time class="references_datetime js-dateTimeView" datetime="2015-01-02T15:57:37+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/4a8a2807bb5186576c61#_reference-623b66b1cb2e79b8d63e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell アクションとラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-22T12:59:14+00:00">about 2 years ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="(&gt;&gt;=) を (&gt;=&gt;) に書き換える by @CyLomw on @Qiita" data-url="http://qiita.com/CyLomw/items/a874cee33c69653f53c6" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="(&gt;&gt;=) を (&gt;=&gt;) に書き換える" href="http://b.hatena.ne.jp/entry/http://qiita.com/CyLomw/items/a874cee33c69653f53c6" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/CyLomw/items/a874cee33c69653f53c6" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/CyLomw/items/a874cee33c69653f53c6" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:218364,&quot;uuid&quot;:&quot;a874cee33c69653f53c6&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;CyLomw&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:64300,&quot;url_name&quot;:&quot;CyLomw&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/64300/profile-images/1473696539&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="0PriGRDigKD+Ofpc6Z+hcrctKGSgHO19wqLc09V4R+C+eHlBi8y56wHqT0CZah8r12oM1zfYt4r+fNUoNHZJJg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/CyLomw/items/a874cee33c69653f53c6" /><input type="hidden" name="item_uuid" id="item_uuid" value="a874cee33c69653f53c6" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/CyLomw/items/a874cee33c69653f53c6", "id": 218364, "uuid": "a874cee33c69653f53c6" }</script><script class="js-user" type="application/json">{&quot;id&quot;:64300,&quot;url_name&quot;:&quot;CyLomw&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/64300/profile-images/1473696539&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="aaVaNbAhXQ5Fru1LZftLPZBLAi9v+5VcJU4Z6GQgHMAHJ8FtKw9kRbp9WFcVDvVk8AwmnPg/z6sZkBAThS4SBg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/CyLomw/items/a874cee33c69653f53c6" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

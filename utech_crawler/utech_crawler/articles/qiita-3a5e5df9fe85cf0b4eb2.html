@@ -1,0 +1,1901 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Scala ラムダ超入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Scalaの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。
+
+この記事は以下の記事のScala版です。故に、結構無理しているところもあります。
+
+
+Haskell 超入門
+
+
+練習の解答例は別記事に掲載します。
+
+
+ラムダ式
+
+今まで取り上げて来た文法では、関数の引数を左辺で定義していました。
+
+
+inc.scala
+
+def inc(x: Int) = x + ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Scala ラムダ超入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Scalaの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。
+
+この記事は以下の記事のScala版です。故に、結構無理していると..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="WfjJEmncFm0KSOHDQFrxRCqqqTIwCTzZ5rDy4Un0TR03elJK8vIvJvWbVN8wr08dSu2NgafNZi7abvsaqPpD2w==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/Scala"><span itemprop="name">Scala</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">Scala ラムダ超入門</h1><ul class="TagList"><li class="TagList__item" data-count="1963"><a class="u-link-unstyled TagList__label" href="/tags/Scala"><img alt="Scala" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/3373dc0a306f0791a8b39ff22decb52d6910f3fd/medium.jpg?1461472908" /><span>Scala</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">40</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:40,&quot;uuid&quot;:&quot;3a5e5df9fe85cf0b4eb2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="7shi"><a itemprop="url" href="/7shi"><img alt="7shi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a></li><li class="js-hovercard" data-hovercard-target-name="TomoyaIgarashi"><a itemprop="url" href="/TomoyaIgarashi"><img alt="TomoyaIgarashi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29034/profile-images/1473685286" /></a></li><li class="js-hovercard" data-hovercard-target-name="yukinagae"><a itemprop="url" href="/yukinagae"><img alt="yukinagae" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3975/profile-images/1473683721" /></a></li><li class="js-hovercard" data-hovercard-target-name="j_kugiya"><a itemprop="url" href="/j_kugiya"><img alt="j_kugiya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44988/profile-images/1473690104" /></a></li><li class="js-hovercard" data-hovercard-target-name="tpyamamoto"><a itemprop="url" href="/tpyamamoto"><img alt="tpyamamoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1745/profile-images/1473683834" /></a></li><li class="js-hovercard" data-hovercard-target-name="t_hirohata"><a itemprop="url" href="/t_hirohata"><img alt="t_hirohata" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/57322/profile-images/1473761389" /></a></li><li class="js-hovercard" data-hovercard-target-name="Tomoyuki"><a itemprop="url" href="/Tomoyuki"><img alt="Tomoyuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52000/profile-images/1473692608" /></a></li><li class="js-hovercard" data-hovercard-target-name="uriborn"><a itemprop="url" href="/uriborn"><img alt="uriborn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55420/profile-images/1473693676" /></a></li><li class="js-hovercard" data-hovercard-target-name="dolaemoso"><a itemprop="url" href="/dolaemoso"><img alt="dolaemoso" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7767/profile-images/1473680714" /></a></li><li class="js-hovercard" data-hovercard-target-name="UmedaTakefumi"><a itemprop="url" href="/UmedaTakefumi"><img alt="UmedaTakefumi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49795/profile-images/1473691862" /></a></li><li><a href="/shigemk2/items/3a5e5df9fe85cf0b4eb2/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/shigemk2"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465" alt="1473681465" /></a> <a class="u-link-unstyled" href="/shigemk2">shigemk2</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2015-03-20">Edited at <time datetime="2015-04-15T23:22:57+09:00" itemprop="dateModified">2015-04-15</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/shigemk2/items/3a5e5df9fe85cf0b4eb2/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">14</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/shigemk2/items/3a5e5df9fe85cf0b4eb2/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(14)</span></a></li><li><a href="/shigemk2/items/3a5e5df9fe85cf0b4eb2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-3a5e5df9fe85cf0b4eb2" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>Scalaの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。</p>
+
+<p>この記事は以下の記事のScala版です。故に、結構無理しているところもあります。</p>
+
+<ul>
+<li><a href="http://qiita.com/7shi/items/1345bf32003faff435cb" id="reference-7435aa41e6a18c8f7617">Haskell 超入門</a></li>
+</ul>
+
+<p>練習の解答例は別記事に掲載します。</p>
+
+<h1>
+<span id="ラムダ式" class="fragment"></span><a href="#%E3%83%A9%E3%83%A0%E3%83%80%E5%BC%8F"><i class="fa fa-link"></i></a>ラムダ式</h1>
+
+<p>今まで取り上げて来た文法では、関数の引数を左辺で定義していました。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">inc.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">inc</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">inc</span><span class="o">(</span><span class="mi">5</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+6
+</pre></div>
+</div>
+
+<p>引数を右辺で定義する文法があります。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">inc_lambda.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">val</span> <span class="n">inc</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">inc</span><span class="o">(</span><span class="mi">5</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+6
+</pre></div>
+</div>
+
+<p>この右辺を<strong>ラムダ式</strong>と呼びます。</p>
+
+<p>戻り値の型を省略することも出来ます。これは型推論で戻り値を決めているからで、戻り値の型を指定しないといけない場合もあります。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">inc_lambda.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">val</span> <span class="n">inc</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+
+<p>本章では型推論できない場合は型を指定します。</p>
+
+<h2>
+<span id="練習" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問1】次に示す関数<code>fact</code>をラムダ式で書き換えてください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">factorial.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">fact</span><span class="o">(</span><span class="n">n</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="n">n</span> <span class="k">match</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="mi">0</span> <span class="k">=&gt;</span> <span class="mi">1</span>
+    <span class="k">case</span> <span class="n">n</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">=&gt;</span> <span class="n">n</span> <span class="o">*</span> <span class="n">fact</span><span class="o">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+<span class="n">println</span><span class="o">(</span><span class="n">fact</span><span class="o">(</span><span class="mi">5</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">fact</span><span class="o">(</span><span class="mi">0</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E9%9A%8E%E4%B9%97" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<h1>
+<span id="型注釈" class="fragment"></span><a href="#%E5%9E%8B%E6%B3%A8%E9%87%88"><i class="fa fa-link"></i></a>型注釈</h1>
+
+<p>型注釈とラムダ式を並べると、型注釈の書式がラムダ式と共通していることが分かります。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">inc_annotation.scala</span></div>
+<div class="highlight"><pre>
+<span class="c1">// 型注釈とラムダ式を並べると、型注釈の書式がラムダ式と共通していることが分かります</span>
+<span class="c1">// が、ScalaはHaskellと違ってラムダ式と型注釈が一緒になっています</span>
+<span class="c1">// 引数と戻り値の書き方が、本文と一致します</span>
+<span class="k">val</span> <span class="n">inc</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span>
+       <span class="k">=</span> <span class="n">x</span>   <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">inc</span><span class="o">(</span><span class="mi">0</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+</pre></div>
+</div>
+
+<h2>
+<span id="練習-1" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-1"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問2】次に示す関数<code>add</code>をラムダ式で書き換えてください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">add.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span><span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span><span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">add</span><span class="o">(</span><span class="mi">9</span><span class="o">,</span> <span class="mi">3</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<h1>
+<span id="無名関数" class="fragment"></span><a href="#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>無名関数</h1>
+
+<p>ラムダ式は名前のない関数（<a href="http://ja.wikipedia.org/wiki/%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0" rel="nofollow noopener" target="_blank">無名関数</a>）で、それを変数に束縛していると捉えることができます。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">lambda_function_with_variable.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">val</span> <span class="n">a</span> <span class="k">=</span> <span class="mi">1</span>
+<span class="k">val</span> <span class="n">b</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">b</span><span class="o">(</span><span class="n">a</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2
+</pre></div>
+</div>
+
+<p>ラムダ式を束縛しないで使うこともできます。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">lambda_function_without_variable.scala</span></div>
+<div class="highlight"><pre>
+<span class="n">println</span><span class="o">(((</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span><span class="o">)(</span><span class="mi">1</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2
+</pre></div>
+</div>
+
+<p>一度しか使わない関数にわざわざ名前を付けるのが面倒なとき、ラムダ式は便利です。</p>
+
+<h2>
+<span id="複数の引数" class="fragment"></span><a href="#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0"><i class="fa fa-link"></i></a>複数の引数</h2>
+
+<p>次の2つは同じ型<code>(Int, Int) =&gt; Int</code>です。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">mul.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">mul1</span> <span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+<span class="k">val</span> <span class="n">mul2</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">mul1</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">mul2</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<h2>
+<span id="練習-2" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-2"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問3】次に示す関数<code>add</code>を定義せずに、呼び出し側で無名関数にインライン展開してください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">lambda_function_add.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<h1>
+<span id="高階関数" class="fragment"></span><a href="#%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>高階関数</h1>
+
+<p>引数として関数を受け取ったり、戻り値として関数を返したりする関数を<a href="http://ja.wikipedia.org/wiki/%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0" rel="nofollow noopener" target="_blank">高階関数</a>と呼びます。</p>
+
+<h2>
+<span id="引数" class="fragment"></span><a href="#%E5%BC%95%E6%95%B0"><i class="fa fa-link"></i></a>引数</h2>
+
+<p>引数として関数を受け取る高階関数の例です。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">higher_order_with_variable.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+
+<span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="k">val</span> <span class="n">mul</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+
+<span class="c1">// メソッドでもラムダ式でもどちらでも渡せる</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">add</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">mul</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+6
+</pre></div>
+</div>
+
+<p>上の<code>mul</code>はラムダ式が変数に束縛され、その変数を<code>f</code>に渡しています。変数を経由せずにラムダ式を直接渡すこともできます。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">higher_order_without_variable.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">((</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">((</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+6
+</pre></div>
+</div>
+
+<h2>
+<span id="戻り値" class="fragment"></span><a href="#%E6%88%BB%E3%82%8A%E5%80%A4"><i class="fa fa-link"></i></a>戻り値</h2>
+
+<p>戻り値として関数を返す高階関数の例です。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">higher_order_return_value.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">y</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="k">val</span> <span class="n">add2</span> <span class="k">=</span> <span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">add2</span><span class="o">(</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">))(</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">)(</span><span class="mi">3</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+5
+5
+</pre></div>
+</div>
+
+<p>上の<code>add</code>はラムダ式<code>(y: Int) =&gt; x + y</code>で表される無名関数を返す高階関数です。高階関数から戻された関数に後続の引数を渡すことで連続して呼び出すことができます。</p>
+
+<h2>
+<span id="練習-3" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-3"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問4】次に示す関数<code>f</code>と<code>add</code>を定義せずに、呼び出し側で無名関数にインライン展開してください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">higher_order_parameter_with_function.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">add</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E5%BC%95%E6%95%B0" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<p>【問5】次に示す関数<code>add</code>を定義せずに、呼び出し側で無名関数にインライン展開してください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">add_return_value.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">y</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">add</span><span class="o">(</span><span class="mi">1</span><span class="o">)(</span><span class="mi">2</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E6%88%BB%E3%82%8A%E5%80%A4" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<h1>
+<span id="カリー化" class="fragment"></span><a href="#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96"><i class="fa fa-link"></i></a>カリー化</h1>
+
+<p>複数の引数を取る関数に対して、引数を後ろから1つずつ右辺に移動させてみます。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">curry.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">add1</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="k">def</span> <span class="n">add2</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">y</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="k">def</span> <span class="n">add3</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">x</span> <span class="k">=&gt;</span> <span class="n">y</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">add1</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">add2</span><span class="o">(</span><span class="mi">2</span><span class="o">)(</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">add3</span><span class="o">(</span><span class="mi">2</span><span class="o">)(</span><span class="mi">3</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+5
+5
+</pre></div>
+</div>
+
+<p><code>add2</code>と<code>add3</code>は同じように振る舞うため、定義は等価だと見なせます。このように引数を1つずつ分割して関数をネストさせることを<a href="http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96" rel="nofollow noopener" target="_blank">カリー化</a>と呼びます。Haskellでは複数の引数を取る関数は自動的にカリー化されます。</p>
+
+<h2>
+<span id="部分適用" class="fragment"></span><a href="#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8"><i class="fa fa-link"></i></a>部分適用</h2>
+
+<p>引数が足りない場合、後で付け足せば呼び出しを完成させることができます。このようなことが可能になるのも関数がカリー化されているためです。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">partial_application.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">add</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">x</span> <span class="k">=&gt;</span> <span class="n">y</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="k">val</span> <span class="n">add2</span> <span class="k">=</span> <span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">)(</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">add2</span><span class="o">(</span><span class="mi">3</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+5
+5
+</pre></div>
+</div>
+
+<p>上の<code>add2</code>のように一部の引数を固定化して新しい関数を作り出すことを<strong>部分適用</strong>と呼びます。</p>
+
+<h3>
+<span id="カリー化されていない関数の部分適用" class="fragment"></span><a href="#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%81%AA%E3%81%84%E9%96%A2%E6%95%B0%E3%81%AE%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8"><i class="fa fa-link"></i></a>カリー化されていない関数の部分適用</h3>
+
+<p>カリー化されていない関数を部分適用するには、引数をワイルドカード<code>_</code>で指定します。型注釈は省略できません。</p>
+
+<div class="code-frame" data-lang="scala"><div class="highlight"><pre>
+<span class="k">def</span> <span class="n">add</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="k">val</span> <span class="n">add2</span> <span class="k">=</span> <span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="k">_:</span> <span class="kt">Int</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">add2</span><span class="o">(</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="k">_:</span> <span class="kt">Int</span><span class="o">))(</span><span class="mi">3</span><span class="o">))</span>
+</pre></div></div>
+
+<p>この構文はラムダ式の糖衣構文で、ラッパーで包むことにより部分適用を実現しています。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">比較</span></div>
+<div class="highlight"><pre>
+<span class="k">val</span> <span class="n">add2</span> <span class="k">=</span> <span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="k">_:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">add3</span> <span class="k">=</span> <span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">add</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<h2>
+<span id="注意点" class="fragment"></span><a href="#%E6%B3%A8%E6%84%8F%E7%82%B9"><i class="fa fa-link"></i></a>注意点</h2>
+
+<p>カリー化と部分適用は混同されることがあります。具体的には、部分適用を指してカリー化と呼ばれることがありますが、これは誤用です。</p>
+
+<p>改めて定義を確認します。</p>
+
+<ul>
+<li>カリー化とは：関数を引数1つずつに分割してネストさせること</li>
+<li>部分適用とは：一部の引数を固定化して新しい関数を作り出すこと</li>
+</ul>
+
+<h2>
+<span id="練習-4" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-4"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問6】次に示す関数<code>combine</code>を、引数1つずつに分割してネストさせたラムダ式で書き換えてください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">combine.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">combine</span><span class="o">[</span><span class="kt">A</span><span class="o">](</span><span class="n">a</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">A</span><span class="o">,</span> <span class="n">c</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=</span> <span class="n">a</span> <span class="o">+:</span> <span class="n">b</span> <span class="o">+:</span> <span class="nc">List</span><span class="o">(</span><span class="n">c</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">a</span> <span class="k">=</span> <span class="n">combine</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="k">_:</span> <span class="kt">Int</span><span class="o">,</span> <span class="k">_:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">b</span> <span class="k">=</span> <span class="n">a</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="k">_:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">c</span> <span class="k">=</span> <span class="n">b</span><span class="o">(</span><span class="mi">3</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="n">c</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="n">combine</span><span class="o">(</span><span class="-Symbol">'a</span><span class="err">'</span><span class="o">,</span> <span class="-Symbol">'b</span><span class="err">'</span><span class="o">,</span> <span class="-Symbol">'c</span><span class="err">'</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<p>【問7】次のコードから関数<code>double</code>を除去してください。ラムダ式は使わないでください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">double.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">xs</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">],</span> <span class="n">g</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="k">for</span> <span class="o">(</span><span class="n">x</span> <span class="k">&lt;-</span> <span class="n">xs</span><span class="o">)</span> <span class="k">yield</span> <span class="n">g</span><span class="o">(</span><span class="n">x</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">double</span> <span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">),</span> <span class="n">double</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>ヒント: <code>_</code></p>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<h1>
+<span id="演算子" class="fragment"></span><a href="#%E6%BC%94%E7%AE%97%E5%AD%90"><i class="fa fa-link"></i></a>演算子</h1>
+
+<p>演算子のラッパーを作れば高階関数に渡すことができます。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">operator.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="k">_</span> <span class="o">*</span> <span class="k">_</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+6
+</pre></div>
+</div>
+
+<h2>
+<span id="セクション" class="fragment"></span><a href="#%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3"><i class="fa fa-link"></i></a>セクション</h2>
+
+<p>オペランド（被演算子）を片方だけワイルドカードにすることもできます。（問7で出題）</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">operator_partial_application.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="mi">2</span> <span class="o">-</span> <span class="k">_</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="mi">2</span> <span class="o">*</span> <span class="k">_</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+-3
+</pre></div>
+</div>
+
+<p>このように片方のオペランド（被演算子）を省略した不完全な式を<strong>セクション</strong>と呼びます。</p>
+
+<p>ラムダ式とセクションを対比します。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">section.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">((</span><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="o">),</span> <span class="n">f</span><span class="o">(</span><span class="mi">2</span> <span class="o">+</span> <span class="k">_</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span><span class="o">),</span> <span class="n">f</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="mi">2</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x</span><span class="o">),</span> <span class="n">f</span><span class="o">(</span><span class="mi">2</span> <span class="o">-</span> <span class="k">_</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">f</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="o">),</span> <span class="n">f</span><span class="o">(</span><span class="k">_</span> <span class="o">-</span> <span class="mi">2</span><span class="o">)))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+(7, 7)
+(7, 7)
+(-3, -3)
+(3, 3)
+</pre></div>
+</div>
+
+<h2>
+<span id="練習-5" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-5"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問8】次のコードからラムダ式を排除してください。新しい関数を定義してはいけません。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">operator_with_lambda.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f1</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">f2</span><span class="o">(</span><span class="n">g</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">,</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Int</span><span class="o">)</span> <span class="k">=</span> <span class="n">g</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f1</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f1</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">x</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f2</span><span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E6%BC%94%E7%AE%97%E5%AD%90" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<h1>
+<span id="色々な関数" class="fragment"></span><a href="#%E8%89%B2%E3%80%85%E3%81%AA%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>色々な関数</h1>
+
+<p>高階関数をいくつか紹介します。</p>
+
+<h2>
+<span id="map" class="fragment"></span><a href="#map"><i class="fa fa-link"></i></a>map</h2>
+
+<p>リストの要素すべてに同じ処理を施した別のリストを作成します。</p>
+
+<p>同じことができるリスト内包表記と対比します。</p>
+
+<div class="code-frame" data-lang="scalla">
+<div class="code-lang"><span class="bold">map.scala</span></div>
+<div class="highlight"><pre>
+println(List(1, 2, 3, 4, 5).map(x =&gt; x * 2))
+println(for (x &lt;- List(1, 2, 3, 4, 5)) yield x * 2)
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+List(2, 4, 6, 8, 10)
+List(2, 4, 6, 8, 10)
+</pre></div>
+</div>
+
+<p>リスト内包表記との使い分けは特に基準はありませんが、高階関数の扱いに慣れればリスト内包表記が冗長に感じるかもしれません。</p>
+
+<h2>
+<span id="filter" class="fragment"></span><a href="#filter"><i class="fa fa-link"></i></a>filter</h2>
+
+<p>リストから要素を取り出す際に条件を指定できます。</p>
+
+<p>同じことができるリスト内包表記と対比します。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">filter.scala</span></div>
+<div class="highlight"><pre>
+<span class="n">println</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">7</span><span class="o">,</span><span class="mi">8</span><span class="o">,</span><span class="mi">9</span><span class="o">).</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="k">for</span> <span class="o">(</span><span class="n">x</span> <span class="k">&lt;-</span> <span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">)</span> <span class="k">yield</span> <span class="n">x</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+List(1, 2, 3, 4)
+List(1, 2, 3, 4)
+</pre></div>
+</div>
+
+<h2>
+<span id="flip" class="fragment"></span><a href="#flip"><i class="fa fa-link"></i></a>flip</h2>
+
+<p>Haskellには2引数関数で引数の順序を反転するflipという関数がありますが、Scalaにはflipに相当する関数はありませんので、関数を定義します。</p>
+
+<p>第2引数への部分適用をセクションやラッパーと対比します。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">flip.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">flip</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span>, <span class="kt">C</span><span class="o">](</span><span class="n">f</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span> <span class="k">=&gt;</span> <span class="n">C</span><span class="o">)(</span><span class="n">x</span><span class="k">:</span> <span class="kt">B</span><span class="o">)(</span><span class="n">y</span><span class="k">:</span> <span class="kt">A</span><span class="o">)</span> <span class="k">=</span> <span class="n">f</span><span class="o">(</span><span class="n">y</span><span class="o">)(</span><span class="n">x</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">append</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=&gt;</span> <span class="nc">String</span> <span class="k">=&gt;</span> <span class="nc">String</span> <span class="k">=</span> <span class="n">a</span> <span class="k">=&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="k">_</span>
+<span class="k">def</span> <span class="n">sub</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="k">=&gt;</span> <span class="nc">Int</span> <span class="k">=</span> <span class="n">a</span> <span class="k">=&gt;</span> <span class="n">a</span> <span class="o">-</span> <span class="k">_</span>
+
+<span class="k">val</span> <span class="n">flipped</span> <span class="k">=</span> <span class="n">flip</span><span class="o">(</span><span class="n">append</span><span class="o">)(</span><span class="k">_</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="n">flipped</span><span class="o">(</span><span class="s">"foo"</span><span class="o">)(</span><span class="s">"bar"</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">flip</span><span class="o">(</span><span class="n">append</span><span class="o">)(</span><span class="s">"foo"</span><span class="o">)(</span><span class="s">"bar"</span><span class="o">))</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">flip</span><span class="o">(</span><span class="n">sub</span><span class="o">)(</span><span class="mi">5</span><span class="o">)(</span><span class="mi">3</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">flip</span><span class="o">(</span><span class="n">sub</span><span class="o">)(</span><span class="mi">3</span><span class="o">)(</span><span class="mi">5</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+barfoo
+barfoo
+-2
+2
+</pre></div>
+</div>
+
+<p>第1引数がラムダ式で記述すると長くなる時、先に第2引数を記述するために使うと便利です。Yコンビネータで実例を出します。</p>
+
+<h2>
+<span id="foldleft" class="fragment"></span><a href="#foldleft"><i class="fa fa-link"></i></a>foldLeft</h2>
+
+<p>リストの要素を左から1つずつ処理しながら集計します。</p>
+
+<p><code>foldLeft</code>で<code>sum</code>相当の処理をしてみました。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">foldleft.scala</span></div>
+<div class="highlight"><pre>
+<span class="n">println</span><span class="o">((</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">100</span><span class="o">).</span><span class="n">sum</span><span class="o">)</span>
+<span class="n">println</span><span class="o">((</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">100</span><span class="o">).</span><span class="n">foldLeft</span><span class="o">(</span><span class="mi">0</span><span class="o">)((</span><span class="n">z</span><span class="o">,</span> <span class="n">n</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">z</span> <span class="o">+</span> <span class="n">n</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5050
+5050
+</pre></div>
+</div>
+
+<p><code>foldLeft</code>は手続型言語のループを関数化したものだと見なせます。次のJavaScriptコードと比較してみてください。</p>
+
+<div class="code-frame" data-lang="js">
+<div class="code-lang"><span class="bold">JavaScript</span></div>
+<div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">sum</span> <span class="o">+=</span> <span class="nx">i</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">sum</span><span class="p">);</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5050
+</pre></div>
+</div>
+
+<p>集計の初期値として<code>0</code>を用意して、ループで<code>i</code>を次々に足していきます。そこから処理（足し算）と初期値を取り出して関数化したのが<code>foldLeft</code>だと見なすわけです。</p>
+
+<h2>
+<span id="foldright" class="fragment"></span><a href="#foldright"><i class="fa fa-link"></i></a>foldRight</h2>
+
+<p>リストの要素を右から1つずつ処理しながら集計します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">println</span><span class="p">((</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">foldRight</span><span class="p">(</span><span class="mi">0</span><span class="p">)((</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="n">z</span> <span class="o">-</span> <span class="n">n</span><span class="p">))</span>
+<span class="nf">println</span><span class="p">((</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">foldLeft</span><span class="p">(</span><span class="mi">0</span><span class="p">)((</span><span class="n">z</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="ow">=&gt;</span> <span class="n">z</span> <span class="o">-</span> <span class="n">n</span><span class="p">))</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+-15
+</pre></div>
+</div>
+
+<p>再帰でリストの全要素を処理する際に、再帰から返って来た値を使って関数の戻り値を計算すると、戻り値が確定するのは再帰の復路です。この手の再帰を関数化したものだと見なせます。次のコードと比較してみてください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">foldright_recursion.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">test</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="n">x</span> <span class="k">match</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="n">m</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">isEmpty</span> <span class="k">=&gt;</span> <span class="mi">0</span>
+    <span class="k">case</span> <span class="n">x</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">head</span> <span class="o">-</span> <span class="n">test</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">tail</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">test</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">)))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+</pre></div>
+</div>
+
+<p>再帰の折り返し値として<code>0</code>を用意して、復路で<code>x</code>から次々に引いていきます。そこから処理（引き算）と折り返し値（最初に作用させる値）を取り出して関数化したのが<code>foldRight</code>だと見なすわけです。</p>
+
+<ul>
+<li>
+<code>1 - (2 - (3 - (4 - (5 - 0))))</code> → <code>1 - 2 + 3 - 4 + 5</code> → <code>3</code>
+</li>
+</ul>
+
+<p>※ 復路で実際の計算が始まるため、計算の順はリストの右からとなります。これがRightの意味です。</p>
+
+<h2>
+<span id="練習-6" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-6"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問9】<code>map</code>, <code>filter</code>, <code>flip</code>, <code>foldl</code>, <code>foldr</code>を再帰で再実装してください。関数名には<code>m</code>を付けてください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">recursion.scala</span></div>
+<div class="highlight"><pre>
+<span class="n">println</span><span class="o">(</span><span class="n">mmap</span><span class="o">((</span><span class="k">_</span><span class="o">*</span><span class="mi">2</span><span class="o">),</span> <span class="o">(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">5</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">mfilter</span><span class="o">((</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">),</span> <span class="o">(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">9</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">mflip</span><span class="o">(</span><span class="n">mmap</span><span class="o">)(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">5</span><span class="o">)(</span><span class="k">_</span><span class="o">*</span><span class="mi">2</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">mfoldLeft</span><span class="o">((</span><span class="k">_</span><span class="o">+</span><span class="k">_</span><span class="o">),</span> <span class="mi">0</span><span class="o">,</span> <span class="o">(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">100</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">mfoldLeft</span><span class="o">((</span><span class="k">_</span><span class="o">-</span><span class="k">_</span><span class="o">),</span> <span class="mi">0</span><span class="o">,</span> <span class="o">(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">5</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">mfoldRight</span><span class="o">((</span><span class="k">_</span><span class="o">-</span><span class="k">_</span><span class="o">),</span> <span class="mi">0</span><span class="o">,</span> <span class="o">(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">5</span><span class="o">)))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+List(2, 4, 6, 8, 10)
+List(1, 2, 3, 4)
+List(2, 4, 6, 8, 10)
+5050
+-15
+3
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E5%86%8D%E5%B8%B0" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<p>【問10】<code>foldLeft</code>で<code>reverse</code>と<code>maximum</code>と<code>minimum</code>を再実装してください。関数名には<code>m</code>を付けてください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">foldleft_reverse_max_min.scala</span></div>
+<div class="highlight"><pre>
+<span class="n">println</span><span class="o">(</span><span class="n">mreverse</span><span class="o">((-</span><span class="mi">5</span> <span class="n">to</span> <span class="mi">5</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">maximum</span><span class="o">((-</span><span class="mi">5</span> <span class="n">to</span> <span class="mi">5</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">minimum</span><span class="o">((-</span><span class="mi">5</span> <span class="n">to</span> <span class="mi">5</span><span class="o">)))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+List(5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5)
+5
+-5
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#foldleft" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<p>【問11】次に示す関数<code>qsort</code>を<code>filter</code>で書き替えてください。引数にはList型のリストを使用してください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">qsort.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">qsort</span><span class="o">(</span><span class="n">xs</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">def</span> <span class="n">swap</span><span class="o">(</span><span class="n">i</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">j</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">t</span> <span class="k">=</span> <span class="n">xs</span><span class="o">(</span><span class="n">i</span><span class="o">);</span> <span class="n">xs</span><span class="o">(</span><span class="n">i</span><span class="o">)</span> <span class="k">=</span> <span class="n">xs</span><span class="o">(</span><span class="n">j</span><span class="o">);</span> <span class="n">xs</span><span class="o">(</span><span class="n">j</span><span class="o">)</span> <span class="k">=</span> <span class="n">t</span>
+  <span class="o">}</span>
+  <span class="k">def</span> <span class="n">sort1</span><span class="o">(</span><span class="n">l</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">r</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">pivot</span> <span class="k">=</span> <span class="n">xs</span><span class="o">((</span><span class="n">l</span> <span class="o">+</span> <span class="n">r</span><span class="o">)</span> <span class="o">/</span> <span class="mi">2</span><span class="o">)</span>
+    <span class="k">var</span> <span class="n">i</span> <span class="k">=</span> <span class="n">l</span><span class="o">;</span> <span class="k">var</span> <span class="n">j</span> <span class="k">=</span> <span class="n">r</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">i</span> <span class="o">&lt;=</span> <span class="n">j</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">while</span> <span class="o">(</span><span class="n">xs</span><span class="o">(</span><span class="n">i</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">pivot</span><span class="o">)</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+      <span class="k">while</span> <span class="o">(</span><span class="n">xs</span><span class="o">(</span><span class="n">j</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">pivot</span><span class="o">)</span> <span class="n">j</span> <span class="o">-=</span> <span class="mi">1</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">&lt;=</span> <span class="n">j</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">swap</span><span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">j</span><span class="o">)</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">j</span> <span class="o">-=</span> <span class="mi">1</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">l</span> <span class="o">&lt;</span> <span class="n">j</span><span class="o">)</span> <span class="n">sort1</span><span class="o">(</span><span class="n">l</span><span class="o">,</span> <span class="n">j</span><span class="o">)</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">r</span><span class="o">)</span> <span class="n">sort1</span><span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">r</span><span class="o">)</span>
+  <span class="o">}</span>
+  <span class="n">sort1</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">xs</span><span class="o">.</span><span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span>
+  <span class="n">xs</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">array</span> <span class="k">=</span> <span class="n">qsort</span><span class="o">(</span><span class="nc">Array</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mi">9</span><span class="o">,</span> <span class="mi">8</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">7</span><span class="o">,</span> <span class="mi">2</span><span class="o">))</span>
+<span class="n">array</span><span class="o">.</span><span class="n">foreach</span><span class="o">(</span><span class="n">println</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<p>このクイックソートのプログラムはこちらを参考にしました。</p>
+
+<p><a href="https://sites.google.com/site/scalajp/home/documentation/scala-by-example/chapter2" rel="nofollow noopener" target="_blank">最初の例</a></p>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E3%82%BD%E3%83%BC%E3%83%88" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<p>【問12】次に示すバブルソートの関数<code>bswap</code>を<code>foldReft</code>で書き替えてください。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">bsort.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">bsort</span><span class="o">(</span><span class="n">list</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">def</span> <span class="n">bswap</span><span class="o">(</span><span class="n">xs</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">])</span><span class="k">:</span> <span class="kt">List</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="n">xs</span> <span class="k">match</span> <span class="o">{</span>
+      <span class="k">case</span> <span class="n">xs</span> <span class="k">if</span> <span class="n">xs</span><span class="o">.</span><span class="n">length</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">=&gt;</span> <span class="nc">List</span><span class="o">(</span><span class="n">xs</span><span class="o">.</span><span class="n">head</span><span class="o">)</span>
+      <span class="k">case</span> <span class="n">xs</span> <span class="k">=&gt;</span> <span class="o">{</span>
+        <span class="k">lazy</span> <span class="k">val</span> <span class="n">ys</span> <span class="k">=</span> <span class="n">bswap</span><span class="o">(</span><span class="n">xs</span><span class="o">.</span><span class="n">tail</span><span class="o">)</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">xs</span><span class="o">.</span><span class="n">head</span> <span class="o">&gt;</span> <span class="n">ys</span><span class="o">.</span><span class="n">head</span><span class="o">)</span> <span class="n">ys</span><span class="o">.</span><span class="n">head</span> <span class="o">::</span> <span class="n">xs</span><span class="o">.</span><span class="n">head</span> <span class="o">::</span> <span class="n">ys</span><span class="o">.</span><span class="n">tail</span>
+        <span class="k">else</span> <span class="n">xs</span><span class="o">.</span><span class="n">head</span> <span class="o">::</span> <span class="n">ys</span><span class="o">.</span><span class="n">head</span> <span class="o">::</span> <span class="n">ys</span><span class="o">.</span><span class="n">tail</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="k">lazy</span> <span class="k">val</span> <span class="n">ys</span> <span class="k">=</span> <span class="n">bswap</span><span class="o">(</span><span class="n">list</span><span class="o">)</span>
+  <span class="n">list</span> <span class="k">match</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="n">list</span> <span class="k">if</span> <span class="n">list</span><span class="o">.</span><span class="n">isEmpty</span> <span class="k">=&gt;</span> <span class="nc">List</span><span class="o">()</span>
+    <span class="k">case</span> <span class="n">list</span> <span class="k">=&gt;</span> <span class="n">ys</span><span class="o">.</span><span class="n">head</span> <span class="o">::</span> <span class="n">bsort</span><span class="o">(</span><span class="n">ys</span><span class="o">.</span><span class="n">tail</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">bsort</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">2</span><span class="o">)))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+List(1, 2, 3, 4, 5)
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#%E3%83%90%E3%83%96%E3%83%AB" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<p>この問題は次の記事を参考にしました。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20110913/1315905876" rel="nofollow noopener" target="_blank">リストの畳み込みと展開 - あどけない話</a> 2011.9.13</li>
+</ul>
+
+<h1>
+<span id="不動点コンビネータ" class="fragment"></span><a href="#%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>不動点コンビネータ</h1>
+
+<p>自己参照のできない無名のラムダ式で再帰を実現するテクニックとして、<a href="http://ja.wikipedia.org/wiki/%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF" rel="nofollow noopener" target="_blank">不動点コンビネータ</a>を利用する方法があります。あまり使う機会はないかもしれませんが、たまに見掛けるので知識として知っておいても損はないでしょう。</p>
+
+<h2>
+<span id="yコンビネータ" class="fragment"></span><a href="#y%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>Yコンビネータ</h2>
+
+<p>Yコンビネータ（不動点コンビネータの一種）と呼ばれる補助関数を定義します。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">y.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">Y</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span> <span class="n">f</span><span class="k">:</span><span class="o">((</span><span class="kt">A</span> <span class="o">=&gt;</span> <span class="kt">B</span><span class="o">),</span> <span class="n">A</span> <span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">,</span> <span class="n">x</span><span class="k">:</span><span class="kt">A</span> <span class="o">)</span><span class="k">:</span><span class="kt">B</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span> <span class="o">(</span> <span class="n">y</span><span class="k">:</span><span class="kt">A</span> <span class="o">)</span> <span class="k">=&gt;</span> <span class="n">Y</span><span class="o">(</span> <span class="n">f</span><span class="o">,</span><span class="n">y</span> <span class="o">),</span><span class="n">x</span> <span class="o">)</span>
+</pre></div>
+</div>
+
+<p>Yコンビネータにラムダ式を渡すと、ラムダ式の第1引数にYコンビネータに包まれた自分自身が渡されます。これを使うことで再帰ができます。</p>
+
+<p>フィボナッチ数をインラインで実装した例です。ラムダ式の第1引数を関数名に見立てています。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">fibonacci_y.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">Y</span><span class="o">[</span><span class="kt">A</span>,<span class="kt">B</span><span class="o">](</span> <span class="n">f</span><span class="k">:</span><span class="o">((</span><span class="kt">A</span> <span class="o">=&gt;</span> <span class="kt">B</span><span class="o">),</span> <span class="n">A</span> <span class="o">)</span> <span class="k">=&gt;</span> <span class="n">B</span><span class="o">,</span> <span class="n">x</span><span class="k">:</span><span class="kt">A</span> <span class="o">)</span><span class="k">:</span><span class="kt">B</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span> <span class="o">(</span> <span class="n">y</span><span class="k">:</span><span class="kt">A</span> <span class="o">)</span> <span class="k">=&gt;</span> <span class="n">Y</span><span class="o">(</span> <span class="n">f</span><span class="o">,</span><span class="n">y</span> <span class="o">),</span><span class="n">x</span> <span class="o">)</span>
+
+<span class="k">val</span> <span class="n">y</span> <span class="k">=</span> <span class="n">Y</span><span class="o">(</span> <span class="o">(</span><span class="n">f</span><span class="k">:</span><span class="kt">Int</span> <span class="o">=&gt;</span> <span class="nc">Int</span> <span class="o">,</span> <span class="n">n</span><span class="k">:</span><span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">n</span> <span class="k">match</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="n">m</span> <span class="k">if</span> <span class="n">m</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">=&gt;</span> <span class="n">m</span>
+  <span class="k">case</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">)</span> <span class="o">+</span> <span class="n">f</span><span class="o">(</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">)</span>
+<span class="o">},</span> <span class="mi">10</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">y</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+55
+</pre></div>
+</div>
+
+<p>Yコンビネータは次の記事を参考にしました。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20100519/1274240859" rel="nofollow noopener" target="_blank">Haskell で Y コンビネータ - あどけない話</a> 2010.5.19</li>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20100601/1275367421" rel="nofollow noopener" target="_blank">Yコンビネータのまとめ - あどけない話</a> 2010.6.1</li>
+<li>
+<a href="https://twitter.com/yuroyoro" rel="nofollow noopener" target="_blank">@yuroyoro</a>: <a href="http://yuroyoro.hatenablog.com/entry/20100204/1265285318" rel="nofollow noopener" target="_blank">scalaでYコンビネータ</a>
+</li>
+</ul>
+
+<h2>
+<span id="練習-7" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-7"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問13】Yコンビネータを使って関数<code>sum</code>を再実装してください。</p>
+
+<p>⇒ <a href="http://qiita.com/shigemk2/items/7afd04587dc088054819#sum" id="reference-9e2ae1c54fe2f3ca5f2d">解答例</a></p>
+
+<h1>
+<span id="関数合成" class="fragment"></span><a href="#%E9%96%A2%E6%95%B0%E5%90%88%E6%88%90"><i class="fa fa-link"></i></a>関数合成</h1>
+
+<p>関数を連続して呼ぶのに対して、関数を合成しても同じことができます。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">comp_func.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="k">def</span> <span class="n">g</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">f</span> <span class="k">_</span><span class="o">).</span><span class="n">andThen</span><span class="o">(</span><span class="n">g</span><span class="o">)(</span><span class="mi">1</span><span class="o">))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">f</span> <span class="k">_</span><span class="o">).</span><span class="n">compose</span><span class="o">(</span><span class="n">g</span><span class="o">)(</span><span class="mi">1</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+4
+3
+</pre></div>
+</div>
+
+<p>関数を使うだけだとあまり違いは感じませんが、高階関数に渡すときに関数合成は便利です。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">higher_comp_func.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="k">def</span> <span class="n">g</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="k">def</span> <span class="n">h</span><span class="o">(</span><span class="n">f</span><span class="k">:</span> <span class="o">(</span><span class="kt">Int</span><span class="o">)</span> <span class="o">=&gt;</span> <span class="nc">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">f</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">h</span><span class="o">(</span><span class="n">g</span><span class="o">)))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">h</span><span class="o">((</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="o">(</span><span class="n">x</span><span class="o">))))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">h</span> <span class="k">_</span><span class="o">).</span><span class="n">andThen</span><span class="o">(</span><span class="n">f</span><span class="o">)(</span><span class="n">g</span><span class="o">))</span>
+<span class="n">println</span><span class="o">((</span><span class="n">f</span> <span class="k">_</span><span class="o">).</span><span class="n">compose</span><span class="o">(</span><span class="n">h</span><span class="o">)(</span><span class="n">g</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+3
+3
+3
+3
+</pre></div>
+</div>
+
+<h2>
+<span id="2引数" class="fragment"></span><a href="#2%E5%BC%95%E6%95%B0"><i class="fa fa-link"></i></a>2引数</h2>
+
+<p><code>g</code>の引数が増えるといきなり難しくなります。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">comp_func_two_args.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="k">def</span> <span class="n">g</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f</span><span class="o">(</span><span class="n">g</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">)))</span>
+<span class="c1">// println((g _).compose(f)(1)(2))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+6
+</pre></div>
+</div>
+
+<p>Scalaの関数合成については、こちらを参考にしました。<br>
+* <a href="http://scalamanual.blog.fc2.com/blog-entry-49.html" rel="nofollow noopener" target="_blank">関数合成</a></p>
+
+<h1>
+<span id="ポイントフリースタイル" class="fragment"></span><a href="#%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88%E3%83%95%E3%83%AA%E3%83%BC%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB"><i class="fa fa-link"></i></a>ポイントフリースタイル</h1>
+
+<p>部分適用を利用すれば、別の関数に渡すだけの引数を省略できます。これを<strong>ポイントフリースタイル</strong>と呼びます。</p>
+
+<p>簡単な例を示します。</p>
+
+<div class="code-frame" data-lang="scala">
+<div class="code-lang"><span class="bold">pointfree_sub.scala</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="n">f1</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">y</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span>
+<span class="k">def</span> <span class="n">f2</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">f1</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">f3</span> <span class="k">=</span> <span class="n">f1</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="k">_:</span><span class="kt">Int</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">f4</span> <span class="k">=</span> <span class="n">f1</span><span class="o">(</span><span class="k">_:</span><span class="kt">Int</span><span class="o">,</span> <span class="k">_:</span><span class="kt">Int</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">f1</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="mi">2</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f2</span><span class="o">(</span><span class="mi">2</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f3</span><span class="o">(</span><span class="mi">2</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">f4</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="mi">2</span><span class="o">))</span>
+
+<span class="k">def</span> <span class="n">g1</span><span class="o">(</span><span class="n">x</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="n">f4</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">g2</span> <span class="k">=</span> <span class="n">f4</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="k">_:</span><span class="kt">Int</span><span class="o">)</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">g1</span><span class="o">(</span><span class="mi">5</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">g2</span><span class="o">(</span><span class="mi">5</span><span class="o">))</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1
+1
+1
+1
+-3
+-3
+</pre></div>
+</div>
+
+<p>関数合成と組み合わせれば色々なパターンで引数を排除することができます。ただあまり突き詰めると、すぐには読めないコードになるような印象があります。</p>
+
+<p>もっと恐ろしいものの片鱗を味わいたい方は、次の記事を参照してみてください。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/melponn" rel="nofollow noopener" target="_blank">@melponn</a>: <a href="http://d.hatena.ne.jp/melpon/20111031/1320024473" rel="nofollow noopener" target="_blank">ポイントフリースタイル入門 - melpon日記</a> 2011.10.31</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/shigemk2/items/3a5e5df9fe85cf0b4eb2" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="3umRHz/KGwHKOL+XsgBChAUQ/5WfF/gGbrRLvGTeeU6wawpHpOQiSjXrCovC9fzdZVfbJgjTovFSakJHhdB3iA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1429107777" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Scalaの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。
+
+この記事は以下の記事のScala版です。故に、結構無理しているところもあります。
+
+* [Haskell 超入門](http://qiita.com/7shi/items/1345bf32003faff435cb)
+
+練習の解答例は別記事に掲載します。
+
+# ラムダ式
+
+今まで取り上げて来た文法では、関数の引数を左辺で定義していました。
+
+```scala:inc.scala
+def inc(x: Int) = x + 1
+
+println(inc(5))
+```
+
+```text:実行結果
+6
+```
+
+引数を右辺で定義する文法があります。
+
+```scala:inc_lambda.scala
+val inc: Int =&gt; Int = x =&gt; x + 1
+
+println(inc(5))
+```
+
+```text:実行結果
+6
+```
+
+この右辺を**ラムダ式**と呼びます。
+
+戻り値の型を省略することも出来ます。これは型推論で戻り値を決めているからで、戻り値の型を指定しないといけない場合もあります。
+
+```scala:inc_lambda.scala
+val inc = (x: Int) =&gt; x + 1
+```
+
+本章では型推論できない場合は型を指定します。
+
+## 練習
+
+【問1】次に示す関数`fact`をラムダ式で書き換えてください。
+
+```scala:factorial.scala
+def fact(n: Int): Int = {
+  n match {
+    case 0 =&gt; 1
+    case n if n &gt; 0 =&gt; n * fact(n - 1)
+  }
+}
+println(fact(5))
+println(fact(0))
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E9%9A%8E%E4%B9%97)
+
+# 型注釈
+
+型注釈とラムダ式を並べると、型注釈の書式がラムダ式と共通していることが分かります。
+
+```scala:inc_annotation.scala
+// 型注釈とラムダ式を並べると、型注釈の書式がラムダ式と共通していることが分かります
+// が、ScalaはHaskellと違ってラムダ式と型注釈が一緒になっています
+// 引数と戻り値の書き方が、本文と一致します
+val inc: Int =&gt; Int
+       = x   =&gt; x + 1
+
+println(inc(0))
+```
+
+```text:実行結果
+1
+```
+
+## 練習
+
+【問2】次に示す関数`add`をラムダ式で書き換えてください。
+
+```scala:add.scala
+def add(x:Int, y:Int): Int = x + y
+
+println(add(2, 3))
+println(add(9, 3))
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0)
+
+# 無名関数
+
+ラムダ式は名前のない関数（[無名関数](http://ja.wikipedia.org/wiki/%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0)）で、それを変数に束縛していると捉えることができます。
+
+```scala:lambda_function_with_variable.scala
+val a = 1
+val b: Int =&gt; Int = x =&gt; x + 1
+
+println(b(a))
+```
+
+```text:実行結果
+2
+```
+
+ラムダ式を束縛しないで使うこともできます。
+
+```scala:lambda_function_without_variable.scala
+println(((x =&gt; x + 1): Int =&gt; Int)(1))
+```
+
+```text:実行結果
+2
+```
+
+一度しか使わない関数にわざわざ名前を付けるのが面倒なとき、ラムダ式は便利です。
+
+## 複数の引数
+
+次の2つは同じ型`(Int, Int) =&gt; Int`です。
+
+```scala:mul.scala
+def mul1 (x: Int, y: Int): Int = x * y
+val mul2: (Int, Int) =&gt; Int = (x, y) =&gt; x * y
+
+println(mul1(2, 3))
+println(mul2(2, 3))
+```
+
+## 練習
+
+【問3】次に示す関数`add`を定義せずに、呼び出し側で無名関数にインライン展開してください。
+
+```scala:lambda_function_add.scala
+def add(x: Int, y: Int): Int = x + y
+
+println(add(2, 3))
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0)
+
+# 高階関数
+
+引数として関数を受け取ったり、戻り値として関数を返したりする関数を[高階関数](http://ja.wikipedia.org/wiki/%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0)と呼びます。
+
+## 引数
+
+引数として関数を受け取る高階関数の例です。
+
+```scala:higher_order_with_variable.scala
+def f(g: (Int, Int) =&gt; Int) = g(2, 3)
+
+def add(x: Int, y: Int): Int = x + y
+val mul: (Int, Int) =&gt; Int = (x, y) =&gt; x * y
+
+// メソッドでもラムダ式でもどちらでも渡せる
+println(f(add))
+println(f(mul))
+```
+
+```text:実行結果
+5
+6
+```
+
+上の`mul`はラムダ式が変数に束縛され、その変数を`f`に渡しています。変数を経由せずにラムダ式を直接渡すこともできます。
+
+```scala:higher_order_without_variable.scala
+def f(g: (Int, Int) =&gt; Int) = g(2, 3)
+
+println(f((x, y) =&gt; x + y))
+println(f((x, y) =&gt; x * y))
+```
+
+```text:実行結果
+5
+6
+```
+
+## 戻り値
+
+戻り値として関数を返す高階関数の例です。
+
+```scala:higher_order_return_value.scala
+def add(x: Int): Int =&gt; Int = y =&gt; x + y
+val add2 = add(2)
+
+println(add2(3))
+println((add(2))(3))
+println(add(2)(3))
+```
+
+```text:実行結果
+5
+5
+5
+```
+
+上の`add`はラムダ式`(y: Int) =&gt; x + y`で表される無名関数を返す高階関数です。高階関数から戻された関数に後続の引数を渡すことで連続して呼び出すことができます。
+
+## 練習
+
+【問4】次に示す関数`f`と`add`を定義せずに、呼び出し側で無名関数にインライン展開してください。
+
+```scala:higher_order_parameter_with_function.scala
+def f(g: (Int, Int) =&gt; Int) = g(1, 2)
+def add(x: Int, y: Int): Int = x + y
+
+println(f(add))
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E5%BC%95%E6%95%B0)
+
+【問5】次に示す関数`add`を定義せずに、呼び出し側で無名関数にインライン展開してください。
+
+```scala:add_return_value.scala
+def add(x: Int): Int =&gt; Int = y =&gt; x + y
+
+println(add(1)(2))
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E6%88%BB%E3%82%8A%E5%80%A4)
+
+# カリー化
+
+複数の引数を取る関数に対して、引数を後ろから1つずつ右辺に移動させてみます。
+
+```scala:curry.scala
+def add1(x: Int, y: Int) = x + y
+def add2(x: Int): Int =&gt; Int = y =&gt; x + y
+def add3: Int =&gt; Int =&gt; Int = x =&gt; y =&gt; x + y
+
+println(add1(2,3))
+println(add2(2)(3))
+println(add3(2)(3))
+```
+
+```text:実行結果
+5
+5
+5
+```
+
+`add2`と`add3`は同じように振る舞うため、定義は等価だと見なせます。このように引数を1つずつ分割して関数をネストさせることを[カリー化](http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96)と呼びます。Haskellでは複数の引数を取る関数は自動的にカリー化されます。
+
+## 部分適用
+
+引数が足りない場合、後で付け足せば呼び出しを完成させることができます。このようなことが可能になるのも関数がカリー化されているためです。
+
+```scala:partial_application.scala
+def add: Int =&gt; Int =&gt; Int = x =&gt; y =&gt; x + y
+val add2 = add(2)
+
+println(add(2)(3))
+println(add2(3))
+```
+
+```text:実行結果
+5
+5
+5
+```
+
+上の`add2`のように一部の引数を固定化して新しい関数を作り出すことを**部分適用**と呼びます。
+
+### カリー化されていない関数の部分適用
+
+カリー化されていない関数を部分適用するには、引数をワイルドカード`_`で指定します。型注釈は省略できません。
+
+```scala
+def add(x: Int, y: Int) = x + y
+val add2 = add(2, _: Int)
+
+println(add(2,3))
+println(add2(3))
+println((add(2, _: Int))(3))
+```
+
+この構文はラムダ式の糖衣構文で、ラッパーで包むことにより部分適用を実現しています。
+
+```scala:比較
+val add2 = add(2, _: Int)
+val add3 = (x: Int) =&gt; add(2, x)
+```
+
+## 注意点
+
+カリー化と部分適用は混同されることがあります。具体的には、部分適用を指してカリー化と呼ばれることがありますが、これは誤用です。
+
+改めて定義を確認します。
+
+* カリー化とは：関数を引数1つずつに分割してネストさせること
+* 部分適用とは：一部の引数を固定化して新しい関数を作り出すこと
+
+## 練習
+
+【問6】次に示す関数`combine`を、引数1つずつに分割してネストさせたラムダ式で書き換えてください。
+
+```scala:combine.scala
+def combine[A](a: A, b: A, c: A) = a +: b +: List(c)
+
+val a = combine(1, _: Int, _: Int)
+val b = a(2, _: Int)
+val c = b(3)
+println(c)
+println(combine(&#39;a&#39;, &#39;b&#39;, &#39;c&#39;))
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96)
+
+【問7】次のコードから関数`double`を除去してください。ラムダ式は使わないでください。
+
+```scala:double.scala
+def f(xs: List[Int], g: Int =&gt; Int) = for (x &lt;- xs) yield g(x)
+def double (x: Int) = 2 * x
+
+println(f(List(1, 2, 3, 4, 5), double))
+```
+
+ヒント: `_`
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8)
+
+# 演算子
+
+演算子のラッパーを作れば高階関数に渡すことができます。
+
+```scala:operator.scala
+def f(g: (Int, Int) =&gt; Int) = g(2, 3)
+
+println(f(_ + _))
+println(f(_ * _))
+```
+
+```text:実行結果
+5
+6
+```
+
+## セクション
+
+オペランド（被演算子）を片方だけワイルドカードにすることもできます。（問7で出題）
+
+```scala:operator_partial_application.scala
+def f(g: Int =&gt; Int) = g(5)
+
+println(f(2 - _))
+println(f(2 * _))
+```
+
+```text:実行結果
+-3
+```
+
+このように片方のオペランド（被演算子）を省略した不完全な式を**セクション**と呼びます。
+
+ラムダ式とセクションを対比します。
+
+```scala:section.scala
+def f(g: Int =&gt; Int) = g(5)
+
+println((f(x =&gt; 2 + x), f(2 + _)))
+println((f(x =&gt; x + 2), f(_ + 2)))
+println((f(x =&gt; 2 - x), f(2 - _)))
+println((f(x =&gt; x - 2), f(_ - 2)))
+```
+
+```text:実行結果
+(7, 7)
+(7, 7)
+(-3, -3)
+(3, 3)
+```
+
+## 練習
+
+【問8】次のコードからラムダ式を排除してください。新しい関数を定義してはいけません。
+
+```scala:operator_with_lambda.scala
+def f1(g: Int =&gt; Int) = g(1)
+def f2(g: (Int, Int) =&gt; Int) = g(2, 3)
+
+println(f1(x =&gt; x - 3))
+println(f1(x =&gt; 3 - x))
+println(f2(x, y) =&gt; x + y))
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E6%BC%94%E7%AE%97%E5%AD%90)
+
+# 色々な関数
+
+高階関数をいくつか紹介します。
+
+## map
+
+リストの要素すべてに同じ処理を施した別のリストを作成します。
+
+同じことができるリスト内包表記と対比します。
+
+```scalla:map.scala
+println(List(1, 2, 3, 4, 5).map(x =&gt; x * 2))
+println(for (x &lt;- List(1, 2, 3, 4, 5)) yield x * 2)
+```
+
+```text:実行結果
+List(2, 4, 6, 8, 10)
+List(2, 4, 6, 8, 10)
+```
+
+リスト内包表記との使い分けは特に基準はありませんが、高階関数の扱いに慣れればリスト内包表記が冗長に感じるかもしれません。
+
+## filter
+
+リストから要素を取り出す際に条件を指定できます。
+
+同じことができるリスト内包表記と対比します。
+
+```scala:filter.scala
+println(List(1,2,3,4,5,6,7,8,9).filter(_ &lt; 5))
+println(for (x &lt;- List(1, 2, 3, 4, 5) if x &lt; 5) yield x)
+```
+
+```text:実行結果
+List(1, 2, 3, 4)
+List(1, 2, 3, 4)
+```
+
+## flip
+
+Haskellには2引数関数で引数の順序を反転するflipという関数がありますが、Scalaにはflipに相当する関数はありませんので、関数を定義します。
+
+第2引数への部分適用をセクションやラッパーと対比します。
+
+```scala:flip.scala
+def flip[A, B, C](f: A =&gt; B =&gt; C)(x: B)(y: A) = f(y)(x)
+def append: String =&gt; String =&gt; String = a =&gt; a + _
+def sub: Int =&gt; Int =&gt; Int = a =&gt; a - _
+
+val flipped = flip(append)(_)
+println(flipped(&quot;foo&quot;)(&quot;bar&quot;))
+println(flip(append)(&quot;foo&quot;)(&quot;bar&quot;))
+
+println(flip(sub)(5)(3))
+println(flip(sub)(3)(5))
+```
+
+```text:実行結果
+barfoo
+barfoo
+-2
+2
+```
+
+第1引数がラムダ式で記述すると長くなる時、先に第2引数を記述するために使うと便利です。Yコンビネータで実例を出します。
+
+## foldLeft
+
+リストの要素を左から1つずつ処理しながら集計します。
+
+`foldLeft`で`sum`相当の処理をしてみました。
+
+```scala:foldleft.scala
+println((1 to 100).sum)
+println((1 to 100).foldLeft(0)((z, n) =&gt; z + n))
+```
+
+```text:実行結果
+5050
+5050
+```
+
+`foldLeft`は手続型言語のループを関数化したものだと見なせます。次のJavaScriptコードと比較してみてください。
+
+```js:JavaScript
+var sum = 0;
+for (var i = 1; i &lt;= 100; ++i) {
+    sum += i;
+}
+console.log(sum);
+```
+
+```text:実行結果
+5050
+```
+
+集計の初期値として`0`を用意して、ループで`i`を次々に足していきます。そこから処理（足し算）と初期値を取り出して関数化したのが`foldLeft`だと見なすわけです。
+
+## foldRight
+
+リストの要素を右から1つずつ処理しながら集計します。
+
+```hs
+println((1 to 5).foldRight(0)((z, n) =&gt; z - n))
+println((1 to 5).foldLeft(0)((z, n) =&gt; z - n))
+```
+
+```text:実行結果
+3
+-15
+```
+
+再帰でリストの全要素を処理する際に、再帰から返って来た値を使って関数の戻り値を計算すると、戻り値が確定するのは再帰の復路です。この手の再帰を関数化したものだと見なせます。次のコードと比較してみてください。
+
+```scala:foldright_recursion.scala
+def test(x: List[Int]): Int = {
+  x match {
+    case m if m.isEmpty =&gt; 0
+    case x: List[Int] =&gt; x.head - test(x.tail)
+  }
+}
+
+println(test(List(1, 2, 3, 4, 5)))
+```
+
+```text:実行結果
+3
+```
+
+再帰の折り返し値として`0`を用意して、復路で`x`から次々に引いていきます。そこから処理（引き算）と折り返し値（最初に作用させる値）を取り出して関数化したのが`foldRight`だと見なすわけです。
+
+* `1 - (2 - (3 - (4 - (5 - 0))))` → `1 - 2 + 3 - 4 + 5` → `3`
+
+※ 復路で実際の計算が始まるため、計算の順はリストの右からとなります。これがRightの意味です。
+
+## 練習
+
+【問9】`map`, `filter`, `flip`, `foldl`, `foldr`を再帰で再実装してください。関数名には`m`を付けてください。
+
+具体的には以下のコードが動くようにしてください。
+
+```scala:recursion.scala
+println(mmap((_*2), (1 to 5)))
+println(mfilter((x =&gt; x &lt; 5), (1 to 9)))
+println(mflip(mmap)(1 to 5)(_*2))
+println(mfoldLeft((_+_), 0, (1 to 100)))
+println(mfoldLeft((_-_), 0, (1 to 5)))
+println(mfoldRight((_-_), 0, (1 to 5)))
+```
+
+```text:実行結果
+List(2, 4, 6, 8, 10)
+List(1, 2, 3, 4)
+List(2, 4, 6, 8, 10)
+5050
+-15
+3
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E5%86%8D%E5%B8%B0)
+
+【問10】`foldLeft`で`reverse`と`maximum`と`minimum`を再実装してください。関数名には`m`を付けてください。
+
+具体的には以下のコードが動くようにしてください。
+
+```scala:foldleft_reverse_max_min.scala
+println(mreverse((-5 to 5)))
+println(maximum((-5 to 5)))
+println(minimum((-5 to 5)))
+```
+
+```text:実行結果
+List(5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5)
+5
+-5
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#foldleft)
+
+【問11】次に示す関数`qsort`を`filter`で書き替えてください。引数にはList型のリストを使用してください。
+
+```scala:qsort.scala
+def qsort(xs: Array[Int]): Array[Int] = {
+  def swap(i: Int, j: Int) {
+    val t = xs(i); xs(i) = xs(j); xs(j) = t
+  }
+  def sort1(l: Int, r: Int) {
+    val pivot = xs((l + r) / 2)
+    var i = l; var j = r
+    while (i &lt;= j) {
+      while (xs(i) &lt; pivot) i += 1
+      while (xs(j) &gt; pivot) j -= 1
+      if (i &lt;= j) {
+        swap(i, j)
+        i += 1
+        j -= 1
+      }
+    }
+    if (l &lt; j) sort1(l, j)
+    if (j &lt; r) sort1(i, r)
+  }
+  sort1(0, xs.length - 1)
+  xs
+}
+
+val array = qsort(Array(4, 6, 9, 8, 3, 5, 1, 7, 2))
+array.foreach(println)
+```
+
+このクイックソートのプログラムはこちらを参考にしました。
+
+[最初の例](https://sites.google.com/site/scalajp/home/documentation/scala-by-example/chapter2)
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E3%82%BD%E3%83%BC%E3%83%88)
+
+【問12】次に示すバブルソートの関数`bswap`を`foldReft`で書き替えてください。
+
+```scala:bsort.scala
+def bsort(list: List[Int]): List[Int] = {
+  def bswap(xs: List[Int]): List[Int] = {
+    xs match {
+      case xs if xs.length == 1 =&gt; List(xs.head)
+      case xs =&gt; {
+        lazy val ys = bswap(xs.tail)
+        if (xs.head &gt; ys.head) ys.head :: xs.head :: ys.tail
+        else xs.head :: ys.head :: ys.tail
+      }
+    }
+  }
+
+  lazy val ys = bswap(list)
+  list match {
+    case list if list.isEmpty =&gt; List()
+    case list =&gt; ys.head :: bsort(ys.tail)
+  }
+}
+
+println(bsort(List(4,3,1,5,2)))
+```
+
+```text:実行結果
+List(1, 2, 3, 4, 5)
+```
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#%E3%83%90%E3%83%96%E3%83%AB)
+
+この問題は次の記事を参考にしました。
+
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [リストの畳み込みと展開 - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20110913/1315905876) 2011.9.13
+
+# 不動点コンビネータ
+
+自己参照のできない無名のラムダ式で再帰を実現するテクニックとして、[不動点コンビネータ](http://ja.wikipedia.org/wiki/%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF)を利用する方法があります。あまり使う機会はないかもしれませんが、たまに見掛けるので知識として知っておいても損はないでしょう。
+
+## Yコンビネータ
+
+Yコンビネータ（不動点コンビネータの一種）と呼ばれる補助関数を定義します。
+
+```scala:y.scala
+def Y[A,B]( f:((A =&gt; B), A ) =&gt; B, x:A ):B = f( ( y:A ) =&gt; Y( f,y ),x )
+```
+
+Yコンビネータにラムダ式を渡すと、ラムダ式の第1引数にYコンビネータに包まれた自分自身が渡されます。これを使うことで再帰ができます。
+
+フィボナッチ数をインラインで実装した例です。ラムダ式の第1引数を関数名に見立てています。
+
+```scala:fibonacci_y.scala
+def Y[A,B]( f:((A =&gt; B), A ) =&gt; B, x:A ):B = f( ( y:A ) =&gt; Y( f,y ),x )
+
+val y = Y( (f:Int =&gt; Int , n:Int) =&gt; n match {
+  case m if m &lt; 2 =&gt; m
+  case _ =&gt; f( n - 1 ) + f( n - 2 )
+}, 10)
+
+println(y)
+```
+
+```text:実行結果
+55
+```
+
+Yコンビネータは次の記事を参考にしました。
+
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [Haskell で Y コンビネータ - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20100519/1274240859) 2010.5.19
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [Yコンビネータのまとめ - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20100601/1275367421) 2010.6.1
+* [@yuroyoro](https://twitter.com/yuroyoro): [scalaでYコンビネータ](http://yuroyoro.hatenablog.com/entry/20100204/1265285318)
+
+## 練習
+
+【問13】Yコンビネータを使って関数`sum`を再実装してください。
+
+⇒ [解答例](http://qiita.com/shigemk2/items/7afd04587dc088054819#sum)
+
+# 関数合成
+
+関数を連続して呼ぶのに対して、関数を合成しても同じことができます。
+
+```scala:comp_func.scala
+def f(x: Int): Int = x + 1
+def g(x: Int): Int = x * 2
+
+println(f(g(1)))
+println((f _).andThen(g)(1))
+println((f _).compose(g)(1))
+```
+
+```text:実行結果
+3
+4
+3
+```
+
+関数を使うだけだとあまり違いは感じませんが、高階関数に渡すときに関数合成は便利です。
+
+```scala:higher_comp_func.scala
+def f(x: Int): Int = x + 1
+def g(x: Int): Int = x * 2
+def h(f: (Int) =&gt; Int): Int = f(1)
+
+println(f(g(1)))
+println(f(h(g)))
+println(h((x: Int) =&gt; f(g(x))))
+println((h _).andThen(f)(g))
+println((f _).compose(h)(g))
+```
+
+```text:実行結果
+3
+3
+3
+3
+3
+```
+
+## 2引数
+
+`g`の引数が増えるといきなり難しくなります。
+
+```scala:comp_func_two_args.scala
+def f(x: Int): Int = x * 2
+def g(x: Int, y: Int): Int = x + y
+
+println(f(g(1, 2)))
+// println((g _).compose(f)(1)(2))
+```
+
+```text:実行結果
+6
+```
+
+Scalaの関数合成については、こちらを参考にしました。
+* [関数合成](http://scalamanual.blog.fc2.com/blog-entry-49.html)
+
+# ポイントフリースタイル
+
+部分適用を利用すれば、別の関数に渡すだけの引数を省略できます。これを**ポイントフリースタイル**と呼びます。
+
+簡単な例を示します。
+
+```scala:pointfree_sub.scala
+def f1(x: Int, y: Int): Int = x - y
+def f2(x: Int): Int = f1(3, x)
+def f3 = f1(3, _:Int)
+def f4 = f1(_:Int, _:Int)
+
+println(f1(3, 2))
+println(f2(2))
+println(f3(2))
+println(f4(3, 2))
+
+def g1(x: Int): Int = f4(2, x)
+def g2 = f4(2, _:Int)
+
+println(g1(5))
+println(g2(5))
+```
+
+```text:実行結果
+1
+1
+1
+1
+-3
+-3
+```
+
+関数合成と組み合わせれば色々なパターンで引数を排除することができます。ただあまり突き詰めると、すぐには読めないコードになるような印象があります。
+
+もっと恐ろしいものの片鱗を味わいたい方は、次の記事を参照してみてください。
+
+* [@melponn](https://twitter.com/melponn): [ポイントフリースタイル入門 - melpon日記](http://d.hatena.ne.jp/melpon/20111031/1320024473) 2011.10.31
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Scala ラムダ超入門 on @Qiita" data-url="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Scala ラムダ超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/shigemk2"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/shigemk2">shigemk2</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">170</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;shigemk2&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shigemk2/items/31f6bdbf4dfebb0b9adc">Scala 代数的データ型 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shigemk2/items/3a5e5df9fe85cf0b4eb2">Scala ラムダ超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shigemk2/items/46aa6a6525ab3edee1d0">コマンドラインでTravisCIを操作したいときは、The Travis Clientを使うのが便利</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shigemk2/items/24f5b5e34af82e9a9904">TINAMIのRSSリーダーを作ってみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shigemk2/items/7afd04587dc088054819">【解答例】Scala ラムダ 超入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A9%E3%83%A0%E3%83%80%E5%BC%8F\&quot;\u003eラムダ式\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9E%8B%E6%B3%A8%E9%87%88\&quot;\u003e型注釈\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-1\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0\&quot;\u003e無名関数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0\&quot;\u003e複数の引数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-2\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0\&quot;\u003e高階関数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%BC%95%E6%95%B0\&quot;\u003e引数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%88%BB%E3%82%8A%E5%80%A4\&quot;\u003e戻り値\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-3\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96\&quot;\u003eカリー化\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8\&quot;\u003e部分適用\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%81%AA%E3%81%84%E9%96%A2%E6%95%B0%E3%81%AE%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8\&quot;\u003eカリー化されていない関数の部分適用\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B3%A8%E6%84%8F%E7%82%B9\&quot;\u003e注意点\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-4\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%BC%94%E7%AE%97%E5%AD%90\&quot;\u003e演算子\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3\&quot;\u003eセクション\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-5\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%89%B2%E3%80%85%E3%81%AA%E9%96%A2%E6%95%B0\&quot;\u003e色々な関数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#map\&quot;\u003emap\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#filter\&quot;\u003efilter\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#flip\&quot;\u003eflip\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#foldleft\&quot;\u003efoldLeft\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#foldright\&quot;\u003efoldRight\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-6\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF\&quot;\u003e不動点コンビネータ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#y%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF\&quot;\u003eYコンビネータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-7\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%96%A2%E6%95%B0%E5%90%88%E6%88%90\&quot;\u003e関数合成\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E5%BC%95%E6%95%B0\&quot;\u003e2引数\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88%E3%83%95%E3%83%AA%E3%83%BC%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB\&quot;\u003eポイントフリースタイル\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:40,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;3a5e5df9fe85cf0b4eb2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="7shi"><a itemprop="url" href="/7shi"><img alt="7shi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TomoyaIgarashi"><a itemprop="url" href="/TomoyaIgarashi"><img alt="TomoyaIgarashi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29034/profile-images/1473685286" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yukinagae"><a itemprop="url" href="/yukinagae"><img alt="yukinagae" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3975/profile-images/1473683721" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="j_kugiya"><a itemprop="url" href="/j_kugiya"><img alt="j_kugiya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44988/profile-images/1473690104" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tpyamamoto"><a itemprop="url" href="/tpyamamoto"><img alt="tpyamamoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1745/profile-images/1473683834" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="t_hirohata"><a itemprop="url" href="/t_hirohata"><img alt="t_hirohata" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/57322/profile-images/1473761389" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Tomoyuki"><a itemprop="url" href="/Tomoyuki"><img alt="Tomoyuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52000/profile-images/1473692608" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="uriborn"><a itemprop="url" href="/uriborn"><img alt="uriborn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55420/profile-images/1473693676" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dolaemoso"><a itemprop="url" href="/dolaemoso"><img alt="dolaemoso" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7767/profile-images/1473680714" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="UmedaTakefumi"><a itemprop="url" href="/UmedaTakefumi"><img alt="UmedaTakefumi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49795/profile-images/1473691862" /></a></div></div><div class="ArticleFooter__user"><a href="/shigemk2/items/3a5e5df9fe85cf0b4eb2/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/3a5e5df9fe85cf0b4eb2/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/shigemk2/items/3a5e5df9fe85cf0b4eb2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/shigemk2/items/7afd04587dc088054819#_reference-fdfef3bdcfe0b230e149"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465" />【解答例】Scala ラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-03-20T14:33:55+00:00">almost 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/1345bf32003faff435cb#_reference-89df11cc4f6a13425085"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell ラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-03-20T15:42:16+00:00">almost 2 years ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Scala ラムダ超入門 on @Qiita" data-url="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Scala ラムダ超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:291604,&quot;uuid&quot;:&quot;3a5e5df9fe85cf0b4eb2&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;shigemk2&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:9578,&quot;url_name&quot;:&quot;shigemk2&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="iGfSp5uESMpfMrLNuz96PkRW09sr1WTRErDFqy6NtZrm5Un/AKpxgaDhB9HLysRnJBH3aLwRPiYubsxQz4O7XA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shigemk2/items/3a5e5df9fe85cf0b4eb2" /><input type="hidden" name="item_uuid" id="item_uuid" value="3a5e5df9fe85cf0b4eb2" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2", "id": 291604, "uuid": "3a5e5df9fe85cf0b4eb2" }</script><script class="js-user" type="application/json">{&quot;id&quot;:9578,&quot;url_name&quot;:&quot;shigemk2&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="Xi+jMtoLRgtiQqs0yV3mD0Hp+hnBOv3oQl+wNNRmSD4wrThqQSV/QJ2RHii5qFhWIa7eqlb+px9+gbnPNWhG+A==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shigemk2/items/3a5e5df9fe85cf0b4eb2" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-2010112-2', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

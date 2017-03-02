@@ -1,0 +1,1499 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Java 再帰下降構文解析 超入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="構文を解析するプログラムをパーサと呼びます。実装方法にはいくつか種類がありますが、今回は再帰下降という方式を取り上げます。既存の実装を使うのではなく、1から実装しながら説明します。
+
+この記事ではJavaの新しい言語機能は使わずに、なるべく基本的な文法だけで記述します。
+
+この記事には関連記事があります。再帰下降を理解してから、応用編として読むのが良いでしょう。
+
+
+
+Java パーサコンビネータ 超入門 2016.05.12
+
+Java パーサコンビネータ 超入門 2..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="Java 再帰下降構文解析 超入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/64261a67081d49f941e3" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="構文を解析するプログラムをパーサと呼びます。実装方法にはいくつか種類がありますが、今回は再帰下降という方式を取り上げます。既存の実装を使うのではなく、1から実装しながら説明します。
+
+この記事ではJavaの新しい言語機能は使わずに、な..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="ME2y/NEh4uWsNb4n8Pj9ljqbWTbREFTyrLI51kTJp4FezymkSg/brlPmCzuADUPPWtx9hUbUDgWQbDAtpcepRw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/Java"><span itemprop="name">Java</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">Java 再帰下降構文解析 超入門</h1><ul class="TagList"><li class="TagList__item" data-count="6289"><a class="u-link-unstyled TagList__label" href="/tags/Java"><img alt="Java" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/1bfaf60121121d7dec866c83d4c4453347ec93e2/medium.jpg?1436171387" /><span>Java</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">35</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:35,&quot;uuid&quot;:&quot;64261a67081d49f941e3&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="KawabataLemon"><a itemprop="url" href="/KawabataLemon"><img alt="KawabataLemon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21184/profile-images/1478483905" /></a></li><li class="js-hovercard" data-hovercard-target-name="fslasht"><a itemprop="url" href="/fslasht"><img alt="fslasht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42140/profile-images/1473689053" /></a></li><li class="js-hovercard" data-hovercard-target-name="kencharos"><a itemprop="url" href="/kencharos"><img alt="kencharos" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42489/profile-images/1473761000" /></a></li><li class="js-hovercard" data-hovercard-target-name="Noboruhi"><a itemprop="url" href="/Noboruhi"><img alt="Noboruhi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5748/profile-images/1473682236" /></a></li><li class="js-hovercard" data-hovercard-target-name="Gesyutapo"><a itemprop="url" href="/Gesyutapo"><img alt="Gesyutapo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62406/profile-images/1473695938" /></a></li><li class="js-hovercard" data-hovercard-target-name="NT_mitchie"><a itemprop="url" href="/NT_mitchie"><img alt="NT_mitchie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/88996/profile-images/1473704613" /></a></li><li class="js-hovercard" data-hovercard-target-name="ftsan"><a itemprop="url" href="/ftsan"><img alt="ftsan" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/037e60a68d15d251dd90d7ff94566838?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="YuYuzu"><a itemprop="url" href="/YuYuzu"><img alt="YuYuzu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/105272/profile-images/1473763391" /></a></li><li class="js-hovercard" data-hovercard-target-name="hamu502"><a itemprop="url" href="/hamu502"><img alt="hamu502" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38910/profile-images/1473687923" /></a></li><li class="js-hovercard" data-hovercard-target-name="bourbon"><a itemprop="url" href="/bourbon"><img alt="bourbon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108879/profile-images/1473710693" /></a></li><li><a href="/7shi/items/64261a67081d49f941e3/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2016-05-16">Edited at <time datetime="2017-01-31T13:56:29+09:00" itemprop="dateModified">2017-01-31</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/64261a67081d49f941e3/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">7</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/64261a67081d49f941e3/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(7)</span></a></li><li><a href="/7shi/items/64261a67081d49f941e3.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-64261a67081d49f941e3" itemprop="articleBody"><p>構文を解析するプログラムをパーサと呼びます。実装方法にはいくつか種類がありますが、今回は再帰下降という方式を取り上げます。既存の実装を使うのではなく、1から実装しながら説明します。</p>
+
+<p>この記事ではJavaの新しい言語機能は使わずに、なるべく基本的な文法だけで記述します。</p>
+
+<p>この記事には関連記事があります。再帰下降を理解してから、応用編として読むのが良いでしょう。</p>
+
+<ul>
+<li>
+<a href="http://qiita.com/7shi/items/68228e19552c271bea81" id="reference-5da83fc474dcf3038086">Java パーサコンビネータ 超入門</a> 2016.05.12</li>
+<li>
+<a href="http://qiita.com/7shi/items/39a9ddffcc5bdf2c0142" id="reference-8ba8d52f896fdda3a7da">Java パーサコンビネータ 超入門 2</a> 2016.05.14</li>
+<li>
+<a href="http://qiita.com/7shi/items/04c2991239894687ef2f" id="reference-6fd3f140ffb9447d83bb">JSONパーサーを作る</a> 2016.12.26</li>
+</ul>
+
+<h1>
+<span id="四則演算器" class="fragment"></span><a href="#%E5%9B%9B%E5%89%87%E6%BC%94%E7%AE%97%E5%99%A8"><i class="fa fa-link"></i></a>四則演算器</h1>
+
+<p>構文解析の練習として、簡単な四則演算器を作ります。文字列で式を与えると計算して答えを返します。</p>
+
+<p>例: <code>"1+2*3"</code> → <code>7</code></p>
+
+<p>まずは次の計算ができることを目指します。</p>
+
+<ul>
+<li>
+<code>"12+34+56"</code> → <code>102</code>
+</li>
+</ul>
+
+<h2>
+<span id="数字" class="fragment"></span><a href="#%E6%95%B0%E5%AD%97"><i class="fa fa-link"></i></a>数字</h2>
+
+<p>パーサの基本的な考え方として、1文字ずつ順番に見て処理します。</p>
+
+<p>数字を読み込むパーサを実装します。<code>0</code>から<code>9</code>が連続する限り1文字ずつ読み取ります。</p>
+
+<div class="code-frame" data-lang="java"><div class="highlight"><pre>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">number</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="o">.</span><span class="na">length</span><span class="o">();</span> <span class="o">++</span><span class="n">i</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">i</span><span class="o">)))</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">i</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">number</span><span class="o">(</span><span class="s">"12+34+56"</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12
+</pre></div>
+</div>
+
+<p>メソッドをパーサに見立てます。<code>number</code>は数字を読み取るパーサです。</p>
+
+<h2>
+<span id="位置の管理" class="fragment"></span><a href="#%E4%BD%8D%E7%BD%AE%E3%81%AE%E7%AE%A1%E7%90%86"><i class="fa fa-link"></i></a>位置の管理</h2>
+
+<p><code>+</code>演算子で区切られた先を読めるようにするには、どこまで読んだかを管理する必要があります。</p>
+
+<p>文字列と現在位置をセットで管理するクラスを作ります。簡単のためフィールドを<code>public</code>にして直接アクセスします。</p>
+
+<div class="code-frame" data-lang="java"><div class="highlight"><pre>
+<span class="kd">class</span> <span class="nc">Source</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">str</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="n">pos</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Source</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">str</span> <span class="o">=</span> <span class="n">str</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">number</span><span class="o">(</span><span class="n">Source</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">pos</span><span class="o">;</span>
+        <span class="k">for</span> <span class="o">(;</span> <span class="n">s</span><span class="o">.</span><span class="na">pos</span> <span class="o">&lt;</span> <span class="n">s</span><span class="o">.</span><span class="na">str</span><span class="o">.</span><span class="na">length</span><span class="o">();</span> <span class="o">++</span><span class="n">s</span><span class="o">.</span><span class="na">pos</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">str</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">pos</span><span class="o">)))</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="na">str</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="n">start</span><span class="o">,</span> <span class="n">s</span><span class="o">.</span><span class="na">pos</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="na">str</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">number</span><span class="o">(</span><span class="k">new</span> <span class="nf">Source</span><span class="o">(</span><span class="s">"12+34+56"</span><span class="o">)));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12
+</pre></div>
+</div>
+
+<h3>
+<span id="リファクタリング" class="fragment"></span><a href="#%E3%83%AA%E3%83%95%E3%82%A1%E3%82%AF%E3%82%BF%E3%83%AA%E3%83%B3%E3%82%B0"><i class="fa fa-link"></i></a>リファクタリング</h3>
+
+<p><code>number</code>がごちゃごちゃしているので、<code>Source</code>をリファクタリングしてカプセル化します。</p>
+
+<div class="code-frame" data-lang="java"><div class="highlight"><pre>
+<span class="kd">class</span> <span class="nc">Source</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">str</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">pos</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Source</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">str</span> <span class="o">=</span> <span class="n">str</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">peek</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="n">str</span><span class="o">.</span><span class="na">length</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">str</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">pos</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">next</span><span class="o">()</span> <span class="o">{</span>
+        <span class="o">++</span><span class="n">pos</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">number</span><span class="o">(</span><span class="n">Source</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuilder</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">ch</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">((</span><span class="n">ch</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">peek</span><span class="o">())</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">ch</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">char</span><span class="o">)</span> <span class="n">ch</span><span class="o">);</span>
+            <span class="n">s</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">number</span><span class="o">(</span><span class="k">new</span> <span class="nf">Source</span><span class="o">(</span><span class="s">"12+34+56"</span><span class="o">)));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12
+</pre></div>
+</div>
+
+<h3>
+<span id="パーサのクラス化" class="fragment"></span><a href="#%E3%83%91%E3%83%BC%E3%82%B5%E3%81%AE%E3%82%AF%E3%83%A9%E3%82%B9%E5%8C%96"><i class="fa fa-link"></i></a>パーサのクラス化</h3>
+
+<p>パーサもクラスとして切り出します。</p>
+
+<p>※ <code>Source</code>クラスは変化ないため省略します。</p>
+
+<div class="code-frame" data-lang="java"><div class="highlight"><pre>
+<span class="kd">class</span> <span class="nc">Parser</span> <span class="kd">extends</span> <span class="n">Source</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="nf">Parser</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">number</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuilder</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">ch</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">((</span><span class="n">ch</span> <span class="o">=</span> <span class="n">peek</span><span class="o">())</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">ch</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">char</span><span class="o">)</span> <span class="n">ch</span><span class="o">);</span>
+            <span class="n">next</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="k">new</span> <span class="nf">Parser</span><span class="o">(</span><span class="s">"12+34+56"</span><span class="o">).</span><span class="na">number</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12
+</pre></div>
+</div>
+
+<h2>
+<span id="数値" class="fragment"></span><a href="#%E6%95%B0%E5%80%A4"><i class="fa fa-link"></i></a>数値</h2>
+
+<p>結果を数値で返すように<code>Parser#number</code>を修正します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Parser（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">number</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuilder</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">ch</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">((</span><span class="n">ch</span> <span class="o">=</span> <span class="n">peek</span><span class="o">())</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">ch</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">char</span><span class="o">)</span> <span class="n">ch</span><span class="o">);</span>
+            <span class="n">next</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12
+</pre></div>
+</div>
+
+<p>このようにパーサは文字以外を返すように構成できます。</p>
+
+<h2>
+<span id="足し算" class="fragment"></span><a href="#%E8%B6%B3%E3%81%97%E7%AE%97"><i class="fa fa-link"></i></a>足し算</h2>
+
+<p>足し算を計算するパーサ<code>expr</code>を実装します。<code>+</code>演算子があれば読み進めて計算します。テスト用のメソッドも追加します。</p>
+
+<p>※ <code>Parser</code>と<code>Main</code>クラスを示します。</p>
+
+<div class="code-frame" data-lang="java"><div class="highlight"><pre>
+<span class="kd">class</span> <span class="nc">Parser</span> <span class="kd">extends</span> <span class="n">Source</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="nf">Parser</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">number</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuilder</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">ch</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">((</span><span class="n">ch</span> <span class="o">=</span> <span class="n">peek</span><span class="o">())</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">ch</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">char</span><span class="o">)</span> <span class="n">ch</span><span class="o">);</span>
+            <span class="n">next</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">expr</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">peek</span><span class="o">()</span> <span class="o">==</span> <span class="sc">'+'</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">next</span><span class="o">();</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">static</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">s</span> <span class="o">+</span> <span class="s">" = "</span> <span class="o">+</span> <span class="k">new</span> <span class="nf">Parser</span><span class="o">(</span><span class="n">s</span><span class="o">).</span><span class="na">expr</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"12+34+56"</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12+34+56 = 46
+</pre></div>
+</div>
+
+<p>まだ <code>12+34</code> の部分しか計算できていません。</p>
+
+<h3>
+<span id="繰り返し" class="fragment"></span><a href="#%E7%B9%B0%E3%82%8A%E8%BF%94%E3%81%97"><i class="fa fa-link"></i></a>繰り返し</h3>
+
+<p>演算子を繰り返し確認することで複数の項が計算できます。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Parser（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">expr</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">peek</span><span class="o">()</span> <span class="o">==</span> <span class="sc">'+'</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">next</span><span class="o">();</span>
+            <span class="n">x</span> <span class="o">+=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12+34+56 = 102
+</pre></div>
+</div>
+
+<p>構文解析と計算を分離せずに<code>expr</code>で処理しているのがポイントです。</p>
+
+<h2>
+<span id="引き算" class="fragment"></span><a href="#%E5%BC%95%E3%81%8D%E7%AE%97"><i class="fa fa-link"></i></a>引き算</h2>
+
+<p>引き算を実装します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Parser（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">expr</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'+'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">+=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'-'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">-=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<p>動作を確認します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Main（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"12+34+56"</span><span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"1-2-3"</span><span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"1-2+3"</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+12+34+56 = 102
+1-2-3 = -4
+1-2+3 = 2
+</pre></div>
+</div>
+
+<p>問題なく計算できています。</p>
+
+<h2>
+<span id="四則演算" class="fragment"></span><a href="#%E5%9B%9B%E5%89%87%E6%BC%94%E7%AE%97"><i class="fa fa-link"></i></a>四則演算</h2>
+
+<p>同様に掛け算と割り算を実装します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Parser（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">expr</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'+'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">+=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'-'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">-=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'*'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">*=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'/'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">/=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<p>動作を確認します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Main（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"2*3+4"</span><span class="o">);</span>     <span class="c1">// OK</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"2+3*4"</span><span class="o">);</span>     <span class="c1">// NG</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"100/10/2"</span><span class="o">);</span>  <span class="c1">// OK</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2*3+4 = 10
+2+3*4 = 20
+100/10/2 = 5
+</pre></div>
+</div>
+
+<p>演算子の優先順位が処理できていません。</p>
+
+<h3>
+<span id="演算子の優先順位" class="fragment"></span><a href="#%E6%BC%94%E7%AE%97%E5%AD%90%E3%81%AE%E5%84%AA%E5%85%88%E9%A0%86%E4%BD%8D"><i class="fa fa-link"></i></a>演算子の優先順位</h3>
+
+<p>足し算から見ると、1つの数字と掛け算のブロックは項（term）として対等です。数式で例えると $2x+1$ において $2x$ と $1$ が項という単位として $+$ から並列に扱われていることに相当します。</p>
+
+<p>項単位で計算するように分離すれば演算子の優先順位が表現できます。</p>
+
+<p>※ <code>Parser</code>クラスを示します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">修正</span></div>
+<div class="highlight"><pre>
+<span class="kd">class</span> <span class="nc">Parser</span> <span class="kd">extends</span> <span class="n">Source</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="nf">Parser</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">number</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuilder</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">ch</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">((</span><span class="n">ch</span> <span class="o">=</span> <span class="n">peek</span><span class="o">())</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">ch</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">char</span><span class="o">)</span> <span class="n">ch</span><span class="o">);</span>
+            <span class="n">next</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">expr</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">term</span><span class="o">();</span>           <span class="c1">// 項を取得</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'+'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">+=</span> <span class="n">term</span><span class="o">();</span>  <span class="c1">// 項を取得</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'-'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">-=</span> <span class="n">term</span><span class="o">();</span>  <span class="c1">// 項を取得</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">term</span><span class="o">()</span> <span class="o">{</span>    <span class="c1">// 項の計算、exprと同じ構造</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'*'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">*=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'/'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">/=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2*3+4 = 10
+2+3*4 = 14
+100/10/2 = 5
+</pre></div>
+</div>
+
+<p>演算子の優先順位が処理されるようになりました。</p>
+
+<h2>
+<span id="bnf" class="fragment"></span><a href="#bnf"><i class="fa fa-link"></i></a>BNF</h2>
+
+<p>ここまで実装したような処理はBNF（<a href="https://ja.wikipedia.org/wiki/%E3%83%90%E3%83%83%E3%82%AB%E3%82%B9%E3%83%BB%E3%83%8A%E3%82%A6%E3%82%A2%E8%A8%98%E6%B3%95" rel="nofollow noopener" target="_blank">バッカス・ナウア記法</a>）と呼ばれる形式言語で記述できます。</p>
+
+<p>拡張版の<a href="https://ja.wikipedia.org/wiki/EBNF" rel="nofollow noopener" target="_blank">EBNF</a>で示します。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">EBNF</span></div>
+<div class="highlight"><pre>
+expr = term  , {"+"|"-", term  }
+term = number, {"*"|"/", number}
+</pre></div>
+</div>
+
+<p>今回のコードに合わせてEBNFを変形するため、演算子それぞれに処理を記述します。</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">EBNF</span></div>
+<div class="highlight"><pre>
+expr = term  , {("+", term  ) | ("-", term  )}
+term = number, {("*", number) | ("/", number)}
+</pre></div>
+</div>
+
+<h3>
+<span id="比較" class="fragment"></span><a href="#%E6%AF%94%E8%BC%83"><i class="fa fa-link"></i></a>比較</h3>
+
+<p>コードにコメントとして追記するので比較してください。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">比較</span></div>
+<div class="highlight"><pre>
+    <span class="c1">// expr = term, {("+", term) | ("-", term)}</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">expr</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">term</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'+'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">+=</span> <span class="n">term</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'-'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">-=</span> <span class="n">term</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// term = number, {("*", number) | ("/", number)}</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">term</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'*'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">*=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'/'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">/=</span> <span class="n">number</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<p>このコードはなるべくBNFに近付けるよう意識しています。慣れて来れば、先にBNFで定義してからコードを書いた方が効率的だと感じるでしょう。</p>
+
+<h2>
+<span id="括弧" class="fragment"></span><a href="#%E6%8B%AC%E5%BC%A7"><i class="fa fa-link"></i></a>括弧</h2>
+
+<p>括弧を実装するため、項の下位に因子（factor）という層を追加します。</p>
+
+<p>括弧の中は<code>expr</code>のため、次のように再帰が循環します。</p>
+
+<ul>
+<li>
+<code>expr</code> → <code>term</code> → <code>factor</code> → <code>expr</code> → ...</li>
+</ul>
+
+<p>※ <code>Parser</code>クラスを示します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">修正</span></div>
+<div class="highlight"><pre>
+<span class="kd">class</span> <span class="nc">Parser</span> <span class="kd">extends</span> <span class="n">Source</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="nf">Parser</span><span class="o">(</span><span class="n">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">number</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StringBuilder</span><span class="o">();</span>
+        <span class="kt">int</span> <span class="n">ch</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">((</span><span class="n">ch</span> <span class="o">=</span> <span class="n">peek</span><span class="o">())</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">Character</span><span class="o">.</span><span class="na">isDigit</span><span class="o">(</span><span class="n">ch</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">((</span><span class="kt">char</span><span class="o">)</span> <span class="n">ch</span><span class="o">);</span>
+            <span class="n">next</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="c1">// expr = term, {("+", term) | ("-", term)}</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">expr</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">term</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'+'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">+=</span> <span class="n">term</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'-'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">-=</span> <span class="n">term</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// term = factor, {("*", factor) | ("/", factor)}</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">term</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">factor</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(;;)</span> <span class="o">{</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">peek</span><span class="o">())</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="sc">'*'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">*=</span> <span class="n">factor</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+                <span class="k">case</span> <span class="sc">'/'</span><span class="o">:</span>
+                    <span class="n">next</span><span class="o">();</span>
+                    <span class="n">x</span> <span class="o">/=</span> <span class="n">factor</span><span class="o">();</span>
+                    <span class="k">continue</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// factor = ("(", expr, ")") | number</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">factor</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">peek</span><span class="o">()</span> <span class="o">==</span> <span class="sc">'('</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">next</span><span class="o">();</span>
+            <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">expr</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">peek</span><span class="o">()</span> <span class="o">==</span> <span class="sc">')'</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">next</span><span class="o">();</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="n">ret</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="nf">number</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>動作を確認します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Main（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"(2+3)*4"</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+(2+3)*4 = 20
+</pre></div>
+</div>
+
+<p>きちんと計算できています。</p>
+
+<p>再帰が循環して括弧の中に入っている様子から<strong>再帰下降</strong>という用語がイメージできます。</p>
+
+<h2>
+<span id="スペース" class="fragment"></span><a href="#%E3%82%B9%E3%83%9A%E3%83%BC%E3%82%B9"><i class="fa fa-link"></i></a>スペース</h2>
+
+<p>式にスペースが入っていても評価できるようにします。</p>
+
+<p><code>Parser</code>クラスにスペースを無視するパーサ<code>spaces</code>を追加します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Parser（追加）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">spaces</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">peek</span><span class="o">()</span> <span class="o">==</span> <span class="sc">' '</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">next</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<p><code>Parser#factor</code>を修正します。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Parser（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="c1">// factor = factor = [spaces], ("(", expr, ")") | number, [spaces]</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">factor</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">ret</span><span class="o">;</span>
+        <span class="n">spaces</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">peek</span><span class="o">()</span> <span class="o">==</span> <span class="sc">'('</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">next</span><span class="o">();</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">expr</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">peek</span><span class="o">()</span> <span class="o">==</span> <span class="sc">')'</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">next</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">number</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="n">spaces</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">ret</span><span class="o">;</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<p>次のようなテストが動くようになります。</p>
+
+<div class="code-frame" data-lang="java">
+<div class="code-lang"><span class="bold">Main（修正）</span></div>
+<div class="highlight"><pre>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"1 + 2"</span>        <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"123"</span>          <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"1 + 2 + 3"</span>    <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"1 - 2 - 3"</span>    <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"1 - 2 + 3"</span>    <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"2 * 3 + 4"</span>    <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"2 + 3 * 4"</span>    <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"100 / 10 / 2"</span> <span class="o">);</span>
+        <span class="n">test</span><span class="o">(</span><span class="s">"( 2 + 3 ) * 4"</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+1 + 2 = 3
+123 = 123
+1 + 2 + 3 = 6
+1 - 2 - 3 = -4
+1 - 2 + 3 = 2
+2 * 3 + 4 = 10
+2 + 3 * 4 = 14
+100 / 10 / 2 = 5
+( 2 + 3 ) * 4 = 20
+</pre></div>
+</div>
+
+<p>以上で四則演算器の実装は完了です。</p>
+
+<ul>
+<li><a href="http://ideone.com/fuBe5S" rel="nofollow noopener" target="_blank">ここまでのコード全体</a></li>
+</ul>
+
+<p>再帰下降による構文解析が何となく見えて来ればしめたものです。</p>
+
+<p>再帰下降パーサは同じようなコードの繰り返しで冗長です。それを短くする方法の1つが、冒頭で紹介したパーサコンビネータです。</p>
+
+<ul>
+<li>
+<a href="http://qiita.com/7shi/items/68228e19552c271bea81">Java パーサコンビネータ 超入門</a> 2016.05.12</li>
+<li>
+<a href="http://qiita.com/7shi/items/39a9ddffcc5bdf2c0142">Java パーサコンビネータ 超入門 2</a> 2016.05.14</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/64261a67081d49f941e3" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="FijSLswCgXowJUE2kRCettyalCPi8PbSsYpN6oXhtCB4qkl2Vyy4Mc/29Crh5SDvvN2wkHU0rCWNVEQRZO+65g==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1485838589" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+構文を解析するプログラムをパーサと呼びます。実装方法にはいくつか種類がありますが、今回は再帰下降という方式を取り上げます。既存の実装を使うのではなく、1から実装しながら説明します。
+
+この記事ではJavaの新しい言語機能は使わずに、なるべく基本的な文法だけで記述します。
+
+この記事には関連記事があります。再帰下降を理解してから、応用編として読むのが良いでしょう。
+
+* [Java パーサコンビネータ 超入門](http://qiita.com/7shi/items/68228e19552c271bea81) 2016.05.12
+* [Java パーサコンビネータ 超入門 2](http://qiita.com/7shi/items/39a9ddffcc5bdf2c0142) 2016.05.14
+* [JSONパーサーを作る](http://qiita.com/7shi/items/04c2991239894687ef2f) 2016.12.26
+
+# 四則演算器
+
+構文解析の練習として、簡単な四則演算器を作ります。文字列で式を与えると計算して答えを返します。
+
+例: `&quot;1+2*3&quot;` → `7`
+
+まずは次の計算ができることを目指します。
+
+* `&quot;12+34+56&quot;` → `102`
+
+## 数字
+
+パーサの基本的な考え方として、1文字ずつ順番に見て処理します。
+
+数字を読み込むパーサを実装します。`0`から`9`が連続する限り1文字ずつ読み取ります。
+
+```java
+public class Main {
+
+    static final String number(String s) {
+        for (int i = 0; i &lt; s.length(); ++i) {
+            if (!Character.isDigit(s.charAt(i))) {
+                return s.substring(0, i);
+            }
+        }
+        return s;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(number(&quot;12+34+56&quot;));
+    }
+}
+```
+```text:実行結果
+12
+```
+
+メソッドをパーサに見立てます。`number`は数字を読み取るパーサです。
+
+## 位置の管理
+
+`+`演算子で区切られた先を読めるようにするには、どこまで読んだかを管理する必要があります。
+
+文字列と現在位置をセットで管理するクラスを作ります。簡単のためフィールドを`public`にして直接アクセスします。
+
+```java
+class Source {
+
+    public String str;
+    public int pos;
+
+    public Source(String str) {
+        this.str = str;
+    }
+}
+
+public class Main {
+
+    static final String number(Source s) {
+        int start = s.pos;
+        for (; s.pos &lt; s.str.length(); ++s.pos) {
+            if (!Character.isDigit(s.str.charAt(s.pos))) {
+                return s.str.substring(start, s.pos);
+            }
+        }
+        return s.str;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(number(new Source(&quot;12+34+56&quot;)));
+    }
+}
+```
+```text:実行結果
+12
+```
+
+### リファクタリング
+
+`number`がごちゃごちゃしているので、`Source`をリファクタリングしてカプセル化します。
+
+```java
+class Source {
+
+    private final String str;
+    private int pos;
+
+    public Source(String str) {
+        this.str = str;
+    }
+
+    public final int peek() {
+        if (pos &lt; str.length()) {
+            return str.charAt(pos);
+        }
+        return -1;
+    }
+
+    public final void next() {
+        ++pos;
+    }
+}
+
+public class Main {
+
+    static final String number(Source s) {
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        while ((ch = s.peek()) &gt;= 0 &amp;&amp; Character.isDigit(ch)) {
+            sb.append((char) ch);
+            s.next();
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(number(new Source(&quot;12+34+56&quot;)));
+    }
+}
+```
+```text:実行結果
+12
+```
+
+### パーサのクラス化
+
+パーサもクラスとして切り出します。
+
+※ `Source`クラスは変化ないため省略します。
+
+```java
+class Parser extends Source {
+
+    public Parser(String str) {
+        super(str);
+    }
+
+    public final String number() {
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        while ((ch = peek()) &gt;= 0 &amp;&amp; Character.isDigit(ch)) {
+            sb.append((char) ch);
+            next();
+        }
+        return sb.toString();
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+        System.out.println(new Parser(&quot;12+34+56&quot;).number());
+    }
+}
+```
+```text:実行結果
+12
+```
+
+## 数値
+
+結果を数値で返すように`Parser#number`を修正します。
+
+```java:Parser（修正）
+    public final int number() {
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        while ((ch = peek()) &gt;= 0 &amp;&amp; Character.isDigit(ch)) {
+            sb.append((char) ch);
+            next();
+        }
+        return Integer.parseInt(sb.toString());
+    }
+```
+```text:実行結果
+12
+```
+
+このようにパーサは文字以外を返すように構成できます。
+
+## 足し算
+
+足し算を計算するパーサ`expr`を実装します。`+`演算子があれば読み進めて計算します。テスト用のメソッドも追加します。
+
+※ `Parser`と`Main`クラスを示します。
+
+```java
+class Parser extends Source {
+
+    public Parser(String str) {
+        super(str);
+    }
+
+    public final int number() {
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        while ((ch = peek()) &gt;= 0 &amp;&amp; Character.isDigit(ch)) {
+            sb.append((char) ch);
+            next();
+        }
+        return Integer.parseInt(sb.toString());
+    }
+
+    public final int expr() {
+        int x = number();
+        if (peek() == &#39;+&#39;) {
+            next();
+            x += number();
+        }
+        return x;
+    }
+}
+
+public class Main {
+
+    static void test(String s) {
+        System.out.println(s + &quot; = &quot; + new Parser(s).expr());
+    }
+
+    public static void main(String[] args) {
+        test(&quot;12+34+56&quot;);
+    }
+}
+```
+```text:実行結果
+12+34+56 = 46
+```
+
+まだ `12+34` の部分しか計算できていません。
+
+### 繰り返し
+
+演算子を繰り返し確認することで複数の項が計算できます。
+
+```java:Parser（修正）
+    public final int expr() {
+        int x = number();
+        while (peek() == &#39;+&#39;) {
+            next();
+            x += number();
+        }
+        return x;
+    }
+```
+```text:実行結果
+12+34+56 = 102
+```
+
+構文解析と計算を分離せずに`expr`で処理しているのがポイントです。
+
+## 引き算
+
+引き算を実装します。
+
+```java:Parser（修正）
+    public final int expr() {
+        int x = number();
+        for (;;) {
+            switch (peek()) {
+                case &#39;+&#39;:
+                    next();
+                    x += number();
+                    continue;
+                case &#39;-&#39;:
+                    next();
+                    x -= number();
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+```
+
+動作を確認します。
+
+```java:Main（修正）
+    public static void main(String[] args) {
+        test(&quot;12+34+56&quot;);
+        test(&quot;1-2-3&quot;);
+        test(&quot;1-2+3&quot;);
+    }
+```
+```text:実行結果
+12+34+56 = 102
+1-2-3 = -4
+1-2+3 = 2
+```
+
+問題なく計算できています。
+
+## 四則演算
+
+同様に掛け算と割り算を実装します。
+
+```java:Parser（修正）
+    public final int expr() {
+        int x = number();
+        for (;;) {
+            switch (peek()) {
+                case &#39;+&#39;:
+                    next();
+                    x += number();
+                    continue;
+                case &#39;-&#39;:
+                    next();
+                    x -= number();
+                    continue;
+                case &#39;*&#39;:
+                    next();
+                    x *= number();
+                    continue;
+                case &#39;/&#39;:
+                    next();
+                    x /= number();
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+```
+
+動作を確認します。
+
+```java:Main（修正）
+    public static void main(String[] args) {
+        test(&quot;2*3+4&quot;);     // OK
+        test(&quot;2+3*4&quot;);     // NG
+        test(&quot;100/10/2&quot;);  // OK
+    }
+```
+```text:実行結果
+2*3+4 = 10
+2+3*4 = 20
+100/10/2 = 5
+```
+
+演算子の優先順位が処理できていません。
+
+### 演算子の優先順位
+
+足し算から見ると、1つの数字と掛け算のブロックは項（term）として対等です。数式で例えると $2x+1$ において $2x$ と $1$ が項という単位として $+$ から並列に扱われていることに相当します。
+
+項単位で計算するように分離すれば演算子の優先順位が表現できます。
+
+※ `Parser`クラスを示します。
+
+```java:修正
+class Parser extends Source {
+
+    public Parser(String str) {
+        super(str);
+    }
+
+    public final int number() {
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        while ((ch = peek()) &gt;= 0 &amp;&amp; Character.isDigit(ch)) {
+            sb.append((char) ch);
+            next();
+        }
+        return Integer.parseInt(sb.toString());
+    }
+
+    public final int expr() {
+        int x = term();           // 項を取得
+        for (;;) {
+            switch (peek()) {
+                case &#39;+&#39;:
+                    next();
+                    x += term();  // 項を取得
+                    continue;
+                case &#39;-&#39;:
+                    next();
+                    x -= term();  // 項を取得
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+
+    public final int term() {    // 項の計算、exprと同じ構造
+        int x = number();
+        for (;;) {
+            switch (peek()) {
+                case &#39;*&#39;:
+                    next();
+                    x *= number();
+                    continue;
+                case &#39;/&#39;:
+                    next();
+                    x /= number();
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+}
+```
+```text:実行結果
+2*3+4 = 10
+2+3*4 = 14
+100/10/2 = 5
+```
+
+演算子の優先順位が処理されるようになりました。
+
+## BNF
+
+ここまで実装したような処理はBNF（[バッカス・ナウア記法](https://ja.wikipedia.org/wiki/%E3%83%90%E3%83%83%E3%82%AB%E3%82%B9%E3%83%BB%E3%83%8A%E3%82%A6%E3%82%A2%E8%A8%98%E6%B3%95)）と呼ばれる形式言語で記述できます。
+
+拡張版の[EBNF](https://ja.wikipedia.org/wiki/EBNF)で示します。
+
+```text:EBNF
+expr = term  , {&quot;+&quot;|&quot;-&quot;, term  }
+term = number, {&quot;*&quot;|&quot;/&quot;, number}
+```
+
+今回のコードに合わせてEBNFを変形するため、演算子それぞれに処理を記述します。
+
+```text:EBNF
+expr = term  , {(&quot;+&quot;, term  ) | (&quot;-&quot;, term  )}
+term = number, {(&quot;*&quot;, number) | (&quot;/&quot;, number)}
+```
+
+### 比較
+
+コードにコメントとして追記するので比較してください。
+
+```java:比較
+    // expr = term, {(&quot;+&quot;, term) | (&quot;-&quot;, term)}
+    public final int expr() {
+        int x = term();
+        for (;;) {
+            switch (peek()) {
+                case &#39;+&#39;:
+                    next();
+                    x += term();
+                    continue;
+                case &#39;-&#39;:
+                    next();
+                    x -= term();
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+
+    // term = number, {(&quot;*&quot;, number) | (&quot;/&quot;, number)}
+    public final int term() {
+        int x = number();
+        for (;;) {
+            switch (peek()) {
+                case &#39;*&#39;:
+                    next();
+                    x *= number();
+                    continue;
+                case &#39;/&#39;:
+                    next();
+                    x /= number();
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+```
+
+このコードはなるべくBNFに近付けるよう意識しています。慣れて来れば、先にBNFで定義してからコードを書いた方が効率的だと感じるでしょう。
+
+## 括弧
+
+括弧を実装するため、項の下位に因子（factor）という層を追加します。
+
+括弧の中は`expr`のため、次のように再帰が循環します。
+
+* `expr` → `term` → `factor` → `expr` → ...
+
+※ `Parser`クラスを示します。
+
+```java:修正
+class Parser extends Source {
+
+    public Parser(String str) {
+        super(str);
+    }
+
+    public final int number() {
+        StringBuilder sb = new StringBuilder();
+        int ch;
+        while ((ch = peek()) &gt;= 0 &amp;&amp; Character.isDigit(ch)) {
+            sb.append((char) ch);
+            next();
+        }
+        return Integer.parseInt(sb.toString());
+    }
+
+    // expr = term, {(&quot;+&quot;, term) | (&quot;-&quot;, term)}
+    public final int expr() {
+        int x = term();
+        for (;;) {
+            switch (peek()) {
+                case &#39;+&#39;:
+                    next();
+                    x += term();
+                    continue;
+                case &#39;-&#39;:
+                    next();
+                    x -= term();
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+
+    // term = factor, {(&quot;*&quot;, factor) | (&quot;/&quot;, factor)}
+    public final int term() {
+        int x = factor();
+        for (;;) {
+            switch (peek()) {
+                case &#39;*&#39;:
+                    next();
+                    x *= factor();
+                    continue;
+                case &#39;/&#39;:
+                    next();
+                    x /= factor();
+                    continue;
+            }
+            break;
+        }
+        return x;
+    }
+
+    // factor = (&quot;(&quot;, expr, &quot;)&quot;) | number
+    public final int factor() {
+        if (peek() == &#39;(&#39;) {
+            next();
+            int ret = expr();
+            if (peek() == &#39;)&#39;) {
+                next();
+            }
+            return ret;
+        }
+        return number();
+    }
+}
+```
+
+動作を確認します。
+
+```java:Main（修正）
+    public static void main(String[] args) {
+        test(&quot;(2+3)*4&quot;);
+    }
+```
+```text:実行結果
+(2+3)*4 = 20
+```
+
+きちんと計算できています。
+
+再帰が循環して括弧の中に入っている様子から**再帰下降**という用語がイメージできます。
+
+## スペース
+
+式にスペースが入っていても評価できるようにします。
+
+`Parser`クラスにスペースを無視するパーサ`spaces`を追加します。
+
+```java:Parser（追加）
+    public void spaces() {
+        while (peek() == &#39; &#39;) {
+            next();
+        }
+    }
+```
+
+`Parser#factor`を修正します。
+
+```java:Parser（修正）
+    // factor = factor = [spaces], (&quot;(&quot;, expr, &quot;)&quot;) | number, [spaces]
+    public final int factor() {
+        int ret;
+        spaces();
+        if (peek() == &#39;(&#39;) {
+            next();
+            ret = expr();
+            if (peek() == &#39;)&#39;) {
+                next();
+            }
+        } else {
+            ret = number();
+        }
+        spaces();
+        return ret;
+    }
+```
+
+次のようなテストが動くようになります。
+
+```java:Main（修正）
+    public static void main(String[] args) {
+        test(&quot;1 + 2&quot;        );
+        test(&quot;123&quot;          );
+        test(&quot;1 + 2 + 3&quot;    );
+        test(&quot;1 - 2 - 3&quot;    );
+        test(&quot;1 - 2 + 3&quot;    );
+        test(&quot;2 * 3 + 4&quot;    );
+        test(&quot;2 + 3 * 4&quot;    );
+        test(&quot;100 / 10 / 2&quot; );
+        test(&quot;( 2 + 3 ) * 4&quot;);
+    }
+```
+```text:実行結果
+1 + 2 = 3
+123 = 123
+1 + 2 + 3 = 6
+1 - 2 - 3 = -4
+1 - 2 + 3 = 2
+2 * 3 + 4 = 10
+2 + 3 * 4 = 14
+100 / 10 / 2 = 5
+( 2 + 3 ) * 4 = 20
+```
+
+以上で四則演算器の実装は完了です。
+
+* [ここまでのコード全体](http://ideone.com/fuBe5S)
+
+再帰下降による構文解析が何となく見えて来ればしめたものです。
+
+再帰下降パーサは同じようなコードの繰り返しで冗長です。それを短くする方法の1つが、冒頭で紹介したパーサコンビネータです。
+
+* [Java パーサコンビネータ 超入門](http://qiita.com/7shi/items/68228e19552c271bea81) 2016.05.12
+* [Java パーサコンビネータ 超入門 2](http://qiita.com/7shi/items/39a9ddffcc5bdf2c0142) 2016.05.14
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Java 再帰下降構文解析 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/64261a67081d49f941e3" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Java 再帰下降構文解析 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/64261a67081d49f941e3" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/64261a67081d49f941e3" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/64261a67081d49f941e3" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9B%9B%E5%89%87%E6%BC%94%E7%AE%97%E5%99%A8\&quot;\u003e四則演算器\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%95%B0%E5%AD%97\&quot;\u003e数字\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%8D%E7%BD%AE%E3%81%AE%E7%AE%A1%E7%90%86\&quot;\u003e位置の管理\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AA%E3%83%95%E3%82%A1%E3%82%AF%E3%82%BF%E3%83%AA%E3%83%B3%E3%82%B0\&quot;\u003eリファクタリング\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%91%E3%83%BC%E3%82%B5%E3%81%AE%E3%82%AF%E3%83%A9%E3%82%B9%E5%8C%96\&quot;\u003eパーサのクラス化\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%95%B0%E5%80%A4\&quot;\u003e数値\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%B6%B3%E3%81%97%E7%AE%97\&quot;\u003e足し算\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B9%B0%E3%82%8A%E8%BF%94%E3%81%97\&quot;\u003e繰り返し\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%BC%95%E3%81%8D%E7%AE%97\&quot;\u003e引き算\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9B%9B%E5%89%87%E6%BC%94%E7%AE%97\&quot;\u003e四則演算\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%BC%94%E7%AE%97%E5%AD%90%E3%81%AE%E5%84%AA%E5%85%88%E9%A0%86%E4%BD%8D\&quot;\u003e演算子の優先順位\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#bnf\&quot;\u003eBNF\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%AF%94%E8%BC%83\&quot;\u003e比較\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%8B%AC%E5%BC%A7\&quot;\u003e括弧\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B9%E3%83%9A%E3%83%BC%E3%82%B9\&quot;\u003eスペース\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:35,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;64261a67081d49f941e3&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="KawabataLemon"><a itemprop="url" href="/KawabataLemon"><img alt="KawabataLemon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21184/profile-images/1478483905" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fslasht"><a itemprop="url" href="/fslasht"><img alt="fslasht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42140/profile-images/1473689053" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kencharos"><a itemprop="url" href="/kencharos"><img alt="kencharos" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42489/profile-images/1473761000" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Noboruhi"><a itemprop="url" href="/Noboruhi"><img alt="Noboruhi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5748/profile-images/1473682236" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Gesyutapo"><a itemprop="url" href="/Gesyutapo"><img alt="Gesyutapo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62406/profile-images/1473695938" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="NT_mitchie"><a itemprop="url" href="/NT_mitchie"><img alt="NT_mitchie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/88996/profile-images/1473704613" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ftsan"><a itemprop="url" href="/ftsan"><img alt="ftsan" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/037e60a68d15d251dd90d7ff94566838?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="YuYuzu"><a itemprop="url" href="/YuYuzu"><img alt="YuYuzu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/105272/profile-images/1473763391" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hamu502"><a itemprop="url" href="/hamu502"><img alt="hamu502" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38910/profile-images/1473687923" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="bourbon"><a itemprop="url" href="/bourbon"><img alt="bourbon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108879/profile-images/1473710693" /></a></div></div><div class="ArticleFooter__user"><a href="/7shi/items/64261a67081d49f941e3/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/64261a67081d49f941e3/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/64261a67081d49f941e3.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/68228e19552c271bea81#_reference-867b6e79cf4d51a534a2"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Java パーサコンビネータ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2016-05-16T05:42:13+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/39a9ddffcc5bdf2c0142#_reference-2986fa9205936990b16b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Java パーサコンビネータ 超入門 2</a><time class="references_datetime js-dateTimeView" datetime="2016-05-16T05:43:10+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/04c2991239894687ef2f#_reference-a2443e77ccecd5b6628b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />JSONパーサーを作る</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T13:38:03+00:00">2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Java 再帰下降構文解析 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/64261a67081d49f941e3" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Java 再帰下降構文解析 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/64261a67081d49f941e3" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/64261a67081d49f941e3" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/64261a67081d49f941e3" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:392792,&quot;uuid&quot;:&quot;64261a67081d49f941e3&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="uEKc3RII0pUBVnB59k/2/bD3dqp6u7S2F57F7swPa83WwAeFiSbr3v6FxWWGukik0LBSGe1/7kErQMwVLQFlCw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/64261a67081d49f941e3" /><input type="hidden" name="item_uuid" id="item_uuid" value="64261a67081d49f941e3" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/64261a67081d49f941e3", "id": 392792, "uuid": "64261a67081d49f941e3" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="3dVljJ9y4k+Qx+g2wJgLqDs50+mLB4ovTAxIbiK26HezV/7UBFzbBG8UXSqwbbXxW373WhzD0Nhw0kGVw7jmsQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/64261a67081d49f941e3" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import scrapy
-
+import sys
+sys.path.append("../scrap")
+from scrap_links import ScrapLinks
 
 class QiitaSpiderSpider(scrapy.Spider):
     name = "qiita_spider"
@@ -8,12 +10,9 @@ class QiitaSpiderSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = [
-            'http://qiita.com/IshitaTakeshi/items/4607d9f729babd273960',
-            'https://www.slideshare.net/yasutomo57jp/python-deep-learning?qid=23ef2196-84b6-40d7-918a-f9f4e7f83fdc&v=&b=&from_search=1'
+            "http://qiita.com/7shi/items/145f1234f8ec2af923ef"
         ]
-        custome_setting = {
-        'DOWNLOAD_DELAY': 10
-        }
+        
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -23,4 +22,6 @@ class QiitaSpiderSpider(scrapy.Spider):
         filename = '../articles/qiita-%s.html' % page
         with open(filename, 'wb') as f:
             f.write(response.body)
-        self.log('Saved file %s' % filename)
+        scrap_links = ScrapLinks(response.url)
+        for url in scrap_links.output():
+            yield scrapy.Request(url=url, callback=self.parse)

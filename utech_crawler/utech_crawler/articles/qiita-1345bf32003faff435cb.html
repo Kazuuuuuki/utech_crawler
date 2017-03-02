@@ -1,0 +1,1778 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Haskell ラムダ 超入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Haskellの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。
+
+シリーズの記事です。
+
+
+Haskell 超入門
+Haskell 代数的データ型 超入門
+Haskell アクション 超入門
+Haskell ラムダ 超入門 ← この記事
+Haskell アクションとラムダ 超入門
+Haskell IOモナド 超入門
+Haskell リストモナド 超入門
+Haske..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="Haskell ラムダ 超入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/1345bf32003faff435cb" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Haskellの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。
+
+シリーズの記事です。
+
+1. [Haskell 超入門](h..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="vTeDqLOmLxNZ2NYpVYjESXeKSi/62KBYRb4lt5iQqA7TtRjwKIgWWKYLYzUlfXoQF81unG0c+q95YCxMeZ6myA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/Haskell"><span itemprop="name">Haskell</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">Haskell ラムダ 超入門</h1><ul class="TagList"><li class="TagList__item" data-count="1345"><a class="u-link-unstyled TagList__label" href="/tags/Haskell"><img alt="Haskell" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/373b3b0595a92712b2a45616f53dae97bc1a04e5/medium.jpg?1387913155" /><span>Haskell</span></a></li><li class="TagList__item" data-count="13003"><a class="u-link-unstyled TagList__label" href="/tags/JavaScript"><img alt="JavaScript" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/58f69837141ae3efa0c530ed53de128cacb49b66/medium.jpg?1421232838" /><span>JavaScript</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">42</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:42,&quot;uuid&quot;:&quot;1345bf32003faff435cb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="jmatsu"><a itemprop="url" href="/jmatsu"><img alt="jmatsu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20927/profile-images/1473683175" /></a></li><li class="js-hovercard" data-hovercard-target-name="d_nishiyama85"><a itemprop="url" href="/d_nishiyama85"><img alt="d_nishiyama85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28313/profile-images/1473685173" /></a></li><li class="js-hovercard" data-hovercard-target-name="uchiko"><a itemprop="url" href="/uchiko"><img alt="uchiko" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2278/profile-images/1473681372" /></a></li><li class="js-hovercard" data-hovercard-target-name="sibukixxx"><a itemprop="url" href="/sibukixxx"><img alt="sibukixxx" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4449/profile-images/1473684025" /></a></li><li class="js-hovercard" data-hovercard-target-name="q1701"><a itemprop="url" href="/q1701"><img alt="q1701" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/27531/profile-images/1473685034" /></a></li><li class="js-hovercard" data-hovercard-target-name="chomado"><a itemprop="url" href="/chomado"><img alt="chomado" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24609/profile-images/1477545674" /></a></li><li class="js-hovercard" data-hovercard-target-name="bahaki386"><a itemprop="url" href="/bahaki386"><img alt="bahaki386" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47544/profile-images/1473691031" /></a></li><li class="js-hovercard" data-hovercard-target-name="kou_tana77"><a itemprop="url" href="/kou_tana77"><img alt="kou_tana77" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45958/profile-images/1473690481" /></a></li><li class="js-hovercard" data-hovercard-target-name="izryt"><a itemprop="url" href="/izryt"><img alt="izryt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48496/profile-images/1473761154" /></a></li><li><a href="/7shi/items/1345bf32003faff435cb/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2014-11-27">Edited at <time datetime="2015-07-31T15:54:40+09:00" itemprop="dateModified">2015-07-31</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/1345bf32003faff435cb/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">39</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/1345bf32003faff435cb/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(39)</span></a></li><li><a href="/7shi/items/1345bf32003faff435cb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-1345bf32003faff435cb" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>Haskellの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。</p>
+
+<p>シリーズの記事です。</p>
+
+<ol>
+<li><a href="http://qiita.com/7shi/items/145f1234f8ec2af923ef" id="reference-be963c71fd93cc37c87e">Haskell 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/1ce76bde464b4a55c143" id="reference-866f894fd6c38713518f">Haskell 代数的データ型 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6" id="reference-3f2be93dc6b52a464119">Haskell アクション 超入門</a></li>
+<li>Haskell ラムダ 超入門 ← この記事</li>
+<li><a href="http://qiita.com/7shi/items/4a8a2807bb5186576c61" id="reference-c11268ab0763115a3ab2">Haskell アクションとラムダ 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/d3d3492ddd90d47160f2" id="reference-fa6ba11a1a39d6a765f4">Haskell IOモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/deb19c4cba933590ffbf" id="reference-7d4aa4094dc558680776">Haskell リストモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/c7d7eec066af0fe0688d" id="reference-7725ef1a36e93eb3da16">Haskell Maybeモナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/2e9bff5d88302de1a9e9" id="reference-9499b8cabbec243a3d4e">Haskell 状態系モナド 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/4408b76624067c17e933" id="reference-667eef63ff62c828a75c">Haskell モナド変換子 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/73e534c47bbebc71b37e" id="reference-611fe804be114d3ed473">Haskell 例外処理 超入門</a></li>
+<li><a href="http://qiita.com/7shi/items/b8c741e78a96ea2c10fe" id="reference-2e1fb51a7a1982ef44db">Haskell 構文解析 超入門</a></li>
+<li>【予定】Haskell 継続モナド 超入門</li>
+<li>【予定】Haskell 型クラス 超入門</li>
+<li>【予定】Haskell モナドとゆかいな仲間たち</li>
+<li>【予定】Haskell Freeモナド 超入門</li>
+<li>【予定】Haskell Operationalモナド 超入門</li>
+<li>【予定】Haskell Effモナド 超入門</li>
+<li>【予定】Haskell アロー 超入門</li>
+</ol>
+
+<p>練習の解答例は別記事に掲載します。</p>
+
+<ul>
+<li><a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2" id="reference-ef7209ceab06c4282c5a">【解答例】Haskell ラムダ 超入門</a></li>
+</ul>
+
+<p>この記事には<a href="/shigemk2" class="user-mention js-hovercard" title="shigemk2" data-hovercard-target-type="user" data-hovercard-target-name="shigemk2">@shigemk2</a>さんによるScala版があります。</p>
+
+<ul>
+<li><a href="http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2" id="reference-89df11cc4f6a13425085">Scala ラムダ超入門</a></li>
+</ul>
+
+<p>この記事はとある方への誕生日プレゼントとして捧げます。</p>
+
+<h1>
+<span id="ラムダ式" class="fragment"></span><a href="#%E3%83%A9%E3%83%A0%E3%83%80%E5%BC%8F"><i class="fa fa-link"></i></a>ラムダ式</h1>
+
+<p>今まで取り上げて来た文法では、関数の引数を左辺で定義していました。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">inc</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">inc</span> <span class="mi">5</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+6
+</pre></div>
+</div>
+
+<p>引数を右辺で定義する文法があります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">inc</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">inc</span> <span class="mi">5</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+6
+</pre></div>
+</div>
+
+<p>この右辺を<strong>ラムダ式</strong>と呼びます。<code>\</code>（バックスラッシュ）をギリシア文字の <strong>λ</strong>（ラムダ）に見立てています。</p>
+
+<p>※ Windowsで<code>\</code>は円記号で表示されることがありますが、本来のASCIIではバックスラッシュです。</p>
+
+<h2>
+<span id="練習" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問1】次に示す関数<code>fact</code>をラムダ式と<code>case</code>～<code>of</code>で書き換えてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">fact</span> <span class="mi">0</span>         <span class="ow">=</span> <span class="mi">1</span>
+<span class="nf">fact</span> <span class="n">n</span> <span class="o">|</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">fact</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">fact</span> <span class="mi">5</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E9%9A%8E%E4%B9%97" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<h1>
+<span id="型注釈" class="fragment"></span><a href="#%E5%9E%8B%E6%B3%A8%E9%87%88"><i class="fa fa-link"></i></a>型注釈</h1>
+
+<p>型注釈とラムダ式を並べると、型注釈の書式がラムダ式と共通していることが分かります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">inc</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span>
+<span class="nf">inc</span> <span class="ow">=</span>  <span class="nf">\</span><span class="n">x</span>  <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">inc</span> <span class="mi">5</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+6
+</pre></div>
+</div>
+
+<h2>
+<span id="練習-1" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-1"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問2】次に示す関数<code>add</code>をラムダ式で書き換えてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="ow">::</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span> <span class="ow">-&gt;</span> <span class="kt">Int</span>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add</span> <span class="mi">2</span> <span class="mi">3</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<h1>
+<span id="無名関数" class="fragment"></span><a href="#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>無名関数</h1>
+
+<p>ラムダ式は名前のない関数（<a href="http://ja.wikipedia.org/wiki/%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0" rel="nofollow noopener" target="_blank">無名関数</a>）で、それを変数に束縛していると捉えることができます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">a</span> <span class="ow">=</span> <span class="mi">1</span>
+<span class="nf">b</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">b</span> <span class="n">a</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2
+</pre></div>
+</div>
+
+<p>ラムダ式を束縛しないで使うこともできます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="mi">1</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+2
+</pre></div>
+</div>
+
+<p>一度しか使わない関数にわざわざ名前を付けるのが面倒なとき、ラムダ式は便利です。</p>
+
+<h2>
+<span id="複数の引数" class="fragment"></span><a href="#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0"><i class="fa fa-link"></i></a>複数の引数</h2>
+
+<p>次の3つはすべて同じ型<code>Int -&gt; Int -&gt; Int</code>です。</p>
+
+<ol>
+<li><code>mul x y = x * y</code></li>
+<li><code>mul = \x y -&gt; x * y</code></li>
+<li><code>mul = \x -&gt; \y -&gt; x * y</code></li>
+</ol>
+
+<p>1と2は3の糖衣構文です。</p>
+
+<h2>
+<span id="練習-2" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-2"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問3】次に示す関数<code>add</code>を定義せずに、呼び出し側で無名関数にインライン展開してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add</span> <span class="mi">2</span> <span class="mi">3</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<h1>
+<span id="高階関数" class="fragment"></span><a href="#%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>高階関数</h1>
+
+<p>引数として関数を受け取ったり、戻り値として関数を返したりする関数を<a href="http://ja.wikipedia.org/wiki/%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0" rel="nofollow noopener" target="_blank">高階関数</a>と呼びます。</p>
+
+<h2>
+<span id="引数" class="fragment"></span><a href="#%E5%BC%95%E6%95%B0"><i class="fa fa-link"></i></a>引数</h2>
+
+<p>引数として関数を受け取る高階関数の例です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">2</span> <span class="mi">3</span>
+
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="nf">mul</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">x</span> <span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="n">add</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="n">mul</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+6
+</pre></div>
+</div>
+
+<p>上の<code>mul</code>はラムダ式が変数に束縛され、その変数を<code>f</code>に渡しています。変数を経由せずにラムダ式を直接渡すこともできます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">2</span> <span class="mi">3</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+6
+</pre></div>
+</div>
+
+<h2>
+<span id="戻り値" class="fragment"></span><a href="#%E6%88%BB%E3%82%8A%E5%80%A4"><i class="fa fa-link"></i></a>戻り値</h2>
+
+<p>戻り値として関数を返す高階関数の例です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">add2</span> <span class="ow">=</span> <span class="n">add</span> <span class="mi">2</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add2</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="p">(</span><span class="n">add</span> <span class="mi">2</span><span class="p">)</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add</span> <span class="mi">2</span> <span class="mi">3</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+5
+5
+</pre></div>
+</div>
+
+<p>上の<code>add</code>はラムダ式<code>\y -&gt; x + y</code>で表される無名関数を返す高階関数です。高階関数から戻された関数に後続の引数を渡すことで連続して呼び出すことができます。</p>
+
+<h2>
+<span id="練習-3" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-3"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問4】次に示す関数<code>f</code>と<code>add</code>を定義せずに、呼び出し側で無名関数にインライン展開してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">1</span> <span class="mi">2</span>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="n">add</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E5%BC%95%E6%95%B0" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<p>【問5】次に示す関数<code>add</code>を定義せずに、呼び出し側で無名関数にインライン展開してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add</span> <span class="mi">1</span> <span class="mi">2</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E6%88%BB%E3%82%8A%E5%80%A4" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<h1>
+<span id="カリー化" class="fragment"></span><a href="#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96"><i class="fa fa-link"></i></a>カリー化</h1>
+
+<p>複数の引数を取る関数に対して、引数を後ろから1つずつ右辺に移動させてみます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="nf">add'</span> <span class="n">x</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="nf">add''</span> <span class="ow">=</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="nf">\</span><span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add</span>   <span class="mi">2</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add'</span>  <span class="mi">2</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add''</span> <span class="mi">2</span> <span class="mi">3</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+5
+5
+</pre></div>
+</div>
+
+<p>どれも同じように振る舞うため、定義は等価だと見なせます。このように引数を1つずつ分割して関数をネストさせることを<a href="http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96" rel="nofollow noopener" target="_blank">カリー化</a>と呼びます。Haskellでは複数の引数を取る関数は自動的にカリー化されます。</p>
+
+<h2>
+<span id="部分適用" class="fragment"></span><a href="#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8"><i class="fa fa-link"></i></a>部分適用</h2>
+
+<p>引数が足りない場合、後で付け足せば呼び出しを完成させることができます。このようなことが可能になるのも関数がカリー化されているためです。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">add</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">add2</span> <span class="ow">=</span> <span class="n">add</span> <span class="mi">2</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add2</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="p">(</span><span class="n">add</span> <span class="mi">2</span><span class="p">)</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">add</span> <span class="mi">2</span> <span class="mi">3</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+5
+5
+</pre></div>
+</div>
+
+<p>上の<code>add2</code>のように一部の引数を固定化して新しい関数を作り出すことを<strong>部分適用</strong>と呼びます。</p>
+
+<h2>
+<span id="注意点" class="fragment"></span><a href="#%E6%B3%A8%E6%84%8F%E7%82%B9"><i class="fa fa-link"></i></a>注意点</h2>
+
+<p>カリー化と部分適用は混同されることがあります。具体的には、部分適用を指してカリー化と呼ばれることがありますが、これは誤用です。</p>
+
+<p>改めて定義を確認します。</p>
+
+<ul>
+<li>カリー化とは：関数を引数1つずつに分割してネストさせること</li>
+<li>部分適用とは：一部の引数を固定化して新しい関数を作り出すこと</li>
+</ul>
+
+<p>詳細は次の記事にまとめました。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/7shi" rel="nofollow noopener" target="_blank">@7shi</a>: <a href="http://qiita.com/7shi/items/a0143daac77a205e7962" id="reference-3a0ed6bd1af93851e315">カリー化と部分適用（JavaScriptとHaskell） - Qiita</a> 2014.10.15</li>
+</ul>
+
+<h2>
+<span id="練習-4" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-4"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問6】次に示す関数<code>combine</code>を、引数1つずつに分割してネストさせたラムダ式で書き換えてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">combine</span> <span class="n">a</span> <span class="n">b</span> <span class="n">c</span> <span class="ow">=</span> <span class="n">a</span><span class="kt">:</span><span class="n">b</span><span class="kt">:</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">a</span> <span class="ow">=</span> <span class="n">combine</span> <span class="mi">1</span>
+        <span class="n">b</span> <span class="ow">=</span> <span class="n">a</span> <span class="mi">2</span>
+        <span class="n">c</span> <span class="ow">=</span> <span class="n">b</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="n">c</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">combine</span> <span class="n">'a'</span> <span class="n">'b'</span> <span class="n">'c'</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<p>【問7】次のコードから関数<code>double</code>を除去してください。ラムダ式は使わないでください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">xs</span> <span class="n">g</span> <span class="ow">=</span> <span class="p">[</span><span class="n">g</span> <span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="n">xs</span><span class="p">]</span>
+<span class="nf">double</span> <span class="n">x</span> <span class="ow">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span> <span class="n">double</span>
+</pre></div></div>
+
+<p>ヒント: 演算子の関数化<code>(*)</code></p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<h1>
+<span id="演算子" class="fragment"></span><a href="#%E6%BC%94%E7%AE%97%E5%AD%90"><i class="fa fa-link"></i></a>演算子</h1>
+
+<p>演算子を関数化すれば高階関数に渡すことができます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">2</span> <span class="mi">3</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="p">(</span><span class="o">*</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5
+6
+</pre></div>
+</div>
+
+<h2>
+<span id="部分適用-1" class="fragment"></span><a href="#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8-1"><i class="fa fa-link"></i></a>部分適用</h2>
+
+<p>演算子を関数化すれば部分適用できます。（問7で出題）</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">5</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="o">$</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="mi">2</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+-3
+</pre></div>
+</div>
+
+<h2>
+<span id="セクション" class="fragment"></span><a href="#%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3"><i class="fa fa-link"></i></a>セクション</h2>
+
+<p>中置演算子のまま片方のオペランド（被演算子）を省略した不完全な式は部分適用として扱われます。これを<strong>セクション</strong>と呼びます。セクションは括弧で囲む必要があります。</p>
+
+<p>ラムダ式とセクションを対比します。<code>(- 2)</code>はマイナス2という数値として解釈されるため、2種類の回避方法を示しています。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">5</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="p">[</span><span class="n">f</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">x</span><span class="p">,</span> <span class="n">f</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span><span class="p">)]</span>
+    <span class="n">print</span> <span class="p">[</span><span class="n">f</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">f</span> <span class="p">(</span><span class="o">+</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="n">print</span> <span class="p">[</span><span class="n">f</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">x</span><span class="p">,</span> <span class="n">f</span> <span class="p">(</span><span class="mi">2</span> <span class="o">-</span><span class="p">)]</span>
+    <span class="n">print</span> <span class="p">[</span><span class="n">f</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">f</span> <span class="p">(</span><span class="o">+</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)),</span> <span class="n">f</span> <span class="o">$</span> <span class="n">subtract</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[7,7]
+[7,7]
+[-3,-3]
+[3,3,3]
+</pre></div>
+</div>
+
+<p>関数を演算子化すればセクションとして扱えます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">5</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="p">(</span><span class="mi">2</span> <span class="p">`</span><span class="n">div</span><span class="p">`)</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="p">(`</span><span class="n">div</span><span class="p">`</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+0
+2
+</pre></div>
+</div>
+
+<p>セクションは次の記事を参考にしました。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/jutememo" rel="nofollow noopener" target="_blank">@jutememo</a>: <a href="http://jutememo.blogspot.jp/2008/06/haskell_24.html" rel="nofollow noopener" target="_blank">Haskell のセクションと中置記法 | すぐに忘れる脳みそのためのメモ</a> 2008.6.24</li>
+<li>
+<a href="https://twitter.com/kk_ataka" rel="nofollow noopener" target="_blank">@kk_ataka</a>: <a href="http://d.hatena.ne.jp/kk_Ataka/20130220/1361365130" rel="nofollow noopener" target="_blank">すごいHaskellたのしく学ぼうでHaskellことはじめ4 - kk_Atakaの日記</a> 2013.2.20</li>
+</ul>
+
+<h2>
+<span id="練習-5" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-5"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問8】次のコードからラムダ式を排除してください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f1</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">1</span>
+<span class="nf">f2</span> <span class="n">g</span> <span class="ow">=</span> <span class="n">g</span> <span class="mi">2</span> <span class="mi">3</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f1</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">3</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f1</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">x</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f2</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="n">y</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E6%BC%94%E7%AE%97%E5%AD%90" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<h1>
+<span id="色々な関数" class="fragment"></span><a href="#%E8%89%B2%E3%80%85%E3%81%AA%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>色々な関数</h1>
+
+<p>Prelude（標準ライブラリ）で定義されている高階関数をいくつか紹介します。</p>
+
+<h2>
+<span id="map" class="fragment"></span><a href="#map"><i class="fa fa-link"></i></a>map</h2>
+
+<p>リストの要素すべてに同じ処理を施した別のリストを作成します。</p>
+
+<p>同じことができるリスト内包表記と対比します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">map</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">print</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[2,4,6,8,10]
+[2,4,6,8,10]
+</pre></div>
+</div>
+
+<p>リスト内包表記との使い分けは特に基準はありませんが、高階関数の扱いに慣れればリスト内包表記が冗長に感じるかもしれません。</p>
+
+<h2>
+<span id="filter" class="fragment"></span><a href="#filter"><i class="fa fa-link"></i></a>filter</h2>
+
+<p>リストから要素を取り出す際に条件を指定できます。</p>
+
+<p>同じことができるリスト内包表記と対比します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">filter</span> <span class="p">(</span><span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">9</span><span class="p">]</span>
+    <span class="n">print</span> <span class="p">[</span><span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">9</span><span class="p">],</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[1,2,3,4]
+[1,2,3,4]
+</pre></div>
+</div>
+
+<h2>
+<span id="flip" class="fragment"></span><a href="#flip"><i class="fa fa-link"></i></a>flip</h2>
+
+<p>2引数関数で引数の順序を反転します。</p>
+
+<p>第2引数への部分適用をセクションやラッパーと対比します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">src</span> <span class="ow">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+<span class="nf">test1</span> <span class="ow">=</span> <span class="n">flip</span> <span class="n">map</span> <span class="n">src</span>
+<span class="nf">test2</span> <span class="ow">=</span> <span class="p">(`</span><span class="n">map</span><span class="p">`</span> <span class="n">src</span><span class="p">)</span>
+<span class="nf">test3</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">map</span> <span class="n">f</span> <span class="n">src</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test1</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test2</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test3</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[2,4,6,8,10]
+[2,4,6,8,10]
+[2,4,6,8,10]
+</pre></div>
+</div>
+
+<p>第1引数がラムダ式で記述すると長くなる時、先に第2引数を記述するために使うと便利です。Yコンビネータで実例を出します。</p>
+
+<h2>
+<span id="foldl" class="fragment"></span><a href="#foldl"><i class="fa fa-link"></i></a>foldl</h2>
+
+<p>リストの要素を左から1つずつ処理しながら集計します。関数名末尾の<code>l</code>はLeft（左）の意味です。</p>
+
+<ul>
+<li><code>foldl :: 集計関数 -&gt; 初期値 -&gt; リスト -&gt; 集計結果</code></li>
+</ul>
+
+<p><code>foldl</code>で<code>sum</code>相当の処理をしてみました。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">sum</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">100</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">foldl</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">100</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5050
+5050
+</pre></div>
+</div>
+
+<p><code>foldl</code>は手続型言語のループを関数化したものだと見なせます。次のJavaScriptコードと比較してみてください。</p>
+
+<div class="code-frame" data-lang="js">
+<div class="code-lang"><span class="bold">JavaScript</span></div>
+<div class="highlight"><pre>
+<span class="kd">var</span> <span class="nx">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">sum</span> <span class="o">+=</span> <span class="nx">i</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">sum</span><span class="p">);</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5050
+</pre></div>
+</div>
+
+<p>集計の初期値として<code>0</code>を用意して、ループで<code>i</code>を次々に足していきます。そこから処理（足し算）と初期値を取り出して関数化したのが<code>foldl</code>だと見なすわけです。</p>
+
+<h2>
+<span id="foldr" class="fragment"></span><a href="#foldr"><i class="fa fa-link"></i></a>foldr</h2>
+
+<p>リストの要素を右から1つずつ処理しながら集計します。関数名末尾の<code>r</code>はRight（右）の意味です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">foldr</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">foldl</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+-15
+</pre></div>
+</div>
+
+<p>再帰でリストの全要素を処理する際に、再帰から返って来た値を使って関数の戻り値を計算すると、戻り値が確定するのは再帰の復路です。この手の再帰を関数化したものだと見なせます。次のコードと比較してみてください。</p>
+
+<div class="code-frame" data-lang="hs">
+<div class="code-lang"><span class="bold">再帰で書き換え</span></div>
+<div class="highlight"><pre>
+<span class="nf">test</span> <span class="kt">[]</span>     <span class="ow">=</span> <span class="mi">0</span>
+<span class="nf">test</span> <span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">test</span> <span class="n">xs</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">test</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+</pre></div>
+</div>
+
+<p>再帰の折り返し値として<code>0</code>を用意して、復路で<code>x</code>から次々に引いていきます。そこから処理（引き算）と折り返し値（最初に作用させる値）を取り出して関数化したのが<code>foldr</code>だと見なすわけです。</p>
+
+<ul>
+<li>
+<code>1 - (2 - (3 - (4 - (5 - 0))))</code> → <code>1 - 2 + 3 - 4 + 5</code> → <code>3</code>
+</li>
+</ul>
+
+<p>※ 復路で実際の計算が始まるため、計算の順はリストの右からとなります。これがRightの意味です。</p>
+
+<p><code>foldr</code>は次の記事を参考にしました。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/taiju" rel="nofollow noopener" target="_blank">@taiju</a>: <a href="http://taiju.hatenablog.com/entry/20130202/1359773888" rel="nofollow noopener" target="_blank">プログラミングHaskellのfoldr, foldlの説明が秀逸だった件 - あと味</a> 2013.2.2</li>
+</ul>
+
+<h2>
+<span id="練習-6" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-6"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問9】<code>map</code>, <code>filter</code>, <code>flip</code>, <code>foldl</code>, <code>foldr</code>を再帰で再実装してください。関数名には<code>'</code>を付けてください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">map'</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">filter'</span> <span class="p">(</span><span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">9</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">flip'</span> <span class="n">map'</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span> <span class="p">(</span><span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">foldl'</span> <span class="p">(</span><span class="o">+</span><span class="p">)</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">100</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">foldl'</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">foldr'</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="mi">0</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[2,4,6,8,10]
+[1,2,3,4]
+[2,4,6,8,10]
+5050
+-15
+3
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E5%86%8D%E5%B8%B0" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<p>【問10】<code>foldl</code>で<code>reverse</code>と<code>maximum</code>と<code>minimum</code>を再実装してください。関数名には<code>'</code>を付けてください。</p>
+
+<p>具体的には以下のコードが動くようにしてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="kr">let</span> <span class="n">src</span> <span class="ow">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="o">..</span><span class="mi">5</span><span class="p">]</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">reverse'</span> <span class="n">src</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">maximum'</span> <span class="n">src</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">minimum'</span> <span class="n">src</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[5,4,3,2,1,0,-1,-2,-3,-4,-5]
+5
+-5
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#foldl" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<p>【問11】次に示す関数<code>qsort</code>を<code>filter</code>で書き替えてください。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">qsort</span> <span class="kt">[]</span>     <span class="ow">=</span> <span class="kt">[]</span>
+<span class="nf">qsort</span> <span class="p">(</span><span class="n">n</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span> <span class="ow">=</span> <span class="n">qsort</span> <span class="n">lt</span> <span class="o">++</span> <span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">++</span> <span class="n">qsort</span> <span class="n">gteq</span>
+    <span class="kr">where</span>
+        <span class="n">lt</span>   <span class="ow">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="n">xs</span><span class="p">,</span> <span class="n">x</span> <span class="o">&lt;</span>  <span class="n">n</span><span class="p">]</span>
+        <span class="n">gteq</span> <span class="ow">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">|</span> <span class="n">x</span> <span class="ow">&lt;-</span> <span class="n">xs</span><span class="p">,</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">n</span><span class="p">]</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">qsort</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div></div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E3%82%BD%E3%83%BC%E3%83%88" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<p>【問12】次に示す関数<code>bswap</code>を<code>foldr</code>で書き替えてください。</p>
+
+<p>※ バブルソートの本体は<code>foldr</code>では実装できないため省きました。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">bswap</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="ow">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+<span class="nf">bswap</span> <span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">xs</span><span class="p">)</span>
+    <span class="o">|</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">y</span>     <span class="ow">=</span> <span class="n">y</span><span class="kt">:</span><span class="n">x</span><span class="kt">:</span><span class="n">ys</span>
+    <span class="o">|</span> <span class="n">otherwise</span> <span class="ow">=</span> <span class="n">x</span><span class="kt">:</span><span class="n">y</span><span class="kt">:</span><span class="n">ys</span>
+    <span class="kr">where</span>
+        <span class="p">(</span><span class="n">y</span><span class="kt">:</span><span class="n">ys</span><span class="p">)</span> <span class="ow">=</span> <span class="n">bswap</span> <span class="n">xs</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">bswap</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+[1,4,3,2,5]
+</pre></div>
+</div>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%83%90%E3%83%96%E3%83%AB" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<p>この問題は次の記事を参考にしました。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20110913/1315905876" rel="nofollow noopener" target="_blank">リストの畳み込みと展開 - あどけない話</a> 2011.9.13</li>
+</ul>
+
+<h1>
+<span id="不動点コンビネータ" class="fragment"></span><a href="#%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>不動点コンビネータ</h1>
+
+<p>自己参照のできない無名のラムダ式で再帰を実現するテクニックとして、<a href="http://ja.wikipedia.org/wiki/%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF" rel="nofollow noopener" target="_blank">不動点コンビネータ</a>を利用する方法があります。あまり使う機会はないかもしれませんが、たまに見掛けるので知識として知っておいても損はないでしょう。</p>
+
+<h2>
+<span id="yコンビネータ" class="fragment"></span><a href="#y%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>Yコンビネータ</h2>
+
+<p>Yコンビネータ（不動点コンビネータの一種）と呼ばれる補助関数を定義します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">y</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">f</span> <span class="p">(</span><span class="n">y</span> <span class="n">f</span><span class="p">)</span>
+</pre></div></div>
+
+<p>Yコンビネータにラムダ式を渡すと、ラムダ式の第1引数にYコンビネータに包まれた自分自身が渡されます。これを使うことで再帰ができます。</p>
+
+<p><code>sum</code>をインラインで実装した例です。ラムダ式の第1引数を関数名に見立てています。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">y</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">f</span> <span class="p">(</span><span class="n">y</span> <span class="n">f</span><span class="p">)</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">flip</span> <span class="n">y</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">100</span><span class="p">]</span> <span class="o">$</span>
+        <span class="nf">\</span><span class="n">sum</span> <span class="n">xs</span> <span class="ow">-&gt;</span> <span class="kr">case</span> <span class="n">xs</span> <span class="kr">of</span>
+            <span class="kt">[]</span>      <span class="ow">-&gt;</span> <span class="mi">0</span>
+            <span class="p">(</span><span class="n">x</span><span class="kt">:</span><span class="n">xs'</span><span class="p">)</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="n">sum</span> <span class="n">xs'</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+5050
+</pre></div>
+</div>
+
+<p>Yコンビネータは次の記事を参考にしました。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20100519/1274240859" rel="nofollow noopener" target="_blank">Haskell で Y コンビネータ - あどけない話</a> 2010.5.19</li>
+<li>
+<a href="https://twitter.com/kazu_yamamoto" rel="nofollow noopener" target="_blank">@kazu_yamamoto</a>: <a href="http://d.hatena.ne.jp/kazu-yamamoto/20100601/1275367421" rel="nofollow noopener" target="_blank">Yコンビネータのまとめ - あどけない話</a> 2010.6.1</li>
+</ul>
+
+<h2>
+<span id="練習-7" class="fragment"></span><a href="#%E7%B7%B4%E7%BF%92-7"><i class="fa fa-link"></i></a>練習</h2>
+
+<p>【問13】Yコンビネータを使って10番目のフィボナッチ数を計算してください。</p>
+
+<p>⇒ <a href="http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0" id="reference-ef7209ceab06c4282c5a">解答例</a></p>
+
+<h1>
+<span id="関数合成" class="fragment"></span><a href="#%E9%96%A2%E6%95%B0%E5%90%88%E6%88%90"><i class="fa fa-link"></i></a>関数合成</h1>
+
+<p>関数を連続して呼ぶのに対して、<code>.</code>で関数を合成しても同じことができます。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nf">g</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="p">(</span><span class="n">g</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="p">(</span><span class="n">f</span> <span class="o">.</span> <span class="n">g</span><span class="p">)</span> <span class="mi">1</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+3
+</pre></div>
+</div>
+
+<p>関数を評価する順番はどちらも <code>g</code> → <code>f</code> です。</p>
+
+<p>関数を使うだけだとあまり違いは感じませんが、高階関数に渡すときに関数合成は便利です。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="nf">g</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="nf">h</span> <span class="n">f</span> <span class="ow">=</span> <span class="n">f</span> <span class="mi">1</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">h</span> <span class="o">$</span> <span class="n">f</span> <span class="o">.</span> <span class="n">g</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">h</span> <span class="o">$</span> <span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">f</span> <span class="o">$</span> <span class="n">g</span> <span class="n">x</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+3
+3
+</pre></div>
+</div>
+
+<h2>
+<span id="2引数" class="fragment"></span><a href="#2%E5%BC%95%E6%95%B0"><i class="fa fa-link"></i></a>2引数</h2>
+
+<p><code>g</code>の引数が増えるといきなり難しくなります。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="nf">g</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">f</span> <span class="o">$</span> <span class="n">g</span> <span class="mi">1</span> <span class="mi">2</span>        <span class="c1">-- (1 + 2) * 2</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="p">((</span><span class="n">f</span> <span class="o">.</span><span class="p">)</span> <span class="o">.</span> <span class="n">g</span><span class="p">)</span> <span class="mi">1</span> <span class="mi">2</span>  <span class="c1">-- 関数合成</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+6
+6
+</pre></div>
+</div>
+
+<p>初期の段階であまり追及するようなものではないため紹介程度に留めておきますが、興味がある方は次の記事を参照してください。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/7shi" rel="nofollow noopener" target="_blank">@7shi</a>: <a href="http://qiita.com/7shi/items/f2c1365b792aa6046a49" id="reference-e5e5032138706d48ca89">Haskell - 関数合成を機械的に扱う試み - Qiita</a> 2015.2.9</li>
+</ul>
+
+<h1>
+<span id="ポイントフリースタイル" class="fragment"></span><a href="#%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88%E3%83%95%E3%83%AA%E3%83%BC%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB"><i class="fa fa-link"></i></a>ポイントフリースタイル</h1>
+
+<p>部分適用を利用すれば、別の関数に渡すだけの引数を省略できます。これを<strong>ポイントフリースタイル</strong>と呼びます。</p>
+
+<p>簡単な例を示します。</p>
+
+<div class="code-frame" data-lang="hs"><div class="highlight"><pre>
+<span class="nf">f1</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span>
+<span class="nf">f2</span> <span class="n">x</span> <span class="n">y</span> <span class="ow">=</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="n">x</span> <span class="n">y</span>
+<span class="nf">f3</span> <span class="n">x</span>   <span class="ow">=</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span> <span class="n">x</span>
+<span class="nf">f4</span>     <span class="ow">=</span> <span class="p">(</span><span class="o">-</span><span class="p">)</span>
+
+<span class="nf">g1</span> <span class="n">x</span> <span class="ow">=</span> <span class="n">f4</span> <span class="mi">2</span> <span class="n">x</span>
+<span class="nf">g2</span>   <span class="ow">=</span> <span class="n">f4</span> <span class="mi">2</span>
+
+<span class="nf">main</span> <span class="ow">=</span> <span class="kr">do</span>
+    <span class="n">print</span> <span class="o">$</span> <span class="n">g2</span> <span class="mi">5</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+-3
+</pre></div>
+</div>
+
+<p>関数合成と組み合わせれば色々なパターンで引数を排除することができます。ただあまり突き詰めると、すぐには読めないコードになるような印象があります。</p>
+
+<p>もっと恐ろしいものの片鱗を味わいたい方は、次の記事を参照してみてください。</p>
+
+<ul>
+<li>
+<a href="https://twitter.com/melponn" rel="nofollow noopener" target="_blank">@melponn</a>: <a href="http://d.hatena.ne.jp/melpon/20111031/1320024473" rel="nofollow noopener" target="_blank">ポイントフリースタイル入門 - melpon日記</a> 2011.10.31</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/1345bf32003faff435cb" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="p4Ecftq5PpPxjfg6RFRvxp038LjqNfPU1kIKIBMWTunJA4cmQZcH2A5eTSY0odGf/XDUC33xqSPqnAPb8hhALw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1438325680" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Haskellの文法に慣れて来た方を対象に、ラムダ式や高階関数を使って関数を取り回す方法を説明します。カリー化や部分適用も取り上げます。いわゆる関数型言語らしい機能です。
+
+シリーズの記事です。
+
+1. [Haskell 超入門](http://qiita.com/7shi/items/145f1234f8ec2af923ef)
+1. [Haskell 代数的データ型 超入門](http://qiita.com/7shi/items/1ce76bde464b4a55c143)
+1. [Haskell アクション 超入門](http://qiita.com/7shi/items/85afd7bbd5d6c4115ad6)
+1. Haskell ラムダ 超入門 ← この記事
+1. [Haskell アクションとラムダ 超入門](http://qiita.com/7shi/items/4a8a2807bb5186576c61)
+1. [Haskell IOモナド 超入門](http://qiita.com/7shi/items/d3d3492ddd90d47160f2)
+1. [Haskell リストモナド 超入門](http://qiita.com/7shi/items/deb19c4cba933590ffbf)
+1. [Haskell Maybeモナド 超入門](http://qiita.com/7shi/items/c7d7eec066af0fe0688d)
+1. [Haskell 状態系モナド 超入門](http://qiita.com/7shi/items/2e9bff5d88302de1a9e9)
+1. [Haskell モナド変換子 超入門](http://qiita.com/7shi/items/4408b76624067c17e933)
+1. [Haskell 例外処理 超入門](http://qiita.com/7shi/items/73e534c47bbebc71b37e)
+1. [Haskell 構文解析 超入門](http://qiita.com/7shi/items/b8c741e78a96ea2c10fe)
+1. 【予定】Haskell 継続モナド 超入門
+1. 【予定】Haskell 型クラス 超入門
+1. 【予定】Haskell モナドとゆかいな仲間たち
+1. 【予定】Haskell Freeモナド 超入門
+1. 【予定】Haskell Operationalモナド 超入門
+1. 【予定】Haskell Effモナド 超入門
+1. 【予定】Haskell アロー 超入門
+
+練習の解答例は別記事に掲載します。
+
+* [【解答例】Haskell ラムダ 超入門](http://qiita.com/7shi/items/bfa4c282c504c24578d2)
+
+この記事には@shigemk2さんによるScala版があります。
+
+* [Scala ラムダ超入門](http://qiita.com/shigemk2/items/3a5e5df9fe85cf0b4eb2)
+
+この記事はとある方への誕生日プレゼントとして捧げます。
+
+# ラムダ式
+
+今まで取り上げて来た文法では、関数の引数を左辺で定義していました。
+
+```hs
+inc x = x + 1
+
+main = do
+    print $ inc 5
+```
+```text:実行結果
+6
+```
+
+引数を右辺で定義する文法があります。
+
+```hs
+inc = \x -&gt; x + 1
+
+main = do
+    print $ inc 5
+```
+```text:実行結果
+6
+```
+
+この右辺を**ラムダ式**と呼びます。`\`（バックスラッシュ）をギリシア文字の **λ**（ラムダ）に見立てています。
+
+※ Windowsで`\`は円記号で表示されることがありますが、本来のASCIIではバックスラッシュです。
+
+## 練習
+
+【問1】次に示す関数`fact`をラムダ式と`case`～`of`で書き換えてください。
+
+```hs
+fact 0         = 1
+fact n | n &gt; 0 = n * fact (n - 1)
+
+main = do
+    print $ fact 5
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E9%9A%8E%E4%B9%97)
+
+# 型注釈
+
+型注釈とラムダ式を並べると、型注釈の書式がラムダ式と共通していることが分かります。
+
+```hs
+inc :: Int -&gt; Int
+inc =  \x  -&gt; x + 1
+
+main = do
+    print $ inc 5
+```
+```text:実行結果
+6
+```
+
+## 練習
+
+【問2】次に示す関数`add`をラムダ式で書き換えてください。
+
+```hs
+add :: Int -&gt; Int -&gt; Int
+add x y = x + y
+
+main = do
+    print $ add 2 3
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0)
+
+# 無名関数
+
+ラムダ式は名前のない関数（[無名関数](http://ja.wikipedia.org/wiki/%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0)）で、それを変数に束縛していると捉えることができます。
+
+```hs
+a = 1
+b = \x -&gt; x + 1
+
+main = do
+    print $ b a
+```
+```text:実行結果
+2
+```
+
+ラムダ式を束縛しないで使うこともできます。
+
+```hs
+main = do
+    print $ (\x -&gt; x + 1) 1
+```
+```text:実行結果
+2
+```
+
+一度しか使わない関数にわざわざ名前を付けるのが面倒なとき、ラムダ式は便利です。
+
+## 複数の引数
+
+次の3つはすべて同じ型`Int -&gt; Int -&gt; Int`です。
+
+1. `mul x y = x * y`
+2. `mul = \x y -&gt; x * y`
+3. `mul = \x -&gt; \y -&gt; x * y`
+
+1と2は3の糖衣構文です。
+
+## 練習
+
+【問3】次に示す関数`add`を定義せずに、呼び出し側で無名関数にインライン展開してください。
+
+```hs
+add x y = x + y
+
+main = do
+    print $ add 2 3
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0)
+
+# 高階関数
+
+引数として関数を受け取ったり、戻り値として関数を返したりする関数を[高階関数](http://ja.wikipedia.org/wiki/%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0)と呼びます。
+
+## 引数
+
+引数として関数を受け取る高階関数の例です。
+
+```hs
+f g = g 2 3
+
+add x y = x + y
+mul = \x y -&gt; x * y
+
+main = do
+    print $ f add
+    print $ f mul
+```
+```text:実行結果
+5
+6
+```
+
+上の`mul`はラムダ式が変数に束縛され、その変数を`f`に渡しています。変数を経由せずにラムダ式を直接渡すこともできます。
+
+```hs
+f g = g 2 3
+
+main = do
+    print $ f $ \x y -&gt; x + y
+    print $ f $ \x y -&gt; x * y
+```
+```text:実行結果
+5
+6
+```
+
+## 戻り値
+
+戻り値として関数を返す高階関数の例です。
+
+```hs
+add x = \y -&gt; x + y
+
+main = do
+    let add2 = add 2
+    print $ add2 3
+    print $ (add 2) 3
+    print $ add 2 3
+```
+```text:実行結果
+5
+5
+5
+```
+
+上の`add`はラムダ式`\y -&gt; x + y`で表される無名関数を返す高階関数です。高階関数から戻された関数に後続の引数を渡すことで連続して呼び出すことができます。
+
+## 練習
+
+【問4】次に示す関数`f`と`add`を定義せずに、呼び出し側で無名関数にインライン展開してください。
+
+```hs
+f g = g 1 2
+add x y = x + y
+
+main = do
+    print $ f add
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E5%BC%95%E6%95%B0)
+
+【問5】次に示す関数`add`を定義せずに、呼び出し側で無名関数にインライン展開してください。
+
+```hs
+add x = \y -&gt; x + y
+
+main = do
+    print $ add 1 2
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E6%88%BB%E3%82%8A%E5%80%A4)
+
+# カリー化
+
+複数の引数を取る関数に対して、引数を後ろから1つずつ右辺に移動させてみます。
+
+```hs
+add x y = x + y
+add&#39; x = \y -&gt; x + y
+add&#39;&#39; = \x -&gt; \y -&gt; x + y
+
+main = do
+    print $ add   2 3
+    print $ add&#39;  2 3
+    print $ add&#39;&#39; 2 3
+```
+```text:実行結果
+5
+5
+5
+```
+
+どれも同じように振る舞うため、定義は等価だと見なせます。このように引数を1つずつ分割して関数をネストさせることを[カリー化](http://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96)と呼びます。Haskellでは複数の引数を取る関数は自動的にカリー化されます。
+
+## 部分適用
+
+引数が足りない場合、後で付け足せば呼び出しを完成させることができます。このようなことが可能になるのも関数がカリー化されているためです。
+
+```hs
+add x y = x + y
+
+main = do
+    let add2 = add 2
+    print $ add2 3
+    print $ (add 2) 3
+    print $ add 2 3
+```
+```text:実行結果
+5
+5
+5
+```
+
+上の`add2`のように一部の引数を固定化して新しい関数を作り出すことを**部分適用**と呼びます。
+
+## 注意点
+
+カリー化と部分適用は混同されることがあります。具体的には、部分適用を指してカリー化と呼ばれることがありますが、これは誤用です。
+
+改めて定義を確認します。
+
+* カリー化とは：関数を引数1つずつに分割してネストさせること
+* 部分適用とは：一部の引数を固定化して新しい関数を作り出すこと
+
+詳細は次の記事にまとめました。
+
+* [@7shi](https://twitter.com/7shi): [カリー化と部分適用（JavaScriptとHaskell） - Qiita](http://qiita.com/7shi/items/a0143daac77a205e7962) 2014.10.15
+
+## 練習
+
+【問6】次に示す関数`combine`を、引数1つずつに分割してネストさせたラムダ式で書き換えてください。
+
+```hs
+combine a b c = a:b:[c]
+
+main = do
+    let a = combine 1
+        b = a 2
+        c = b 3
+    print c
+    print $ combine &#39;a&#39; &#39;b&#39; &#39;c&#39;
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96)
+
+【問7】次のコードから関数`double`を除去してください。ラムダ式は使わないでください。
+
+```hs
+f xs g = [g x | x &lt;- xs]
+double x = 2 * x
+
+main = do
+    print $ f [1..5] double
+```
+
+ヒント: 演算子の関数化`(*)`
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8)
+
+# 演算子
+
+演算子を関数化すれば高階関数に渡すことができます。
+
+```hs
+f g = g 2 3
+
+main = do
+    print $ f (+)
+    print $ f (*)
+```
+```text:実行結果
+5
+6
+```
+
+## 部分適用
+
+演算子を関数化すれば部分適用できます。（問7で出題）
+
+```hs
+f g = g 5
+
+main = do
+    print $ f $ (-) 2
+```
+```text:実行結果
+-3
+```
+
+## セクション
+
+中置演算子のまま片方のオペランド（被演算子）を省略した不完全な式は部分適用として扱われます。これを**セクション**と呼びます。セクションは括弧で囲む必要があります。
+
+ラムダ式とセクションを対比します。`(- 2)`はマイナス2という数値として解釈されるため、2種類の回避方法を示しています。
+
+```hs
+f g = g 5
+
+main = do
+    print [f $ \x -&gt; 2 + x, f (2 +)]
+    print [f $ \x -&gt; x + 2, f (+ 2)]
+    print [f $ \x -&gt; 2 - x, f (2 -)]
+    print [f $ \x -&gt; x - 2, f (+(-2)), f $ subtract 2]
+```
+```text:実行結果
+[7,7]
+[7,7]
+[-3,-3]
+[3,3,3]
+```
+
+関数を演算子化すればセクションとして扱えます。
+
+```hs
+f g = g 5
+
+main = do
+    print $ f (2 `div`)
+    print $ f (`div` 2)
+```
+```text:実行結果
+0
+2
+```
+
+セクションは次の記事を参考にしました。
+
+* [@jutememo](https://twitter.com/jutememo): [Haskell のセクションと中置記法 | すぐに忘れる脳みそのためのメモ](http://jutememo.blogspot.jp/2008/06/haskell_24.html) 2008.6.24
+* [@kk_ataka](https://twitter.com/kk_ataka): [すごいHaskellたのしく学ぼうでHaskellことはじめ4 - kk_Atakaの日記](http://d.hatena.ne.jp/kk_Ataka/20130220/1361365130) 2013.2.20
+
+## 練習
+
+【問8】次のコードからラムダ式を排除してください。
+
+```hs
+f1 g = g 1
+f2 g = g 2 3
+
+main = do
+    print $ f1 $ \x -&gt; x - 3
+    print $ f1 $ \x -&gt; 3 - x
+    print $ f2 $ \x y -&gt; x + y
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E6%BC%94%E7%AE%97%E5%AD%90)
+
+# 色々な関数
+
+Prelude（標準ライブラリ）で定義されている高階関数をいくつか紹介します。
+
+## map
+
+リストの要素すべてに同じ処理を施した別のリストを作成します。
+
+同じことができるリスト内包表記と対比します。
+
+```hs
+main = do
+    print $ map (* 2) [1..5]
+    print [x * 2 | x &lt;- [1..5]]
+```
+```text:実行結果
+[2,4,6,8,10]
+[2,4,6,8,10]
+```
+
+リスト内包表記との使い分けは特に基準はありませんが、高階関数の扱いに慣れればリスト内包表記が冗長に感じるかもしれません。
+
+## filter
+
+リストから要素を取り出す際に条件を指定できます。
+
+同じことができるリスト内包表記と対比します。
+
+```hs
+main = do
+    print $ filter (&lt; 5) [1..9]
+    print [x | x &lt;- [1..9], x &lt; 5]
+```
+```text:実行結果
+[1,2,3,4]
+[1,2,3,4]
+```
+
+## flip
+
+2引数関数で引数の順序を反転します。
+
+第2引数への部分適用をセクションやラッパーと対比します。
+
+```hs
+src = [1..5]
+test1 = flip map src
+test2 = (`map` src)
+test3 f = map f src
+
+main = do
+    print $ test1 (* 2)
+    print $ test2 (* 2)
+    print $ test3 (* 2)
+```
+```text:実行結果
+[2,4,6,8,10]
+[2,4,6,8,10]
+[2,4,6,8,10]
+```
+
+第1引数がラムダ式で記述すると長くなる時、先に第2引数を記述するために使うと便利です。Yコンビネータで実例を出します。
+
+## foldl
+
+リストの要素を左から1つずつ処理しながら集計します。関数名末尾の`l`はLeft（左）の意味です。
+
+* `foldl :: 集計関数 -&gt; 初期値 -&gt; リスト -&gt; 集計結果`
+
+`foldl`で`sum`相当の処理をしてみました。
+
+```hs
+main = do
+    print $ sum [1..100]
+    print $ foldl (+) 0 [1..100]
+```
+```text:実行結果
+5050
+5050
+```
+
+`foldl`は手続型言語のループを関数化したものだと見なせます。次のJavaScriptコードと比較してみてください。
+
+```js:JavaScript
+var sum = 0;
+for (var i = 1; i &lt;= 100; ++i) {
+    sum += i;
+}
+console.log(sum);
+```
+```text:実行結果
+5050
+```
+
+集計の初期値として`0`を用意して、ループで`i`を次々に足していきます。そこから処理（足し算）と初期値を取り出して関数化したのが`foldl`だと見なすわけです。
+
+## foldr
+
+リストの要素を右から1つずつ処理しながら集計します。関数名末尾の`r`はRight（右）の意味です。
+
+```hs
+main = do
+    print $ foldr (-) 0 [1..5]
+    print $ foldl (-) 0 [1..5]
+```
+```text:実行結果
+3
+-15
+```
+
+再帰でリストの全要素を処理する際に、再帰から返って来た値を使って関数の戻り値を計算すると、戻り値が確定するのは再帰の復路です。この手の再帰を関数化したものだと見なせます。次のコードと比較してみてください。
+
+```hs:再帰で書き換え
+test []     = 0
+test (x:xs) = x - test xs
+
+main = do
+    print $ test [1..5]
+```
+```text:実行結果
+3
+```
+
+再帰の折り返し値として`0`を用意して、復路で`x`から次々に引いていきます。そこから処理（引き算）と折り返し値（最初に作用させる値）を取り出して関数化したのが`foldr`だと見なすわけです。
+
+* `1 - (2 - (3 - (4 - (5 - 0))))` → `1 - 2 + 3 - 4 + 5` → `3`
+
+※ 復路で実際の計算が始まるため、計算の順はリストの右からとなります。これがRightの意味です。
+
+`foldr`は次の記事を参考にしました。
+
+* [@taiju](https://twitter.com/taiju): [プログラミングHaskellのfoldr, foldlの説明が秀逸だった件 - あと味](http://taiju.hatenablog.com/entry/20130202/1359773888) 2013.2.2
+
+## 練習
+
+【問9】`map`, `filter`, `flip`, `foldl`, `foldr`を再帰で再実装してください。関数名には`&#39;`を付けてください。
+
+具体的には以下のコードが動くようにしてください。
+
+```hs
+main = do
+    print $ map&#39; (* 2) [1..5]
+    print $ filter&#39; (&lt; 5) [1..9]
+    print $ flip&#39; map&#39; [1..5] (* 2)
+    print $ foldl&#39; (+) 0 [1..100]
+    print $ foldl&#39; (-) 0 [1..5]
+    print $ foldr&#39; (-) 0 [1..5]
+```
+```text:実行結果
+[2,4,6,8,10]
+[1,2,3,4]
+[2,4,6,8,10]
+5050
+-15
+3
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E5%86%8D%E5%B8%B0)
+
+【問10】`foldl`で`reverse`と`maximum`と`minimum`を再実装してください。関数名には`&#39;`を付けてください。
+
+具体的には以下のコードが動くようにしてください。
+
+```hs
+main = do
+    let src = [-5..5]
+    print $ reverse&#39; src
+    print $ maximum&#39; src
+    print $ minimum&#39; src
+```
+```text:実行結果
+[5,4,3,2,1,0,-1,-2,-3,-4,-5]
+5
+-5
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#foldl)
+
+【問11】次に示す関数`qsort`を`filter`で書き替えてください。
+
+```hs
+qsort []     = []
+qsort (n:xs) = qsort lt ++ [n] ++ qsort gteq
+    where
+        lt   = [x | x &lt;- xs, x &lt;  n]
+        gteq = [x | x &lt;- xs, x &gt;= n]
+
+main = do
+    print $ qsort [4, 6, 9, 8, 3, 5, 1, 7, 2]
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%82%AF%E3%82%A4%E3%83%83%E3%82%AF%E3%82%BD%E3%83%BC%E3%83%88)
+
+【問12】次に示す関数`bswap`を`foldr`で書き替えてください。
+
+※ バブルソートの本体は`foldr`では実装できないため省きました。
+
+```hs
+bswap [x] = [x]
+bswap (x:xs)
+    | x &gt; y     = y:x:ys
+    | otherwise = x:y:ys
+    where
+        (y:ys) = bswap xs
+
+main = do
+    print $ bswap [4, 3, 1, 5, 2]
+```
+```text:実行結果
+[1,4,3,2,5]
+```
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%83%90%E3%83%96%E3%83%AB)
+
+この問題は次の記事を参考にしました。
+
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [リストの畳み込みと展開 - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20110913/1315905876) 2011.9.13
+
+# 不動点コンビネータ
+
+自己参照のできない無名のラムダ式で再帰を実現するテクニックとして、[不動点コンビネータ](http://ja.wikipedia.org/wiki/%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF)を利用する方法があります。あまり使う機会はないかもしれませんが、たまに見掛けるので知識として知っておいても損はないでしょう。
+
+## Yコンビネータ
+
+Yコンビネータ（不動点コンビネータの一種）と呼ばれる補助関数を定義します。
+
+```hs
+y f = f (y f)
+```
+
+Yコンビネータにラムダ式を渡すと、ラムダ式の第1引数にYコンビネータに包まれた自分自身が渡されます。これを使うことで再帰ができます。
+
+`sum`をインラインで実装した例です。ラムダ式の第1引数を関数名に見立てています。
+
+```hs
+y f = f (y f)
+
+main = do
+    print $ flip y [1..100] $
+        \sum xs -&gt; case xs of
+            []      -&gt; 0
+            (x:xs&#39;) -&gt; x + sum xs&#39;
+```
+```text:実行結果
+5050
+```
+
+Yコンビネータは次の記事を参考にしました。
+
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [Haskell で Y コンビネータ - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20100519/1274240859) 2010.5.19
+* [@kazu_yamamoto](https://twitter.com/kazu_yamamoto): [Yコンビネータのまとめ - あどけない話](http://d.hatena.ne.jp/kazu-yamamoto/20100601/1275367421) 2010.6.1
+
+## 練習
+
+【問13】Yコンビネータを使って10番目のフィボナッチ数を計算してください。
+
+⇒ [解答例](http://qiita.com/7shi/items/bfa4c282c504c24578d2#%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0)
+
+# 関数合成
+
+関数を連続して呼ぶのに対して、`.`で関数を合成しても同じことができます。
+
+```hs
+f x = x + 1
+g x = x * 2
+
+main = do
+    print $ f (g 1)
+    print $ (f . g) 1
+```
+```text:実行結果
+3
+3
+```
+
+関数を評価する順番はどちらも `g` → `f` です。
+
+関数を使うだけだとあまり違いは感じませんが、高階関数に渡すときに関数合成は便利です。
+
+```hs
+f x = x + 1
+g x = x * 2
+h f = f 1
+
+main = do
+    print $ h $ f . g
+    print $ h $ \x -&gt; f $ g x
+```
+```text:実行結果
+3
+3
+```
+
+## 2引数
+
+`g`の引数が増えるといきなり難しくなります。
+
+```hs
+f x = x * 2
+g x y = x + y
+
+main = do
+    print $ f $ g 1 2        -- (1 + 2) * 2
+    print $ ((f .) . g) 1 2  -- 関数合成
+```
+```text:実行結果
+6
+6
+```
+
+初期の段階であまり追及するようなものではないため紹介程度に留めておきますが、興味がある方は次の記事を参照してください。
+
+* [@7shi](https://twitter.com/7shi): [Haskell - 関数合成を機械的に扱う試み - Qiita](http://qiita.com/7shi/items/f2c1365b792aa6046a49) 2015.2.9
+
+# ポイントフリースタイル
+
+部分適用を利用すれば、別の関数に渡すだけの引数を省略できます。これを**ポイントフリースタイル**と呼びます。
+
+簡単な例を示します。
+
+```hs
+f1 x y = x - y
+f2 x y = (-) x y
+f3 x   = (-) x
+f4     = (-)
+
+g1 x = f4 2 x
+g2   = f4 2
+
+main = do
+    print $ g2 5
+```
+```text:実行結果
+-3
+```
+
+関数合成と組み合わせれば色々なパターンで引数を排除することができます。ただあまり突き詰めると、すぐには読めないコードになるような印象があります。
+
+もっと恐ろしいものの片鱗を味わいたい方は、次の記事を参照してみてください。
+
+* [@melponn](https://twitter.com/melponn): [ポイントフリースタイル入門 - melpon日記](http://d.hatena.ne.jp/melpon/20111031/1320024473) 2011.10.31
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Haskell ラムダ 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/1345bf32003faff435cb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Haskell ラムダ 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/1345bf32003faff435cb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/1345bf32003faff435cb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/1345bf32003faff435cb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A9%E3%83%A0%E3%83%80%E5%BC%8F\&quot;\u003eラムダ式\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9E%8B%E6%B3%A8%E9%87%88\&quot;\u003e型注釈\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-1\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%84%A1%E5%90%8D%E9%96%A2%E6%95%B0\&quot;\u003e無名関数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A4%87%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0\&quot;\u003e複数の引数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-2\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%AB%98%E9%9A%8E%E9%96%A2%E6%95%B0\&quot;\u003e高階関数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%BC%95%E6%95%B0\&quot;\u003e引数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%88%BB%E3%82%8A%E5%80%A4\&quot;\u003e戻り値\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-3\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AB%E3%83%AA%E3%83%BC%E5%8C%96\&quot;\u003eカリー化\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8\&quot;\u003e部分適用\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B3%A8%E6%84%8F%E7%82%B9\&quot;\u003e注意点\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-4\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%BC%94%E7%AE%97%E5%AD%90\&quot;\u003e演算子\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%83%A8%E5%88%86%E9%81%A9%E7%94%A8-1\&quot;\u003e部分適用\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3\&quot;\u003eセクション\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-5\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%89%B2%E3%80%85%E3%81%AA%E9%96%A2%E6%95%B0\&quot;\u003e色々な関数\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#map\&quot;\u003emap\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#filter\&quot;\u003efilter\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#flip\&quot;\u003eflip\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#foldl\&quot;\u003efoldl\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#foldr\&quot;\u003efoldr\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-6\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%8D%E5%8B%95%E7%82%B9%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF\&quot;\u003e不動点コンビネータ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#y%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8D%E3%83%BC%E3%82%BF\&quot;\u003eYコンビネータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%B4%E7%BF%92-7\&quot;\u003e練習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%96%A2%E6%95%B0%E5%90%88%E6%88%90\&quot;\u003e関数合成\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E5%BC%95%E6%95%B0\&quot;\u003e2引数\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88%E3%83%95%E3%83%AA%E3%83%BC%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB\&quot;\u003eポイントフリースタイル\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:42,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;1345bf32003faff435cb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="jmatsu"><a itemprop="url" href="/jmatsu"><img alt="jmatsu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20927/profile-images/1473683175" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="d_nishiyama85"><a itemprop="url" href="/d_nishiyama85"><img alt="d_nishiyama85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28313/profile-images/1473685173" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="uchiko"><a itemprop="url" href="/uchiko"><img alt="uchiko" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2278/profile-images/1473681372" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sibukixxx"><a itemprop="url" href="/sibukixxx"><img alt="sibukixxx" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4449/profile-images/1473684025" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="q1701"><a itemprop="url" href="/q1701"><img alt="q1701" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/27531/profile-images/1473685034" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="chomado"><a itemprop="url" href="/chomado"><img alt="chomado" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24609/profile-images/1477545674" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="bahaki386"><a itemprop="url" href="/bahaki386"><img alt="bahaki386" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47544/profile-images/1473691031" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kou_tana77"><a itemprop="url" href="/kou_tana77"><img alt="kou_tana77" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45958/profile-images/1473690481" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="izryt"><a itemprop="url" href="/izryt"><img alt="izryt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48496/profile-images/1473761154" /></a></div></div><div class="ArticleFooter__user"><a href="/7shi/items/1345bf32003faff435cb/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/1345bf32003faff435cb/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/1345bf32003faff435cb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 10 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/bfa4c282c504c24578d2#_reference-468d46db69bae6713ab8"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />【解答例】Haskell ラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-11-27T14:53:55+00:00">over 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/145f1234f8ec2af923ef#_reference-21342ce751ca1e71562e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-11-27T15:13:07+00:00">over 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/4a8a2807bb5186576c61#_reference-e6de764d035d517cabbf"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell アクションとラムダ 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-03T06:12:36+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/d3d3492ddd90d47160f2#_reference-777f2bbab1d774c504c3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell IOモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-11T07:10:57+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/deb19c4cba933590ffbf#_reference-45950b2118d47a2ce97e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell リストモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-18T17:37:24+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/85afd7bbd5d6c4115ad6#_reference-836ed0540579f39b97e2"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell アクション 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-26T23:35:19+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/2e9bff5d88302de1a9e9#_reference-315ed69e0ea167e73287"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 状態系モナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2014-12-27T01:47:02+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/takashi/items/341f195aaed93e1e1ebc#_reference-0edb68635d4866b88868"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/5767/profile-images/1487045865" />Yコンビネータについて調べた</a><time class="references_datetime js-dateTimeView" datetime="2015-01-02T14:51:28+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/4408b76624067c17e933#_reference-4f8e0131dd64e2d992c9"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell モナド変換子 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-04T13:32:38+00:00">about 2 years ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/a0143daac77a205e7962#_reference-1e485d227cde0b1792bc"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />カリー化と部分適用（JavaScriptとHaskell）</a><time class="references_datetime js-dateTimeView" datetime="2015-01-07T03:01:46+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/c7d7eec066af0fe0688d#_reference-caf62eaa0e04b99326bc"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell Maybeモナド 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-01-22T08:10:00+00:00">about 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/shigemk2/items/3a5e5df9fe85cf0b4eb2#_reference-7435aa41e6a18c8f7617"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/9578/profile-images/1473681465" />Scala ラムダ超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-03-20T00:11:00+00:00">almost 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/73e534c47bbebc71b37e#_reference-1fdadfedaf0b78f658f3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 例外処理 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-28T09:19:55+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/1ce76bde464b4a55c143#_reference-0995b60c437c02bf132d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 代数的データ型 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-28T13:19:07+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/b8c741e78a96ea2c10fe#_reference-01b8b32857251d369882"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />Haskell 構文解析 超入門</a><time class="references_datetime js-dateTimeView" datetime="2015-07-31T06:47:02+00:00">over 1 year ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Haskell ラムダ 超入門 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/1345bf32003faff435cb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Haskell ラムダ 超入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/1345bf32003faff435cb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/1345bf32003faff435cb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/1345bf32003faff435cb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:189580,&quot;uuid&quot;:&quot;1345bf32003faff435cb&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="BlDdcgJiyPXxFbDZ/evcMKaFXOOnF1A9+gplxEIiehJo0kYqmUzxvg7GBcWNHmJpxsJ4UDDTCsrG1Gw/oyx01A==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/1345bf32003faff435cb" /><input type="hidden" name="item_uuid" id="item_uuid" value="1345bf32003faff435cb" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/1345bf32003faff435cb", "id": 189580, "uuid": "1345bf32003faff435cb" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="EYsRqavJFzPQ3vwECpqB/EO/OFB/QvYj1POqm+TwDtF/CYrxMOcueC8NSRh6bz+lI/gc4+iGrNToLaNgBf4AFw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/1345bf32003faff435cb" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

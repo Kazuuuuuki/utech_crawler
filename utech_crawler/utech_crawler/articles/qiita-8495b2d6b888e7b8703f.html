@@ -1,0 +1,672 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>八元数の積をプログラムで確認 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="八元数は項が多くて積の計算が大変です。そこでプログラムを作って積・二乗・ノルムの二乗を確認してみました。
+
+八元数の虚部を7次元ベクトルとして扱うことで、積から内積と外積が得られます。
+
+
+\vec{v}\vec{w}=-\underbrace{\vec{v}\cdot\vec{w}}_{内積}+\underbrace{\vec{v}×\vec{w}}_{外積}
+
+
+シリーズの記事です。
+
+
+多項式の積を計算
+外積と愉快な仲間たち
+ユークリッド空間のホッジ双対とバブルソ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="7shi" name="twitter:creator" /><meta content="八元数の積をプログラムで確認 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="八元数は項が多くて積の計算が大変です。そこでプログラムを作って積・二乗・ノルムの二乗を確認してみました。
+
+八元数の虚部を7次元ベクトルとして扱うことで、積から内積と外積が得られます。
+
+```math
+\vec{v}\vec{w}=..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e8d29e8ff1879118096f0f5877946857.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="0CnModP7/oDHjhsUKPYq4uiM3bf5iEq6JCazNARBcqm+q1f5SNXHyzhdrghYA5S7iMv5BG5MEE0Y+LrP5U98bw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div data-react-class="T.HeaderContainer" data-react-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}"></div></div><div id="main"><ol class="itemBreadcrumbs" itemscope="" itemtype="http://schema.org/BreadcrumbList"><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/"><span itemprop="name">Qiita</span></a><meta content="1" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/items"><span itemprop="name">Items</span></a><meta content="2" itemprop="position" /></li><li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem"><a itemprop="item" href="/tags/%E6%95%B0%E5%AD%A6"><span itemprop="name">数学</span></a><meta content="3" itemprop="position" /></li></ol><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title">八元数の積をプログラムで確認</h1><ul class="TagList"><li class="TagList__item" data-count="503"><a class="u-link-unstyled TagList__label" href="/tags/%E6%95%B0%E5%AD%A6"><img alt="数学" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8fe97b92406365b26c7ffbda350a237c07ef4feb/medium.jpg?1421593187" /><span>数学</span></a></li><li class="TagList__item" data-count="9"><a class="u-link-unstyled TagList__label" href="/tags/%E5%9B%9B%E5%85%83%E6%95%B0"><img alt="四元数" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>四元数</span></a></li><li class="TagList__item" data-count="4"><a class="u-link-unstyled TagList__label" href="/tags/%E5%85%AB%E5%85%83%E6%95%B0"><img alt="八元数" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>八元数</span></a></li><li class="TagList__item" data-count="160"><a class="u-link-unstyled TagList__label" href="/tags/F%23"><img alt="F#" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/ba95a660afc4ec92093e69afbd0b70d04e51245b/medium.jpg?1395581508" /><span>F#</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">0</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="interactionCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:0,&quot;uuid&quot;:&quot;8495b2d6b888e7b8703f&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/7shi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" alt="1473685823" /></a> <a class="u-link-unstyled" href="/7shi">7shi</a> </div><div class="ArticleAsideHeader__date"><span data-toggle="tooltip" title="posted at 2016-12-13">Edited at <time datetime="2017-01-04T03:52:23+09:00" itemprop="dateModified">2017-01-04</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/7shi/items/8495b2d6b888e7b8703f/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">24</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/7shi/items/8495b2d6b888e7b8703f/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(24)</span></a></li><li><a href="/7shi/items/8495b2d6b888e7b8703f.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-8495b2d6b888e7b8703f" itemprop="articleBody"><p>八元数は項が多くて積の計算が大変です。そこでプログラムを作って積・二乗・ノルムの二乗を確認してみました。</p>
+
+<p>八元数の虚部を7次元ベクトルとして扱うことで、積から内積と外積が得られます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\vec{v}\vec{w}=-\underbrace{\vec{v}\cdot\vec{w}}_{内積}+\underbrace{\vec{v}×\vec{w}}_{外積}
+</pre></div></div>
+
+<p>シリーズの記事です。</p>
+
+<ol>
+<li><a href="http://qiita.com/7shi/items/4fb60dacad46cb8e63b3" id="reference-a3369024a98683b0e9e9">多項式の積を計算</a></li>
+<li><a href="http://qiita.com/7shi/items/017d2d2c758f76071f23" id="reference-acec32d15ebf90d05067">外積と愉快な仲間たち</a></li>
+<li><a href="http://qiita.com/7shi/items/f54302058149d07da592" id="reference-97a2f51bc5835c1e613f">ユークリッド空間のホッジ双対とバブルソート</a></li>
+<li><a href="http://qiita.com/7shi/items/2036e7a739c2a9e04025" id="reference-feabd75d0ae99a4d56d4">四元数を作ろう</a></li>
+<li><a href="http://qiita.com/7shi/items/a80988a32a0d706e9378" id="reference-d52ae264f2aa9fdc3087">四元数と行列で見る内積と外積の「内」と「外」</a></li>
+<li><a href="http://qiita.com/7shi/items/b34fe724d36fb7d96456" id="reference-f8b8ed46d8746725f41a">八元数を作ろう</a></li>
+<li>八元数の積をプログラムで確認 ← この記事</li>
+<li><a href="http://qiita.com/7shi/items/02c758c03d2fd7038912" id="reference-884ec624fa870ff95123">外積の成分をプログラムで確認</a></li>
+<li><a href="http://qiita.com/7shi/items/88be5203769e629df243" id="reference-120e5a6fd664b7bf8e35">多元数の積の構成</a></li>
+</ol>
+
+<h1>
+<span id="プログラム" class="fragment"></span><a href="#%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0"><i class="fa fa-link"></i></a>プログラム</h1>
+
+<p>八元数に関連するプログラムを引用します。<a href="https://bitbucket.org/7shi/math7/src/tip/Math7.fsx" rel="nofollow noopener" target="_blank">Math7.fsx</a> と <a href="https://bitbucket.org/7shi/math7/src/tip/Math7.Term.fsx" rel="nofollow noopener" target="_blank">Math7.Term.fsx</a> に依存しています。全体は<a href="https://bitbucket.org/7shi/math7" rel="nofollow noopener" target="_blank">リポジトリ</a>を参照してください。</p>
+
+<p>Math7 に八元数の計算方法を教えて計算させます。</p>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">Math7.Octonion.fsx</span></div>
+<div class="highlight"><pre>
+<span class="k">namespace</span> <span class="n">Math7</span>
+
+<span class="o">#</span><span class="n">load</span> <span class="s">"Math7.Term.fsx"</span>
+
+<span class="k">type</span> <span class="nc">octonion</span> <span class="o">=</span>
+    <span class="n">E</span> <span class="o">|</span> <span class="n">I</span> <span class="o">|</span> <span class="n">J</span> <span class="o">|</span> <span class="n">K</span> <span class="o">|</span> <span class="n">H</span> <span class="k">of</span> <span class="n">octonion</span>
+
+    <span class="k">override</span> <span class="n">x</span><span class="p">.</span><span class="nf">ToString</span><span class="bp">()</span> <span class="o">=</span>
+        <span class="k">match</span> <span class="n">x</span> <span class="k">with</span>
+        <span class="o">|</span>   <span class="n">E</span> <span class="o">-&gt;</span> <span class="s">"1"</span> <span class="o">|</span> <span class="n">I</span> <span class="o">-&gt;</span> <span class="s">"i"</span> <span class="o">|</span> <span class="n">J</span> <span class="o">-&gt;</span> <span class="s">"j"</span> <span class="o">|</span> <span class="n">K</span> <span class="o">-&gt;</span> <span class="s">"k"</span>
+        <span class="o">|</span> <span class="n">H</span> <span class="n">E</span> <span class="o">-&gt;</span> <span class="s">"h"</span>
+        <span class="o">|</span> <span class="n">H</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="kt">string</span> <span class="n">x</span> <span class="o">+</span> <span class="s">"_h"</span>
+
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">N</span> <span class="o">=</span>
+        <span class="k">match</span> <span class="n">x</span> <span class="k">with</span>
+        <span class="o">|</span> <span class="n">E</span> <span class="o">-&gt;</span> <span class="mi">0</span> <span class="o">|</span> <span class="n">I</span> <span class="o">-&gt;</span> <span class="mi">1</span> <span class="o">|</span> <span class="n">J</span> <span class="o">-&gt;</span> <span class="mi">2</span> <span class="o">|</span> <span class="n">K</span> <span class="o">-&gt;</span> <span class="mi">3</span>
+        <span class="o">|</span> <span class="n">H</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">N</span> <span class="o">+</span> <span class="mi">4</span>
+
+    <span class="k">member</span> <span class="n">x</span><span class="p">.</span><span class="nf">Next</span> <span class="o">=</span>
+        <span class="k">match</span> <span class="n">x</span> <span class="k">with</span>
+        <span class="o">|</span>   <span class="n">I</span> <span class="o">-&gt;</span> <span class="n">J</span>
+        <span class="o">|</span>   <span class="n">J</span> <span class="o">-&gt;</span> <span class="n">K</span>
+        <span class="o">|</span>   <span class="n">K</span> <span class="o">-&gt;</span> <span class="n">I</span>
+        <span class="o">|</span> <span class="n">H</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">H</span> <span class="n">x</span><span class="o">.</span><span class="n">Next</span>
+        <span class="o">|</span>   <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span>
+
+    <span class="k">static</span> <span class="k">member</span> <span class="o">(*)(</span><span class="n">a</span><span class="o">:</span><span class="n">octonion</span><span class="o">,</span> <span class="n">b</span><span class="o">:</span><span class="n">octonion</span><span class="o">)</span> <span class="o">=</span>
+        <span class="k">match</span> <span class="n">a</span><span class="o">,</span> <span class="n">b</span> <span class="k">with</span>
+        <span class="o">|</span>   <span class="n">x</span><span class="o">,</span>   <span class="n">E</span>            <span class="o">-&gt;</span>  <span class="mi">1</span><span class="o">,</span>   <span class="n">x</span>  <span class="c1">// i1 = i</span>
+        <span class="o">|</span>   <span class="n">E</span><span class="o">,</span>   <span class="n">y</span>            <span class="o">-&gt;</span>  <span class="mi">1</span><span class="o">,</span>   <span class="n">y</span>  <span class="c1">// 1i = i</span>
+        <span class="o">|</span>   <span class="n">x</span><span class="o">,</span>   <span class="n">y</span> <span class="k">when</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span>   <span class="n">E</span>  <span class="c1">// ii = -1</span>
+        <span class="o">|</span> <span class="n">H</span> <span class="n">x</span><span class="o">,</span> <span class="n">H</span> <span class="n">E</span>            <span class="o">-&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span>   <span class="n">x</span>  <span class="c1">// i_hh = -i</span>
+        <span class="o">|</span> <span class="n">H</span> <span class="n">x</span><span class="o">,</span> <span class="n">H</span> <span class="n">y</span>            <span class="o">-&gt;</span> <span class="n">y</span> <span class="o">*</span> <span class="n">x</span>    <span class="c1">// i_hj_h = ji</span>
+        <span class="o">|</span>   <span class="n">x</span><span class="o">,</span> <span class="n">H</span> <span class="n">E</span>            <span class="o">-&gt;</span>  <span class="mi">1</span><span class="o">,</span> <span class="n">H</span> <span class="n">x</span>  <span class="c1">// ih = i_h</span>
+        <span class="o">|</span>   <span class="n">x</span><span class="o">,</span> <span class="n">H</span> <span class="n">y</span> <span class="k">when</span> <span class="n">x</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="o">,</span> <span class="n">H</span> <span class="n">E</span>  <span class="c1">// ii_h = -h</span>
+        <span class="o">|</span>   <span class="n">x</span><span class="o">,</span> <span class="n">H</span> <span class="n">y</span> <span class="o">-&gt;</span> <span class="k">let</span> <span class="nv">c</span><span class="o">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">x</span>    <span class="c1">// ij_h = (ji)h</span>
+                      <span class="n">c</span><span class="o">,</span> <span class="n">H</span> <span class="n">z</span>
+        <span class="o">|</span>   <span class="n">x</span><span class="o">,</span>   <span class="n">y</span> <span class="k">when</span> <span class="n">x</span><span class="o">.</span><span class="n">Next</span> <span class="o">=</span> <span class="n">y</span>        <span class="c1">// ij = k</span>
+                   <span class="o">-&gt;</span> <span class="mi">1</span><span class="o">,</span> <span class="n">y</span><span class="o">.</span><span class="n">Next</span>
+        <span class="o">|</span>   <span class="n">x</span><span class="o">,</span>   <span class="n">y</span> <span class="o">-&gt;</span> <span class="k">let</span> <span class="nv">c</span><span class="o">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">x</span>    <span class="c1">// ji = -ij</span>
+                      <span class="o">-</span><span class="n">c</span><span class="o">,</span> <span class="n">z</span>
+
+<span class="k">module</span> <span class="nn">Octonion</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="nv">tests</span> <span class="o">=</span> <span class="n">testList</span><span class="bp">()</span>
+
+    <span class="k">let</span> <span class="nv">octs</span> <span class="o">=</span> <span class="o">[|</span> <span class="n">E</span><span class="o">;</span> <span class="n">I</span><span class="o">;</span> <span class="n">J</span><span class="o">;</span> <span class="n">K</span><span class="o">;</span> <span class="n">H</span> <span class="n">E</span><span class="o">;</span> <span class="n">H</span> <span class="n">I</span><span class="o">;</span> <span class="n">H</span> <span class="n">J</span><span class="o">;</span> <span class="n">H</span> <span class="n">K</span> <span class="o">|]</span>
+    <span class="k">let</span> <span class="nv">oct</span> <span class="n">x</span> <span class="o">=</span> <span class="n">octs</span><span class="o">.[</span><span class="n">x</span><span class="o">]</span>
+    <span class="k">let</span> <span class="nv">ijkh</span> <span class="o">=</span> <span class="k">function</span>
+    <span class="o">|</span> <span class="mi">0</span> <span class="o">-&gt;</span> <span class="s">""</span>
+    <span class="o">|</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="kt">string</span> <span class="o">(</span><span class="n">oct</span> <span class="n">x</span><span class="o">)</span>
+
+    <span class="k">let</span> <span class="nv">str</span> <span class="n">es</span> <span class="o">=</span> <span class="n">es</span> <span class="o">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">map</span> <span class="n">ijkh</span> <span class="o">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">filter</span> <span class="o">((&lt;&gt;)</span> <span class="s">""</span><span class="o">)</span> <span class="o">|&gt;</span> <span class="nn">Term</span><span class="p">.</span><span class="n">strPower</span>
+
+    <span class="k">let</span> <span class="nv">prod</span> <span class="n">es</span> <span class="o">=</span>
+        <span class="k">let</span> <span class="nv">n</span><span class="o">,</span> <span class="n">e</span> <span class="o">=</span> <span class="n">es</span> <span class="o">|&gt;</span> <span class="nn">Seq</span><span class="p">.</span><span class="n">fold</span> <span class="o">(</span><span class="k">fun</span> <span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="n">x</span><span class="o">)</span> <span class="n">y</span> <span class="o">-&gt;</span>
+            <span class="k">let</span> <span class="nv">m</span><span class="o">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">oct</span> <span class="n">x</span> <span class="o">*</span> <span class="n">oct</span> <span class="n">y</span>
+            <span class="n">n</span> <span class="o">*</span> <span class="n">m</span><span class="o">,</span> <span class="n">z</span><span class="o">.</span><span class="n">N</span><span class="o">)</span> <span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="nn">E</span><span class="p">.</span><span class="n">N</span><span class="o">)</span>
+        <span class="n">term</span><span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="bp">[]</span><span class="o">,</span> <span class="k">if</span> <span class="n">e</span> <span class="o">=</span> <span class="nn">E</span><span class="p">.</span><span class="n">N</span> <span class="k">then</span> <span class="bp">[]</span> <span class="k">else</span> <span class="o">[</span><span class="n">e</span><span class="o">])</span>
+
+    <span class="k">let</span> <span class="nv">conj</span> <span class="o">=</span> <span class="nn">List</span><span class="p">.</span><span class="n">map</span> <span class="o">&lt;|</span> <span class="k">fun</span> <span class="o">(</span><span class="n">t</span><span class="o">:</span><span class="n">term</span><span class="o">)</span> <span class="o">-&gt;</span>
+        <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">E</span><span class="o">.</span><span class="n">IsEmpty</span> <span class="k">then</span> <span class="n">t</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">t</span>
+
+    <span class="k">let</span> <span class="nv">showProd</span> <span class="n">title</span> <span class="o">=</span>
+        <span class="nn">Term</span><span class="p">.</span><span class="n">showProd</span> <span class="n">title</span> <span class="s">""</span> <span class="n">str</span> <span class="n">prod</span> <span class="n">id</span> <span class="nn">Term</span><span class="p">.</span><span class="n">byIndexSign</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="fsharp">
+<div class="code-lang"><span class="bold">OctonionProduct.fsx</span></div>
+<div class="highlight"><pre>
+<span class="o">#</span><span class="n">load</span> <span class="s">"Math7.Octonion.fsx"</span>
+<span class="k">open</span> <span class="nn">Math7</span>
+
+<span class="k">let</span> <span class="nv">a</span> <span class="o">=</span> <span class="o">[</span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">7</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="n">sprintf</span> <span class="s">"a_%d"</span> <span class="n">i</span><span class="o">],</span> <span class="o">[</span><span class="n">i</span><span class="o">])]</span>
+<span class="k">let</span> <span class="nv">b</span> <span class="o">=</span> <span class="o">[</span><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="o">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">7</span><span class="o">]</span> <span class="o">-&gt;</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="n">sprintf</span> <span class="s">"b_%d"</span> <span class="n">i</span><span class="o">],</span> <span class="o">[</span><span class="n">i</span><span class="o">])]</span>
+<span class="k">let</span> <span class="nv">aa</span> <span class="o">=</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"a_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">)::</span><span class="n">a</span>
+<span class="k">let</span> <span class="nv">bb</span> <span class="o">=</span> <span class="n">term</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="o">[</span><span class="s">"b_0"</span><span class="o">],</span> <span class="bp">[]</span><span class="o">)::</span><span class="n">b</span>
+<span class="nn">Octonion</span><span class="p">.</span><span class="n">showProd</span> <span class="s">"## 積（虚部）"</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span> <span class="n">a</span> <span class="n">b</span>
+<span class="nn">Octonion</span><span class="p">.</span><span class="n">showProd</span> <span class="s">"## 積（実部＋虚部）"</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span> <span class="n">aa</span> <span class="n">bb</span>
+<span class="nn">Octonion</span><span class="p">.</span><span class="n">showProd</span> <span class="s">"## 二乗（虚部）"</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span> <span class="n">a</span> <span class="n">a</span>
+<span class="nn">Octonion</span><span class="p">.</span><span class="n">showProd</span> <span class="s">"## 二乗（実部＋虚部）"</span> <span class="o">((=)</span> <span class="mi">1</span><span class="o">)</span> <span class="n">aa</span> <span class="n">aa</span>
+<span class="nn">Octonion</span><span class="p">.</span><span class="n">showProd</span> <span class="s">"## ノルムの二乗"</span> <span class="o">(</span><span class="k">fun</span> <span class="o">_</span> <span class="o">-&gt;</span> <span class="k">true</span><span class="o">)</span> <span class="o">(</span><span class="nn">Octonion</span><span class="p">.</span><span class="n">conj</span> <span class="n">aa</span><span class="o">)</span> <span class="n">aa</span>
+</pre></div>
+</div>
+
+<p>出力結果にコメントを付けて紹介します。</p>
+
+<h2>
+<span id="積虚部" class="fragment"></span><a href="#%E7%A9%8D%E8%99%9A%E9%83%A8"><i class="fa fa-link"></i></a>積（虚部）</h2>
+
+<p>冒頭で述べたように、内積と外積を計算することに相当します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_1i(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_2j(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_3k(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_4h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_5i_h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_6j_h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_7k_h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j}+a_1b_4\underbrace{ih}_{i_h}+a_1b_5\underbrace{ii_h}_{-h}+a_1b_6\underbrace{ij_h}_{-k_h}+a_1b_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i}+a_2b_4\underbrace{jh}_{j_h}+a_2b_5\underbrace{ji_h}_{k_h}+a_2b_6\underbrace{jj_h}_{-h}+a_2b_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1}+a_3b_4\underbrace{kh}_{k_h}+a_3b_5\underbrace{ki_h}_{-j_h}+a_3b_6\underbrace{kj_h}_{i_h}+a_3b_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4b_1\underbrace{hi}_{-i_h}+a_4b_2\underbrace{hj}_{-j_h}+a_4b_3\underbrace{hk}_{-k_h}+a_4b_4\underbrace{h^2}_{-1}+a_4b_5\underbrace{hi_h}_{i}+a_4b_6\underbrace{hj_h}_{j}+a_4b_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5b_1\underbrace{i_hi}_{h}+a_5b_2\underbrace{i_hj}_{-k_h}+a_5b_3\underbrace{i_hk}_{j_h}+a_5b_4\underbrace{i_hh}_{-i}+a_5b_5\underbrace{i_h^2}_{-1}+a_5b_6\underbrace{i_hj_h}_{-k}+a_5b_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6b_1\underbrace{j_hi}_{k_h}+a_6b_2\underbrace{j_hj}_{h}+a_6b_3\underbrace{j_hk}_{-i_h}+a_6b_4\underbrace{j_hh}_{-j}+a_6b_5\underbrace{j_hi_h}_{k}+a_6b_6\underbrace{j_h^2}_{-1}+a_6b_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7b_1\underbrace{k_hi}_{-j_h}+a_7b_2\underbrace{k_hj}_{i_h}+a_7b_3\underbrace{k_hk}_{h}+a_7b_4\underbrace{k_hh}_{-k}+a_7b_5\underbrace{k_hi_h}_{-j}+a_7b_6\underbrace{k_hj_h}_{i}+a_7b_7\underbrace{k_h^2}_{-1} \\
+&amp;=-(a_1b_1+a_2b_2+a_3b_3+a_4b_4+a_5b_5+a_6b_6+a_7b_7) \\
+&amp;\quad +(a_2b_3-a_3b_2+a_4b_5-a_5b_4+a_7b_6-a_6b_7)i \\
+&amp;\quad +(a_3b_1-a_1b_3+a_4b_6-a_6b_4+a_5b_7-a_7b_5)j \\
+&amp;\quad +(a_1b_2-a_2b_1+a_4b_7-a_7b_4+a_6b_5-a_5b_6)k \\
+&amp;\quad +(a_5b_1-a_1b_5+a_6b_2-a_2b_6+a_7b_3-a_3b_7)h \\
+&amp;\quad +(a_1b_4-a_4b_1+a_7b_2-a_2b_7+a_3b_6-a_6b_3)i_h \\
+&amp;\quad +(a_1b_7-a_7b_1+a_2b_4-a_4b_2+a_5b_3-a_3b_5)j_h \\
+&amp;\quad +(a_6b_1-a_1b_6+a_2b_5-a_5b_2+a_3b_4-a_4b_3)k_h \\
+\end{align}
+</pre></div></div>
+
+<p>$i$ の係数を $(a_2b_3-a_3b_2)+(a_4b_5-a_5b_4)+(a_7b_6-a_6b_7)$ のように三分割して見れば、3次元の外積が三重に入ったような形をしていることに気付きます。3次元では1つの係数に $3-1=2$ 個の項が入りますが、7次元では $7-1=6$ 個の項が入ります。これが三重に見える理由です。</p>
+
+<p>※ 八元数の虚部で表される7次元空間はフラットなユークリッド空間ではなく、ファノ平面で表される3次元の部分空間が重なった形をしており、個別に見れば3次元空間のためベクトル積が定義できます。詳細は機会があればまとめる予定です。</p>
+
+<p>また、係数は基底（$i$ は1番目）を除いた添字（2,3,4,5,6,7）が使われており、相補的な関係にあることが分かります。他の項も同様です。これは3次元の外積と共通する特徴です。</p>
+
+<p>比較として四元数の積（3次元の内積と外積を含む）を示します。成分を見れば、四元数が八元数のサブセットであることが見て取れます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_1i+a_2j+a_3k)(b_1i+b_2j+b_3k) \\
+&amp;=-(a_1b_1+a_2b_2+a_3b_3) \\
+&amp;\quad +(a_2b_3-a_3b_2)i+(a_3b_1-a_1b_3)j+(a_1b_2-a_2b_1)k \\
+\end{align}
+</pre></div></div>
+
+<p>複素数にまで落とせば、1次元では内積しか現れないことが分かります。外積は常に0だとも解釈できます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+(a_1i)(b_1i)=-(a_1b_1)
+</pre></div></div>
+
+<h2>
+<span id="積実部虚部" class="fragment"></span><a href="#%E7%A9%8D%E5%AE%9F%E9%83%A8%E8%99%9A%E9%83%A8"><i class="fa fa-link"></i></a>積（実部＋虚部）</h2>
+
+<p>虚部だけの計算と比べれば、実部が各項に絡みついているように見えます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_4h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_5i_h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_6j_h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_7k_h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k+a_0b_4h+a_0b_5i_h+a_0b_6j_h+a_0b_7k_h \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j}+a_1b_4\underbrace{ih}_{i_h}+a_1b_5\underbrace{ii_h}_{-h}+a_1b_6\underbrace{ij_h}_{-k_h}+a_1b_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i}+a_2b_4\underbrace{jh}_{j_h}+a_2b_5\underbrace{ji_h}_{k_h}+a_2b_6\underbrace{jj_h}_{-h}+a_2b_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1}+a_3b_4\underbrace{kh}_{k_h}+a_3b_5\underbrace{ki_h}_{-j_h}+a_3b_6\underbrace{kj_h}_{i_h}+a_3b_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4b_0h+a_4b_1\underbrace{hi}_{-i_h}+a_4b_2\underbrace{hj}_{-j_h}+a_4b_3\underbrace{hk}_{-k_h}+a_4b_4\underbrace{h^2}_{-1}+a_4b_5\underbrace{hi_h}_{i}+a_4b_6\underbrace{hj_h}_{j}+a_4b_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5b_0i_h+a_5b_1\underbrace{i_hi}_{h}+a_5b_2\underbrace{i_hj}_{-k_h}+a_5b_3\underbrace{i_hk}_{j_h}+a_5b_4\underbrace{i_hh}_{-i}+a_5b_5\underbrace{i_h^2}_{-1}+a_5b_6\underbrace{i_hj_h}_{-k}+a_5b_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6b_0j_h+a_6b_1\underbrace{j_hi}_{k_h}+a_6b_2\underbrace{j_hj}_{h}+a_6b_3\underbrace{j_hk}_{-i_h}+a_6b_4\underbrace{j_hh}_{-j}+a_6b_5\underbrace{j_hi_h}_{k}+a_6b_6\underbrace{j_h^2}_{-1}+a_6b_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7b_0k_h+a_7b_1\underbrace{k_hi}_{-j_h}+a_7b_2\underbrace{k_hj}_{i_h}+a_7b_3\underbrace{k_hk}_{h}+a_7b_4\underbrace{k_hh}_{-k}+a_7b_5\underbrace{k_hi_h}_{-j}+a_7b_6\underbrace{k_hj_h}_{i}+a_7b_7\underbrace{k_h^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2-a_3b_3-a_4b_4-a_5b_5-a_6b_6-a_7b_7) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3-a_3b_2+a_4b_5-a_5b_4+a_7b_6-a_6b_7)i \\
+&amp;\quad +(a_0b_2+a_2b_0+a_3b_1-a_1b_3+a_4b_6-a_6b_4+a_5b_7-a_7b_5)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2-a_2b_1+a_4b_7-a_7b_4+a_6b_5-a_5b_6)k \\
+&amp;\quad +(a_0b_4+a_4b_0+a_5b_1-a_1b_5+a_6b_2-a_2b_6+a_7b_3-a_3b_7)h \\
+&amp;\quad +(a_0b_5+a_5b_0+a_1b_4-a_4b_1+a_7b_2-a_2b_7+a_3b_6-a_6b_3)i_h \\
+&amp;\quad +(a_0b_6+a_6b_0+a_1b_7-a_7b_1+a_2b_4-a_4b_2+a_5b_3-a_3b_5)j_h \\
+&amp;\quad +(a_0b_7+a_7b_0+a_6b_1-a_1b_6+a_2b_5-a_5b_2+a_3b_4-a_4b_3)k_h \\
+\end{align}
+</pre></div></div>
+
+<p>この計算をスカラーとベクトルの和の積と見なせば、ごく普通の掛け算として構造が見えて来ます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+\vec{a})(b_0+\vec{b}) \\
+&amp;=a_0b_0+a_0\vec{b}+\vec{a}b_0+\vec{a}\vec{b} \\
+&amp;=\underbrace{a_0b_0}_{スカラー積}+\underbrace{a_0\vec{b}+b_0\vec{a}}_{スカラー倍}-\underbrace{\vec{a}\cdot\vec{b}}_{内積}+\underbrace{\vec{a}×\vec{b}}_{外積}
+\end{align}
+</pre></div></div>
+
+<p>$i$ の項を $a_0(b_1)i+b_0(a_1)i+(a_2b_3-a_3b_2+a_4b_5-a_5b_4+a_7b_6-a_6b_7)i$ と分離すれば、ベクトルのスカラー倍と外積が重なっていることが確認できます。</p>
+
+<p>この解釈では実部はベクトルの成分ではなく、ベクトルとして扱われるのは虚部の7次元です。実部まで含めた8次元ベクトルとしてうまく解釈できるかは不明です。</p>
+
+<h2>
+<span id="二乗虚部" class="fragment"></span><a href="#%E4%BA%8C%E4%B9%97%E8%99%9A%E9%83%A8"><i class="fa fa-link"></i></a>二乗（虚部）</h2>
+
+<p>自分自身との外積はゼロのため、計算結果は実部（内積）のみです。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)^2 \\
+&amp;=a_1i(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_2j(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_3k(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_4h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_5i_h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_6j_h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_7k_h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j}+a_1a_4\underbrace{ih}_{i_h}+a_1a_5\underbrace{ii_h}_{-h}+a_1a_6\underbrace{ij_h}_{-k_h}+a_1a_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2a_1\underbrace{ji}_{-k}+a_2^2\underbrace{j^2}_{-1}+a_2a_3\underbrace{jk}_{i}+a_2a_4\underbrace{jh}_{j_h}+a_2a_5\underbrace{ji_h}_{k_h}+a_2a_6\underbrace{jj_h}_{-h}+a_2a_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3a_1\underbrace{ki}_{j}+a_3a_2\underbrace{kj}_{-i}+a_3^2\underbrace{k^2}_{-1}+a_3a_4\underbrace{kh}_{k_h}+a_3a_5\underbrace{ki_h}_{-j_h}+a_3a_6\underbrace{kj_h}_{i_h}+a_3a_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4a_1\underbrace{hi}_{-i_h}+a_4a_2\underbrace{hj}_{-j_h}+a_4a_3\underbrace{hk}_{-k_h}+a_4^2\underbrace{h^2}_{-1}+a_4a_5\underbrace{hi_h}_{i}+a_4a_6\underbrace{hj_h}_{j}+a_4a_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5a_1\underbrace{i_hi}_{h}+a_5a_2\underbrace{i_hj}_{-k_h}+a_5a_3\underbrace{i_hk}_{j_h}+a_5a_4\underbrace{i_hh}_{-i}+a_5^2\underbrace{i_h^2}_{-1}+a_5a_6\underbrace{i_hj_h}_{-k}+a_5a_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6a_1\underbrace{j_hi}_{k_h}+a_6a_2\underbrace{j_hj}_{h}+a_6a_3\underbrace{j_hk}_{-i_h}+a_6a_4\underbrace{j_hh}_{-j}+a_6a_5\underbrace{j_hi_h}_{k}+a_6^2\underbrace{j_h^2}_{-1}+a_6a_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7a_1\underbrace{k_hi}_{-j_h}+a_7a_2\underbrace{k_hj}_{i_h}+a_7a_3\underbrace{k_hk}_{h}+a_7a_4\underbrace{k_hh}_{-k}+a_7a_5\underbrace{k_hi_h}_{-j}+a_7a_6\underbrace{k_hj_h}_{i}+a_7^2\underbrace{k_h^2}_{-1} \\
+&amp;=-(a_1^2+a_2^2+a_3^2+a_4^2+a_5^2+a_6^2+a_7^2) \\
+\end{align}
+</pre></div></div>
+
+<h2>
+<span id="二乗実部虚部" class="fragment"></span><a href="#%E4%BA%8C%E4%B9%97%E5%AE%9F%E9%83%A8%E8%99%9A%E9%83%A8"><i class="fa fa-link"></i></a>二乗（実部＋虚部）</h2>
+
+<p>積（実部＋虚部）との比較で見れば、虚部にはベクトルのスカラー倍が表れていると解釈できます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)^2 \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_1i(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_2j(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_3k(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_4h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_5i_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_6j_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_7k_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k+a_0a_4h+a_0a_5i_h+a_0a_6j_h+a_0a_7k_h \\
+&amp;\quad +a_1a_0i+a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j}+a_1a_4\underbrace{ih}_{i_h}+a_1a_5\underbrace{ii_h}_{-h}+a_1a_6\underbrace{ij_h}_{-k_h}+a_1a_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2a_0j+a_2a_1\underbrace{ji}_{-k}+a_2^2\underbrace{j^2}_{-1}+a_2a_3\underbrace{jk}_{i}+a_2a_4\underbrace{jh}_{j_h}+a_2a_5\underbrace{ji_h}_{k_h}+a_2a_6\underbrace{jj_h}_{-h}+a_2a_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3a_0k+a_3a_1\underbrace{ki}_{j}+a_3a_2\underbrace{kj}_{-i}+a_3^2\underbrace{k^2}_{-1}+a_3a_4\underbrace{kh}_{k_h}+a_3a_5\underbrace{ki_h}_{-j_h}+a_3a_6\underbrace{kj_h}_{i_h}+a_3a_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4a_0h+a_4a_1\underbrace{hi}_{-i_h}+a_4a_2\underbrace{hj}_{-j_h}+a_4a_3\underbrace{hk}_{-k_h}+a_4^2\underbrace{h^2}_{-1}+a_4a_5\underbrace{hi_h}_{i}+a_4a_6\underbrace{hj_h}_{j}+a_4a_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5a_0i_h+a_5a_1\underbrace{i_hi}_{h}+a_5a_2\underbrace{i_hj}_{-k_h}+a_5a_3\underbrace{i_hk}_{j_h}+a_5a_4\underbrace{i_hh}_{-i}+a_5^2\underbrace{i_h^2}_{-1}+a_5a_6\underbrace{i_hj_h}_{-k}+a_5a_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6a_0j_h+a_6a_1\underbrace{j_hi}_{k_h}+a_6a_2\underbrace{j_hj}_{h}+a_6a_3\underbrace{j_hk}_{-i_h}+a_6a_4\underbrace{j_hh}_{-j}+a_6a_5\underbrace{j_hi_h}_{k}+a_6^2\underbrace{j_h^2}_{-1}+a_6a_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7a_0k_h+a_7a_1\underbrace{k_hi}_{-j_h}+a_7a_2\underbrace{k_hj}_{i_h}+a_7a_3\underbrace{k_hk}_{h}+a_7a_4\underbrace{k_hh}_{-k}+a_7a_5\underbrace{k_hi_h}_{-j}+a_7a_6\underbrace{k_hj_h}_{i}+a_7^2\underbrace{k_h^2}_{-1} \\
+&amp;=(a_0^2-a_1^2-a_2^2-a_3^2-a_4^2-a_5^2-a_6^2-a_7^2) \\
+&amp;\quad +2a_0a_1i+2a_0a_2j+2a_0a_3k+2a_0a_4h+2a_0a_5i_h+2a_0a_6j_h+2a_0a_7k_h \\
+\end{align}
+</pre></div></div>
+
+<h2>
+<span id="ノルムの二乗" class="fragment"></span><a href="#%E3%83%8E%E3%83%AB%E3%83%A0%E3%81%AE%E4%BA%8C%E4%B9%97"><i class="fa fa-link"></i></a>ノルムの二乗</h2>
+
+<p>ノルムだけ見れば、実部を含めてユークリッド空間の8次元ベクトルとして扱えます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+&amp;(a_0-a_1i-a_2j-a_3k-a_4h-a_5i_h-a_6j_h-a_7k_h)(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_1i(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_4h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_5i_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_6j_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_7k_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k+a_0a_4h+a_0a_5i_h+a_0a_6j_h+a_0a_7k_h \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{-1}-a_1a_2\underbrace{ij}_{k}-a_1a_3\underbrace{ik}_{-j}-a_1a_4\underbrace{ih}_{i_h}-a_1a_5\underbrace{ii_h}_{-h}-a_1a_6\underbrace{ij_h}_{-k_h}-a_1a_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{-k}-a_2^2\underbrace{j^2}_{-1}-a_2a_3\underbrace{jk}_{i}-a_2a_4\underbrace{jh}_{j_h}-a_2a_5\underbrace{ji_h}_{k_h}-a_2a_6\underbrace{jj_h}_{-h}-a_2a_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{-1}-a_3a_4\underbrace{kh}_{k_h}-a_3a_5\underbrace{ki_h}_{-j_h}-a_3a_6\underbrace{kj_h}_{i_h}-a_3a_7\underbrace{kk_h}_{-h} \\
+&amp;\quad -a_4a_0h-a_4a_1\underbrace{hi}_{-i_h}-a_4a_2\underbrace{hj}_{-j_h}-a_4a_3\underbrace{hk}_{-k_h}-a_4^2\underbrace{h^2}_{-1}-a_4a_5\underbrace{hi_h}_{i}-a_4a_6\underbrace{hj_h}_{j}-a_4a_7\underbrace{hk_h}_{k} \\
+&amp;\quad -a_5a_0i_h-a_5a_1\underbrace{i_hi}_{h}-a_5a_2\underbrace{i_hj}_{-k_h}-a_5a_3\underbrace{i_hk}_{j_h}-a_5a_4\underbrace{i_hh}_{-i}-a_5^2\underbrace{i_h^2}_{-1}-a_5a_6\underbrace{i_hj_h}_{-k}-a_5a_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad -a_6a_0j_h-a_6a_1\underbrace{j_hi}_{k_h}-a_6a_2\underbrace{j_hj}_{h}-a_6a_3\underbrace{j_hk}_{-i_h}-a_6a_4\underbrace{j_hh}_{-j}-a_6a_5\underbrace{j_hi_h}_{k}-a_6^2\underbrace{j_h^2}_{-1}-a_6a_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad -a_7a_0k_h-a_7a_1\underbrace{k_hi}_{-j_h}-a_7a_2\underbrace{k_hj}_{i_h}-a_7a_3\underbrace{k_hk}_{h}-a_7a_4\underbrace{k_hh}_{-k}-a_7a_5\underbrace{k_hi_h}_{-j}-a_7a_6\underbrace{k_hj_h}_{i}-a_7^2\underbrace{k_h^2}_{-1} \\
+&amp;=a_0^2+a_1^2+a_2^2+a_3^2+a_4^2+a_5^2+a_6^2+a_7^2 \\
+\end{align}
+</pre></div></div>
+<div class="hidden"><form class="js-task-list-update" action="/7shi/items/8495b2d6b888e7b8703f" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="duka05DZG4eRrTk+Sv16B10TmLUB1sr4Ibc7Gdrk20sYa4GLC/cizG5+jCI6CMRePVS8BpYSkA8daTLiO+rVjQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1483469543" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+八元数は項が多くて積の計算が大変です。そこでプログラムを作って積・二乗・ノルムの二乗を確認してみました。
+
+八元数の虚部を7次元ベクトルとして扱うことで、積から内積と外積が得られます。
+
+```math
+\vec{v}\vec{w}=-\underbrace{\vec{v}\cdot\vec{w}}_{内積}+\underbrace{\vec{v}×\vec{w}}_{外積}
+```
+
+シリーズの記事です。
+
+1. [多項式の積を計算](http://qiita.com/7shi/items/4fb60dacad46cb8e63b3)
+1. [外積と愉快な仲間たち](http://qiita.com/7shi/items/017d2d2c758f76071f23)
+1. [ユークリッド空間のホッジ双対とバブルソート](http://qiita.com/7shi/items/f54302058149d07da592)
+1. [四元数を作ろう](http://qiita.com/7shi/items/2036e7a739c2a9e04025)
+1. [四元数と行列で見る内積と外積の「内」と「外」](http://qiita.com/7shi/items/a80988a32a0d706e9378)
+1. [八元数を作ろう](http://qiita.com/7shi/items/b34fe724d36fb7d96456)
+1. 八元数の積をプログラムで確認 ← この記事
+1. [外積の成分をプログラムで確認](http://qiita.com/7shi/items/02c758c03d2fd7038912)
+1. [多元数の積の構成](http://qiita.com/7shi/items/88be5203769e629df243)
+
+# プログラム
+
+八元数に関連するプログラムを引用します。[Math7.fsx](https://bitbucket.org/7shi/math7/src/tip/Math7.fsx) と [Math7.Term.fsx](https://bitbucket.org/7shi/math7/src/tip/Math7.Term.fsx) に依存しています。全体は[リポジトリ](https://bitbucket.org/7shi/math7)を参照してください。
+
+Math7 に八元数の計算方法を教えて計算させます。
+
+```fsharp:Math7.Octonion.fsx
+namespace Math7
+
+#load &quot;Math7.Term.fsx&quot;
+
+type octonion =
+    E | I | J | K | H of octonion
+
+    override x.ToString() =
+        match x with
+        |   E -&gt; &quot;1&quot; | I -&gt; &quot;i&quot; | J -&gt; &quot;j&quot; | K -&gt; &quot;k&quot;
+        | H E -&gt; &quot;h&quot;
+        | H x -&gt; string x + &quot;_h&quot;
+
+    member x.N =
+        match x with
+        | E -&gt; 0 | I -&gt; 1 | J -&gt; 2 | K -&gt; 3
+        | H x -&gt; x.N + 4
+
+    member x.Next =
+        match x with
+        |   I -&gt; J
+        |   J -&gt; K
+        |   K -&gt; I
+        | H x -&gt; H x.Next
+        |   x -&gt; x
+
+    static member (*)(a:octonion, b:octonion) =
+        match a, b with
+        |   x,   E            -&gt;  1,   x  // i1 = i
+        |   E,   y            -&gt;  1,   y  // 1i = i
+        |   x,   y when x = y -&gt; -1,   E  // ii = -1
+        | H x, H E            -&gt; -1,   x  // i_hh = -i
+        | H x, H y            -&gt; y * x    // i_hj_h = ji
+        |   x, H E            -&gt;  1, H x  // ih = i_h
+        |   x, H y when x = y -&gt; -1, H E  // ii_h = -h
+        |   x, H y -&gt; let c, z = y * x    // ij_h = (ji)h
+                      c, H z
+        |   x,   y when x.Next = y        // ij = k
+                   -&gt; 1, y.Next
+        |   x,   y -&gt; let c, z = y * x    // ji = -ij
+                      -c, z
+
+module Octonion =
+    let tests = testList()
+    
+    let octs = [| E; I; J; K; H E; H I; H J; H K |]
+    let oct x = octs.[x]
+    let ijkh = function
+    | 0 -&gt; &quot;&quot;
+    | x -&gt; string (oct x)
+
+    let str es = es |&gt; Seq.map ijkh |&gt; Seq.filter ((&lt;&gt;) &quot;&quot;) |&gt; Term.strPower
+
+    let prod es =
+        let n, e = es |&gt; Seq.fold (fun (n, x) y -&gt;
+            let m, z = oct x * oct y
+            n * m, z.N) (1, E.N)
+        term(n, [], if e = E.N then [] else [e])
+
+    let conj = List.map &lt;| fun (t:term) -&gt;
+        if t.E.IsEmpty then t else -1 * t
+
+    let showProd title =
+        Term.showProd title &quot;&quot; str prod id Term.byIndexSign
+```
+```fsharp:OctonionProduct.fsx
+#load &quot;Math7.Octonion.fsx&quot;
+open Math7
+
+let a = [for i in [1..7] -&gt; term(1, [sprintf &quot;a_%d&quot; i], [i])]
+let b = [for i in [1..7] -&gt; term(1, [sprintf &quot;b_%d&quot; i], [i])]
+let aa = term(1, [&quot;a_0&quot;], [])::a
+let bb = term(1, [&quot;b_0&quot;], [])::b
+Octonion.showProd &quot;## 積（虚部）&quot; (fun _ -&gt; true) a b
+Octonion.showProd &quot;## 積（実部＋虚部）&quot; (fun _ -&gt; true) aa bb
+Octonion.showProd &quot;## 二乗（虚部）&quot; (fun _ -&gt; true) a a
+Octonion.showProd &quot;## 二乗（実部＋虚部）&quot; ((=) 1) aa aa
+Octonion.showProd &quot;## ノルムの二乗&quot; (fun _ -&gt; true) (Octonion.conj aa) aa
+```
+
+出力結果にコメントを付けて紹介します。
+
+## 積（虚部）
+
+冒頭で述べたように、内積と外積を計算することに相当します。
+
+```math
+\begin{align}
+&amp;(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_1i(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_2j(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_3k(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_4h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_5i_h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_6j_h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_7k_h(b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j}+a_1b_4\underbrace{ih}_{i_h}+a_1b_5\underbrace{ii_h}_{-h}+a_1b_6\underbrace{ij_h}_{-k_h}+a_1b_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i}+a_2b_4\underbrace{jh}_{j_h}+a_2b_5\underbrace{ji_h}_{k_h}+a_2b_6\underbrace{jj_h}_{-h}+a_2b_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1}+a_3b_4\underbrace{kh}_{k_h}+a_3b_5\underbrace{ki_h}_{-j_h}+a_3b_6\underbrace{kj_h}_{i_h}+a_3b_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4b_1\underbrace{hi}_{-i_h}+a_4b_2\underbrace{hj}_{-j_h}+a_4b_3\underbrace{hk}_{-k_h}+a_4b_4\underbrace{h^2}_{-1}+a_4b_5\underbrace{hi_h}_{i}+a_4b_6\underbrace{hj_h}_{j}+a_4b_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5b_1\underbrace{i_hi}_{h}+a_5b_2\underbrace{i_hj}_{-k_h}+a_5b_3\underbrace{i_hk}_{j_h}+a_5b_4\underbrace{i_hh}_{-i}+a_5b_5\underbrace{i_h^2}_{-1}+a_5b_6\underbrace{i_hj_h}_{-k}+a_5b_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6b_1\underbrace{j_hi}_{k_h}+a_6b_2\underbrace{j_hj}_{h}+a_6b_3\underbrace{j_hk}_{-i_h}+a_6b_4\underbrace{j_hh}_{-j}+a_6b_5\underbrace{j_hi_h}_{k}+a_6b_6\underbrace{j_h^2}_{-1}+a_6b_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7b_1\underbrace{k_hi}_{-j_h}+a_7b_2\underbrace{k_hj}_{i_h}+a_7b_3\underbrace{k_hk}_{h}+a_7b_4\underbrace{k_hh}_{-k}+a_7b_5\underbrace{k_hi_h}_{-j}+a_7b_6\underbrace{k_hj_h}_{i}+a_7b_7\underbrace{k_h^2}_{-1} \\
+&amp;=-(a_1b_1+a_2b_2+a_3b_3+a_4b_4+a_5b_5+a_6b_6+a_7b_7) \\
+&amp;\quad +(a_2b_3-a_3b_2+a_4b_5-a_5b_4+a_7b_6-a_6b_7)i \\
+&amp;\quad +(a_3b_1-a_1b_3+a_4b_6-a_6b_4+a_5b_7-a_7b_5)j \\
+&amp;\quad +(a_1b_2-a_2b_1+a_4b_7-a_7b_4+a_6b_5-a_5b_6)k \\
+&amp;\quad +(a_5b_1-a_1b_5+a_6b_2-a_2b_6+a_7b_3-a_3b_7)h \\
+&amp;\quad +(a_1b_4-a_4b_1+a_7b_2-a_2b_7+a_3b_6-a_6b_3)i_h \\
+&amp;\quad +(a_1b_7-a_7b_1+a_2b_4-a_4b_2+a_5b_3-a_3b_5)j_h \\
+&amp;\quad +(a_6b_1-a_1b_6+a_2b_5-a_5b_2+a_3b_4-a_4b_3)k_h \\
+\end{align}
+```
+
+$i$ の係数を $(a_2b_3-a_3b_2)+(a_4b_5-a_5b_4)+(a_7b_6-a_6b_7)$ のように三分割して見れば、3次元の外積が三重に入ったような形をしていることに気付きます。3次元では1つの係数に $3-1=2$ 個の項が入りますが、7次元では $7-1=6$ 個の項が入ります。これが三重に見える理由です。
+
+※ 八元数の虚部で表される7次元空間はフラットなユークリッド空間ではなく、ファノ平面で表される3次元の部分空間が重なった形をしており、個別に見れば3次元空間のためベクトル積が定義できます。詳細は機会があればまとめる予定です。
+
+また、係数は基底（$i$ は1番目）を除いた添字（2,3,4,5,6,7）が使われており、相補的な関係にあることが分かります。他の項も同様です。これは3次元の外積と共通する特徴です。
+
+比較として四元数の積（3次元の内積と外積を含む）を示します。成分を見れば、四元数が八元数のサブセットであることが見て取れます。
+
+```math
+\begin{align}
+&amp;(a_1i+a_2j+a_3k)(b_1i+b_2j+b_3k) \\
+&amp;=-(a_1b_1+a_2b_2+a_3b_3) \\
+&amp;\quad +(a_2b_3-a_3b_2)i+(a_3b_1-a_1b_3)j+(a_1b_2-a_2b_1)k \\
+\end{align}
+```
+
+複素数にまで落とせば、1次元では内積しか現れないことが分かります。外積は常に0だとも解釈できます。
+
+```math
+(a_1i)(b_1i)=-(a_1b_1)
+```
+
+## 積（実部＋虚部）
+
+虚部だけの計算と比べれば、実部が各項に絡みついているように見えます。
+
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_0(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_1i(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_2j(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_3k(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_4h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_5i_h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_6j_h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;\quad +a_7k_h(b_0+b_1i+b_2j+b_3k+b_4h+b_5i_h+b_6j_h+b_7k_h) \\
+&amp;=a_0b_0+a_0b_1i+a_0b_2j+a_0b_3k+a_0b_4h+a_0b_5i_h+a_0b_6j_h+a_0b_7k_h \\
+&amp;\quad +a_1b_0i+a_1b_1\underbrace{i^2}_{-1}+a_1b_2\underbrace{ij}_{k}+a_1b_3\underbrace{ik}_{-j}+a_1b_4\underbrace{ih}_{i_h}+a_1b_5\underbrace{ii_h}_{-h}+a_1b_6\underbrace{ij_h}_{-k_h}+a_1b_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2b_0j+a_2b_1\underbrace{ji}_{-k}+a_2b_2\underbrace{j^2}_{-1}+a_2b_3\underbrace{jk}_{i}+a_2b_4\underbrace{jh}_{j_h}+a_2b_5\underbrace{ji_h}_{k_h}+a_2b_6\underbrace{jj_h}_{-h}+a_2b_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3b_0k+a_3b_1\underbrace{ki}_{j}+a_3b_2\underbrace{kj}_{-i}+a_3b_3\underbrace{k^2}_{-1}+a_3b_4\underbrace{kh}_{k_h}+a_3b_5\underbrace{ki_h}_{-j_h}+a_3b_6\underbrace{kj_h}_{i_h}+a_3b_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4b_0h+a_4b_1\underbrace{hi}_{-i_h}+a_4b_2\underbrace{hj}_{-j_h}+a_4b_3\underbrace{hk}_{-k_h}+a_4b_4\underbrace{h^2}_{-1}+a_4b_5\underbrace{hi_h}_{i}+a_4b_6\underbrace{hj_h}_{j}+a_4b_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5b_0i_h+a_5b_1\underbrace{i_hi}_{h}+a_5b_2\underbrace{i_hj}_{-k_h}+a_5b_3\underbrace{i_hk}_{j_h}+a_5b_4\underbrace{i_hh}_{-i}+a_5b_5\underbrace{i_h^2}_{-1}+a_5b_6\underbrace{i_hj_h}_{-k}+a_5b_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6b_0j_h+a_6b_1\underbrace{j_hi}_{k_h}+a_6b_2\underbrace{j_hj}_{h}+a_6b_3\underbrace{j_hk}_{-i_h}+a_6b_4\underbrace{j_hh}_{-j}+a_6b_5\underbrace{j_hi_h}_{k}+a_6b_6\underbrace{j_h^2}_{-1}+a_6b_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7b_0k_h+a_7b_1\underbrace{k_hi}_{-j_h}+a_7b_2\underbrace{k_hj}_{i_h}+a_7b_3\underbrace{k_hk}_{h}+a_7b_4\underbrace{k_hh}_{-k}+a_7b_5\underbrace{k_hi_h}_{-j}+a_7b_6\underbrace{k_hj_h}_{i}+a_7b_7\underbrace{k_h^2}_{-1} \\
+&amp;=(a_0b_0-a_1b_1-a_2b_2-a_3b_3-a_4b_4-a_5b_5-a_6b_6-a_7b_7) \\
+&amp;\quad +(a_0b_1+a_1b_0+a_2b_3-a_3b_2+a_4b_5-a_5b_4+a_7b_6-a_6b_7)i \\
+&amp;\quad +(a_0b_2+a_2b_0+a_3b_1-a_1b_3+a_4b_6-a_6b_4+a_5b_7-a_7b_5)j \\
+&amp;\quad +(a_0b_3+a_3b_0+a_1b_2-a_2b_1+a_4b_7-a_7b_4+a_6b_5-a_5b_6)k \\
+&amp;\quad +(a_0b_4+a_4b_0+a_5b_1-a_1b_5+a_6b_2-a_2b_6+a_7b_3-a_3b_7)h \\
+&amp;\quad +(a_0b_5+a_5b_0+a_1b_4-a_4b_1+a_7b_2-a_2b_7+a_3b_6-a_6b_3)i_h \\
+&amp;\quad +(a_0b_6+a_6b_0+a_1b_7-a_7b_1+a_2b_4-a_4b_2+a_5b_3-a_3b_5)j_h \\
+&amp;\quad +(a_0b_7+a_7b_0+a_6b_1-a_1b_6+a_2b_5-a_5b_2+a_3b_4-a_4b_3)k_h \\
+\end{align}
+```
+
+この計算をスカラーとベクトルの和の積と見なせば、ごく普通の掛け算として構造が見えて来ます。
+
+```math
+\begin{align}
+&amp;(a_0+\vec{a})(b_0+\vec{b}) \\
+&amp;=a_0b_0+a_0\vec{b}+\vec{a}b_0+\vec{a}\vec{b} \\
+&amp;=\underbrace{a_0b_0}_{スカラー積}+\underbrace{a_0\vec{b}+b_0\vec{a}}_{スカラー倍}-\underbrace{\vec{a}\cdot\vec{b}}_{内積}+\underbrace{\vec{a}×\vec{b}}_{外積}
+\end{align}
+```
+
+$i$ の項を $a_0(b_1)i+b_0(a_1)i+(a_2b_3-a_3b_2+a_4b_5-a_5b_4+a_7b_6-a_6b_7)i$ と分離すれば、ベクトルのスカラー倍と外積が重なっていることが確認できます。
+
+この解釈では実部はベクトルの成分ではなく、ベクトルとして扱われるのは虚部の7次元です。実部まで含めた8次元ベクトルとしてうまく解釈できるかは不明です。
+
+## 二乗（虚部）
+
+自分自身との外積はゼロのため、計算結果は実部（内積）のみです。
+
+```math
+\begin{align}
+&amp;(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)^2 \\
+&amp;=a_1i(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_2j(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_3k(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_4h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_5i_h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_6j_h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_7k_h(a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j}+a_1a_4\underbrace{ih}_{i_h}+a_1a_5\underbrace{ii_h}_{-h}+a_1a_6\underbrace{ij_h}_{-k_h}+a_1a_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2a_1\underbrace{ji}_{-k}+a_2^2\underbrace{j^2}_{-1}+a_2a_3\underbrace{jk}_{i}+a_2a_4\underbrace{jh}_{j_h}+a_2a_5\underbrace{ji_h}_{k_h}+a_2a_6\underbrace{jj_h}_{-h}+a_2a_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3a_1\underbrace{ki}_{j}+a_3a_2\underbrace{kj}_{-i}+a_3^2\underbrace{k^2}_{-1}+a_3a_4\underbrace{kh}_{k_h}+a_3a_5\underbrace{ki_h}_{-j_h}+a_3a_6\underbrace{kj_h}_{i_h}+a_3a_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4a_1\underbrace{hi}_{-i_h}+a_4a_2\underbrace{hj}_{-j_h}+a_4a_3\underbrace{hk}_{-k_h}+a_4^2\underbrace{h^2}_{-1}+a_4a_5\underbrace{hi_h}_{i}+a_4a_6\underbrace{hj_h}_{j}+a_4a_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5a_1\underbrace{i_hi}_{h}+a_5a_2\underbrace{i_hj}_{-k_h}+a_5a_3\underbrace{i_hk}_{j_h}+a_5a_4\underbrace{i_hh}_{-i}+a_5^2\underbrace{i_h^2}_{-1}+a_5a_6\underbrace{i_hj_h}_{-k}+a_5a_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6a_1\underbrace{j_hi}_{k_h}+a_6a_2\underbrace{j_hj}_{h}+a_6a_3\underbrace{j_hk}_{-i_h}+a_6a_4\underbrace{j_hh}_{-j}+a_6a_5\underbrace{j_hi_h}_{k}+a_6^2\underbrace{j_h^2}_{-1}+a_6a_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7a_1\underbrace{k_hi}_{-j_h}+a_7a_2\underbrace{k_hj}_{i_h}+a_7a_3\underbrace{k_hk}_{h}+a_7a_4\underbrace{k_hh}_{-k}+a_7a_5\underbrace{k_hi_h}_{-j}+a_7a_6\underbrace{k_hj_h}_{i}+a_7^2\underbrace{k_h^2}_{-1} \\
+&amp;=-(a_1^2+a_2^2+a_3^2+a_4^2+a_5^2+a_6^2+a_7^2) \\
+\end{align}
+```
+
+## 二乗（実部＋虚部）
+
+積（実部＋虚部）との比較で見れば、虚部にはベクトルのスカラー倍が表れていると解釈できます。
+
+```math
+\begin{align}
+&amp;(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h)^2 \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_1i(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_2j(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_3k(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_4h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_5i_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_6j_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad +a_7k_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k+a_0a_4h+a_0a_5i_h+a_0a_6j_h+a_0a_7k_h \\
+&amp;\quad +a_1a_0i+a_1^2\underbrace{i^2}_{-1}+a_1a_2\underbrace{ij}_{k}+a_1a_3\underbrace{ik}_{-j}+a_1a_4\underbrace{ih}_{i_h}+a_1a_5\underbrace{ii_h}_{-h}+a_1a_6\underbrace{ij_h}_{-k_h}+a_1a_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad +a_2a_0j+a_2a_1\underbrace{ji}_{-k}+a_2^2\underbrace{j^2}_{-1}+a_2a_3\underbrace{jk}_{i}+a_2a_4\underbrace{jh}_{j_h}+a_2a_5\underbrace{ji_h}_{k_h}+a_2a_6\underbrace{jj_h}_{-h}+a_2a_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad +a_3a_0k+a_3a_1\underbrace{ki}_{j}+a_3a_2\underbrace{kj}_{-i}+a_3^2\underbrace{k^2}_{-1}+a_3a_4\underbrace{kh}_{k_h}+a_3a_5\underbrace{ki_h}_{-j_h}+a_3a_6\underbrace{kj_h}_{i_h}+a_3a_7\underbrace{kk_h}_{-h} \\
+&amp;\quad +a_4a_0h+a_4a_1\underbrace{hi}_{-i_h}+a_4a_2\underbrace{hj}_{-j_h}+a_4a_3\underbrace{hk}_{-k_h}+a_4^2\underbrace{h^2}_{-1}+a_4a_5\underbrace{hi_h}_{i}+a_4a_6\underbrace{hj_h}_{j}+a_4a_7\underbrace{hk_h}_{k} \\
+&amp;\quad +a_5a_0i_h+a_5a_1\underbrace{i_hi}_{h}+a_5a_2\underbrace{i_hj}_{-k_h}+a_5a_3\underbrace{i_hk}_{j_h}+a_5a_4\underbrace{i_hh}_{-i}+a_5^2\underbrace{i_h^2}_{-1}+a_5a_6\underbrace{i_hj_h}_{-k}+a_5a_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad +a_6a_0j_h+a_6a_1\underbrace{j_hi}_{k_h}+a_6a_2\underbrace{j_hj}_{h}+a_6a_3\underbrace{j_hk}_{-i_h}+a_6a_4\underbrace{j_hh}_{-j}+a_6a_5\underbrace{j_hi_h}_{k}+a_6^2\underbrace{j_h^2}_{-1}+a_6a_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad +a_7a_0k_h+a_7a_1\underbrace{k_hi}_{-j_h}+a_7a_2\underbrace{k_hj}_{i_h}+a_7a_3\underbrace{k_hk}_{h}+a_7a_4\underbrace{k_hh}_{-k}+a_7a_5\underbrace{k_hi_h}_{-j}+a_7a_6\underbrace{k_hj_h}_{i}+a_7^2\underbrace{k_h^2}_{-1} \\
+&amp;=(a_0^2-a_1^2-a_2^2-a_3^2-a_4^2-a_5^2-a_6^2-a_7^2) \\
+&amp;\quad +2a_0a_1i+2a_0a_2j+2a_0a_3k+2a_0a_4h+2a_0a_5i_h+2a_0a_6j_h+2a_0a_7k_h \\
+\end{align}
+```
+
+## ノルムの二乗
+
+ノルムだけ見れば、実部を含めてユークリッド空間の8次元ベクトルとして扱えます。
+
+```math
+\begin{align}
+&amp;(a_0-a_1i-a_2j-a_3k-a_4h-a_5i_h-a_6j_h-a_7k_h)(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_0(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_1i(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_2j(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_3k(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_4h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_5i_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_6j_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;\quad -a_7k_h(a_0+a_1i+a_2j+a_3k+a_4h+a_5i_h+a_6j_h+a_7k_h) \\
+&amp;=a_0^2+a_0a_1i+a_0a_2j+a_0a_3k+a_0a_4h+a_0a_5i_h+a_0a_6j_h+a_0a_7k_h \\
+&amp;\quad -a_1a_0i-a_1^2\underbrace{i^2}_{-1}-a_1a_2\underbrace{ij}_{k}-a_1a_3\underbrace{ik}_{-j}-a_1a_4\underbrace{ih}_{i_h}-a_1a_5\underbrace{ii_h}_{-h}-a_1a_6\underbrace{ij_h}_{-k_h}-a_1a_7\underbrace{ik_h}_{j_h} \\
+&amp;\quad -a_2a_0j-a_2a_1\underbrace{ji}_{-k}-a_2^2\underbrace{j^2}_{-1}-a_2a_3\underbrace{jk}_{i}-a_2a_4\underbrace{jh}_{j_h}-a_2a_5\underbrace{ji_h}_{k_h}-a_2a_6\underbrace{jj_h}_{-h}-a_2a_7\underbrace{jk_h}_{-i_h} \\
+&amp;\quad -a_3a_0k-a_3a_1\underbrace{ki}_{j}-a_3a_2\underbrace{kj}_{-i}-a_3^2\underbrace{k^2}_{-1}-a_3a_4\underbrace{kh}_{k_h}-a_3a_5\underbrace{ki_h}_{-j_h}-a_3a_6\underbrace{kj_h}_{i_h}-a_3a_7\underbrace{kk_h}_{-h} \\
+&amp;\quad -a_4a_0h-a_4a_1\underbrace{hi}_{-i_h}-a_4a_2\underbrace{hj}_{-j_h}-a_4a_3\underbrace{hk}_{-k_h}-a_4^2\underbrace{h^2}_{-1}-a_4a_5\underbrace{hi_h}_{i}-a_4a_6\underbrace{hj_h}_{j}-a_4a_7\underbrace{hk_h}_{k} \\
+&amp;\quad -a_5a_0i_h-a_5a_1\underbrace{i_hi}_{h}-a_5a_2\underbrace{i_hj}_{-k_h}-a_5a_3\underbrace{i_hk}_{j_h}-a_5a_4\underbrace{i_hh}_{-i}-a_5^2\underbrace{i_h^2}_{-1}-a_5a_6\underbrace{i_hj_h}_{-k}-a_5a_7\underbrace{i_hk_h}_{j} \\
+&amp;\quad -a_6a_0j_h-a_6a_1\underbrace{j_hi}_{k_h}-a_6a_2\underbrace{j_hj}_{h}-a_6a_3\underbrace{j_hk}_{-i_h}-a_6a_4\underbrace{j_hh}_{-j}-a_6a_5\underbrace{j_hi_h}_{k}-a_6^2\underbrace{j_h^2}_{-1}-a_6a_7\underbrace{j_hk_h}_{-i} \\
+&amp;\quad -a_7a_0k_h-a_7a_1\underbrace{k_hi}_{-j_h}-a_7a_2\underbrace{k_hj}_{i_h}-a_7a_3\underbrace{k_hk}_{h}-a_7a_4\underbrace{k_hh}_{-k}-a_7a_5\underbrace{k_hi_h}_{-j}-a_7a_6\underbrace{k_hj_h}_{i}-a_7^2\underbrace{k_h^2}_{-1} \\
+&amp;=a_0^2+a_1^2+a_2^2+a_3^2+a_4^2+a_5^2+a_6^2+a_7^2 \\
+\end{align}
+```
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="八元数の積をプログラムで確認 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="八元数の積をプログラムで確認" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/8495b2d6b888e7b8703f" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/7shi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/7shi">7shi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">2522</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div data-react-class="T.UserFollowButton" data-react-props="{&quot;url_name&quot;:&quot;7shi&quot;,&quot;initial_followed_by&quot;:false,&quot;size&quot;:&quot;btn-xs&quot;,&quot;position&quot;:&quot;author-info&quot;}"></div></div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/145f1234f8ec2af923ef">Haskell 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/547b6137d7a3c482fe68">モナド則がちょっと分かった？</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/cac7b3e9b90bf91b00cc">文字列で学ぶC++入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/85afd7bbd5d6c4115ad6">Haskell アクション 超入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/7shi/items/d1e5a0c22be6cf61d286">Haskell IDE Leksah 入門</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div data-react-class="T.Toc" data-react-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0\&quot;\u003eプログラム\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D%E8%99%9A%E9%83%A8\&quot;\u003e積（虚部）\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A9%8D%E5%AE%9F%E9%83%A8%E8%99%9A%E9%83%A8\&quot;\u003e積（実部＋虚部）\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BA%8C%E4%B9%97%E8%99%9A%E9%83%A8\&quot;\u003e二乗（虚部）\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BA%8C%E4%B9%97%E5%AE%9F%E9%83%A8%E8%99%9A%E9%83%A8\&quot;\u003e二乗（実部＋虚部）\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8E%E3%83%AB%E3%83%A0%E3%81%AE%E4%BA%8C%E4%B9%97\&quot;\u003eノルムの二乗\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}"></div></div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:0,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;8495b2d6b888e7b8703f&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/8495b2d6b888e7b8703f/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/7shi/items/8495b2d6b888e7b8703f.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 3 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/b34fe724d36fb7d96456#_reference-7d36bb5edfbb111e8537"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />八元数を作ろう</a><time class="references_datetime js-dateTimeView" datetime="2016-12-13T10:15:16+00:00">3 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/2036e7a739c2a9e04025#_reference-90b1ddd21b87bdaaa366"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />四元数を作ろう</a><time class="references_datetime js-dateTimeView" datetime="2016-12-13T10:16:15+00:00">3 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/7shi/items/017d2d2c758f76071f23#_reference-203c2dfa2c2f619f81ea"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />外積と愉快な仲間たち</a><time class="references_datetime js-dateTimeView" datetime="2016-12-13T10:18:13+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/a80988a32a0d706e9378#_reference-3e81ff4351bf59ede7bb"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />四元数と行列で見る内積と外積の「内」と「外」</a><time class="references_datetime js-dateTimeView" datetime="2016-12-13T12:05:24+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/4fb60dacad46cb8e63b3#_reference-f9aa171bada2c33b59c9"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />多項式の積を計算</a><time class="references_datetime js-dateTimeView" datetime="2016-12-14T09:49:11+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/f54302058149d07da592#_reference-43af9e86017a46d0a719"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />ユークリッド空間のホッジ双対とバブルソート</a><time class="references_datetime js-dateTimeView" datetime="2016-12-15T04:41:25+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/02c758c03d2fd7038912#_reference-93cfa1f6c29b25fce5fb"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />外積の成分をプログラムで確認</a><time class="references_datetime js-dateTimeView" datetime="2016-12-20T09:15:07+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/7shi/items/88be5203769e629df243#_reference-6cdeba3fb474a701383d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823" />多元数の積の構成</a><time class="references_datetime js-dateTimeView" datetime="2017-01-03T18:42:07+00:00">about 2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="八元数の積をプログラムで確認 by @7shi on @Qiita" data-url="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="八元数の積をプログラムで確認" href="http://b.hatena.ne.jp/entry/http://qiita.com/7shi/items/8495b2d6b888e7b8703f" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/7shi/items/8495b2d6b888e7b8703f" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div data-react-class="T.CommentListContainer" data-react-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:449184,&quot;uuid&quot;:&quot;8495b2d6b888e7b8703f&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;7shi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}]}">Comments Loading...</div></div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="41zoC69341/n02qWVgda+MIqNSnKnXEtq5QFbKYDDEyN3nNTNFnaFBgA34om8uShom0Rml1ZK9qXSgyXRw0Cig==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/8495b2d6b888e7b8703f" /><input type="hidden" name="item_uuid" id="item_uuid" value="8495b2d6b888e7b8703f" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/7shi/items/8495b2d6b888e7b8703f", "id": 449184, "uuid": "8495b2d6b888e7b8703f" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32057,&quot;url_name&quot;:&quot;7shi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32057/profile-images/1473685823&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="6wZQ/PR07ewqDui3ntX1qVhD5Htbyt3z8M7/F0v6BO+FhMukb1rUp9XdXavuIEvwOATAyMwOhwTMEPbsqvQKKQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/7shi/items/8495b2d6b888e7b8703f" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-8c6201a66dc6db6f64a9017391c319bf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>
