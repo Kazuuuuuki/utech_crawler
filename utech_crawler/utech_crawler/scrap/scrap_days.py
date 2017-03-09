@@ -1,4 +1,4 @@
-mport urllib.request as req
+import urllib.request as req
 import sys
 from bs4 import BeautifulSoup
 
@@ -9,7 +9,7 @@ class ScrapDays:
         res = req.urlopen(url)
         soup = BeautifulSoup(res, "html.parser")
         days = []
-        year =[]
+        year = []
         link = []
         self.select_link = []
         days_list = soup.find_all("div", class_="ItemLink__info")
