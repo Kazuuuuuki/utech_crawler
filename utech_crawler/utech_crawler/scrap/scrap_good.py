@@ -12,10 +12,10 @@ class ScrapGood:
         link = []
         self.select_link = []
         good_list = soup.find_all("ul" , class_="ItemLink__status")
-        links_list = soup.select(".media > div.media__body > div.ItemLink__title > a")
+        link_list = soup.select(".media > div.media__body > div.ItemLink__title > a")
         for a in links_list:
             link.append(a.attrs['href'])
-        for num in range(len(link_list):
+        for num in range(len(link_list)):
             ward = str([good_list[num]])
             good_list[num].span.decompose()
             if "fa-comment-o" in ward:
