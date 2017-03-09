@@ -28,4 +28,4 @@ class ScrapGood:
             if number > 100:
                 self.select_link.append(dict_link[good[num]])
     def output(self):
-        print(self.select_link)
+        return self.select_link

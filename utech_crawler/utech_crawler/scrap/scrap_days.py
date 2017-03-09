@@ -26,4 +26,4 @@ class ScrapDays:
             if number >= 2014:
                 self.select_link.append(dict_link[year[num]])
     def output(self):
-        print(self.select_link)
+        return self.select_link
