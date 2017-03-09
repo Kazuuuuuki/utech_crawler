@@ -16,7 +16,7 @@ class ScrapDays:
         links_list = soup.select(".media > div.media__body > div.ItemLink__title > a")
         for a in links_list:
             link.append(a.attrs['href'])
-        for num in range(20):
+        for num in range(len(link_list):
             days_list[num].a.decompose()
             days.append(days_list[num].text)
             word = str([days[num]])
