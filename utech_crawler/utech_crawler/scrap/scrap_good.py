@@ -13,7 +13,7 @@ class ScrapGood:
         self.select_link = []
         good_list = soup.find_all("ul" , class_="ItemLink__status")
         link_list = soup.select(".media > div.media__body > div.ItemLink__title > a")
-        for a in links_list:
+        for a in link_list:
             link.append(a.attrs['href'])
         for num in range(len(link_list)):
             ward = str([good_list[num]])

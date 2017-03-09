@@ -14,7 +14,7 @@ class ScrapDays:
         self.select_link = []
         days_list = soup.find_all("div", class_="ItemLink__info")
         link_list = soup.select(".media > div.media__body > div.ItemLink__title > a")
-        for a in links_list:
+        for a in link_list:
             link.append(a.attrs['href'])
         for num in range(len(link_list)):
             days_list[num].a.decompose()
