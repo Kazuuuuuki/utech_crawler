@@ -30,9 +30,10 @@ class ScrapCondition:
             word_d = str([days[num]])
             year.append(word_d[3:7])
             days_dict = {year[num]:link[num]}
-            number_d = int(year[num])
-            if number_d >= 2015:
-                d_link.append(days_dict[year[num]])
+            if year[num].isdigit():
+                number_d = int(year[num])
+                if number_d >= 2015:
+                    d_link.append(days_dict[year[num]])
             #いいねの精査
             ward_g = str([good_list[num]])
             good_list[num].span.decompose()

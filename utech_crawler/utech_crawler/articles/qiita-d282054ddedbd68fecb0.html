@@ -1,0 +1,481 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>確率的勾配降下法とは何か、をPythonで動かして解説する - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+勾配降下法は何に使う？
+
+勾配降下法は統計学や機械学習で多く使われています。特に機械学習というのは基本的に何かしらの関数を最小化（最大化）する問題を数値解析的に解くことに帰結する場合が多いです。（e.g. 最小二乗法 → 誤差の二乗和を最小化（参考）、ニューラルネットワークのパラメータ決定 etc...）
+
+なので、基本的にはひたすら微分して0となるところを探す問題ですね、微分して0。で、その微分して0となる値は何か、をプログラムで解く場合に重要になるのがこの勾配降..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Kenmatsu4" name="twitter:creator" /><meta content="確率的勾配降下法とは何か、をPythonで動かして解説する - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="#勾配降下法は何に使う？#
+勾配降下法は統計学や機械学習で多く使われています。特に機械学習というのは基本的に何かしらの関数を最小化（最大化）する問題を数値解析的に解くことに帰結する場合が多いです。（e.g. 最小二乗法 → 誤差の二乗..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e89b2462e454a13b67eaa536fcb0b04a.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="9Gg1gAU7ItgzCUuYKZ1PxoxUQADb9d7SW01borl5IyX4IPzMrHqyw+mrBtrxJL40IZNDtxJgrArTIapBSMt49g==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"kenmatsu4","type":"items","id":"d282054ddedbd68fecb0"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-2996983e-8656-4b3d-9fb0-d045f1faa46e"></div>
+    <div id="HeaderContainer-react-component-2996983e-8656-4b3d-9fb0-d045f1faa46e"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">確率的勾配降下法とは何か、をPythonで動かして解説する</h1><ul class="TagList"><li class="TagList__item" data-count="9868"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span><div class="tagIcon_version">2.7</div></a></li><li class="TagList__item" data-count="527"><a class="u-link-unstyled TagList__label" href="/tags/%E6%95%B0%E5%AD%A6"><img alt="数学" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8fe97b92406365b26c7ffbda350a237c07ef4feb/medium.jpg?1421593187" /><span>数学</span></a></li><li class="TagList__item" data-count="176"><a class="u-link-unstyled TagList__label" href="/tags/math"><img alt="math" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/036ee06787dcc4c38de96cbe796f166b238eda10/medium.jpg?1395228974" /><span>math</span></a></li><li class="TagList__item" data-count="1830"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="813"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">368</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="5 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>5</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:368,&quot;uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="driller"><a itemprop="url" href="/driller"><img alt="driller" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22023/profile-images/1477644793" /></a></li><li class="js-hovercard" data-hovercard-target-name="sayamada"><a itemprop="url" href="/sayamada"><img alt="sayamada" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44722/profile-images/1473690004" /></a></li><li class="js-hovercard" data-hovercard-target-name="cof"><a itemprop="url" href="/cof"><img alt="cof" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70480/profile-images/1473698483" /></a></li><li class="js-hovercard" data-hovercard-target-name="himo"><a itemprop="url" href="/himo"><img alt="himo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53186/profile-images/1473692979" /></a></li><li class="js-hovercard" data-hovercard-target-name="genyajoe"><a itemprop="url" href="/genyajoe"><img alt="genyajoe" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31165/profile-images/1473685633" /></a></li><li class="js-hovercard" data-hovercard-target-name="driftglass"><a itemprop="url" href="/driftglass"><img alt="driftglass" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49903/profile-images/1473691899" /></a></li><li class="js-hovercard" data-hovercard-target-name="ryo-ma"><a itemprop="url" href="/ryo-ma"><img alt="ryo-ma" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46662/profile-images/1473690724" /></a></li><li class="js-hovercard" data-hovercard-target-name="daxanya1"><a itemprop="url" href="/daxanya1"><img alt="daxanya1" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32778/profile-images/1473685975" /></a></li><li class="js-hovercard" data-hovercard-target-name="highly-snow"><a itemprop="url" href="/highly-snow"><img alt="highly-snow" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45654/profile-images/1473690368" /></a></li><li><a href="/kenmatsu4/items/d282054ddedbd68fecb0/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/kenmatsu4"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" alt="1473692184" /></a> <a class="u-link-unstyled" href="/kenmatsu4">kenmatsu4</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-03-06T09:12:01+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-03-06">Edited at <time datetime="2016-01-17T01:50:55+09:00" itemprop="dateModified">2016-01-17</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/kenmatsu4/items/d282054ddedbd68fecb0/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">13</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__gist"><span class="fa fa-github"></span><a target="_blank" href="https://gist.github.com/d72f05310cdde4ebe14b">Gist</a></div></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/kenmatsu4/items/d282054ddedbd68fecb0/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(13)</span></a></li><li><a href="/kenmatsu4/items/d282054ddedbd68fecb0.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-d282054ddedbd68fecb0" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div>
+<h1>
+<span id="勾配降下法は何に使う" class="fragment"></span><a href="#%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95%E3%81%AF%E4%BD%95%E3%81%AB%E4%BD%BF%E3%81%86"><i class="fa fa-link"></i></a>勾配降下法は何に使う？</h1>
+
+<p>勾配降下法は統計学や機械学習で多く使われています。特に機械学習というのは基本的に何かしらの関数を最小化（最大化）する問題を数値解析的に解くことに帰結する場合が多いです。（e.g. 最小二乗法 → 誤差の二乗和を最小化（<a href="http://qiita.com/kenmatsu4/items/8b4e908d7c93d046110d" id="reference-6992ad38361c9373abc6">参考</a>）、ニューラルネットワークのパラメータ決定 etc...）</p>
+
+<p>なので、基本的にはひたすら微分して0となるところを探す問題ですね、微分して0。で、その微分して0となる値は何か、をプログラムで解く場合に重要になるのがこの勾配降下法です。幾つか勾配法にも種類がありますがここでは最急降下法、確率的勾配降下法の２つを扱います。まずはイメージをつかむために１次元のグラフで確認していきたいと思います。</p>
+
+<h2>
+<span id="1次元の場合" class="fragment"></span><a href="#1%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>1次元の場合</h2>
+
+<p>1次元の場合は、確率的という概念はなく、ただの勾配降下法になります。<br>
+（どういうことか、はのちほど）<br>
+1次元の例は、正規分布をマイナスにしたものを使ってみます。$x_{init} = 0$と$x_{init} = 6$のグラフを例として作っています。対象となるグラフは正規分布の密度関数をマイナスして下向きにしたものを使いました。</p>
+
+<p><strong>初期値 = 0 のグラフ</strong><br>
+グラフの端から始まって、ちゃんと一番小さいところ、最小値で収束していることがわかりますね。青い線のグラフが正規分布のマイナス版で、緑の線のグラフがその微分した値のグラフです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/1c51dc9e-c469-e97e-851e-a9a3ddf451fc.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/1c51dc9e-c469-e97e-851e-a9a3ddf451fc.gif" alt="normdist_decent_0.0_anim-compressor.gif"></a></p>
+
+<p><strong>初期値 = 6 のグラフ</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/0c80d559-a353-012c-4dd0-27ed5b763775.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/0c80d559-a353-012c-4dd0-27ed5b763775.gif" alt="normdist_decent_6.0_anim-compressor.gif"></a></p>
+
+<p>各点での傾きをベースに次の$x$の値を決め、またその位置での傾きを調べ次に降下して行く、という事を繰り返して最小値（本当は極小値）にたどり着きます。上の例だと、最小値に近ずくにつれ、傾きもなだらかになっていくので、1回のステップで進む量がだんだん小さくなり、それがある基準より小さくなるとストップする、というロジックを組んでいます。</p>
+
+<p>これら２つのグラフを書いたコードは<a href="https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-1-dim-steepest-descent-py" rel="nofollow noopener" target="_blank">こちら</a>です。</p>
+
+<h3>
+<span id="2次元の場合2次関数" class="fragment"></span><a href="#2%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%882%E6%AC%A1%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>2次元の場合(2次関数)</h3>
+
+<p>多次元の場合は次のステップに進む向きも考慮して降下していきます。ターゲットとなる関数により動きの特徴が変わるのですが、最初に2次関数 $Z=-3x^2-5y^2+6xy$ という関数を例にグラフを書いてみました。なんだかジグザグ動きながら頂点に向かって行く姿をみることができます。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/dd0f96bf-a434-a495-3fe7-59c900a1e90f.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/dd0f96bf-a434-a495-3fe7-59c900a1e90f.gif" alt="quadratic_decent_anim-compressor.gif"></a></p>
+
+<p>コードは<a href="https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-2-dim-steepest-descent_quadrant-py" rel="nofollow noopener" target="_blank">こちら</a></p>
+
+<h2>
+<span id="2次元の場合" class="fragment"></span><a href="#2%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>2次元の場合</h2>
+
+<h3>
+<span id="2次元の場合2次元正規分布" class="fragment"></span><a href="#2%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%882%E6%AC%A1%E5%85%83%E6%AD%A3%E8%A6%8F%E5%88%86%E5%B8%83"><i class="fa fa-link"></i></a>2次元の場合(2次元正規分布)</h3>
+
+<p>2次元正規分布（にマイナスをかけたもの）に対して最急降下法を適用するとジグザグ動かず、綺麗に最小値に降下していくことがわかりました。このあたりターゲット関数による収束の様子の違いについては今度調べてみたいと思います。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/b9b22d2b-edca-bbd3-6659-091e559ce2db.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/b9b22d2b-edca-bbd3-6659-091e559ce2db.gif" alt="bi-normdist_decent_anim-compressor.gif"></a></p>
+
+<p>コードは<a href="https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-2-dim-steepest-descent_normdist-py" rel="nofollow noopener" target="_blank">こちら</a></p>
+
+<h3>
+<span id="最急降下法の仕組み" class="fragment"></span><a href="#%E6%9C%80%E6%80%A5%E9%99%8D%E4%B8%8B%E6%B3%95%E3%81%AE%E4%BB%95%E7%B5%84%E3%81%BF"><i class="fa fa-link"></i></a>最急降下法の仕組み</h3>
+
+<p>最急降下法の仕組みは、まず最初にスタート地点を選び、その点での一番降下する傾きが大きいベクトル、つまり</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\nabla f = \frac{d f({\bf x})}{d {\bf x}} = \left[ \begin{array}{r} \frac{\partial f}{\partial x_1} \\ ... \\ \frac{\partial f}{\partial x_2} \end{array} \right]
+</pre></div></div>
+
+<p>を利用して次のステップに行く方法です。上記のグラフでは、この勾配ベクトルに学習率$\eta$をかけたものを直線で表しています。<br>
+なので、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+x_{i+1} = x_i - \eta \nabla f
+</pre></div></div>
+
+<p>というステップを収束するまで繰り返す、という処理を行っています。</p>
+
+<h2>
+<span id="確率的勾配降下法とは" class="fragment"></span><a href="#%E7%A2%BA%E7%8E%87%E7%9A%84%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>確率的勾配降下法とは</h2>
+
+<p>さて、次に確率的勾配降下法に移りたいと思います。<br>
+まず、対象とする関数ですが、以前<a href="http://qiita.com/kenmatsu4/items/1e37da1d55292035d985" id="reference-5226e3b7e130a2bb8661">回帰分析の説明</a>で使った回帰直線の誤差関数を使って説明したいと思います。ちょっとその解釈を変えている部分(最尤法を使用)もあるので<a href="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#%E8%A3%9C%E8%B6%B3%E5%9B%9E%E5%B8%B0%E7%9B%B4%E7%B7%9A%E3%81%AE%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E6%9C%80%E5%B0%A4%E6%B3%95%E3%81%A7%E6%B1%82%E3%82%81%E3%82%8B">文末</a>に補足として記載しておきます。</p>
+
+<p>データは、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+y_n = \alpha x_n + \beta + \epsilon_n　　　(\alpha=1, \beta=0)\\
+\epsilon_n ∼ N(0, 2)　　　　　　　　　　　　　　　　
+</pre></div></div>
+
+<p>というN=1000個のデータセットを準備して、その回帰直線を求める例を使用します。散布図は以下の通りです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/adf9be8d-1732-91fb-e1df-76c400bfef61.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/adf9be8d-1732-91fb-e1df-76c400bfef61.png" alt="scatter-compressor.png"></a></p>
+
+<p>誤差関数、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+
+E({\bf w})=\sum_{n=1}^{N} E_n({\bf w}) = \sum_{n=1}^{N} (y_n -\alpha x_n - \beta)^2 \\
+{\bf w} = (\alpha, \beta)^{\rm T}　　　　　　　　　　　　　　　　　　　　　　　
+</pre></div></div>
+
+<p>の最小値を求めていきますが、まず勾配を計算するため、それぞれ$\alpha, \beta$で偏微分した勾配ベクトルを導出します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+
+\frac{\partial E({\bf w})}{\partial \alpha} = \sum_{n=1}^{N} \frac{\partial E_n({\bf w})}{\partial \alpha} = 
+\sum_{n=1}^N (2 x_n^2  \alpha +  2 x_n \beta - 2 x_n y_n )\\
+
+\frac{\partial E({\bf w})}{\partial \beta} = \sum_{n=1}^{N}\frac{\partial E_n({\bf w})}{\partial \alpha} =
+\sum_{n=1}^N (2\beta + 2  x_n \alpha - 2y_n)　　　
+</pre></div></div>
+
+<p>なので、勾配ベクトルは</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\nabla E({\bf w}) = \frac{d E({\bf w}) }{d {\bf w}} = \left[ \begin{array}{r} \frac{\partial E({\bf w})}{\partial \alpha} \\ \frac{\partial E({\bf w})}{\partial \beta} \end{array} \right] = \sum_{n=1}^{N}
+\nabla E_n({\bf w}) = \sum_{n=1}^{N} \left[ \begin{array}{r} \frac{\partial E_n({\bf w})}{\partial \alpha} \\ \frac{\partial E_n({\bf w})}{\partial \beta} \end{array} \right]=
+\left[ \begin{array}{r} 
+2 x_n^2  \alpha +  2 x_n \beta - 2 x_n y_n \\ 
+2\beta + 2  x_n \alpha - 2y_n 　
+\end{array} \right]
+</pre></div></div>
+
+<p>となります。</p>
+
+<p>単回帰直線を求める問題なので、方程式として解いても良いのですが、これを確率的勾配降下法を用いて解くことを行っていきます。ここでN=1000個の全てのデータをすべて使うのではなく、ここからランダムサンプリングして取り出したデータに対して勾配を計算し、次のステップを決めるのがこの手法のキモです。</p>
+
+<p>まずこのデータセットから20個ランダムに取り出してグラフにしてみます。横軸が$\alpha$、縦軸が$\beta$、Z軸が誤差$E(\alpha,\beta)$です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/50b5884b-23a0-8d1e-9597-3b3f3b83fac4.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/50b5884b-23a0-8d1e-9597-3b3f3b83fac4.png" alt="SGD_4-compressor.png"></a></p>
+
+<p>なんとなくグラフの最小値が$\alpha=1, \beta=0$を中心に散らばっているかと思います。今回は1000個のデータからランダムに3つのデータをピックアップしてそれを元にこのグラフを書いています。<br>
+初期値を$\alpha=-1.5, \beta=-1.5$、学習率をイテレーション回数$t$の逆数に比例させ、さらにその地点での$E(\alpha, \beta)$の逆数もかけたものを使ってみました。この学習率と初期値の決め方について試行錯誤するしかないようなのですが、何か良い探し方をご存知の方がいれば教えてもらえると嬉しいです。ちょっと間違えるとあっという間に点が枠外に飛んで行って戻ってこなくなります（笑）</p>
+
+<p>勾配を決める誤差関数が乱数に依存しているので毎回変化していることが見て取れます。回帰直線も最初は相当暴れていますが、だんだん大人しくなって収束していく様がわかると思います。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/00f7ea3a-93d9-1891-1082-22ab567cf1c5.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/00f7ea3a-93d9-1891-1082-22ab567cf1c5.gif" width="512" height="512"></a></p>
+
+<p>正直、上記のアニメーションの例は収束が良い方のものでして、下記に10000回繰り返した際の$\alpha$と$\beta$の収束具合をグラフにしたものを載せていますが、$\alpha$は真の値1に近づいているのですが、$\beta$は0.5のあたりで収束してしまい、真の値の0にこれ以上近づきそうにありません。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/8bbcccd6-21d5-90e1-de4f-941fe68495cb.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/8bbcccd6-21d5-90e1-de4f-941fe68495cb.png" alt="result_10000r-compressor.png"></a></p>
+
+<p>これはそもそもの今回の回帰直線の誤差関数の特性にあるようですが、下記のグラフを見てもらうとわかるように、$\alpha$については$\alpha=1$のあたりで大体曲線の最小値あたりに落ちています。しかし、縦のラインについてはとても緩やかな変化しかないため、なかなか縦の動きが出る勾配が出てこないのです。これが通常の最急降下法等であればこの曲面自体は変化しないので、谷に沿って緩やかに最小値を目指すのですが、そもそも毎回この曲面が変わってしまうことが原因で$\beta$方向の動きが生まれないようです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/649f7efe-b7f2-90ef-d86e-e43c1bc02e2d.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/649f7efe-b7f2-90ef-d86e-e43c1bc02e2d.png" alt="graph2-compressor.png"></a></p>
+
+<p>さて、確率的勾配降下法についてイメージが湧きましたでしょうか？私はこのアニメーショングラフを描くことでイメージがつかめました。<br>
+この確率的勾配降下法のアニメーションを描くpythonコードは<a href="https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-2-dim-stocastic-descent_quadrant-py" rel="nofollow noopener" target="_blank">こちら</a>にありますので、よければ試してみてください。</p>
+
+<h3>
+<span id="補足回帰直線のパラメータを最尤法で求める" class="fragment"></span><a href="#%E8%A3%9C%E8%B6%B3%E5%9B%9E%E5%B8%B0%E7%9B%B4%E7%B7%9A%E3%81%AE%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E6%9C%80%E5%B0%A4%E6%B3%95%E3%81%A7%E6%B1%82%E3%82%81%E3%82%8B"><i class="fa fa-link"></i></a>(補足)回帰直線のパラメータを最尤法で求める</h3>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+y_n = f(x_n, \alpha, \beta) + \epsilon_n　　　　(n =1,2,...,N)
+</pre></div></div>
+
+<p>つまり、誤差は</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\epsilon_n = y_n - f(x_n, \alpha, \beta) 　　　　(n =1,2,...,N)  \\
+\epsilon_n = y_n -\alpha x_n - \beta　　　　　　　　　　　　　　　　　　　
+</pre></div></div>
+
+<p>で表すことができます。この誤差$\epsilon_i$を平均=0, 分散=$\sigma^2$の正規分布に従うとすると、誤差関数の尤度は</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+
+L = \prod_{n=1}^{N} \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left( -\frac{\epsilon_n^2}{2\sigma^2} \right)
+</pre></div></div>
+
+<p>であり、対数をとると</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+
+\log L = -\frac{N}{2} \log (2\pi\sigma^2) -\frac{1}{2\sigma^2} \sum_{n=1}^{N} \epsilon_n^2
+</pre></div></div>
+
+<p>となり、パラメーター$\alpha, beta$に依存する項のみを取り出すと</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+l(\alpha, \beta) = \sum_{n=1}^{N} \epsilon_n^2 = \sum_{n=1}^{N} (y_n -\alpha x_n - \beta)^2
+</pre></div></div>
+
+<p>を最小化すれば良いことがわかります。<br>
+これを誤差関数として</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+
+E({\bf w})=\sum_{n=1}^{N} E_n({\bf w}) = \sum_{n=1}^{N} (y_n -\alpha x_n - \beta)^2 \\
+{\bf w} = (\alpha, \beta)^{\rm T}　　　　　　　　　　　　　　　　　　　　　　　
+</pre></div></div>
+
+<p>と表現します。</p>
+
+
+
+
+<div class="hidden"><form class="js-task-list-update" action="/kenmatsu4/items/d282054ddedbd68fecb0" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="/3XaR79V9nDBLzDpLcifdAUUGLJvNrcSoJSWd5Uyo+jzPRMLFhRmaxuNfav1cW6GqNMbBaajxcoo+GeUZID4Ow==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1452963055" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+#勾配降下法は何に使う？#
+勾配降下法は統計学や機械学習で多く使われています。特に機械学習というのは基本的に何かしらの関数を最小化（最大化）する問題を数値解析的に解くことに帰結する場合が多いです。（e.g. 最小二乗法 → 誤差の二乗和を最小化（[参考](http://qiita.com/kenmatsu4/items/8b4e908d7c93d046110d)）、ニューラルネットワークのパラメータ決定 etc...）
+
+なので、基本的にはひたすら微分して0となるところを探す問題ですね、微分して0。で、その微分して0となる値は何か、をプログラムで解く場合に重要になるのがこの勾配降下法です。幾つか勾配法にも種類がありますがここでは最急降下法、確率的勾配降下法の２つを扱います。まずはイメージをつかむために１次元のグラフで確認していきたいと思います。
+
+##1次元の場合##
+1次元の場合は、確率的という概念はなく、ただの勾配降下法になります。
+（どういうことか、はのちほど）
+1次元の例は、正規分布をマイナスにしたものを使ってみます。$x_{init} = 0$と$x_{init} = 6$のグラフを例として作っています。対象となるグラフは正規分布の密度関数をマイナスして下向きにしたものを使いました。
+
+
+**初期値 = 0 のグラフ**
+グラフの端から始まって、ちゃんと一番小さいところ、最小値で収束していることがわかりますね。青い線のグラフが正規分布のマイナス版で、緑の線のグラフがその微分した値のグラフです。
+![normdist_decent_0.0_anim-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/1c51dc9e-c469-e97e-851e-a9a3ddf451fc.gif)
+
+**初期値 = 6 のグラフ**
+![normdist_decent_6.0_anim-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/0c80d559-a353-012c-4dd0-27ed5b763775.gif)
+
+各点での傾きをベースに次の$x$の値を決め、またその位置での傾きを調べ次に降下して行く、という事を繰り返して最小値（本当は極小値）にたどり着きます。上の例だと、最小値に近ずくにつれ、傾きもなだらかになっていくので、1回のステップで進む量がだんだん小さくなり、それがある基準より小さくなるとストップする、というロジックを組んでいます。
+
+これら２つのグラフを書いたコードは[こちら](https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-1-dim-steepest-descent-py)です。
+
+###2次元の場合(2次関数)###
+多次元の場合は次のステップに進む向きも考慮して降下していきます。ターゲットとなる関数により動きの特徴が変わるのですが、最初に2次関数 $Z=-3x^2-5y^2+6xy$ という関数を例にグラフを書いてみました。なんだかジグザグ動きながら頂点に向かって行く姿をみることができます。
+![quadratic_decent_anim-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/dd0f96bf-a434-a495-3fe7-59c900a1e90f.gif)
+
+
+コードは[こちら](https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-2-dim-steepest-descent_quadrant-py)
+
+##2次元の場合##
+
+###2次元の場合(2次元正規分布)###
+2次元正規分布（にマイナスをかけたもの）に対して最急降下法を適用するとジグザグ動かず、綺麗に最小値に降下していくことがわかりました。このあたりターゲット関数による収束の様子の違いについては今度調べてみたいと思います。
+![bi-normdist_decent_anim-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/b9b22d2b-edca-bbd3-6659-091e559ce2db.gif)
+
+
+コードは[こちら](https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-2-dim-steepest-descent_normdist-py)
+
+###最急降下法の仕組み###
+最急降下法の仕組みは、まず最初にスタート地点を選び、その点での一番降下する傾きが大きいベクトル、つまり
+
+```math
+\nabla f = \frac{d f({\bf x})}{d {\bf x}} = \left[ \begin{array}{r} \frac{\partial f}{\partial x_1} \\ ... \\ \frac{\partial f}{\partial x_2} \end{array} \right]
+```
+を利用して次のステップに行く方法です。上記のグラフでは、この勾配ベクトルに学習率$\eta$をかけたものを直線で表しています。
+なので、
+
+```math
+x_{i+1} = x_i - \eta \nabla f
+```
+というステップを収束するまで繰り返す、という処理を行っています。
+
+##確率的勾配降下法とは##
+さて、次に確率的勾配降下法に移りたいと思います。
+まず、対象とする関数ですが、以前[回帰分析の説明](http://qiita.com/kenmatsu4/items/1e37da1d55292035d985)で使った回帰直線の誤差関数を使って説明したいと思います。ちょっとその解釈を変えている部分(最尤法を使用)もあるので[文末](http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#補足回帰直線のパラメータを最尤法で求める)に補足として記載しておきます。
+
+データは、
+
+```math
+y_n = \alpha x_n + \beta + \epsilon_n　　　(\alpha=1, \beta=0)\\
+\epsilon_n ∼ N(0, 2)　　　　　　　　　　　　　　　　
+```
+
+というN=1000個のデータセットを準備して、その回帰直線を求める例を使用します。散布図は以下の通りです。
+
+![scatter-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/adf9be8d-1732-91fb-e1df-76c400bfef61.png)
+
+誤差関数、
+
+```math
+
+E({\bf w})=\sum_{n=1}^{N} E_n({\bf w}) = \sum_{n=1}^{N} (y_n -\alpha x_n - \beta)^2 \\
+{\bf w} = (\alpha, \beta)^{\rm T}　　　　　　　　　　　　　　　　　　　　　　　
+```
+の最小値を求めていきますが、まず勾配を計算するため、それぞれ$\alpha, \beta$で偏微分した勾配ベクトルを導出します。
+
+```math
+
+\frac{\partial E({\bf w})}{\partial \alpha} = \sum_{n=1}^{N} \frac{\partial E_n({\bf w})}{\partial \alpha} = 
+\sum_{n=1}^N (2 x_n^2  \alpha +  2 x_n \beta - 2 x_n y_n )\\
+
+\frac{\partial E({\bf w})}{\partial \beta} = \sum_{n=1}^{N}\frac{\partial E_n({\bf w})}{\partial \alpha} =
+\sum_{n=1}^N (2\beta + 2  x_n \alpha - 2y_n)　　　
+```
+なので、勾配ベクトルは
+
+```math
+\nabla E({\bf w}) = \frac{d E({\bf w}) }{d {\bf w}} = \left[ \begin{array}{r} \frac{\partial E({\bf w})}{\partial \alpha} \\ \frac{\partial E({\bf w})}{\partial \beta} \end{array} \right] = \sum_{n=1}^{N}
+\nabla E_n({\bf w}) = \sum_{n=1}^{N} \left[ \begin{array}{r} \frac{\partial E_n({\bf w})}{\partial \alpha} \\ \frac{\partial E_n({\bf w})}{\partial \beta} \end{array} \right]=
+\left[ \begin{array}{r} 
+2 x_n^2  \alpha +  2 x_n \beta - 2 x_n y_n \\ 
+2\beta + 2  x_n \alpha - 2y_n 　
+\end{array} \right]
+```
+となります。
+
+単回帰直線を求める問題なので、方程式として解いても良いのですが、これを確率的勾配降下法を用いて解くことを行っていきます。ここでN=1000個の全てのデータをすべて使うのではなく、ここからランダムサンプリングして取り出したデータに対して勾配を計算し、次のステップを決めるのがこの手法のキモです。
+
+
+まずこのデータセットから20個ランダムに取り出してグラフにしてみます。横軸が$\alpha$、縦軸が$\beta$、Z軸が誤差$E(\alpha,\beta)$です。
+
+![SGD_4-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/50b5884b-23a0-8d1e-9597-3b3f3b83fac4.png)
+
+なんとなくグラフの最小値が$\alpha=1, \beta=0$を中心に散らばっているかと思います。今回は1000個のデータからランダムに3つのデータをピックアップしてそれを元にこのグラフを書いています。
+初期値を$\alpha=-1.5, \beta=-1.5$、学習率をイテレーション回数$t$の逆数に比例させ、さらにその地点での$E(\alpha, \beta)$の逆数もかけたものを使ってみました。この学習率と初期値の決め方について試行錯誤するしかないようなのですが、何か良い探し方をご存知の方がいれば教えてもらえると嬉しいです。ちょっと間違えるとあっという間に点が枠外に飛んで行って戻ってこなくなります（笑）
+
+勾配を決める誤差関数が乱数に依存しているので毎回変化していることが見て取れます。回帰直線も最初は相当暴れていますが、だんだん大人しくなって収束していく様がわかると思います。
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/00f7ea3a-93d9-1891-1082-22ab567cf1c5.gif&quot; width=&quot;512&quot; height=&quot;512&quot; &gt;&lt;/img&gt;
+
+正直、上記のアニメーションの例は収束が良い方のものでして、下記に10000回繰り返した際の$\alpha$と$\beta$の収束具合をグラフにしたものを載せていますが、$\alpha$は真の値1に近づいているのですが、$\beta$は0.5のあたりで収束してしまい、真の値の0にこれ以上近づきそうにありません。
+
+![result_10000r-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/8bbcccd6-21d5-90e1-de4f-941fe68495cb.png)
+
+これはそもそもの今回の回帰直線の誤差関数の特性にあるようですが、下記のグラフを見てもらうとわかるように、$\alpha$については$\alpha=1$のあたりで大体曲線の最小値あたりに落ちています。しかし、縦のラインについてはとても緩やかな変化しかないため、なかなか縦の動きが出る勾配が出てこないのです。これが通常の最急降下法等であればこの曲面自体は変化しないので、谷に沿って緩やかに最小値を目指すのですが、そもそも毎回この曲面が変わってしまうことが原因で$\beta$方向の動きが生まれないようです。
+
+![graph2-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/649f7efe-b7f2-90ef-d86e-e43c1bc02e2d.png)
+
+さて、確率的勾配降下法についてイメージが湧きましたでしょうか？私はこのアニメーショングラフを描くことでイメージがつかめました。
+この確率的勾配降下法のアニメーションを描くpythonコードは[こちら](https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-2-dim-stocastic-descent_quadrant-py)にありますので、よければ試してみてください。
+
+###(補足)回帰直線のパラメータを最尤法で求める###
+
+```math
+y_n = f(x_n, \alpha, \beta) + \epsilon_n　　　　(n =1,2,...,N)
+```
+つまり、誤差は
+
+```math
+\epsilon_n = y_n - f(x_n, \alpha, \beta) 　　　　(n =1,2,...,N)  \\
+\epsilon_n = y_n -\alpha x_n - \beta　　　　　　　　　　　　　　　　　　　
+```
+で表すことができます。この誤差$\epsilon_i$を平均=0, 分散=$\sigma^2$の正規分布に従うとすると、誤差関数の尤度は
+
+```math
+
+L = \prod_{n=1}^{N} \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left( -\frac{\epsilon_n^2}{2\sigma^2} \right)
+````
+
+であり、対数をとると
+
+```math
+
+\log L = -\frac{N}{2} \log (2\pi\sigma^2) -\frac{1}{2\sigma^2} \sum_{n=1}^{N} \epsilon_n^2
+```
+
+となり、パラメーター$\alpha, beta$に依存する項のみを取り出すと
+
+```math
+l(\alpha, \beta) = \sum_{n=1}^{N} \epsilon_n^2 = \sum_{n=1}^{N} (y_n -\alpha x_n - \beta)^2
+```
+を最小化すれば良いことがわかります。
+これを誤差関数として
+
+```math
+
+E({\bf w})=\sum_{n=1}^{N} E_n({\bf w}) = \sum_{n=1}^{N} (y_n -\alpha x_n - \beta)^2 \\
+{\bf w} = (\alpha, \beta)^{\rm T}　　　　　　　　　　　　　　　　　　　　　　　
+```
+と表現します。
+
+&lt;!--
+**以下、当初確率的勾配降下法の私の解釈に誤りがあることがいただいたコメントで分かりましたので訂正をしております。同じ勘違
+
+て、書き直しをしています。本来ランダムピックアップするのはデータ点なのですが、下記の説明ではm次元の勾配から１つ選ぶ、という誤解がありました。すみません・・・**
+
+
+&lt;S&gt;
+最急降下法では各点で一番降下する傾きが大きいベクトルを偏微分することで求めて次のステップに行く方法ですが、ここで扱っていた2次元程度の関数であればさほど大きな計算量にならないのですが、数百、数千、もっと多い次元のインプットがあった場合、相当の計算量になってしまい収束しなくなってしまうケースが出てきてしまいます。（私がよく扱っている手書き数字データの場合でも、784次元のデータがインプットになるので、1ステップの計算だけで2次元の392倍！）&lt;/S&gt;
+
+&lt;S&gt;なので、&lt;/S&gt;
+
+```math
+\nabla f = \frac{d f({\bf x})}{d {\bf x}} = \left[ \begin{array}{r} \frac{\partial f}{\partial x_1} \\ ... \\ \frac{\partial f}{\partial x_2} \end{array} \right]
+```
+
+&lt;S&gt;のように全方向の勾配ベクトルを使うのではなく、この中からランダムに１つ
+
+```math
+\nabla f = \frac{\partial f}{\partial x_i}
+```
+
+&lt;S&gt;を選んで（複数選ぶケースもある）その方向のみに降下する事を行います。こうすると、全方向の偏微分を求めなくて済むので計算量がかなり減ります。ランダムに選ぶ、というのが”確率的”と名が付いている由来ですね。&lt;/S&gt;
+
+###グラフに書いてみる###
+&lt;S&gt;&quot;確率的&quot;というだけあって、毎回、最小値に至るパスが違います。下にグラフを２つ書いてみたので見てみましょう。&lt;/S&gt;
+
+![quadratic_decent_stchastic_anim_1-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/0e5ccd94-930c-c1b1-34dc-871518c86f72.gif)
+![quadratic_decent_stchastic_anim_2-compressor-2.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/f3f16c2c-fc0e-4ec2-37d7-738425747349.gif)
+
+
+&lt;S&gt;コードは[こちら](https://gist.github.com/matsuken92/f92f8e8e4a1f924e6d99#file-2-dim-stocastic-descent_quadrant-py)&lt;/S&gt;
+
+&lt;S&gt;どちらも正直精度が良い感じがしないですね（笑）ただ、今回は図示するため2次元関数を扱いましたので、この計算量だったら素直に最急降下法を使ったほうが良いということですね。上にある2次関数の最急降下法の場合、n=35回n=で収束基準を満たし終わっていますが、確率的勾配降下法をの場合はn=40回で0.3以上の誤差を残し打ち止めとなっています。（Qiitaのgifアニメの容量制限1MBにより、これ以上の回数をアニメーションで表示できませんでした・・・）&lt;/S&gt;
+&lt;S&gt;ただし、計算回数で考えると、&lt;/S&gt;
+
+&lt;S&gt;・最急降下法&lt;/S&gt;
+&lt;S&gt;　⇒ 2(次元) × 35(回で収束)  = 70回の計算&lt;/S&gt;
+
+&lt;S&gt;・確率的勾配降下法（ランダムに1次元選択する）&lt;/S&gt;
+&lt;S&gt;　⇒ 1(次元) × 40(回で収束)  = 40回の計算&lt;/S&gt;
+
+&lt;S&gt;なので、計算回数が少ないのです。特に次元数が多い場合は劇的に回数が変わってきます。次元数が多い場合は確率的勾配降下法を使ったほうが良いケースがありそうですね。&lt;/S&gt;
+--&gt;
+&lt;!--
+```math
+
+f({\bf x}; {\bf \mu}, \Sigma) = \frac{1}{(2\pi)^{D/2}} \frac{1}{|\Sigma|^{1/2} }  \exp{ \left( ({\bf x - \mu})^{{\rm T}}\Sigma^{-1}(x)({\bf x - \mu}) \right)}
+
+```
+
+```math
+
+\frac{d f({\bf x}; {\bf \mu}, \Sigma)}{d{\bf x}} = 2\Sigma^{-1}{\bf x}
+\frac{1}{(2\pi)^{D/2}} \frac{1}{|\Sigma|^{1/2} }  \exp{ \left( ({\bf x - \mu})^{{\rm T}}\Sigma^{-1}(x)({\bf x - \mu}) \right)}
+
+```
+--&gt;
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="確率的勾配降下法とは何か、をPythonで動かして解説する by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="確率的勾配降下法とは何か、をPythonで動かして解説する" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/kenmatsu4"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/kenmatsu4">kenmatsu4</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">8833</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;kenmatsu4&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-1befcd39-691d-48f7-ae98-e048ef73c570"></div>
+    <div id="UserFollowButton-react-component-1befcd39-691d-48f7-ae98-e048ef73c570"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/7b8d24d4c5144a686412">【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/e6c6acb289c02609e619">【統計学】初めての「標準偏差」（統計学に挫折しないために）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/2a8573e3c878fc2da306">【数学】固有値・固有ベクトルとは何かを可視化してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/b28d1b3b3d291d0cc698">【統計学】尤度って何？をグラフィカルに説明してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/23768cbe32fe381d54a2">スタバのTwitterデータをpythonで大量に取得し、データ分析を試みる その１</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95%E3%81%AF%E4%BD%95%E3%81%AB%E4%BD%BF%E3%81%86\&quot;\u003e勾配降下法は何に使う？\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%88\&quot;\u003e1次元の場合\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%882%E6%AC%A1%E9%96%A2%E6%95%B0\&quot;\u003e2次元の場合(2次関数)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%88\&quot;\u003e2次元の場合\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E6%AC%A1%E5%85%83%E3%81%AE%E5%A0%B4%E5%90%882%E6%AC%A1%E5%85%83%E6%AD%A3%E8%A6%8F%E5%88%86%E5%B8%83\&quot;\u003e2次元の場合(2次元正規分布)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9C%80%E6%80%A5%E9%99%8D%E4%B8%8B%E6%B3%95%E3%81%AE%E4%BB%95%E7%B5%84%E3%81%BF\&quot;\u003e最急降下法の仕組み\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A2%BA%E7%8E%87%E7%9A%84%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95%E3%81%A8%E3%81%AF\&quot;\u003e確率的勾配降下法とは\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A3%9C%E8%B6%B3%E5%9B%9E%E5%B8%B0%E7%9B%B4%E7%B7%9A%E3%81%AE%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E6%9C%80%E5%B0%A4%E6%B3%95%E3%81%A7%E6%B1%82%E3%82%81%E3%82%8B\&quot;\u003e(補足)回帰直線のパラメータを最尤法で求める\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B0%E3%83%A9%E3%83%95%E3%81%AB%E6%9B%B8%E3%81%84%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003eグラフに書いてみる\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-8e2f3810-4df0-4af8-9768-2e32d5b62ba0"></div>
+    <div id="Toc-react-component-8e2f3810-4df0-4af8-9768-2e32d5b62ba0"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:368,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="driller"><a itemprop="url" href="/driller"><img alt="driller" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22023/profile-images/1477644793" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sayamada"><a itemprop="url" href="/sayamada"><img alt="sayamada" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44722/profile-images/1473690004" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="cof"><a itemprop="url" href="/cof"><img alt="cof" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70480/profile-images/1473698483" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="himo"><a itemprop="url" href="/himo"><img alt="himo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53186/profile-images/1473692979" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="genyajoe"><a itemprop="url" href="/genyajoe"><img alt="genyajoe" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31165/profile-images/1473685633" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="driftglass"><a itemprop="url" href="/driftglass"><img alt="driftglass" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49903/profile-images/1473691899" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ryo-ma"><a itemprop="url" href="/ryo-ma"><img alt="ryo-ma" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46662/profile-images/1473690724" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="daxanya1"><a itemprop="url" href="/daxanya1"><img alt="daxanya1" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32778/profile-images/1473685975" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="highly-snow"><a itemprop="url" href="/highly-snow"><img alt="highly-snow" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45654/profile-images/1473690368" /></a></div></div><div class="ArticleFooter__user"><a href="/kenmatsu4/items/d282054ddedbd68fecb0/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/d282054ddedbd68fecb0/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/kenmatsu4/items/d282054ddedbd68fecb0.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 1 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/kenmatsu4/items/623514c61166e34283bb#_reference-20721c2a1ca3a68b1df3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" />【Qiita API】[統計学•機械学習] 今までの投稿記事のまとめと分析やってみた。</a><time class="references_datetime js-dateTimeView" datetime="2015-08-10T14:36:39+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/TomokIshii/items/b22a3681cb17836c8f6e#_reference-a54323fba33e3fa14b61"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" />Coursera / Machine Learningの教材を２度楽しむ</a><time class="references_datetime js-dateTimeView" datetime="2015-09-24T04:31:34+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/Jah524/items/059d5fd0e46c0c71a118#_reference-72d11c19d5cc28e8a4ef"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/104478/profile-images/1473709312" />Clojureで0からのニューラルネット構築と隠れ層の観察</a><time class="references_datetime js-dateTimeView" datetime="2015-12-18T13:27:41+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmatsu4/items/183020c058feac6a779b#_reference-4b708ecb630596f94c31"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" />今までの投稿記事のまとめ（統計学/機械学習/数学 etc）</a><time class="references_datetime js-dateTimeView" datetime="2016-07-09T02:34:14+00:00">8 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/junichiro/items/3457e33e502086a200f1#_reference-44754589b3f4ad9977b0"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/121876/profile-images/1473715053" />機械学習をゼロから1ヵ月間勉強し続けた結果</a><time class="references_datetime js-dateTimeView" datetime="2017-01-10T08:57:08+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/krf7v4k2/items/47bf21a5d266a6810830#_reference-4037aca849de641c91da"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/168469/profile-images/1488479263" />ゲーマーの為のTensorFlow入門</a><time class="references_datetime js-dateTimeView" datetime="2017-03-02T18:55:51+00:00">14 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="確率的勾配降下法とは何か、をPythonで動かして解説する by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="確率的勾配降下法とは何か、をPythonで動かして解説する" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eここで紹介されている確率的勾配降下法の参考文献はありますでしょうか．\u003c/p\u003e\n\n\u003cp\u003e確率的勾配降下法は，訓練データから1つずつデータをランダムに取り出して，そのデータ点における勾配を計算してパラメータを更新するという手続きとしてよく紹介されているように思えるのですが，ここで紹介されている話と同じことなのでしょうか．\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-03-08T02:25:41+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:185457,&quot;is_team&quot;:false,&quot;item_id&quot;:281803,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;ここで紹介されている確率的勾配降下法の参考文献はありますでしょうか．\n\n確率的勾配降下法は，訓練データから1つずつデータをランダムに取り出して，そのデータ点における勾配を計算してパラメータを更新するという手続きとしてよく紹介されているように思えるのですが，ここで紹介されている話と同じことなのでしょうか．\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#comment-6417d02d9c7d52d95eb7&quot;,&quot;user&quot;:{&quot;contribution&quot;:401,&quot;created_at&quot;:&quot;2014-11-05T22:11:01+09:00&quot;,&quot;id&quot;:58543,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/58543/profile-images/1473694666&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;sz_dr&quot;},&quot;uuid&quot;:&quot;6417d02d9c7d52d95eb7&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003esz_drさん、\u003cbr\u003e\n有用なコメントいただきありがとうございます。ご指摘の方法と私が説明しようとしていた話は同じものであり、私の理解が足りていなかったかと思いますので、「確率的勾配降下法」の説明部分を一度取り下げて整理し、改めて書き直したのちアップさせていただきたいと思います。\u003cbr\u003e\n私が勘違いしていた点は、下記ではないかと考えています。\u003c/p\u003e\n\n\u003cp\u003e教師データ一式をn個のm次元ベクトルデータだとした時、ランダムピックアップしなければならないのはm次元の勾配の方ではなく、n個の教師データということと思います。\u003c/p\u003e\n\n\u003cp\u003e今回2次関数\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;math\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nf(x, y) = −3x^2−5y^2+6xy\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eを例にとりましたが、x, y をデータ点と考えたとしても、”xy”の部分が積のため分離できず、各々が独立とならないのでデータ点と解釈ができないかなと思っています。\u003c/p\u003e\n\n\u003cp\u003eありがとうございました。今後も気づきがありましたらコメントいただけると助かります。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-03-08T10:22:29+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:185499,&quot;is_team&quot;:false,&quot;item_id&quot;:281803,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;sz_drさん、\n有用なコメントいただきありがとうございます。ご指摘の方法と私が説明しようとしていた話は同じものであり、私の理解が足りていなかったかと思いますので、「確率的勾配降下法」の説明部分を一度取り下げて整理し、改めて書き直したのちアップさせていただきたいと思います。\n私が勘違いしていた点は、下記ではないかと考えています。\n\n教師データ一式をn個のm次元ベクトルデータだとした時、ランダムピックアップしなければならないのはm次元の勾配の方ではなく、n個の教師データということと思います。\n\n今回2次関数\n\n```math\nf(x, y) = −3x^2−5y^2+6xy\n```\nを例にとりましたが、x, y をデータ点と考えたとしても、”xy”の部分が積のため分離できず、各々が独立とならないのでデータ点と解釈ができないかなと思っています。\n\nありがとうございました。今後も気づきがありましたらコメントいただけると助かります。\n\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#comment-60eaea3abac80017a91f&quot;,&quot;user&quot;:{&quot;contribution&quot;:8833,&quot;created_at&quot;:&quot;2014-08-01T17:56:53+09:00&quot;,&quot;id&quot;:50670,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;uuid&quot;:&quot;60eaea3abac80017a91f&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e上記指摘を反映して「確率的勾配降下法」の説明を一新しました！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-03-12T23:13:53+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:189295,&quot;is_team&quot;:false,&quot;item_id&quot;:281803,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;上記指摘を反映して「確率的勾配降下法」の説明を一新しました！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#comment-668f4b6ca33347767ef6&quot;,&quot;user&quot;:{&quot;contribution&quot;:8833,&quot;created_at&quot;:&quot;2014-08-01T17:56:53+09:00&quot;,&quot;id&quot;:50670,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;uuid&quot;:&quot;668f4b6ca33347767ef6&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eはじめまして。とても勉強になりました！ありがとうございます。\u003cbr\u003e\n1-dim steepest descent.py にうまく動かない場所を見つけましたので報告します。\u003cbr\u003e\n102行目の\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nanim = ani.FuncAnimation(fig, animate, frames=ret_dict[&#39;num&#39;], blit=True)\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eなのですが、\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nblit=True\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eの部分を削除しなければうまく動作しませんでした。\u003c/p\u003e\n\n\u003cp\u003e環境は\u003c/p\u003e\n\n\u003cul\u003e\n\u003cli\u003eOSX 10.11.3 \u003c/li\u003e\n\u003cli\u003epython 2.7.11\u003c/li\u003e\n\u003cli\u003ematplotlib 1.5.1\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003cp\u003eとなっております。初コメントなのでお手柔らかによろしくお願いいたしますm(__)m\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-02-13T18:34:16+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:459718,&quot;is_team&quot;:false,&quot;item_id&quot;:281803,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;はじめまして。とても勉強になりました！ありがとうございます。\n1-dim steepest descent.py にうまく動かない場所を見つけましたので報告します。\n102行目の\n\n```\nanim = ani.FuncAnimation(fig, animate, frames=ret_dict[&#39;num&#39;], blit=True)\n```\n\nなのですが、\n\n```\nblit=True\n```\n\nの部分を削除しなければうまく動作しませんでした。\n\n環境は\n\n* OSX 10.11.3 \n* python 2.7.11\n* matplotlib 1.5.1\n\nとなっております。初コメントなのでお手柔らかによろしくお願いいたしますm(__)m\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#comment-90849576e744954c2a3a&quot;,&quot;user&quot;:{&quot;contribution&quot;:1,&quot;created_at&quot;:&quot;2015-05-08T17:32:22+09:00&quot;,&quot;id&quot;:77973,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77973/profile-images/1473701000&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;NakanishiTetsuhiro&quot;},&quot;uuid&quot;:&quot;90849576e744954c2a3a&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/NakanishiTetsuhiro\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;NakanishiTetsuhiro\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;NakanishiTetsuhiro\&quot;\u003e@NakanishiTetsuhiro\u003c/a\u003e さん\u003cbr\u003e\nコメントありがとうございます！\u003cbr\u003e\n実は最近はアニメーションGIFを作るときは\u003c/p\u003e\n\n\u003cp\u003e「MacでPythonからアニメーションGIFを生成する環境設定」\u003cbr\u003e\n\u003ca href=\&quot;http://qiita.com/kenmatsu4/items/573ca0733b192d919d0e\&quot; class=\&quot;autolink\&quot; id=\&quot;reference-d88d11af3b54ef5f70be\&quot;\u003ehttp://qiita.com/kenmatsu4/items/573ca0733b192d919d0e\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003eに書いたような書き方でやることが多く、このときと違うやり方に\u003cbr\u003e\n変えてしまっていました。それも踏まえて時間があるときにここも修正\u003cbr\u003e\nしておきます。ありがとうございます！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-02-13T18:49:55+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:459723,&quot;is_team&quot;:false,&quot;item_id&quot;:281803,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;@NakanishiTetsuhiro さん\nコメントありがとうございます！\n実は最近はアニメーションGIFを作るときは\n\n「MacでPythonからアニメーションGIFを生成する環境設定」\nhttp://qiita.com/kenmatsu4/items/573ca0733b192d919d0e\n\nに書いたような書き方でやることが多く、このときと違うやり方に\n変えてしまっていました。それも踏まえて時間があるときにここも修正\nしておきます。ありがとうございます！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0#comment-6d313115595798666ed6&quot;,&quot;user&quot;:{&quot;contribution&quot;:8833,&quot;created_at&quot;:&quot;2014-08-01T17:56:53+09:00&quot;,&quot;id&quot;:50670,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;uuid&quot;:&quot;6d313115595798666ed6&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:281803,&quot;uuid&quot;:&quot;d282054ddedbd68fecb0&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;},{&quot;id&quot;:58543,&quot;url_name&quot;:&quot;sz_dr&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/58543/profile-images/1473694666&quot;},{&quot;id&quot;:77973,&quot;url_name&quot;:&quot;NakanishiTetsuhiro&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77973/profile-images/1473701000&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-72e6d365-9ec8-4908-a133-79c8118bb3a7"></div>
+    <div id="CommentListContainer-react-component-72e6d365-9ec8-4908-a133-79c8118bb3a7"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="SNRayb+ZHWjfR/0CFQ7ZapuwsC79Vs/b92aMWiD15oREnJOFFtiNcwXlsEDNtyiYNnezmTTDvQN/Cn250Ue9Vw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/d282054ddedbd68fecb0" /><input type="hidden" name="item_uuid" id="item_uuid" value="d282054ddedbd68fecb0" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/kenmatsu4/items/d282054ddedbd68fecb0", "id": 281803, "uuid": "d282054ddedbd68fecb0" }</script><script class="js-user" type="application/json">{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="qqYmTgWDQ1AJDrhd+xhfhjHH7R+1k7erGA8/jbtIJZWm7u8CrMLTS9Os9R8joa50nADuqHwGxXOQY85uSvp+Rg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/d282054ddedbd68fecb0" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-60064a257a213198cd13df56dcca54cf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-60123434-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

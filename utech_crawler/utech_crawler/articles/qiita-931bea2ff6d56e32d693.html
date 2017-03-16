@@ -1,0 +1,854 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="どうも、データセットの用意でバイナリーとの戦いを5時間繰り広げたあげく、記事に１日かかりました。丁寧に記事書くって大変ですね。うふふっ☆
+
+前回: 特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説
+に続き、MNISTのエキスパート編を解説しようと思ったのですが、せっかくなので数字ではなくひらがなデータセット計71文字を識別していくなかで&quot;畳み込みニューラルネットワーク&quot;の解説をしたいと思います。  英語では..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Robobu_Bot" name="twitter:creator" /><meta content="Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/tawago/items/931bea2ff6d56e32d693" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="どうも、データセットの用意でバイナリーとの戦いを5時間繰り広げたあげく、記事に１日かかりました。丁寧に記事書くって大変ですね。うふふっ☆
+
+前回: [特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e89b2462e454a13b67eaa536fcb0b04a.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="Zief215NdPcAwzrUXBQ0HHqbJPPFh0hIDn6h2eDAjrh0dXF6mmaHI/ckwEdZApbR0Ggh0Foo9widNLHhr4ILAQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"tawago","type":"items","id":"931bea2ff6d56e32d693"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-6f46ca26-19ed-44b9-bc98-e2a05673610b"></div>
+    <div id="HeaderContainer-react-component-6f46ca26-19ed-44b9-bc98-e2a05673610b"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/TensorFlow",        "name": "TensorFlow"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説</h1><ul class="TagList"><li class="TagList__item" data-count="785"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="9868"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1070"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="1830"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="91"><a class="u-link-unstyled TagList__label" href="/tags/%E7%94%BB%E5%83%8F%E8%AA%8D%E8%AD%98"><img alt="画像認識" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>画像認識</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">494</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="4 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>4</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:494,&quot;uuid&quot;:&quot;931bea2ff6d56e32d693&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="imaooo"><a itemprop="url" href="/imaooo"><img alt="imaooo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/118398/profile-images/1473713914" /></a></li><li class="js-hovercard" data-hovercard-target-name="hellohello722"><a itemprop="url" href="/hellohello722"><img alt="hellohello722" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106613/profile-images/1484933301" /></a></li><li class="js-hovercard" data-hovercard-target-name="KojiOhki"><a itemprop="url" href="/KojiOhki"><img alt="KojiOhki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" /></a></li><li class="js-hovercard" data-hovercard-target-name="Hidden4682"><a itemprop="url" href="/Hidden4682"><img alt="Hidden4682" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43680/profile-images/1473689609" /></a></li><li class="js-hovercard" data-hovercard-target-name="kurehajime"><a itemprop="url" href="/kurehajime"><img alt="kurehajime" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33890/profile-images/1473686220" /></a></li><li class="js-hovercard" data-hovercard-target-name="seihmd"><a itemprop="url" href="/seihmd"><img alt="seihmd" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51303/profile-images/1486306587" /></a></li><li class="js-hovercard" data-hovercard-target-name="polikeiji"><a itemprop="url" href="/polikeiji"><img alt="polikeiji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8895/profile-images/1473681187" /></a></li><li class="js-hovercard" data-hovercard-target-name="yutap"><a itemprop="url" href="/yutap"><img alt="yutap" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100421/profile-images/1473708089" /></a></li><li class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></li><li class="js-hovercard" data-hovercard-target-name="zaqz_yamato"><a itemprop="url" href="/zaqz_yamato"><img alt="zaqz_yamato" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/111784/profile-images/1473711675" /></a></li><li><a href="/tawago/items/931bea2ff6d56e32d693/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/tawago"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" alt="1473696298" /></a> <a class="u-link-unstyled" href="/tawago">tawago</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-03-29T11:05:44+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-03-29">Edited at <time datetime="2016-12-12T23:00:02+09:00" itemprop="dateModified">2016-12-12</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/tawago/items/931bea2ff6d56e32d693/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">7</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/tawago/items/931bea2ff6d56e32d693/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(7)</span></a></li><li><a href="/tawago/items/931bea2ff6d56e32d693.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-931bea2ff6d56e32d693" itemprop="articleBody"><p>どうも、データセットの用意でバイナリーとの戦いを5時間繰り広げたあげく、記事に１日かかりました。丁寧に記事書くって大変ですね。うふふっ☆</p>
+
+<p>前回: <a href="http://qiita.com/tawago/items/c977c79b76c5979874e8" id="reference-d713d333f77e15273223">特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説</a><br>
+に続き、MNISTのエキスパート編を解説しようと思ったのですが、せっかくなので数字ではなく<strong>ひらがなデータセット</strong>計71文字を識別していくなかで<strong>"畳み込みニューラルネットワーク"</strong>の解説をしたいと思います。  英語ではConvolutional Neural Networkなので以下<strong>CNN</strong>と呼びます</p>
+
+<p>コードはほぼTensorflowのチュートリアルエキスパート編のものですので、そちらを見てからだとよりわかりやすいかと。</p>
+
+<h1>
+<span id="1-データセット" class="fragment"></span><a href="#1-%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>1: データセット</h1>
+
+<p>産総研(AIST)の公開している<a href="http://etlcdb.db.aist.go.jp/" rel="nofollow noopener" target="_blank">ETL手書き文字データベース</a>からいただきました。(旧:電総研のためETL(ElectroTechnical Laboratory))<br>
+あえて名付けるならMNISTならぬ<strong>MAIST</strong> (Mixed Advanced Industrial Science and Technology) データセット<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/1baf01f0-1dbb-0421-967d-e0259e045125.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="maist.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/1baf01f0-1dbb-0421-967d-e0259e045125.jpeg"></a></p>
+
+<p>実データは127x128で大きめなのですが、Tensorflowのチュートリアルに合わせるため28x28に縮小しています。</p>
+
+<h1>
+<span id="2-大事なのは特徴と次元削減方法や" class="fragment"></span><a href="#2-%E5%A4%A7%E4%BA%8B%E3%81%AA%E3%81%AE%E3%81%AF%E7%89%B9%E5%BE%B4%E3%81%A8%E6%AC%A1%E5%85%83%E5%89%8A%E6%B8%9B%E6%96%B9%E6%B3%95%E3%82%84"><i class="fa fa-link"></i></a>2: 大事なのは特徴と次元削減方法や！</h1>
+
+<p>さて、エキスパートのチュートリアルですが。<br>
+いきなり畳み込みとかプーリングとか新しい単語言われても、本当にチンプンカンプンじゃないですか。</p>
+
+<p>もう少し前回とつながるように話をしましょ？ね？</p>
+
+<p>ビギナーチュートリアルでは重み<code>W:[784, 10]</code>を行列演算して画像を10次元にまで減らして答え合わせをしていました。　この重みはピクセル単位で「ここが0の可能性は0.3%、1の可能性は21.1%...ほにゃほにゃ」と言っているやつです。 </p>
+
+<p>しかしながら<strong>0なんだけどかなり下に寄ってるちっちゃい0</strong>とか出てきた場合、この重みで次元削減された画像は結構な確率で「答えは6です！」と言ってくるでしょう。少なくとも"0"の答えが返ってくる可能性がかなり下がります。<br>
+なぜなら重み<code>W</code>が持つ真ん中あたりのピクセルの評価は「0の可能性は<code>-0.23017341</code>」などとなっているからです。 人間なら「丸いから0」と即判断できますよね。　この<strong>"丸いから"</strong>というのが実は<strong>大事な特徴</strong>だったりします。</p>
+
+<p>もう少し詳しく述べるなら、画像なので対象のピクセルと周辺のピクセルとの関係性があるはずなのに、ベクトル変形して次元削減をするとその関係性(特徴)が失われてしまうのではないでしょうか。<br>
+前回の"1"の画像だったベクトルグラフを改めて見てみると、ここから周辺のピクセルとの関係性が全くわかりません。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/4b2aec34-2d8b-1c94-91f9-5240ff6048f0.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="mnist1.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/63543/4b2aec34-2d8b-1c94-91f9-5240ff6048f0.jpeg"></a></p>
+
+<p>この784次元ベクトルから10次元ベクトルまで減らすということは、かなり大雑把に答えを出すようなものです。</p>
+
+<p>つまり次元削減の過程で<strong>"丸い"</strong>という<strong>特徴が失われた</strong>と言えます。</p>
+
+<h2>
+<span id="ビギナーチュートリアルのモデルだと手書きひらがなは認識できない" class="fragment"></span><a href="#%E3%83%93%E3%82%AE%E3%83%8A%E3%83%BC%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB%E3%81%AE%E3%83%A2%E3%83%87%E3%83%AB%E3%81%A0%E3%81%A8%E6%89%8B%E6%9B%B8%E3%81%8D%E3%81%B2%E3%82%89%E3%81%8C%E3%81%AA%E3%81%AF%E8%AA%8D%E8%AD%98%E3%81%A7%E3%81%8D%E3%81%AA%E3%81%84"><i class="fa fa-link"></i></a>ビギナーチュートリアルのモデルだと、手書きひらがなは認識できない。</h2>
+
+<p>Tensorflowのチュートリアルだと、正答率がビギナーの91%の精度からエキスパートの99.2%精度なので一般人にとっては「ふーん。」で終わってしまいます。<br>
+(実はこの差が超すごいというのはサイエンス畑の人には明白のようです。ブレイキングバッドでも言われてました。)</p>
+
+<p>なので今回のひらがなMAISTは２つのチュートリアルを比べる上でとても良いベンチマークになりました。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">MAIST-beginner.py</span></div>
+<div class="highlight"><pre>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
+<span class="c">#学習回数が多いと発散してしまうので、学習レートを1e-4に変更</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>                                                                                 
+  <span class="n">batch</span> <span class="o">=</span> <span class="n">random_index</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span> <span class="c">#load 50 examples                                                           </span>
+  <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">train_image</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">train_label</span><span class="p">[</span><span class="n">batch</span><span class="p">]})</span>                            
+
+<span class="k">print</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">test_image</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">test_label</span><span class="p">})</span>   
+
+<span class="o">&gt;</span> <span class="n">simple_maist</span>  <span class="mi">10000</span> <span class="n">steps</span> <span class="n">accuracy</span> <span class="mf">0.287933</span>  
+<span class="o">&gt;</span> <span class="n">simple_maist</span>  <span class="mi">50000</span> <span class="n">steps</span> <span class="n">accuracy</span> <span class="mf">0.408602</span>
+<span class="o">&gt;</span> <span class="n">simple_maist</span> <span class="mi">100000</span> <span class="n">steps</span> <span class="n">accuracy</span> <span class="mf">0.456392</span>
+
+</pre></div>
+</div>
+
+<p>なんということでしょう...前回使ったビギナーチュートリアルのコードでは10000回学習させても<strong>28.79%</strong>にしかなりません。 50000回学習させても40.86%、100000回学習させても45.63%。</p>
+
+<p>次元削減によって特徴が失われることがいかに恐ろしいかよく分かります。</p>
+
+<p>頭の良い人たちはきっとこう思ったのでしょう。"答え出すには次元削減が必要だ。でも特徴を残したい。"</p>
+
+<p>そこでエキスパート編のモデル: <strong>CNN</strong>には<br>
+<strong>特徴検出</strong>のConvolution: 畳み込み<br>
+<strong>特徴強調</strong>のActivation:活性化<br>
+<strong>次元削減</strong>のPooling: プーリング<br>
+<strong>全結合</strong>のConnected Layer(Hidden): 隠れ層<br>
+が登場します。</p>
+
+<h1>
+<span id="3-convolution-畳み込み" class="fragment"></span><a href="#3-convolution-%E7%95%B3%E3%81%BF%E8%BE%BC%E3%81%BF"><i class="fa fa-link"></i></a>3: Convolution: 畳み込み</h1>
+
+<p>さて順番に中身を見てみましょう。 <br>
+まずはコードの解説</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">特徴検出.py</span></div>
+<div class="highlight"><pre>
+ <span class="n">x_image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">weight_variable</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>                        
+  <span class="n">initial</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> 
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>  
+
+<span class="k">def</span> <span class="nf">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>                                                 
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">)</span>
+
+<span class="n">W_conv1</span> <span class="o">=</span> <span class="n">weight_variable</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">])</span>
+<span class="n">Conv1</span> <span class="o">=</span> <span class="n">conv2d</span><span class="p">(</span><span class="n">x_image</span><span class="p">,</span> <span class="n">W_conv1</span><span class="p">)</span>
+
+</pre></div>
+</div>
+
+<p>CNNでは画像をベクトルとして処理せずに、画像として特徴の意味を保てる28x28のマトリックスで処理していきます。Tensorflow的に言うと<code>x_image = tf.reshape(x, [-1,28,28,1])</code>でベクトルだったものを元の画像の<code>shape</code>に戻してあげてるんですね。</p>
+
+<p>そして特徴検出の畳み込みです。 "畳み込む"という単語が意味不明ですし、前回でも若干書きましたがこれは"重み"変数でもあるのでフィルターと解釈しちゃいましょう。<br>
+<code>W_conv1</code>の中に<code>Rank 4</code>のVariable変数/Tensor<code>[5, 5, 1, 32]</code>が入ります。 このTensor<code>W_conv1:</code>の<code>shape</code>ですが、意味は<code>[width, height, input, filters]</code>となっていて各画像に対して5x5のサイズのフィルターを適用していきます。</p>
+
+<p>前回は初期化が<code>tf.zeros()</code>でしたが、今回の初期化は<code>tf.truncated_normal()</code>で様はランダムな数値が入ります。</p>
+
+<p>フィルターなので実際に可視化してみましょう。はい、どん！<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/8244ec5a-9537-8ed2-06b7-4d446b5fb7fe.jpeg" target="_blank" rel="nofollow noopener"><img width="200" alt="w_step0.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/8244ec5a-9537-8ed2-06b7-4d446b5fb7fe.jpeg"></a></p>
+
+<p>うーん、わからん！<br>
+このフィルター達ですが<code>conv2d(x_image, W_conv1)</code>でもちろん画像に適用されます。適用された画像:(ふ)はこちら。はい、どん！<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/5108cd74-47e8-aa99-a6d5-0e4f2ec5ee1c.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="conv_step0.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/5108cd74-47e8-aa99-a6d5-0e4f2ec5ee1c.jpeg"></a></p>
+
+<p>なんか余計分かりづらくなりましたね。 それもそのはずで、最初の段階ではこちらのフィルター達も最適化されていないからです。</p>
+
+<p>では学習完了後のフィルターとその適用画像をみてみましょう。<br>
+学習完了後のフィルター：なんとなく線っぽくなってる気がするようなしないような。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/321f47cc-84cc-ff9c-b35c-c71487e3e9ed.jpeg" target="_blank" rel="nofollow noopener"><img width="232" alt="w_step10000.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/321f47cc-84cc-ff9c-b35c-c71487e3e9ed.jpeg"></a></p>
+
+<p>学習完了後の適用画像:(ず): なんか立体感がこうクワっ！と増したような気がします<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/ef0f60c7-a2c1-c98f-33ff-e02c1cd889aa.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="conv_step10000.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/ef0f60c7-a2c1-c98f-33ff-e02c1cd889aa.jpeg"></a></p>
+
+<p>ちょっと人間には解釈が難しいですね...</p>
+
+<h1>
+<span id="4-activation-活性化" class="fragment"></span><a href="#4-activation-%E6%B4%BB%E6%80%A7%E5%8C%96"><i class="fa fa-link"></i></a>4: Activation: 活性化</h1>
+
+<p>意味のある特徴もあれば、意味のない空白の白いピクセル達もいますよね。<br>
+次元削減するまえにできるだけ特徴のみ強調しておきたいです。<br>
+そこで活性化関数 Reluが登場します。 (バイアスはもはや( ^o^)デフォ...)</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">活性化.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">bias_variable</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>                       
+  <span class="n">initial</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
+
+<span class="n">b_conv1</span> <span class="o">=</span> <span class="n">bias_variable</span><span class="p">([</span><span class="mi">32</span><span class="p">])</span>   
+<span class="n">h_conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">Conv</span> <span class="o">+</span> <span class="n">b_conv1</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>バイアス<code>b_conv1</code>は<code>tf.constant()</code>で指定した数値で満たされたTensorになっています。今回は<code>0.1</code>ですね。</p>
+
+<p>活性化も分かりやすく、先ほどの<code>Conv</code>を<code>tf.nn.relu</code>に渡しているだけです。<br>
+※2016/5/16補足<br>
+Relu関数ですが、Rectified Linear Unitなので簡単に言うと<strong>補正付きの直線関数</strong>に持っているもの渡します。Reluの場合は入力が<code>0.</code>以下、つまりマイナスの数値であると全て<code>0.</code>に補正されます。<br>
+図を見ると一目で理解できます。こんな感じです。<br>
+<a href="http://i.stack.imgur.com/8CGlM.png" target="_blank" rel="nofollow noopener"><img width="300" src="http://i.stack.imgur.com/8CGlM.png"></a><br>
+実はeluやらLeakyReluなど他にもあります。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/100523/95b971f7-30de-cb64-3b0d-4c39860306b1.png" target="_blank" rel="nofollow noopener"><img width="300" src="https://qiita-image-store.s3.amazonaws.com/0/100523/95b971f7-30de-cb64-3b0d-4c39860306b1.png"></a><br>
+直線ではないものでsigmoidやtanh関数などもあります。<br>
+<a href="https://plot.ly/~votingelephant/17/sigmoid-function-vs-tanh-function.png" target="_blank" rel="nofollow noopener"><img width="300" src="https://plot.ly/~votingelephant/17/sigmoid-function-vs-tanh-function.png"></a></p>
+
+<p>今回のMAISTで言うと画像の色が濃い部分は数値が低くなっており、コンピューター的には特徴として検出されていないので、あまり考慮したくない状態(数値)になっています。　<br>
+そこで活性化関数を通して無用な奴らを全て<code>0.</code>にします。要は足切りですね。リストラ怖い。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">活性化はこんな感じ.py</span></div>
+<div class="highlight"><pre>
+<span class="o">-&gt;</span> <span class="n">x</span>
+<span class="p">[</span>  <span class="mf">1.43326855</span> <span class="o">-</span><span class="mf">10.14613152</span>   <span class="mf">2.10967159</span>   <span class="mf">6.07900429</span>  <span class="o">-</span><span class="mf">3.25419664</span>  
+<span class="o">-</span><span class="mf">1.93730605</span>  <span class="o">-</span><span class="mf">8.57098293</span>  <span class="mf">10.21759605</span>   <span class="mf">1.16319525</span>   <span class="mf">2.90590048</span><span class="p">]</span>
+
+<span class="o">-&gt;</span> <span class="n">Relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="p">[</span>  <span class="mf">1.43326855</span>  <span class="mf">0.</span>   <span class="mf">2.10967159</span>   <span class="mf">6.07900429</span>   <span class="mf">0.</span>  
+ <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">10.21759605</span>   <span class="mf">1.16319525</span>   <span class="mf">2.90590048</span><span class="p">]</span>
+</pre></div>
+</div>
+
+<p>何が起きてるのか画像:(ず)にするとさらに分かりやすいです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/19809c72-897a-35bb-867f-6c800af2284d.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="relu_step10000.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/19809c72-897a-35bb-867f-6c800af2284d.jpeg"></a></p>
+
+<p>特徴が強く残っている(白い)部分以外が真っ黒になりました。<br>
+わぁー綺麗に特徴だけ残ってるぅ〜！分かりやすい〜！といった感じでしょうか。</p>
+
+<h1>
+<span id="5-pooling-プーリング" class="fragment"></span><a href="#5-pooling-%E3%83%97%E3%83%BC%E3%83%AA%E3%83%B3%E3%82%B0"><i class="fa fa-link"></i></a>5: Pooling: プーリング</h1>
+
+<p>畳み込まれて活性化された画像はうまい具合に特徴抽出されているので、次元削減のお時間です。<br>
+プーリングの場合はどちらかと言うと圧縮に近いかもしれません。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">次元削減.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">max_pool_2x2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> 
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>                 
+                         <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">)</span> 
+<span class="n">h_pool1</span> <span class="o">=</span> <span class="n">max_pool_2x2</span><span class="p">(</span><span class="n">h_conv1</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>プーリングはちょっと分かりづらいのですが、 <code>ksize=[1, 2, 2, 1]</code>が2x2のpixel枠を作り、<code>strides=[1, 2, 2, 1]</code>で 2x2のpixel移動をしていきます。 <code>tf.nn.max_pool</code>の場合は<code>ksize</code>で指定されたサイズの枠の中で一番大きい値を圧縮後の1pixelとして捉えます。 <br>
+この図が分かりやすいです。 <br>
+<a href="http://deeplearning4j.org/img/maxpool.png" target="_blank" rel="nofollow noopener"><img width="300" src="http://deeplearning4j.org/img/maxpool.png"></a><br>
+図の場合はピンクで<code>6</code>,緑で<code>8</code>,黄色で<code>3</code>,青で<code>4</code>が値として圧縮後の画像として生成されています。</p>
+
+<p><code>tf.nn.max_pool</code>以外にも枠内の平均値をとる<code>tf.nn.avg_pool</code>もあります。<br>
+特徴メインに圧縮というより、そのまま圧縮したい場合や空白の位置関係とかも意味がある場合には<code>tf.nn.avg_pool</code>の方がいいのかもしれませんね。</p>
+
+<p>さて肝心のMAISTの場合で見てみましょう。<br>
+先ほどの活性化された画像:(ず)はプーリングでこのような14x14の画像になります。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/54b1444b-fbc9-40d7-aca3-701069e13680.jpeg" target="_blank" rel="nofollow noopener"><img width="357" alt="pool_step10000.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/54b1444b-fbc9-40d7-aca3-701069e13680.jpeg"></a><br>
+人間には視認で判断できなくなりましたが、特徴だけうまく残りながら画像が小さくなったのではないでしょうか。</p>
+
+<p>このあとにもう一回同じ処理を一通りして、画像は最終的に<code>[batch_num, 7, 7, 64]</code>なります。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">2回目.py</span></div>
+<div class="highlight"><pre>
+<span class="n">W_conv2</span> <span class="o">=</span> <span class="n">weight_variable</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>                   
+<span class="n">b_conv2</span> <span class="o">=</span> <span class="n">bias_variable</span><span class="p">([</span><span class="mi">64</span><span class="p">])</span>                              
+<span class="n">h_conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">conv2d</span><span class="p">(</span><span class="n">h_pool1</span><span class="p">,</span> <span class="n">W_conv2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_conv2</span><span class="p">)</span>  
+<span class="n">h_pool2</span> <span class="o">=</span> <span class="n">max_pool_2x2</span><span class="p">(</span><span class="n">h_conv2</span><span class="p">)</span>                           
+</pre></div>
+</div>
+
+<p>よくよく考えると画像の次元は減ったけども、対象の画像は64の特徴に増えてますね。<br>
+ここら辺はフィルターの数の設定次第ですし、フィルターの数増やすと計算処理がどんどん重くなるのでパソコンのスペックやデータ数などを考慮しながら調整すればいいようです。</p>
+
+<p>フィルターを１枚にして<code>[batch_num, 7, 7, 1]</code>だとしても一応学習はできます。<br>
+もちろん精度は落ちますが、それでもビギナーのモデルよりは精度が良いです。２倍くらい。</p>
+
+<h1>
+<span id="6-hidden-layer-隠れ層" class="fragment"></span><a href="#6-hidden-layer-%E9%9A%A0%E3%82%8C%E5%B1%A4"><i class="fa fa-link"></i></a>6: Hidden layer: 隠れ層</h1>
+
+<p>答え合わせが近づいてきました。<br>
+隠れ層は行列演算をしているだけなので、そこまで難しくはありません。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">Hidden隠れ層.py</span></div>
+<div class="highlight"><pre>
+<span class="n">h_pool2_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">h_pool2</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="o">*</span><span class="mi">7</span><span class="o">*</span><span class="mi">64</span><span class="p">])</span>             
+<span class="n">W_fc1</span> <span class="o">=</span> <span class="n">weight_variable</span><span class="p">([</span><span class="mi">3136</span><span class="p">,</span> <span class="mi">1024</span><span class="p">])</span> <span class="c">#[7*7*64, 1024] 3136はTensorのsize, 1024は適当。 業界的に大抵は1024もしくは1024*nの倍数らしい。           </span>
+<span class="n">b_fc1</span> <span class="o">=</span> <span class="n">bias_variable</span><span class="p">([</span><span class="mi">1024</span><span class="p">])</span>                               
+<span class="n">h_fc1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h_pool2_flat</span><span class="p">,</span> <span class="n">W_fc1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_fc1</span><span class="p">)</span> 
+<span class="c">#Dropout                                    </span>
+<span class="n">h_fc1_drop</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">h_fc1</span><span class="p">,</span> <span class="n">keep_prob</span><span class="p">)</span> 
+</pre></div>
+</div>
+
+<p>特徴いっぱい☆ウハウハTensor <code>h_pool2: [batch_num, 7, 7, 64]</code><br>
+こいつをまずは<code>tf.reshape(h_pool2, [-1, 7*7*64])</code>でベクトルに戻します。<br>
+あとは重み<code>W_fc1: [3136, 1024]</code>と行列演算してバイアスを付け足して、活性化しているだけです。</p>
+
+<p>なぜ一気に答えの数まで行列演算しないかというと、できるだけ特徴を残しながら答え合わせに近づきたいというのと、学習データだけに適応してしまう過学習を回避するためのようです。</p>
+
+<p>次元を潰しすぎた場合にうまく答えが出せなくなってしまう理由/隠れ層の役目は<br>
+<a href="/KojiOhki" class="user-mention js-hovercard" title="KojiOhki" data-hovercard-target-type="user" data-hovercard-target-name="KojiOhki">@KojiOhki</a>さん訳の<a href="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" id="reference-dfed9baa000fc460b09c">Qiita: ニューラルネットワーク、多様体、トポロジー</a>の<strong>"トポロジーと分類"</strong>を参照してください。</p>
+
+<p>適当に言うと別クラスのデータ同士の特徴相関が強いor被ったりしている場合や、次元削減でうまく切り分けられない場合、または決定変数がどこか違う場所にある場合などは回帰分析って難しいよってことなのかと。<br>
+<a href="http://qiita.com/summer4an/items/db0124eee8103c1d3b85" id="reference-ddb48d3fcf816221643d">顔だけからおっぱいのサイズを判断</a>できないのは、これに当てはまるかもしれません。　逆に声からおっぱいのサイズが分かったりするのかもしれない。　だからこそ試して楽しいDeep Learningであります。</p>
+
+<p>過学習については <code>h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)</code> の部分ですが学習結果のあとに後述します</p>
+
+<h1>
+<span id="7-学習結果" class="fragment"></span><a href="#7-%E5%AD%A6%E7%BF%92%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>7: 学習結果</h1>
+
+<p>今回のネットワークだと10000stepsで<strong>87.15%</strong>精度になりました。<br>
+ビギナーのモデルでは28.79%だったので、CNN様様と言ったところでしょうか。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">10000steps.py</span></div>
+<div class="highlight"><pre>
+<span class="n">simple_maist</span> <span class="mi">10000</span> <span class="n">steps</span> <span class="n">accuracy</span> <span class="mf">0.287933</span>        
+
+<span class="n">now</span> <span class="n">MAIST</span><span class="o">-</span><span class="n">CNN</span><span class="o">...</span>                                         
+<span class="n">i</span> <span class="mi">0</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mi">0</span> <span class="n">cross_entropy</span> <span class="mf">1200.03</span>     
+<span class="n">i</span> <span class="mi">100</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.02</span> <span class="n">cross_entropy</span> <span class="mf">212.827</span>
+<span class="n">i</span> <span class="mi">200</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.14</span> <span class="n">cross_entropy</span> <span class="mf">202.12</span> 
+<span class="n">i</span> <span class="mi">300</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.02</span> <span class="n">cross_entropy</span> <span class="mf">199.995</span>
+<span class="n">i</span> <span class="mi">400</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.14</span> <span class="n">cross_entropy</span> <span class="mf">194.412</span>
+<span class="n">i</span> <span class="mi">500</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.1</span> <span class="n">cross_entropy</span> <span class="mf">192.861</span> 
+<span class="n">i</span> <span class="mi">600</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.14</span> <span class="n">cross_entropy</span> <span class="mf">189.393</span>
+<span class="n">i</span> <span class="mi">700</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.16</span> <span class="n">cross_entropy</span> <span class="mf">174.141</span>
+<span class="n">i</span> <span class="mi">800</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.24</span> <span class="n">cross_entropy</span> <span class="mf">168.601</span>
+<span class="n">i</span> <span class="mi">900</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.3</span> <span class="n">cross_entropy</span> <span class="mf">152.631</span> 
+<span class="o">...</span>                   
+<span class="n">i</span> <span class="mi">9000</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.96</span> <span class="n">cross_entropy</span> <span class="mf">8.65753</span>         
+<span class="n">i</span> <span class="mi">9100</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.96</span> <span class="n">cross_entropy</span> <span class="mf">11.4614</span>         
+<span class="n">i</span> <span class="mi">9200</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.98</span> <span class="n">cross_entropy</span> <span class="mf">6.01312</span>         
+<span class="n">i</span> <span class="mi">9300</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.96</span> <span class="n">cross_entropy</span> <span class="mf">10.5093</span>         
+<span class="n">i</span> <span class="mi">9400</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.98</span> <span class="n">cross_entropy</span> <span class="mf">6.48081</span>         
+<span class="n">i</span> <span class="mi">9500</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.98</span> <span class="n">cross_entropy</span> <span class="mf">6.87556</span>         
+<span class="n">i</span> <span class="mi">9600</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mi">1</span> <span class="n">cross_entropy</span> <span class="mf">7.201</span>              
+<span class="n">i</span> <span class="mi">9700</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.98</span> <span class="n">cross_entropy</span> <span class="mf">11.6251</span>         
+<span class="n">i</span> <span class="mi">9800</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mf">0.98</span> <span class="n">cross_entropy</span> <span class="mf">6.81862</span>         
+<span class="n">i</span> <span class="mi">9900</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mi">1</span> <span class="n">cross_entropy</span> <span class="mf">4.18039</span>            
+<span class="n">test</span> <span class="n">accuracy</span> <span class="mf">0.871565</span>                                       
+</pre></div>
+</div>
+
+<p>今のDeep Learning業界はいかにうまく特徴を見つけて、次元削減をするか？を極めることで結構有名になれるのかもしれません。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63543/089d2e3b-9c61-2eab-6f49-6db5dfea6710.jpeg" target="_blank" rel="nofollow noopener"><img width="400" alt="twitter.JPG" src="https://qiita-image-store.s3.amazonaws.com/0/63543/089d2e3b-9c61-2eab-6f49-6db5dfea6710.jpeg"></a></p>
+
+<h1>
+<span id="8-fine-tuning-学習発散と過学習防止" class="fragment"></span><a href="#8-fine-tuning-%E5%AD%A6%E7%BF%92%E7%99%BA%E6%95%A3%E3%81%A8%E9%81%8E%E5%AD%A6%E7%BF%92%E9%98%B2%E6%AD%A2"><i class="fa fa-link"></i></a>8: (Fine Tuning) 学習発散と過学習防止</h1>
+
+<h2>
+<span id="頭良かったcnnモデルが何も分からなくなってしまう学習発散" class="fragment"></span><a href="#%E9%A0%AD%E8%89%AF%E3%81%8B%E3%81%A3%E3%81%9Fcnn%E3%83%A2%E3%83%87%E3%83%AB%E3%81%8C%E4%BD%95%E3%82%82%E5%88%86%E3%81%8B%E3%82%89%E3%81%AA%E3%81%8F%E3%81%AA%E3%81%A3%E3%81%A6%E3%81%97%E3%81%BE%E3%81%86%E5%AD%A6%E7%BF%92%E7%99%BA%E6%95%A3"><i class="fa fa-link"></i></a>頭良かったCNNモデルが何も分からなくなってしまう学習発散</h2>
+
+<p>今回のひらがなMAISTですがエキスパートチュートリアルのように学習回数を20000回にすると、15000あたりから、学習データに対する正答率の精度がいっきにがくっと2%くらいまで落ちます。<br>
+なぜいきなり発散するのか、詳しいメカニズムを把握していないのですが、学習が進んだら学習レートを下げていかないと、おそらくCross Entropyが完全な0かマイナスに達するのか何かになってGradientが爆発して起きるのかなと適当に予想してます。</p>
+
+<p>そのための防止策はこんな感じでしょうか。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">学習発散防止.py</span></div>
+<div class="highlight"><pre>
+<span class="n">L</span> <span class="o">=</span>  <span class="mf">1e-3</span> <span class="c">#学習レート</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">(</span><span class="n">L</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>                                                             
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20000</span><span class="p">):</span>                                               
+  <span class="n">batch</span> <span class="o">=</span> <span class="n">random_index</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>                                           
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1000</span><span class="p">:</span>   
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-4</span>      
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">5000</span><span class="p">:</span>   
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-5</span>      
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10000</span><span class="p">:</span>  
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-6</span>      
+
+
+<span class="o">...</span>
+<span class="n">i</span> <span class="mi">19800</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mi">1</span> <span class="n">cross_entropy</span> <span class="mf">6.3539e-05</span>
+<span class="n">i</span> <span class="mi">19900</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mi">1</span> <span class="n">cross_entropy</span> <span class="mf">0.00904318</span>
+<span class="n">test</span> <span class="n">accuracy</span> <span class="mf">0.919952</span>         
+</pre></div>
+</div>
+
+<p>学習を20000回すると精度91.99%。まぁこんなものですかね。<br>
+学習100回毎くらいのcross_entropyを見て、適当な段階をつけただけです。<br>
+ほんとうはこの学習レートを自動で調整してくれるようにもできるのですが、意外と超精度を目指すなら手作業でもいいのかもしれない。</p>
+
+<h2>
+<span id="評価用データでのスコアが悪いんだけどぉ-ωっ過学習防止" class="fragment"></span><a href="#%E8%A9%95%E4%BE%A1%E7%94%A8%E3%83%87%E3%83%BC%E3%82%BF%E3%81%A7%E3%81%AE%E3%82%B9%E3%82%B3%E3%82%A2%E3%81%8C%E6%82%AA%E3%81%84%E3%82%93%E3%81%A0%E3%81%91%E3%81%A9%E3%81%89-%CF%89%E3%81%A3%E9%81%8E%E5%AD%A6%E7%BF%92%E9%98%B2%E6%AD%A2"><i class="fa fa-link"></i></a>評価用データでのスコアが悪いんだけどぉ？ (｀・ω・´)っ[過学習防止]</h2>
+
+<p>隠れ層にのっていたコード <code>h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)</code>ですが<br>
+過学習防止で結構重要みたいです。<br>
+学習発散防止と合わせてさらに設定するとこうなりました。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">過学習防止.py</span></div>
+<div class="highlight"><pre>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20000</span><span class="p">):</span>
+  <span class="n">batch</span> <span class="o">=</span> <span class="n">random_index</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="c">#tune the learning rate</span>
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1000</span><span class="p">:</span> 
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-4</span>    
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">3000</span><span class="p">:</span> 
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-5</span>    
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">7000</span><span class="p">:</span> 
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-6</span>    
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">10000</span><span class="p">:</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-7</span>    
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">14000</span><span class="p">:</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-8</span>    
+  <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">19000</span><span class="p">:</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">1e-9</span>    
+
+<span class="c">#tune the dropout</span>
+  <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3000</span><span class="p">:</span>                                                                                
+    <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">train_image</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">train_label</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>   
+  <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">3000</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">:</span>                                                               
+    <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">train_image</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">train_label</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">})</span> 
+  <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">10000</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">15000</span><span class="p">:</span>                                                              
+    <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">train_image</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">train_label</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">})</span> 
+  <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">15000</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">19000</span><span class="p">:</span>                                                              
+    <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">train_image</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">train_label</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">})</span>
+  <span class="k">else</span><span class="p">:</span>                                                                                       
+    <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">train_image</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">train_label</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">})</span> 
+
+<span class="o">...</span>
+<span class="n">i</span> <span class="mi">19900</span><span class="p">,</span> <span class="n">training</span> <span class="n">accuracy</span> <span class="mi">1</span> <span class="n">cross_entropy</span> <span class="mf">0.0656946</span>
+<span class="n">test</span> <span class="n">accuracy</span> <span class="mf">0.950418</span>
+</pre></div>
+</div>
+
+<p>評価データで<strong>95.04%</strong> <br>
+学習が発散しない限り学習回数を増やしまくるのも手ではありますが、はじめに一気に学ばせてから最後の直前までどんどん忘れさせる形式にしてみたら、ここまでの精度にできました。</p>
+
+<p>最初の <strong>87.15%</strong> から <strong>95.04%</strong> なのでなかなか良い調整できたのではないでしょうか。<br>
+モデルが機能しているならば、そこからは職人技なのかもしれません。</p>
+
+<p>計算処理が多い場合は時間がかかるので、評価用データの精度もできれば学習1000step毎位で見てあげた方が過学習検知をすぐできて良いです。　意外と作ってみたモデルの学習精度が80%いったのに、評価用データでは20%とかあったりします。 分類するクラスの数にも依存しますけども。</p>
+
+<h1>
+<span id="まとめと次回" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81%E3%81%A8%E6%AC%A1%E5%9B%9E"><i class="fa fa-link"></i></a>まとめと次回...？</h1>
+
+<p>CNNで学習がうまくいかない場合は可視化をすることで結構構造上の問題点が把握しやすくなります。<br>
+可視化は<code>sess.run</code>でTensorの中身を受け取り、matplotlibとか使えば簡単にできますので。</p>
+
+<p>MNISTの可視化、詳しい処理を見たい方は下記のサイトがおすすめです。<br>
+なんとJavaScriptでディープラーニング実装するという狂気<br>
+ConvNetJS - <a href="http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist.html" class="autolink" rel="nofollow noopener" target="_blank">http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist.html</a></p>
+
+<p>次回はできれば検索予測などの基盤になっているLSTMのさらに基礎となるword2vecを解説したいのですがいつになることやら。 word2vecはWeb系(もしくは全)企業がデータ分析に応用しやすそうな楽しいアルゴリズムです。</p>
+
+<p>ただし高度なモデルや大量のデータになればなるほど、<strong>個人が手持ちのパソコンでやるには時間がかかりすぎて限界</strong>になってくるのをヒシヒシと感じております。<br>
+画像認識モデル最強のGoogle Inceptionとかも解説したいのですが...超金欠な私にクラウド環境使ったDistributed Tensorflowは難しいかなぁー！ </p>
+
+<p>そんなこんなで余談は以上です。</p>
+
+<p>ストック、ツイート、いいね、はてぶ、コメントなどなど、全て励みになるのでもしよければお願いします〜。</p>
+
+<p>バズり方が前回超えたら次回やろう。うん、そうしよう。</p>
+
+<p>※2016.12.12追記<br>
+Advent CalenderでLSTMの解説を書きました。<br>
+<a href="http://qiita.com/tawago/items/ad4e30abba9528875908" id="reference-ebd1ad45592a3b466486">&gt;これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/tawago/items/931bea2ff6d56e32d693" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="KdEvf2OdBVyON6URY403WGGB4JYyfgMhUUQVi28VImE7g8Hep7b2iHnQX4Jmm5WVy3Llta3RvGHCDgWzIFen2A==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1481551202" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+どうも、データセットの用意でバイナリーとの戦いを5時間繰り広げたあげく、記事に１日かかりました。丁寧に記事書くって大変ですね。うふふっ☆
+
+前回: [特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説](http://qiita.com/tawago/items/c977c79b76c5979874e8)
+に続き、MNISTのエキスパート編を解説しようと思ったのですが、せっかくなので数字ではなく**ひらがなデータセット**計71文字を識別していくなかで**&quot;畳み込みニューラルネットワーク&quot;**の解説をしたいと思います。  英語ではConvolutional Neural Networkなので以下**CNN**と呼びます
+
+コードはほぼTensorflowのチュートリアルエキスパート編のものですので、そちらを見てからだとよりわかりやすいかと。
+
+#1: データセット
+産総研(AIST)の公開している[ETL手書き文字データベース](http://etlcdb.db.aist.go.jp/)からいただきました。(旧:電総研のためETL(ElectroTechnical Laboratory))
+あえて名付けるならMNISTならぬ**MAIST** (Mixed Advanced Industrial Science and Technology) データセット
+&lt;img width=&quot;300&quot; alt=&quot;maist.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/1baf01f0-1dbb-0421-967d-e0259e045125.jpeg&quot;&gt;
+
+実データは127x128で大きめなのですが、Tensorflowのチュートリアルに合わせるため28x28に縮小しています。
+
+#2: 大事なのは特徴と次元削減方法や！
+さて、エキスパートのチュートリアルですが。
+いきなり畳み込みとかプーリングとか新しい単語言われても、本当にチンプンカンプンじゃないですか。
+
+もう少し前回とつながるように話をしましょ？ね？
+
+ビギナーチュートリアルでは重み`W:[784, 10]`を行列演算して画像を10次元にまで減らして答え合わせをしていました。　この重みはピクセル単位で「ここが0の可能性は0.3%、1の可能性は21.1%...ほにゃほにゃ」と言っているやつです。 
+
+しかしながら**0なんだけどかなり下に寄ってるちっちゃい0**とか出てきた場合、この重みで次元削減された画像は結構な確率で「答えは6です！」と言ってくるでしょう。少なくとも&quot;0&quot;の答えが返ってくる可能性がかなり下がります。
+なぜなら重み`W`が持つ真ん中あたりのピクセルの評価は「0の可能性は`-0.23017341`」などとなっているからです。 人間なら「丸いから0」と即判断できますよね。　この**&quot;丸いから&quot;**というのが実は**大事な特徴**だったりします。
+
+
+もう少し詳しく述べるなら、画像なので対象のピクセルと周辺のピクセルとの関係性があるはずなのに、ベクトル変形して次元削減をするとその関係性(特徴)が失われてしまうのではないでしょうか。
+前回の&quot;1&quot;の画像だったベクトルグラフを改めて見てみると、ここから周辺のピクセルとの関係性が全くわかりません。
+&lt;img width=&quot;300&quot; alt=&quot;mnist1.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/4b2aec34-2d8b-1c94-91f9-5240ff6048f0.jpeg&quot;&gt;
+
+この784次元ベクトルから10次元ベクトルまで減らすということは、かなり大雑把に答えを出すようなものです。
+
+つまり次元削減の過程で**&quot;丸い&quot;**という**特徴が失われた**と言えます。
+
+
+##ビギナーチュートリアルのモデルだと、手書きひらがなは認識できない。
+Tensorflowのチュートリアルだと、正答率がビギナーの91%の精度からエキスパートの99.2%精度なので一般人にとっては「ふーん。」で終わってしまいます。
+(実はこの差が超すごいというのはサイエンス畑の人には明白のようです。ブレイキングバッドでも言われてました。)
+
+なので今回のひらがなMAISTは２つのチュートリアルを比べる上でとても良いベンチマークになりました。
+
+```MAIST-beginner.py
+train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(cross_entropy)
+#学習回数が多いと発散してしまうので、学習レートを1e-4に変更
+
+for i in range(10000):                                                                                 
+  batch = random_index(50) #load 50 examples                                                           
+  train_step.run(feed_dict={x: train_image[batch], y_: train_label[batch]})                            
+                                                                  
+print accuracy.eval(feed_dict={x: test_image, y_: test_label})   
+
+&gt; simple_maist  10000 steps accuracy 0.287933  
+&gt; simple_maist  50000 steps accuracy 0.408602
+&gt; simple_maist 100000 steps accuracy 0.456392
+
+```
+なんということでしょう...前回使ったビギナーチュートリアルのコードでは10000回学習させても**28.79%**にしかなりません。 50000回学習させても40.86%、100000回学習させても45.63%。
+
+次元削減によって特徴が失われることがいかに恐ろしいかよく分かります。
+
+頭の良い人たちはきっとこう思ったのでしょう。&quot;答え出すには次元削減が必要だ。でも特徴を残したい。&quot;
+
+そこでエキスパート編のモデル: **CNN**には
+**特徴検出**のConvolution: 畳み込み
+**特徴強調**のActivation:活性化
+**次元削減**のPooling: プーリング
+**全結合**のConnected Layer(Hidden): 隠れ層
+が登場します。
+
+#3: Convolution: 畳み込み
+さて順番に中身を見てみましょう。 
+まずはコードの解説
+
+```特徴検出.py
+ x_image = tf.reshape(x, [-1,28,28,1])
+
+def weight_variable(shape):                        
+  initial = tf.truncated_normal(shape, stddev=0.1) 
+  return tf.Variable(initial)  
+
+def conv2d(x, W):                                                 
+  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=&#39;SAME&#39;)
+
+W_conv1 = weight_variable([5, 5, 1, 32])
+Conv1 = conv2d(x_image, W_conv1)
+                   
+```
+CNNでは画像をベクトルとして処理せずに、画像として特徴の意味を保てる28x28のマトリックスで処理していきます。Tensorflow的に言うと`x_image = tf.reshape(x, [-1,28,28,1])`でベクトルだったものを元の画像の`shape`に戻してあげてるんですね。
+
+そして特徴検出の畳み込みです。 &quot;畳み込む&quot;という単語が意味不明ですし、前回でも若干書きましたがこれは&quot;重み&quot;変数でもあるのでフィルターと解釈しちゃいましょう。
+`W_conv1`の中に`Rank 4`のVariable変数/Tensor`[5, 5, 1, 32]`が入ります。 このTensor`W_conv1:`の`shape`ですが、意味は`[width, height, input, filters]`となっていて各画像に対して5x5のサイズのフィルターを適用していきます。
+
+前回は初期化が`tf.zeros()`でしたが、今回の初期化は`tf.truncated_normal()`で様はランダムな数値が入ります。
+
+フィルターなので実際に可視化してみましょう。はい、どん！
+&lt;img width=&quot;200&quot; alt=&quot;w_step0.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/8244ec5a-9537-8ed2-06b7-4d446b5fb7fe.jpeg&quot;&gt;
+
+うーん、わからん！
+このフィルター達ですが`conv2d(x_image, W_conv1)`でもちろん画像に適用されます。適用された画像:(ふ)はこちら。はい、どん！
+&lt;img width=&quot;300&quot; alt=&quot;conv_step0.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/5108cd74-47e8-aa99-a6d5-0e4f2ec5ee1c.jpeg&quot;&gt;
+
+なんか余計分かりづらくなりましたね。 それもそのはずで、最初の段階ではこちらのフィルター達も最適化されていないからです。
+
+では学習完了後のフィルターとその適用画像をみてみましょう。
+学習完了後のフィルター：なんとなく線っぽくなってる気がするようなしないような。
+&lt;img width=&quot;232&quot; alt=&quot;w_step10000.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/321f47cc-84cc-ff9c-b35c-c71487e3e9ed.jpeg&quot;&gt;
+
+学習完了後の適用画像:(ず): なんか立体感がこうクワっ！と増したような気がします
+&lt;img width=&quot;300&quot; alt=&quot;conv_step10000.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/ef0f60c7-a2c1-c98f-33ff-e02c1cd889aa.jpeg&quot;&gt;
+
+ちょっと人間には解釈が難しいですね...
+
+#4: Activation: 活性化
+意味のある特徴もあれば、意味のない空白の白いピクセル達もいますよね。
+次元削減するまえにできるだけ特徴のみ強調しておきたいです。
+そこで活性化関数 Reluが登場します。 (バイアスはもはや( ^o^)デフォ...)
+
+```活性化.py                                        
+def bias_variable(shape):                       
+  initial = tf.constant(0.1, shape=shape)
+  return tf.Variable(initial)
+
+b_conv1 = bias_variable([32])   
+h_conv1 = tf.nn.relu(Conv + b_conv1)
+```
+バイアス`b_conv1`は`tf.constant()`で指定した数値で満たされたTensorになっています。今回は`0.1`ですね。
+
+活性化も分かりやすく、先ほどの`Conv`を`tf.nn.relu`に渡しているだけです。
+※2016/5/16補足
+Relu関数ですが、Rectified Linear Unitなので簡単に言うと**補正付きの直線関数**に持っているもの渡します。Reluの場合は入力が`0.`以下、つまりマイナスの数値であると全て`0.`に補正されます。
+図を見ると一目で理解できます。こんな感じです。
+&lt;img width=&quot;300&quot; src=&quot;http://i.stack.imgur.com/8CGlM.png&quot; /&gt;
+実はeluやらLeakyReluなど他にもあります。
+&lt;img width=&quot;300&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/100523/95b971f7-30de-cb64-3b0d-4c39860306b1.png&quot; /&gt;
+直線ではないものでsigmoidやtanh関数などもあります。
+&lt;img width=&quot;300&quot; src=&quot;https://plot.ly/~votingelephant/17/sigmoid-function-vs-tanh-function.png&quot; /&gt;
+
+今回のMAISTで言うと画像の色が濃い部分は数値が低くなっており、コンピューター的には特徴として検出されていないので、あまり考慮したくない状態(数値)になっています。　
+そこで活性化関数を通して無用な奴らを全て`0.`にします。要は足切りですね。リストラ怖い。
+
+```活性化はこんな感じ.py
+-&gt; x
+[  1.43326855 -10.14613152   2.10967159   6.07900429  -3.25419664  
+-1.93730605  -8.57098293  10.21759605   1.16319525   2.90590048]
+
+-&gt; Relu(x)
+[  1.43326855  0.   2.10967159   6.07900429   0.  
+ 0.  0.  10.21759605   1.16319525   2.90590048]
+```
+
+
+何が起きてるのか画像:(ず)にするとさらに分かりやすいです。
+&lt;img width=&quot;300&quot; alt=&quot;relu_step10000.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/19809c72-897a-35bb-867f-6c800af2284d.jpeg&quot;&gt;
+
+特徴が強く残っている(白い)部分以外が真っ黒になりました。
+わぁー綺麗に特徴だけ残ってるぅ〜！分かりやすい〜！といった感じでしょうか。
+
+#5: Pooling: プーリング
+畳み込まれて活性化された画像はうまい具合に特徴抽出されているので、次元削減のお時間です。
+プーリングの場合はどちらかと言うと圧縮に近いかもしれません。
+
+```次元削減.py
+def max_pool_2x2(x): 
+  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],                 
+                         strides=[1, 2, 2, 1], padding=&#39;SAME&#39;) 
+h_pool1 = max_pool_2x2(h_conv1)
+```
+プーリングはちょっと分かりづらいのですが、 `ksize=[1, 2, 2, 1]`が2x2のpixel枠を作り、`strides=[1, 2, 2, 1]`で 2x2のpixel移動をしていきます。 `tf.nn.max_pool`の場合は`ksize`で指定されたサイズの枠の中で一番大きい値を圧縮後の1pixelとして捉えます。 
+この図が分かりやすいです。 
+&lt;img width=&quot;300&quot; src=&quot;http://deeplearning4j.org/img/maxpool.png&quot; /&gt;
+図の場合はピンクで`6`,緑で`8`,黄色で`3`,青で`4`が値として圧縮後の画像として生成されています。
+
+`tf.nn.max_pool`以外にも枠内の平均値をとる`tf.nn.avg_pool`もあります。
+特徴メインに圧縮というより、そのまま圧縮したい場合や空白の位置関係とかも意味がある場合には`tf.nn.avg_pool`の方がいいのかもしれませんね。
+
+さて肝心のMAISTの場合で見てみましょう。
+先ほどの活性化された画像:(ず)はプーリングでこのような14x14の画像になります。
+&lt;img width=&quot;357&quot; alt=&quot;pool_step10000.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/54b1444b-fbc9-40d7-aca3-701069e13680.jpeg&quot;&gt;
+人間には視認で判断できなくなりましたが、特徴だけうまく残りながら画像が小さくなったのではないでしょうか。
+
+
+このあとにもう一回同じ処理を一通りして、画像は最終的に`[batch_num, 7, 7, 64]`なります。
+
+```2回目.py
+W_conv2 = weight_variable([5, 5, 32, 64])                   
+b_conv2 = bias_variable([64])                              
+h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)  
+h_pool2 = max_pool_2x2(h_conv2)                           
+```
+よくよく考えると画像の次元は減ったけども、対象の画像は64の特徴に増えてますね。
+ここら辺はフィルターの数の設定次第ですし、フィルターの数増やすと計算処理がどんどん重くなるのでパソコンのスペックやデータ数などを考慮しながら調整すればいいようです。
+
+フィルターを１枚にして`[batch_num, 7, 7, 1]`だとしても一応学習はできます。
+もちろん精度は落ちますが、それでもビギナーのモデルよりは精度が良いです。２倍くらい。
+
+#6: Hidden layer: 隠れ層 
+答え合わせが近づいてきました。
+隠れ層は行列演算をしているだけなので、そこまで難しくはありません。
+
+```Hidden隠れ層.py
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])             
+W_fc1 = weight_variable([3136, 1024]) #[7*7*64, 1024] 3136はTensorのsize, 1024は適当。 業界的に大抵は1024もしくは1024*nの倍数らしい。           
+b_fc1 = bias_variable([1024])                               
+h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1) 
+#Dropout                                    
+h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob) 
+```
+特徴いっぱい☆ウハウハTensor `h_pool2: [batch_num, 7, 7, 64]`
+こいつをまずは`tf.reshape(h_pool2, [-1, 7*7*64]) `でベクトルに戻します。
+あとは重み`W_fc1: [3136, 1024]`と行列演算してバイアスを付け足して、活性化しているだけです。
+
+なぜ一気に答えの数まで行列演算しないかというと、できるだけ特徴を残しながら答え合わせに近づきたいというのと、学習データだけに適応してしまう過学習を回避するためのようです。
+
+次元を潰しすぎた場合にうまく答えが出せなくなってしまう理由/隠れ層の役目は
+@KojiOhkiさん訳の[Qiita: ニューラルネットワーク、多様体、トポロジー](http://qiita.com/KojiOhki/items/af2241027b00f892d2bd)の**&quot;トポロジーと分類&quot;**を参照してください。
+
+適当に言うと別クラスのデータ同士の特徴相関が強いor被ったりしている場合や、次元削減でうまく切り分けられない場合、または決定変数がどこか違う場所にある場合などは回帰分析って難しいよってことなのかと。
+[顔だけからおっぱいのサイズを判断](http://qiita.com/summer4an/items/db0124eee8103c1d3b85)できないのは、これに当てはまるかもしれません。　逆に声からおっぱいのサイズが分かったりするのかもしれない。　だからこそ試して楽しいDeep Learningであります。
+
+過学習については `h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)` の部分ですが学習結果のあとに後述します
+
+#7: 学習結果
+今回のネットワークだと10000stepsで**87.15%**精度になりました。
+ビギナーのモデルでは28.79%だったので、CNN様様と言ったところでしょうか。
+
+```10000steps.py 
+simple_maist 10000 steps accuracy 0.287933        
+
+now MAIST-CNN...                                         
+i 0, training accuracy 0 cross_entropy 1200.03     
+i 100, training accuracy 0.02 cross_entropy 212.827
+i 200, training accuracy 0.14 cross_entropy 202.12 
+i 300, training accuracy 0.02 cross_entropy 199.995
+i 400, training accuracy 0.14 cross_entropy 194.412
+i 500, training accuracy 0.1 cross_entropy 192.861 
+i 600, training accuracy 0.14 cross_entropy 189.393
+i 700, training accuracy 0.16 cross_entropy 174.141
+i 800, training accuracy 0.24 cross_entropy 168.601
+i 900, training accuracy 0.3 cross_entropy 152.631 
+...                   
+i 9000, training accuracy 0.96 cross_entropy 8.65753         
+i 9100, training accuracy 0.96 cross_entropy 11.4614         
+i 9200, training accuracy 0.98 cross_entropy 6.01312         
+i 9300, training accuracy 0.96 cross_entropy 10.5093         
+i 9400, training accuracy 0.98 cross_entropy 6.48081         
+i 9500, training accuracy 0.98 cross_entropy 6.87556         
+i 9600, training accuracy 1 cross_entropy 7.201              
+i 9700, training accuracy 0.98 cross_entropy 11.6251         
+i 9800, training accuracy 0.98 cross_entropy 6.81862         
+i 9900, training accuracy 1 cross_entropy 4.18039            
+test accuracy 0.871565                                       
+```
+
+今のDeep Learning業界はいかにうまく特徴を見つけて、次元削減をするか？を極めることで結構有名になれるのかもしれません。
+
+&lt;img width=&quot;400&quot; alt=&quot;twitter.JPG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/089d2e3b-9c61-2eab-6f49-6db5dfea6710.jpeg&quot;&gt;
+
+
+#8: (Fine Tuning) 学習発散と過学習防止
+##頭良かったCNNモデルが何も分からなくなってしまう学習発散
+今回のひらがなMAISTですがエキスパートチュートリアルのように学習回数を20000回にすると、15000あたりから、学習データに対する正答率の精度がいっきにがくっと2%くらいまで落ちます。
+なぜいきなり発散するのか、詳しいメカニズムを把握していないのですが、学習が進んだら学習レートを下げていかないと、おそらくCross Entropyが完全な0かマイナスに達するのか何かになってGradientが爆発して起きるのかなと適当に予想してます。
+
+そのための防止策はこんな感じでしょうか。
+
+```学習発散防止.py
+L =  1e-3 #学習レート
+train_step = tf.train.AdamOptimizer(L).minimize(cross_entropy)                                                             
+for i in range(20000):                                               
+  batch = random_index(50)                                           
+  if i == 1000:   
+    L = 1e-4      
+  if i == 5000:   
+    L = 1e-5      
+  if i == 10000:  
+    L = 1e-6      
+
+
+...
+i 19800, training accuracy 1 cross_entropy 6.3539e-05
+i 19900, training accuracy 1 cross_entropy 0.00904318
+test accuracy 0.919952         
+```
+学習を20000回すると精度91.99%。まぁこんなものですかね。
+学習100回毎くらいのcross_entropyを見て、適当な段階をつけただけです。
+ほんとうはこの学習レートを自動で調整してくれるようにもできるのですが、意外と超精度を目指すなら手作業でもいいのかもしれない。
+
+
+##評価用データでのスコアが悪いんだけどぉ？ (｀・ω・´)っ[過学習防止]
+隠れ層にのっていたコード `h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)`ですが
+過学習防止で結構重要みたいです。
+学習発散防止と合わせてさらに設定するとこうなりました。
+
+``` 過学習防止.py
+for i in range(20000):
+  batch = random_index(50)
+#tune the learning rate
+  if i == 1000: 
+    L = 1e-4    
+  if i == 3000: 
+    L = 1e-5    
+  if i == 7000: 
+    L = 1e-6    
+  if i == 10000:
+    L = 1e-7    
+  if i == 14000:
+    L = 1e-8    
+  if i == 19000:
+    L = 1e-9    
+
+#tune the dropout
+  if i &lt; 3000:                                                                                
+    train_step.run(feed_dict={x: train_image[batch], y_: train_label[batch], keep_prob: 1})   
+  elif i &gt;= 3000 and i &lt; 10000:                                                               
+    train_step.run(feed_dict={x: train_image[batch], y_: train_label[batch], keep_prob: 0.3}) 
+  elif i &gt;= 10000 and i &lt; 15000:                                                              
+    train_step.run(feed_dict={x: train_image[batch], y_: train_label[batch], keep_prob: 0.1}) 
+  elif i &gt;= 15000 and i &lt; 19000:                                                              
+    train_step.run(feed_dict={x: train_image[batch], y_: train_label[batch], keep_prob: 0.05})
+  else:                                                                                       
+    train_step.run(feed_dict={x: train_image[batch], y_: train_label[batch], keep_prob: 0.8}) 
+
+...
+i 19900, training accuracy 1 cross_entropy 0.0656946
+test accuracy 0.950418
+```
+
+評価データで**95.04%** 
+学習が発散しない限り学習回数を増やしまくるのも手ではありますが、はじめに一気に学ばせてから最後の直前までどんどん忘れさせる形式にしてみたら、ここまでの精度にできました。
+
+最初の **87.15%** から **95.04%** なのでなかなか良い調整できたのではないでしょうか。
+モデルが機能しているならば、そこからは職人技なのかもしれません。
+
+計算処理が多い場合は時間がかかるので、評価用データの精度もできれば学習1000step毎位で見てあげた方が過学習検知をすぐできて良いです。　意外と作ってみたモデルの学習精度が80%いったのに、評価用データでは20%とかあったりします。 分類するクラスの数にも依存しますけども。
+
+
+#まとめと次回...？
+CNNで学習がうまくいかない場合は可視化をすることで結構構造上の問題点が把握しやすくなります。
+可視化は`sess.run`でTensorの中身を受け取り、matplotlibとか使えば簡単にできますので。
+
+MNISTの可視化、詳しい処理を見たい方は下記のサイトがおすすめです。
+なんとJavaScriptでディープラーニング実装するという狂気
+ConvNetJS - http://cs.stanford.edu/people/karpathy/convnetjs/demo/mnist.html
+
+
+次回はできれば検索予測などの基盤になっているLSTMのさらに基礎となるword2vecを解説したいのですがいつになることやら。 word2vecはWeb系(もしくは全)企業がデータ分析に応用しやすそうな楽しいアルゴリズムです。
+
+ただし高度なモデルや大量のデータになればなるほど、**個人が手持ちのパソコンでやるには時間がかかりすぎて限界**になってくるのをヒシヒシと感じております。
+画像認識モデル最強のGoogle Inceptionとかも解説したいのですが...超金欠な私にクラウド環境使ったDistributed Tensorflowは難しいかなぁー！ 
+
+
+そんなこんなで余談は以上です。
+
+ストック、ツイート、いいね、はてぶ、コメントなどなど、全て励みになるのでもしよければお願いします〜。
+
+バズり方が前回超えたら次回やろう。うん、そうしよう。
+
+
+
+
+※2016.12.12追記
+Advent CalenderでLSTMの解説を書きました。
+[&gt;これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説](http://qiita.com/tawago/items/ad4e30abba9528875908)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説 by @Robobu_Bot on @Qiita" data-url="http://qiita.com/tawago/items/931bea2ff6d56e32d693" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説" href="http://b.hatena.ne.jp/entry/http://qiita.com/tawago/items/931bea2ff6d56e32d693" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tawago/items/931bea2ff6d56e32d693" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tawago/items/931bea2ff6d56e32d693" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/tawago"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/tawago">tawago</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">3629</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;tawago&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-1fd3048e-ebe6-44b2-9f97-bf10b90f5e0d"></div>
+    <div id="UserFollowButton-react-component-1fd3048e-ebe6-44b2-9f97-bf10b90f5e0d"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/c977c79b76c5979874e8">特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/931bea2ff6d56e32d693">Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/15160c6aa0ebd1c61715">TensorflowでOSXのGPUが対応されたよ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/68bef63d8bb02797c669">【爆速なるか!?】OSXでTensorflowのGPU版を使うためのセットアップ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/ad4e30abba9528875908">これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説 </a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/kaizenplatform"><img alt="Kaizen Platform, Inc." class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/8d4d656bc42e317dc06b0996426554deb5a75818/original.jpg?1438151620" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1-%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88\&quot;\u003e1: データセット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-%E5%A4%A7%E4%BA%8B%E3%81%AA%E3%81%AE%E3%81%AF%E7%89%B9%E5%BE%B4%E3%81%A8%E6%AC%A1%E5%85%83%E5%89%8A%E6%B8%9B%E6%96%B9%E6%B3%95%E3%82%84\&quot;\u003e2: 大事なのは特徴と次元削減方法や！\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%93%E3%82%AE%E3%83%8A%E3%83%BC%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB%E3%81%AE%E3%83%A2%E3%83%87%E3%83%AB%E3%81%A0%E3%81%A8%E6%89%8B%E6%9B%B8%E3%81%8D%E3%81%B2%E3%82%89%E3%81%8C%E3%81%AA%E3%81%AF%E8%AA%8D%E8%AD%98%E3%81%A7%E3%81%8D%E3%81%AA%E3%81%84\&quot;\u003eビギナーチュートリアルのモデルだと、手書きひらがなは認識できない。\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-convolution-%E7%95%B3%E3%81%BF%E8%BE%BC%E3%81%BF\&quot;\u003e3: Convolution: 畳み込み\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#4-activation-%E6%B4%BB%E6%80%A7%E5%8C%96\&quot;\u003e4: Activation: 活性化\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#5-pooling-%E3%83%97%E3%83%BC%E3%83%AA%E3%83%B3%E3%82%B0\&quot;\u003e5: Pooling: プーリング\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#6-hidden-layer-%E9%9A%A0%E3%82%8C%E5%B1%A4\&quot;\u003e6: Hidden layer: 隠れ層\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#7-%E5%AD%A6%E7%BF%92%E7%B5%90%E6%9E%9C\&quot;\u003e7: 学習結果\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#8-fine-tuning-%E5%AD%A6%E7%BF%92%E7%99%BA%E6%95%A3%E3%81%A8%E9%81%8E%E5%AD%A6%E7%BF%92%E9%98%B2%E6%AD%A2\&quot;\u003e8: (Fine Tuning) 学習発散と過学習防止\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%A0%AD%E8%89%AF%E3%81%8B%E3%81%A3%E3%81%9Fcnn%E3%83%A2%E3%83%87%E3%83%AB%E3%81%8C%E4%BD%95%E3%82%82%E5%88%86%E3%81%8B%E3%82%89%E3%81%AA%E3%81%8F%E3%81%AA%E3%81%A3%E3%81%A6%E3%81%97%E3%81%BE%E3%81%86%E5%AD%A6%E7%BF%92%E7%99%BA%E6%95%A3\&quot;\u003e頭良かったCNNモデルが何も分からなくなってしまう学習発散\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A9%95%E4%BE%A1%E7%94%A8%E3%83%87%E3%83%BC%E3%82%BF%E3%81%A7%E3%81%AE%E3%82%B9%E3%82%B3%E3%82%A2%E3%81%8C%E6%82%AA%E3%81%84%E3%82%93%E3%81%A0%E3%81%91%E3%81%A9%E3%81%89-%CF%89%E3%81%A3%E9%81%8E%E5%AD%A6%E7%BF%92%E9%98%B2%E6%AD%A2\&quot;\u003e評価用データでのスコアが悪いんだけどぉ？ (｀・ω・´)っ[過学習防止]\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81%E3%81%A8%E6%AC%A1%E5%9B%9E\&quot;\u003eまとめと次回...？\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-c8c974d0-7c30-46c5-96f2-42874a83558e"></div>
+    <div id="Toc-react-component-c8c974d0-7c30-46c5-96f2-42874a83558e"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:494,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;931bea2ff6d56e32d693&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="imaooo"><a itemprop="url" href="/imaooo"><img alt="imaooo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/118398/profile-images/1473713914" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hellohello722"><a itemprop="url" href="/hellohello722"><img alt="hellohello722" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106613/profile-images/1484933301" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="KojiOhki"><a itemprop="url" href="/KojiOhki"><img alt="KojiOhki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Hidden4682"><a itemprop="url" href="/Hidden4682"><img alt="Hidden4682" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43680/profile-images/1473689609" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kurehajime"><a itemprop="url" href="/kurehajime"><img alt="kurehajime" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33890/profile-images/1473686220" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="seihmd"><a itemprop="url" href="/seihmd"><img alt="seihmd" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51303/profile-images/1486306587" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="polikeiji"><a itemprop="url" href="/polikeiji"><img alt="polikeiji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8895/profile-images/1473681187" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yutap"><a itemprop="url" href="/yutap"><img alt="yutap" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100421/profile-images/1473708089" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zaqz_yamato"><a itemprop="url" href="/zaqz_yamato"><img alt="zaqz_yamato" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/111784/profile-images/1473711675" /></a></div></div><div class="ArticleFooter__user"><a href="/tawago/items/931bea2ff6d56e32d693/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/931bea2ff6d56e32d693/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/tawago/items/931bea2ff6d56e32d693.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 3 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/tawago/items/c977c79b76c5979874e8#_reference-00849755aae0ecedc026"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" />特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説</a><time class="references_datetime js-dateTimeView" datetime="2016-03-29T02:19:03+00:00">12 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/tawago/items/68bef63d8bb02797c669#_reference-7b60efbbaf6f67350f50"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" />【爆速なるか!?】OSXでTensorflowのGPU版を使うためのセットアップ</a><time class="references_datetime js-dateTimeView" datetime="2016-03-31T07:53:59+00:00">12 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/shngt/items/c84ddb034a2cc4c4632e#_reference-4cbcfcbc37ca1d643f09"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103085/profile-images/1479473183" />Azure Machine Learningをわかった気になるために細かいことは気にせずに機械学習のことをまとめてみる - ディープラーニングの手前まで</a><time class="references_datetime js-dateTimeView" datetime="2016-05-29T16:25:23+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/RyuKahou/items/4c66bb3f817fc3a8fc82#_reference-419d8262aeb1951adfc4"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/65589/profile-images/1473696933" />TensorFlow Expertを超えて</a><time class="references_datetime js-dateTimeView" datetime="2016-07-06T10:30:18+00:00">8 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/yukoba/items/7a687e44395783eb32b1#_reference-bed32f77f476f1e4b498"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/8752/profile-images/1473681140" />手書きひらがなの認識で99.78%の精度をディープラーニングで</a><time class="references_datetime js-dateTimeView" datetime="2016-10-04T05:40:26+00:00">5 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ryo_grid/items/2fadb2b1d16f0eab1582#_reference-42939dd93769517e5168"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/12325/profile-images/1473682364" />今度こそ理解するTensorFlow (MNISTを題材に)</a><time class="references_datetime js-dateTimeView" datetime="2016-11-04T01:33:27+00:00">4 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ryo_grid/items/d5d31b3ea13f096d043e#_reference-1a310f227ec11733f284"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/12325/profile-images/1473682364" />TensorFlow入門時に多分一番単純で実用的なコード例（1次元入力データ群からのクラス分類）</a><time class="references_datetime js-dateTimeView" datetime="2016-11-06T05:58:57+00:00">4 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/tawago/items/ad4e30abba9528875908#_reference-3f3819280a2d02df743a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" />これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説 </a><time class="references_datetime js-dateTimeView" datetime="2016-12-08T05:56:11+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説 by @Robobu_Bot on @Qiita" data-url="http://qiita.com/tawago/items/931bea2ff6d56e32d693" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説" href="http://b.hatena.ne.jp/entry/http://qiita.com/tawago/items/931bea2ff6d56e32d693" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tawago/items/931bea2ff6d56e32d693" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tawago/items/931bea2ff6d56e32d693" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eとても勉強になります。\u003c/p\u003e\n\n\u003cp\u003e活性化された画像を見るためのコードって教えて頂けますか？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-01T03:28:32+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:501908,&quot;is_team&quot;:false,&quot;item_id&quot;:381197,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;931bea2ff6d56e32d693&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;とても勉強になります。\n\n活性化された画像を見るためのコードって教えて頂けますか？\n\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/931bea2ff6d56e32d693#comment-4952dc16a8d1bb993218&quot;,&quot;user&quot;:{&quot;contribution&quot;:44,&quot;created_at&quot;:&quot;2016-02-26T17:50:29+09:00&quot;,&quot;id&quot;:115249,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/115249/profile-images/1480230363&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;sanshirookazaki&quot;},&quot;uuid&quot;:&quot;4952dc16a8d1bb993218&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eすいません、可視化した後は整理のため元のオリジナルコードに戻してしまったので...\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;http://matplotlib.org/users/image_tutorial.html\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003epyplot\u003c/a\u003eか\u003ca href=\&quot;https://pillow.readthedocs.org/en/3.0.0/reference/Image.html\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ePIL\u003c/a\u003eで簡単にできますよ。\u003cbr\u003e\n\u003ca href=\&quot;http://stackoverflow.com/questions/33802336/visualizing-output-of-convolutional-layer-in-tensorflow\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003eStackoverflow: Visualizing output of convolutional layer in tensorflow\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003eもしくは\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;py\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n\u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eopen\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;s\&quot;\u003e\&quot;hoge.txt\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;s\&quot;\u003e\&quot;w\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eh_conv1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]:\u003c/span\u003e\n  \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003epixel\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n    \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ewrite\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;nb\&quot;\u003estr\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003epixel\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e))\u003c/span\u003e\n    \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ewrite\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;s\&quot;\u003e\&quot;,\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n  \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ewrite\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;s\&quot;\u003e\&quot;\u003c/span\u003e\u003cspan class=\&quot;se\&quot;\u003e\\n\u003c/span\u003e\u003cspan class=\&quot;s\&quot;\u003e\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eclose\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e()\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eのような感じで\u003ccode\u003ehoge.txt\u003c/code\u003eを\u003ccode\u003ecsv\u003c/code\u003eにしてエクセルで可視化してる強者がどこかにいた気がします。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-01T13:54:18+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:502376,&quot;is_team&quot;:false,&quot;item_id&quot;:381197,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;931bea2ff6d56e32d693&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;すいません、可視化した後は整理のため元のオリジナルコードに戻してしまったので...\n\n[pyplot](http://matplotlib.org/users/image_tutorial.html\n)か[PIL](https://pillow.readthedocs.org/en/3.0.0/reference/Image.html)で簡単にできますよ。\n[Stackoverflow: Visualizing output of convolutional layer in tensorflow](http://stackoverflow.com/questions/33802336/visualizing-output-of-convolutional-layer-in-tensorflow)\n\nもしくは\n\n```py\nf = open(\&quot;hoge.txt\&quot;, \&quot;w\&quot;)\nfor i in h_conv1[0]:\n  for pixel in i:\n    f.write(str(pixel))\n    f.write(\&quot;,\&quot;)\n  f.write(\&quot;\\n\&quot;)\nf.close()\n```\nのような感じで`hoge.txt`を`csv`にしてエクセルで可視化してる強者がどこかにいた気がします。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/931bea2ff6d56e32d693#comment-3d4ada10977136c3f63c&quot;,&quot;user&quot;:{&quot;contribution&quot;:3629,&quot;created_at&quot;:&quot;2014-12-19T17:57:52+09:00&quot;,&quot;id&quot;:63543,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;tawago&quot;},&quot;uuid&quot;:&quot;3d4ada10977136c3f63c&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e了解です\u003cbr\u003e\n参考にさせていただきます。ありがとうございます！\u003c/p\u003e\n\n\u003cp\u003eword2vec楽しみにしています。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-01T14:24:33+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:502409,&quot;is_team&quot;:false,&quot;item_id&quot;:381197,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;931bea2ff6d56e32d693&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;了解です\n参考にさせていただきます。ありがとうございます！\n\nword2vec楽しみにしています。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/931bea2ff6d56e32d693#comment-ec17a2459ce3380e0850&quot;,&quot;user&quot;:{&quot;contribution&quot;:44,&quot;created_at&quot;:&quot;2016-02-26T17:50:29+09:00&quot;,&quot;id&quot;:115249,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/115249/profile-images/1480230363&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;sanshirookazaki&quot;},&quot;uuid&quot;:&quot;ec17a2459ce3380e0850&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003cimg alt=\&quot;:clap:\&quot; class=\&quot;emoji\&quot; height=\&quot;20\&quot; src=\&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44f.png\&quot; title=\&quot;:clap:\&quot; width=\&quot;20\&quot;\u003e \u003cimg alt=\&quot;:thumbsup:\&quot; class=\&quot;emoji\&quot; height=\&quot;20\&quot; src=\&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png\&quot; title=\&quot;:thumbsup:\&quot; width=\&quot;20\&quot;\u003e \u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-01T15:57:43+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:502547,&quot;is_team&quot;:false,&quot;item_id&quot;:381197,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;931bea2ff6d56e32d693&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;:clap: :+1: \n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/931bea2ff6d56e32d693#comment-ffa15d34e01ec4f837b1&quot;,&quot;user&quot;:{&quot;contribution&quot;:228,&quot;created_at&quot;:&quot;2013-01-21T18:16:58+09:00&quot;,&quot;id&quot;:15176,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/15176/profile-images/1473683699&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;ynott&quot;},&quot;uuid&quot;:&quot;ffa15d34e01ec4f837b1&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:381197,&quot;uuid&quot;:&quot;931bea2ff6d56e32d693&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;tawago&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:63543,&quot;url_name&quot;:&quot;tawago&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;},{&quot;id&quot;:115249,&quot;url_name&quot;:&quot;sanshirookazaki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/115249/profile-images/1480230363&quot;},{&quot;id&quot;:15176,&quot;url_name&quot;:&quot;ynott&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/15176/profile-images/1473683699&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-b1dec3f5-386d-4460-a5fc-9d160cdbad34"></div>
+    <div id="CommentListContainer-react-component-b1dec3f5-386d-4460-a5fc-9d160cdbad34"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="XKgqeVOw7VX3MPrBGrfgQzlkrpSwUdonEFq7Z1ZkizBO+sTYl5segQDXAFIfoUKOk5erty/+ZWeDEKtfGSYOiQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tawago/items/931bea2ff6d56e32d693" /><input type="hidden" name="item_uuid" id="item_uuid" value="931bea2ff6d56e32d693" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/tawago/items/931bea2ff6d56e32d693", "id": 381197, "uuid": "931bea2ff6d56e32d693" }</script><script class="js-user" type="application/json">{&quot;id&quot;:63543,&quot;url_name&quot;:&quot;tawago&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="MNQ+JyLsh9cexkdzSdbrTlFv/cap0De1BE+QlsB6+5EihtCG5sd0A+khveBMwEmD+5z45TZ/iPWXBYCujzh+KA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tawago/items/931bea2ff6d56e32d693" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-60064a257a213198cd13df56dcca54cf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-62908913-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

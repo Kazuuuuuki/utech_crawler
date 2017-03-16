@@ -1,0 +1,313 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>なぜ自然言語処理にとって単語の分散表現は重要なのか？ - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="なぜ自然言語処理にとって単語の分散表現は重要なのでしょうか？
+
+この記事をご覧になっている方は Word2vec(Mikolov et al., 2013) についてご存知かもしれません。Word2vec ではまるで単語の意味を捉えられているかのような演算を行うことができます。例えば King から Man を引き Woman を足すと Queen が得られる(King - Man + Woman = Queen)というのは有名な例です。
+
+
+from https://..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Hironsan13" name="twitter:creator" /><meta content="なぜ自然言語処理にとって単語の分散表現は重要なのか？ - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/Hironsan/items/a58636f946dd51f670b0" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="**なぜ自然言語処理にとって単語の分散表現は重要なのでしょうか？**
+
+この記事をご覧になっている方は **Word2vec**(Mikolov et al., 2013) についてご存知かもしれません。Word2vec ではまるで単..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-e89b2462e454a13b67eaa536fcb0b04a.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="USDK9YqGx/p541jT8eAWORiSPRiFOaVBb2M2t/pauSxzNprVkzEL8J2rNuPiY+kUaa6gfEd3zqq19sdHxgi0jg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"Hironsan","type":"items","id":"a58636f946dd51f670b0"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-362c4032-11c8-4e1d-918a-598f6602fa4e"></div>
+    <div id="HeaderContainer-react-component-362c4032-11c8-4e1d-918a-598f6602fa4e"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86",        "name": "自然言語処理"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">なぜ自然言語処理にとって単語の分散表現は重要なのか？</h1><ul class="TagList"><li class="TagList__item" data-count="418"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="1830"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9868"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="68"><a class="u-link-unstyled TagList__label" href="/tags/word2vec"><img alt="word2vec" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>word2vec</span></a></li><li class="TagList__item" data-count="1070"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">184</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:184,&quot;uuid&quot;:&quot;a58636f946dd51f670b0&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="TetsuyaKimotsuki"><a itemprop="url" href="/TetsuyaKimotsuki"><img alt="TetsuyaKimotsuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/118269/profile-images/1473713871" /></a></li><li class="js-hovercard" data-hovercard-target-name="poijasdf"><a itemprop="url" href="/poijasdf"><img alt="poijasdf" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/d4416cdbb7b2d1865a0967fbca3b5449" /></a></li><li class="js-hovercard" data-hovercard-target-name="maskey2014"><a itemprop="url" href="/maskey2014"><img alt="maskey2014" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60789/profile-images/1473695333" /></a></li><li class="js-hovercard" data-hovercard-target-name="ghostman"><a itemprop="url" href="/ghostman"><img alt="ghostman" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/3c7faa8a3c2e36b6f39822dc1029164b" /></a></li><li class="js-hovercard" data-hovercard-target-name="Yasu-umi"><a itemprop="url" href="/Yasu-umi"><img alt="Yasu-umi" class="thumb thumb--xs" src="https://pbs.twimg.com/profile_images/550329366035456000/u947CJIG_normal.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="TomokIshii"><a itemprop="url" href="/TomokIshii"><img alt="TomokIshii" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a></li><li class="js-hovercard" data-hovercard-target-name="tag1216"><a itemprop="url" href="/tag1216"><img alt="tag1216" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35192/profile-images/1473686636" /></a></li><li class="js-hovercard" data-hovercard-target-name="ykshr"><a itemprop="url" href="/ykshr"><img alt="ykshr" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/129013/profile-images/1473717414" /></a></li><li class="js-hovercard" data-hovercard-target-name="Natsuume"><a itemprop="url" href="/Natsuume"><img alt="Natsuume" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/34789/profile-images/1473686487" /></a></li><li class="js-hovercard" data-hovercard-target-name="akr-student"><a itemprop="url" href="/akr-student"><img alt="akr-student" class="thumb thumb--xs" src="https://avatars.githubusercontent.com/u/23278106?v=3" /></a></li><li><a href="/Hironsan/items/a58636f946dd51f670b0/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/Hironsan"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" alt="1473700709" /></a> <a class="u-link-unstyled" href="/Hironsan">Hironsan</a> </div><div class="ArticleAsideHeader__date"><meta content="2017-03-08T08:34:16+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2017-03-08">Edited at <time datetime="2017-03-08T20:22:28+09:00" itemprop="dateModified">2017-03-08</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/Hironsan/items/a58636f946dd51f670b0/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/Hironsan/items/a58636f946dd51f670b0/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/Hironsan/items/a58636f946dd51f670b0.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-a58636f946dd51f670b0" itemprop="articleBody"><p><strong>なぜ自然言語処理にとって単語の分散表現は重要なのでしょうか？</strong></p>
+
+<p>この記事をご覧になっている方は <strong>Word2vec</strong>(Mikolov et al., 2013) についてご存知かもしれません。Word2vec ではまるで単語の意味を捉えられているかのような演算を行うことができます。例えば King から Man を引き Woman を足すと Queen が得られる(King - Man + Woman = Queen)というのは有名な例です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/77079/b10515fb-e29a-f8ff-755a-390376ee3e43.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/b10515fb-e29a-f8ff-755a-390376ee3e43.png" width="600"></a><br>
+from <a href="https://www.tensorflow.org/get_started/embedding_viz" class="autolink" rel="nofollow noopener" target="_blank">https://www.tensorflow.org/get_started/embedding_viz</a></p>
+
+<p>実はその内部では、単語を<strong>分散表現</strong>(あるいは埋め込み表現)と呼ばれる200次元ほどのベクトルで表現してベクトルの足し引きを行っています。この200次元ほどのベクトル内部に各単語の特徴が格納されていると考えられています。そのため、ベクトルの足し引きで意味のありそうな結果を得られるのです。</p>
+
+<p><strong>単語の分散表現は現在の自然言語処理で当たり前のように使われる重要な技術です。</strong>最近は自然言語処理の研究でも膨大な数のニューラルネットワーク(NN)ベースのモデルが提案されています。これらNNベースのモデルでは、単語の分散表現を入力として使うことが多いのです。</p>
+
+<p>この記事では、「<strong>なぜ自然言語処理にとって単語の分散表現が重要なのか？</strong>」を説明します。説明の流れは、まず単語の分散表現について簡単に説明し、理解を共有します。その次に、メインテーマである単語の分散表現が自然言語処理にとって重要な理由を説明します。最後に、分散表現が抱えている課題について説明します。</p>
+
+<h1>
+<span id="単語の分散表現とは" class="fragment"></span><a href="#%E5%8D%98%E8%AA%9E%E3%81%AE%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>単語の分散表現とは？</h1>
+
+<p>ここでは単語の <strong>分散表現</strong> の理解を目的とし、簡単に説明を行います。そのメリットを述べるための比較対象として、単語の <strong>one-hot表現</strong> についても説明します。話の流れとしては、one-hot表現とその課題について説明した後、分散表現の説明に移ります。</p>
+
+<h2>
+<span id="one-hot表現" class="fragment"></span><a href="#one-hot%E8%A1%A8%E7%8F%BE"><i class="fa fa-link"></i></a>one-hot表現</h2>
+
+<p>単語をベクトルで表現する方法としてまず考えられるのはone-hot表現です。one-hot表現というのはある要素のみが1でその他の要素が0であるような表現方法のことです。各次元に 1 か 0 を設定することで「その単語か否か」を表します。</p>
+
+<p>例えば、one-hot表現でpythonという単語を表すとしましょう。ここで、単語の集合であるボキャブラリは(nlp, python, word, ruby, one-hot)の5単語とします。そうすると、pythonを表すベクトルは以下のようになります。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/29846323-c4e5-2eda-6fe0-175c5e65ae63.png" target="_blank" rel="nofollow noopener"><img width="472" alt="スクリーンショット 2017-03-03 15.18.11.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/29846323-c4e5-2eda-6fe0-175c5e65ae63.png"></a></p>
+
+<p>one-hot表現はシンプルですが、ベクトル間の演算で何も意味のある結果を得られないという弱点があります。例えば、単語間で類似度を計算するために内積を取るとしましょう。one-hot表現では異なる単語は別の箇所に1が立っていてその他の要素は0なので、異なる単語間の内積を取った結果は0になってしまいます。これは望ましい結果とは言えません。また、1単語に1次元を割り当てるので、ボキャブラリ数が増えると非常に高次元になってしまいます。</p>
+
+<h2>
+<span id="分散表現" class="fragment"></span><a href="#%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE"><i class="fa fa-link"></i></a>分散表現</h2>
+
+<p>それに対して分散表現は、単語を低次元の実数値ベクトルで表す表現です。だいたい50次元から300次元くらいで表現することが多いです。例えば、先ほど挙げた単語を分散表現で表すと以下のように表せます。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/adc94c0d-3850-5bc3-b16e-998665178982.png" target="_blank" rel="nofollow noopener"><img width="595" alt="スクリーンショット 2017-03-03 15.46.50.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/adc94c0d-3850-5bc3-b16e-998665178982.png"></a></p>
+
+<p>分散表現を使うことでone-hot表現が抱えていた問題を解決できます。例えば、ベクトル間の演算で単語間の類似度を計算することができるようになります。上のベクトルを見ると、python と ruby の類似度は python と word の類似度よりも高くなりそうです。また、ボキャブラリ数が増えても各単語の次元数を増やさずに済みます。</p>
+
+<h1>
+<span id="なぜ単語の分散表現は重要なのか" class="fragment"></span><a href="#%E3%81%AA%E3%81%9C%E5%8D%98%E8%AA%9E%E3%81%AE%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE%E3%81%AF%E9%87%8D%E8%A6%81%E3%81%AA%E3%81%AE%E3%81%8B"><i class="fa fa-link"></i></a>なぜ単語の分散表現は重要なのか？</h1>
+
+<p>この節では、自然言語処理における単語の分散表現の重要性について説明します。話の流れとしては、自然言語処理タスクへの入力の話をした後、入力として分散表現を使う話をします。そして、この分散表現がタスクの性能に影響を与える話をします。</p>
+
+<p>自然言語処理には様々なタスクがありますが、多くのタスクでは入力として単語列を与えます。具体的には、文書分類であれば文書に含まれる単語の集合を入力します。品詞タグ付けなら分かち書きされた単語列を与えますし、固有表現認識も同様に分かち書きした単語列を与えます。以下のようなイメージです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/3e12787a-38b5-2599-d4d5-a5fbec3326b1.png" target="_blank" rel="nofollow noopener"><img width="626" alt="スクリーンショット 2017-03-07 21.36.34.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/3e12787a-38b5-2599-d4d5-a5fbec3326b1.png"></a></p>
+
+<p>最近の自然言語処理ではニューラルネットワークを使うことも多いですが、入力として単語列を与えることが多いのは変わりません。従来からよく使われている RNN へ入力するのも単語ですし、最近注目されている CNN を使ったモデルに対する入力も単語レベルで入力することが多いです。以下のようなイメージです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/b56a94b5-d54c-207e-98bb-474fe3d22e8b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/b56a94b5-d54c-207e-98bb-474fe3d22e8b.png"></a></p>
+
+<p>実はこれらニューラルネットワークへ与える単語の表現として分散表現を使うことが多いのです<sup id="fnref1"><a href="#fn1" rel="footnote" title="">1</a></sup>。単語の意味をよりよく捉えている表現を入力として使えば、タスクの性能も向上するだろう、という期待に基づいています。また、大量のラベルなしデータを使って学習した分散表現をネットワークの初期値として使い、少量のラベル付きデータを使ってチューニングするということも行われます。</p>
+
+<p>この分散表現がタスクの性能を左右するので重要なのです。分散表現を使わない場合と比べて性能が向上することも報告されています[2]。このように、多くのタスクの入力として使われることが多く、また性能に少なからず影響を及ぼすので単語の分散表現は重要なのです。</p>
+
+<h1>
+<span id="単語の分散表現が抱えている課題" class="fragment"></span><a href="#%E5%8D%98%E8%AA%9E%E3%81%AE%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE%E3%81%8C%E6%8A%B1%E3%81%88%E3%81%A6%E3%81%84%E3%82%8B%E8%AA%B2%E9%A1%8C"><i class="fa fa-link"></i></a>単語の分散表現が抱えている課題</h1>
+
+<p>単語の分散表現が自然言語処理における銀の弾丸かというとそうではありません。多くの研究の結果、様々な問題があることがわかっています。ここではその中から2つ選んで紹介します。</p>
+
+<h2>
+<span id="問題1-実際のタスクで使用すると思ったより性能が向上しない" class="fragment"></span><a href="#%E5%95%8F%E9%A1%8C1-%E5%AE%9F%E9%9A%9B%E3%81%AE%E3%82%BF%E3%82%B9%E3%82%AF%E3%81%A7%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%88%E3%82%8A%E6%80%A7%E8%83%BD%E3%81%8C%E5%90%91%E4%B8%8A%E3%81%97%E3%81%AA%E3%81%84"><i class="fa fa-link"></i></a>問題1: 実際のタスクで使用すると思ったより性能が向上しない</h2>
+
+<p>一つ目の問題として取り上げるのは、評価データセットで良い結果でも実際のタスク(文書分類など)で使用すると思っているより性能が向上しない、という問題です。そもそも単語の分散表現がどのように評価されているかというと、多くの場合、人間が作成した単語類似度の評価セットとの相関度で評価されます(Schnabel, Tobias, et al, 2015)。つまり、人間の評価と相関する結果を出せるモデルで得られた分散表現を実際のタスクに使用しても性能が向上しないのです。</p>
+
+<p>原因としては、ほとんどの評価データセットでは単語の類似性と関連性を区別していないことが挙げられています。単語の類似性と関連性というのは、たとえば(male, man)は類似していて、(computer, keyboard)は関連しているけど類似していないという話です。区別しているデータセットでは実際のタスクとの間に性能の正の相関が見られることが報告されています(Chiu, Billy, Anna Korhonen, and Sampo Pyysalo, 2016)。</p>
+
+<p>そのため、現在は実際のタスクと相関する評価データセットの作成が試みられています(Oded Avraham, Yoav Goldberg, 2016)。ここでは既存のデータセットに存在する2つの問題(単語の類似性と関連性を区別していない、評価者間でアノテーションスコアがばらつく)の解決を試みています。</p>
+
+<p>また、評価データセットの作成以外にも実際のタスクを簡単に評価できるようにして分散表現を評価するといった研究が行われています(Nayak, Neha, Gabor Angeli, and Christopher D. Manning, 2016)。これにより、学習した分散表現が実際に行いたいタスクに近いタスクで有効なのかを簡単に検証できるようになることが期待されています。</p>
+
+<p>個人的には新たなデータセットやタスクで評価することによって、今まで埋もれていたモデルが見直されるのではないかと期待しています。</p>
+
+<h2>
+<span id="問題2-単語の曖昧性を考慮していない" class="fragment"></span><a href="#%E5%95%8F%E9%A1%8C2-%E5%8D%98%E8%AA%9E%E3%81%AE%E6%9B%96%E6%98%A7%E6%80%A7%E3%82%92%E8%80%83%E6%85%AE%E3%81%97%E3%81%A6%E3%81%84%E3%81%AA%E3%81%84"><i class="fa fa-link"></i></a>問題2: 単語の曖昧性を考慮していない</h2>
+
+<p>二つ目の問題として取り上げるのは、現在の分散表現は単語の曖昧性を考慮していない、という問題です。単語には様々な意味があります。例えば、"bank" という単語は "銀行" という意味以外にも "土手" という意味があります。このように単語の多義性を考慮せず、一つのベクトルで表すのは限界があります。</p>
+
+<p>この問題に対して、語義ごとに表現を学習する手法がいくつか提案されています[5][6][7][8]。SENSEEMBEDでは語義曖昧性解消をして語義ごとの表現を学習しています。語義ごとの表現を学習した結果、単語類似性評価での性能が向上したと報告されています。</p>
+
+
+
+<h1>
+<span id="さらに詳しく知りたい人のために" class="fragment"></span><a href="#%E3%81%95%E3%82%89%E3%81%AB%E8%A9%B3%E3%81%97%E3%81%8F%E7%9F%A5%E3%82%8A%E3%81%9F%E3%81%84%E4%BA%BA%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>さらに詳しく知りたい人のために</h1>
+
+<p>以下のリポジトリでは単語や文の分散表現に関する論文や学習済みベクトル、Python実装の情報をまとめています。<br>
+<a href="https://github.com/Hironsan/awesome-embedding-models" rel="nofollow noopener" target="_blank">awesome-embedding-models</a></p>
+
+<p>スターをつけていただけると励みになりますm(_ _)m</p>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<p>単語の分散表現は活発に研究されている面白い分野です。この記事が皆様の理解の一助となれば幸いです。</p>
+
+<p>以下のTwitterアカウントで <strong>機械学習 / 自然言語処理 / コンピュータビジョン</strong> に関する最新の論文情報をわかりやすく配信しています。この記事を読んでくれた方にとって興味深い内容を配信していますので、フォローお待ちしています。<br>
+<a href="https://twitter.com/arxivtimes" rel="nofollow noopener" target="_blank">@arXivTimes</a><br>
+<a href="https://twitter.com/arxivtimes" rel="nofollow noopener" target="_blank"><img width="550" src="https://qiita-image-store.s3.amazonaws.com/0/77079/a8c638c8-16b0-ae92-3844-08ee92e24267.png"></a></p>
+
+<p>また、私のアカウントでも機械学習や自然言語処理に関する情報をつぶやいていますので、この分野に興味のある方のフォローをお待ちしています。<br>
+<a href="https://twitter.com/Hironsan13" rel="nofollow noopener" target="_blank">@Hironsan</a></p>
+
+<h1>
+<span id="注釈" class="fragment"></span><a href="#%E6%B3%A8%E9%87%88"><i class="fa fa-link"></i></a>注釈</h1>
+
+<p>実際にはone-hot表現で与えた後、分散表現に変換します。</p>
+
+<h1>
+<span id="参考資料" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E8%B3%87%E6%96%99"><i class="fa fa-link"></i></a>参考資料</h1>
+
+<ol>
+<li><a href="https://arxiv.org/abs/1301.3781" rel="nofollow noopener" target="_blank">Mikolov, Tomas, et al. "Efficient estimation of word representations in vector space." arXiv preprint arXiv:1301.3781 (2013).</a></li>
+<li><a href="http://nlp.stanford.edu/pubs/glove.pdf" rel="nofollow noopener" target="_blank">Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. "Glove: Global Vectors for Word Representation." EMNLP. Vol. 14. 2014.</a></li>
+<li><a href="http://www.aclweb.org/anthology/D15-1036" rel="nofollow noopener" target="_blank">Schnabel, Tobias, et al. "Evaluation methods for unsupervised word embeddings." EMNLP. 2015.</a></li>
+<li><a href="https://www.aclweb.org/anthology/W/W16/W16-2501.pdf" rel="nofollow noopener" target="_blank">Chiu, Billy, Anna Korhonen, and Sampo Pyysalo. "Intrinsic evaluation of word vectors fails to predict extrinsic performance." ACL 2016 (2016): 1.</a></li>
+<li><a href="https://arxiv.org/abs/1611.03641" rel="nofollow noopener" target="_blank">Oded Avraham, Yoav Goldberg. "Improving Reliability of Word Similarity Evaluation by Redesigning Annotation Task and Performance Measure." arXiv preprint arXiv:1611.03641 (2016).</a></li>
+<li><a href="https://cs.stanford.edu/%7Eangeli/papers/2016-acl-veceval.pdf" rel="nofollow noopener" target="_blank">Nayak, Neha, Gabor Angeli, and Christopher D. Manning. "Evaluating Word Embeddings Using a Representative Suite of Practical Tasks." ACL 2016 (2016): 19.</a></li>
+<li><a href="https://arxiv.org/abs/1511.06388" rel="nofollow noopener" target="_blank">Trask, Andrew, Phil Michalak, and John Liu. "sense2vec-A fast and accurate method for word sense disambiguation in neural word embeddings." arXiv preprint arXiv:1511.06388 (2015).</a></li>
+<li><a href="http://wwwusers.di.uniroma1.it/%7Enavigli/pubs/ACL_2015_Iacobaccietal.pdf" rel="nofollow noopener" target="_blank">Iacobacci, I., Pilehvar, M. T., &amp; Navigli, R. (2015). SensEmbed: Learning Sense Embeddings for Word and Relational Similarity. In ACL (1) (pp. 95-105).</a></li>
+<li><a href="http://www.cs.utexas.edu/%7Eml/papers/reisinger.naacl-2010.pdf" rel="nofollow noopener" target="_blank">Reisinger, Joseph, and Raymond J. Mooney. "Multi-prototype vector-space models of word meaning." Human Language Technologies: The 2010 Annual Conference of the North American Chapter of the Association for Computational Linguistics. Association for Computational Linguistics, 2010.</a></li>
+<li><a href="http://www.aclweb.org/anthology/P12-1092" rel="nofollow noopener" target="_blank">Huang, Eric H., et al. "Improving word representations via global context and multiple word prototypes." Proceedings of the 50th Annual Meeting of the Association for Computational Linguistics: Long Papers-Volume 1. Association for Computational Linguistics, 2012.</a></li>
+</ol>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/Hironsan/items/a58636f946dd51f670b0" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="OSkhBGGy89cDdHa3TDd+DkfGqlKotpzoTZHPmItR0b8bP3EkeAU/3ec8GIdftIEjNvo3Nmr49wOXBD5otwPcHQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1488972148" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+**なぜ自然言語処理にとって単語の分散表現は重要なのでしょうか？**
+
+この記事をご覧になっている方は **Word2vec**(Mikolov et al., 2013) についてご存知かもしれません。Word2vec ではまるで単語の意味を捉えられているかのような演算を行うことができます。例えば King から Man を引き Woman を足すと Queen が得られる(King - Man + Woman = Queen)というのは有名な例です。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/b10515fb-e29a-f8ff-755a-390376ee3e43.png&quot; width=600 /&gt;
+from https://www.tensorflow.org/get_started/embedding_viz
+
+実はその内部では、単語を**分散表現**(あるいは埋め込み表現)と呼ばれる200次元ほどのベクトルで表現してベクトルの足し引きを行っています。この200次元ほどのベクトル内部に各単語の特徴が格納されていると考えられています。そのため、ベクトルの足し引きで意味のありそうな結果を得られるのです。
+
+**単語の分散表現は現在の自然言語処理で当たり前のように使われる重要な技術です。**最近は自然言語処理の研究でも膨大な数のニューラルネットワーク(NN)ベースのモデルが提案されています。これらNNベースのモデルでは、単語の分散表現を入力として使うことが多いのです。
+
+この記事では、「**なぜ自然言語処理にとって単語の分散表現が重要なのか？**」を説明します。説明の流れは、まず単語の分散表現について簡単に説明し、理解を共有します。その次に、メインテーマである単語の分散表現が自然言語処理にとって重要な理由を説明します。最後に、分散表現が抱えている課題について説明します。
+
+
+# 単語の分散表現とは？
+ここでは単語の **分散表現** の理解を目的とし、簡単に説明を行います。そのメリットを述べるための比較対象として、単語の **one-hot表現** についても説明します。話の流れとしては、one-hot表現とその課題について説明した後、分散表現の説明に移ります。
+
+## one-hot表現
+単語をベクトルで表現する方法としてまず考えられるのはone-hot表現です。one-hot表現というのはある要素のみが1でその他の要素が0であるような表現方法のことです。各次元に 1 か 0 を設定することで「その単語か否か」を表します。
+
+例えば、one-hot表現でpythonという単語を表すとしましょう。ここで、単語の集合であるボキャブラリは(nlp, python, word, ruby, one-hot)の5単語とします。そうすると、pythonを表すベクトルは以下のようになります。
+&lt;img width=&quot;472&quot; alt=&quot;スクリーンショット 2017-03-03 15.18.11.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/29846323-c4e5-2eda-6fe0-175c5e65ae63.png&quot;&gt;
+
+one-hot表現はシンプルですが、ベクトル間の演算で何も意味のある結果を得られないという弱点があります。例えば、単語間で類似度を計算するために内積を取るとしましょう。one-hot表現では異なる単語は別の箇所に1が立っていてその他の要素は0なので、異なる単語間の内積を取った結果は0になってしまいます。これは望ましい結果とは言えません。また、1単語に1次元を割り当てるので、ボキャブラリ数が増えると非常に高次元になってしまいます。
+
+## 分散表現
+それに対して分散表現は、単語を低次元の実数値ベクトルで表す表現です。だいたい50次元から300次元くらいで表現することが多いです。例えば、先ほど挙げた単語を分散表現で表すと以下のように表せます。
+&lt;img width=&quot;595&quot; alt=&quot;スクリーンショット 2017-03-03 15.46.50.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/adc94c0d-3850-5bc3-b16e-998665178982.png&quot;&gt;
+
+分散表現を使うことでone-hot表現が抱えていた問題を解決できます。例えば、ベクトル間の演算で単語間の類似度を計算することができるようになります。上のベクトルを見ると、python と ruby の類似度は python と word の類似度よりも高くなりそうです。また、ボキャブラリ数が増えても各単語の次元数を増やさずに済みます。
+
+
+# なぜ単語の分散表現は重要なのか？
+この節では、自然言語処理における単語の分散表現の重要性について説明します。話の流れとしては、自然言語処理タスクへの入力の話をした後、入力として分散表現を使う話をします。そして、この分散表現がタスクの性能に影響を与える話をします。
+
+自然言語処理には様々なタスクがありますが、多くのタスクでは入力として単語列を与えます。具体的には、文書分類であれば文書に含まれる単語の集合を入力します。品詞タグ付けなら分かち書きされた単語列を与えますし、固有表現認識も同様に分かち書きした単語列を与えます。以下のようなイメージです。
+&lt;img width=&quot;626&quot; alt=&quot;スクリーンショット 2017-03-07 21.36.34.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/3e12787a-38b5-2599-d4d5-a5fbec3326b1.png&quot;&gt;
+
+
+最近の自然言語処理ではニューラルネットワークを使うことも多いですが、入力として単語列を与えることが多いのは変わりません。従来からよく使われている RNN へ入力するのも単語ですし、最近注目されている CNN を使ったモデルに対する入力も単語レベルで入力することが多いです。以下のようなイメージです。
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/b56a94b5-d54c-207e-98bb-474fe3d22e8b.png&quot; /&gt;
+
+実はこれらニューラルネットワークへ与える単語の表現として分散表現を使うことが多いのです[^1]。単語の意味をよりよく捉えている表現を入力として使えば、タスクの性能も向上するだろう、という期待に基づいています。また、大量のラベルなしデータを使って学習した分散表現をネットワークの初期値として使い、少量のラベル付きデータを使ってチューニングするということも行われます。
+
+この分散表現がタスクの性能を左右するので重要なのです。分散表現を使わない場合と比べて性能が向上することも報告されています[2]。このように、多くのタスクの入力として使われることが多く、また性能に少なからず影響を及ぼすので単語の分散表現は重要なのです。
+
+
+# 単語の分散表現が抱えている課題
+単語の分散表現が自然言語処理における銀の弾丸かというとそうではありません。多くの研究の結果、様々な問題があることがわかっています。ここではその中から2つ選んで紹介します。
+
+## 問題1: 実際のタスクで使用すると思ったより性能が向上しない
+一つ目の問題として取り上げるのは、評価データセットで良い結果でも実際のタスク(文書分類など)で使用すると思っているより性能が向上しない、という問題です。そもそも単語の分散表現がどのように評価されているかというと、多くの場合、人間が作成した単語類似度の評価セットとの相関度で評価されます(Schnabel, Tobias, et al, 2015)。つまり、人間の評価と相関する結果を出せるモデルで得られた分散表現を実際のタスクに使用しても性能が向上しないのです。
+
+原因としては、ほとんどの評価データセットでは単語の類似性と関連性を区別していないことが挙げられています。単語の類似性と関連性というのは、たとえば(male, man)は類似していて、(computer, keyboard)は関連しているけど類似していないという話です。区別しているデータセットでは実際のタスクとの間に性能の正の相関が見られることが報告されています(Chiu, Billy, Anna Korhonen, and Sampo Pyysalo, 2016)。
+
+そのため、現在は実際のタスクと相関する評価データセットの作成が試みられています(Oded Avraham, Yoav Goldberg, 2016)。ここでは既存のデータセットに存在する2つの問題(単語の類似性と関連性を区別していない、評価者間でアノテーションスコアがばらつく)の解決を試みています。
+
+また、評価データセットの作成以外にも実際のタスクを簡単に評価できるようにして分散表現を評価するといった研究が行われています(Nayak, Neha, Gabor Angeli, and Christopher D. Manning, 2016)。これにより、学習した分散表現が実際に行いたいタスクに近いタスクで有効なのかを簡単に検証できるようになることが期待されています。
+
+個人的には新たなデータセットやタスクで評価することによって、今まで埋もれていたモデルが見直されるのではないかと期待しています。
+
+
+## 問題2: 単語の曖昧性を考慮していない
+二つ目の問題として取り上げるのは、現在の分散表現は単語の曖昧性を考慮していない、という問題です。単語には様々な意味があります。例えば、&quot;bank&quot; という単語は &quot;銀行&quot; という意味以外にも &quot;土手&quot; という意味があります。このように単語の多義性を考慮せず、一つのベクトルで表すのは限界があります。
+
+この問題に対して、語義ごとに表現を学習する手法がいくつか提案されています[5][6][7][8]。SENSEEMBEDでは語義曖昧性解消をして語義ごとの表現を学習しています。語義ごとの表現を学習した結果、単語類似性評価での性能が向上したと報告されています。
+
+&lt;!--
+## 問題3: 同義語と対義語を区別できない
+三つ目の問題として取り上げるのは、現在の分散表現の方法は同義語と対義語の区別ができない、という問題です。
+
+原因としては、ほとんどのモデルで分布仮説を採用していることが挙げられます。分布仮説というのは、
+
+この問題に対して、手法がいくつか提案されています。
+--&gt;
+
+# さらに詳しく知りたい人のために
+以下のリポジトリでは単語や文の分散表現に関する論文や学習済みベクトル、Python実装の情報をまとめています。
+[awesome-embedding-models](https://github.com/Hironsan/awesome-embedding-models)
+
+スターをつけていただけると励みになりますm(_ _)m
+
+# おわりに
+単語の分散表現は活発に研究されている面白い分野です。この記事が皆様の理解の一助となれば幸いです。
+
+以下のTwitterアカウントで **機械学習 / 自然言語処理 / コンピュータビジョン** に関する最新の論文情報をわかりやすく配信しています。この記事を読んでくれた方にとって興味深い内容を配信していますので、フォローお待ちしています。
+[@arXivTimes](https://twitter.com/arxivtimes)
+&lt;a href=&quot;https://twitter.com/arxivtimes&quot;&gt;&lt;img width=&quot;550&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/a8c638c8-16b0-ae92-3844-08ee92e24267.png&quot; /&gt;&lt;/a&gt;
+
+また、私のアカウントでも機械学習や自然言語処理に関する情報をつぶやいていますので、この分野に興味のある方のフォローをお待ちしています。
+[@Hironsan](https://twitter.com/Hironsan13)
+
+# 注釈
+[^1]:実際にはone-hot表現で与えた後、分散表現に変換します。
+
+# 参考資料
+1. [Mikolov, Tomas, et al. &quot;Efficient estimation of word representations in vector space.&quot; arXiv preprint arXiv:1301.3781 (2013).](https://arxiv.org/abs/1301.3781)
+2. [Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. &quot;Glove: Global Vectors for Word Representation.&quot; EMNLP. Vol. 14. 2014.](http://nlp.stanford.edu/pubs/glove.pdf)
+3. [Schnabel, Tobias, et al. &quot;Evaluation methods for unsupervised word embeddings.&quot; EMNLP. 2015.](http://www.aclweb.org/anthology/D15-1036)
+4. [Chiu, Billy, Anna Korhonen, and Sampo Pyysalo. &quot;Intrinsic evaluation of word vectors fails to predict extrinsic performance.&quot; ACL 2016 (2016): 1.](https://www.aclweb.org/anthology/W/W16/W16-2501.pdf)
+5. [Oded Avraham, Yoav Goldberg. &quot;Improving Reliability of Word Similarity Evaluation by Redesigning Annotation Task and Performance Measure.&quot; arXiv preprint arXiv:1611.03641 (2016).](https://arxiv.org/abs/1611.03641)
+6. [Nayak, Neha, Gabor Angeli, and Christopher D. Manning. &quot;Evaluating Word Embeddings Using a Representative Suite of Practical Tasks.&quot; ACL 2016 (2016): 19.](https://cs.stanford.edu/~angeli/papers/2016-acl-veceval.pdf)
+7. [Trask, Andrew, Phil Michalak, and John Liu. &quot;sense2vec-A fast and accurate method for word sense disambiguation in neural word embeddings.&quot; arXiv preprint arXiv:1511.06388 (2015).](https://arxiv.org/abs/1511.06388)
+8. [Iacobacci, I., Pilehvar, M. T., &amp; Navigli, R. (2015). SensEmbed: Learning Sense Embeddings for Word and Relational Similarity. In ACL (1) (pp. 95-105).](http://wwwusers.di.uniroma1.it/~navigli/pubs/ACL_2015_Iacobaccietal.pdf)
+9. [Reisinger, Joseph, and Raymond J. Mooney. &quot;Multi-prototype vector-space models of word meaning.&quot; Human Language Technologies: The 2010 Annual Conference of the North American Chapter of the Association for Computational Linguistics. Association for Computational Linguistics, 2010.](http://www.cs.utexas.edu/~ml/papers/reisinger.naacl-2010.pdf)
+10. [Huang, Eric H., et al. &quot;Improving word representations via global context and multiple word prototypes.&quot; Proceedings of the 50th Annual Meeting of the Association for Computational Linguistics: Long Papers-Volume 1. Association for Computational Linguistics, 2012.](http://www.aclweb.org/anthology/P12-1092)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="なぜ自然言語処理にとって単語の分散表現は重要なのか？ by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/a58636f946dd51f670b0" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="なぜ自然言語処理にとって単語の分散表現は重要なのか？" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/a58636f946dd51f670b0" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/a58636f946dd51f670b0" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/a58636f946dd51f670b0" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/Hironsan"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/Hironsan">Hironsan</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">4804</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;Hironsan&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-8c627e0d-5e59-4575-94d4-5aa610810efc"></div>
+    <div id="UserFollowButton-react-component-8c627e0d-5e59-4575-94d4-5aa610810efc"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/6425787ccbee75dfae36">機械学習を使って作る対話システム</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/8ad9b11bcc0c618ec5e2">DeepLearningで上司を認識して画面を隠す</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/20951116a2650f45fea5">学年ビリのアホが1年半でTOEICスコアを300点から840点に上げた英語勉強法の話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/326b66711eb4196aa9d4">【チュートリアル】機械学習を使って30分で固有表現抽出器を作る</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/ca0b176fd859490dde08">まだ機械学習の論文を追うのに消耗してるの？それBotで解決したよ</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8D%98%E8%AA%9E%E3%81%AE%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE%E3%81%A8%E3%81%AF\&quot;\u003e単語の分散表現とは？\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#one-hot%E8%A1%A8%E7%8F%BE\&quot;\u003eone-hot表現\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE\&quot;\u003e分散表現\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AA%E3%81%9C%E5%8D%98%E8%AA%9E%E3%81%AE%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE%E3%81%AF%E9%87%8D%E8%A6%81%E3%81%AA%E3%81%AE%E3%81%8B\&quot;\u003eなぜ単語の分散表現は重要なのか？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8D%98%E8%AA%9E%E3%81%AE%E5%88%86%E6%95%A3%E8%A1%A8%E7%8F%BE%E3%81%8C%E6%8A%B1%E3%81%88%E3%81%A6%E3%81%84%E3%82%8B%E8%AA%B2%E9%A1%8C\&quot;\u003e単語の分散表現が抱えている課題\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%95%8F%E9%A1%8C1-%E5%AE%9F%E9%9A%9B%E3%81%AE%E3%82%BF%E3%82%B9%E3%82%AF%E3%81%A7%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E3%81%A8%E6%80%9D%E3%81%A3%E3%81%9F%E3%82%88%E3%82%8A%E6%80%A7%E8%83%BD%E3%81%8C%E5%90%91%E4%B8%8A%E3%81%97%E3%81%AA%E3%81%84\&quot;\u003e問題1: 実際のタスクで使用すると思ったより性能が向上しない\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%95%8F%E9%A1%8C2-%E5%8D%98%E8%AA%9E%E3%81%AE%E6%9B%96%E6%98%A7%E6%80%A7%E3%82%92%E8%80%83%E6%85%AE%E3%81%97%E3%81%A6%E3%81%84%E3%81%AA%E3%81%84\&quot;\u003e問題2: 単語の曖昧性を考慮していない\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%95%8F%E9%A1%8C3-%E5%90%8C%E7%BE%A9%E8%AA%9E%E3%81%A8%E5%AF%BE%E7%BE%A9%E8%AA%9E%E3%82%92%E5%8C%BA%E5%88%A5%E3%81%A7%E3%81%8D%E3%81%AA%E3%81%84\&quot;\u003e問題3: 同義語と対義語を区別できない\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%95%E3%82%89%E3%81%AB%E8%A9%B3%E3%81%97%E3%81%8F%E7%9F%A5%E3%82%8A%E3%81%9F%E3%81%84%E4%BA%BA%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AB\&quot;\u003eさらに詳しく知りたい人のために\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B3%A8%E9%87%88\&quot;\u003e注釈\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E8%B3%87%E6%96%99\&quot;\u003e参考資料\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-33c656d4-8c9f-485e-a171-fb0ab306ab62"></div>
+    <div id="Toc-react-component-33c656d4-8c9f-485e-a171-fb0ab306ab62"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:184,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;a58636f946dd51f670b0&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TetsuyaKimotsuki"><a itemprop="url" href="/TetsuyaKimotsuki"><img alt="TetsuyaKimotsuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/118269/profile-images/1473713871" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="poijasdf"><a itemprop="url" href="/poijasdf"><img alt="poijasdf" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/d4416cdbb7b2d1865a0967fbca3b5449" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="maskey2014"><a itemprop="url" href="/maskey2014"><img alt="maskey2014" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60789/profile-images/1473695333" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ghostman"><a itemprop="url" href="/ghostman"><img alt="ghostman" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/3c7faa8a3c2e36b6f39822dc1029164b" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Yasu-umi"><a itemprop="url" href="/Yasu-umi"><img alt="Yasu-umi" class="thumb thumb--xs" src="https://pbs.twimg.com/profile_images/550329366035456000/u947CJIG_normal.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TomokIshii"><a itemprop="url" href="/TomokIshii"><img alt="TomokIshii" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tag1216"><a itemprop="url" href="/tag1216"><img alt="tag1216" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35192/profile-images/1473686636" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ykshr"><a itemprop="url" href="/ykshr"><img alt="ykshr" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/129013/profile-images/1473717414" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Natsuume"><a itemprop="url" href="/Natsuume"><img alt="Natsuume" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/34789/profile-images/1473686487" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="akr-student"><a itemprop="url" href="/akr-student"><img alt="akr-student" class="thumb thumb--xs" src="https://avatars.githubusercontent.com/u/23278106?v=3" /></a></div></div><div class="ArticleFooter__user"><a href="/Hironsan/items/a58636f946dd51f670b0/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/a58636f946dd51f670b0/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/Hironsan/items/a58636f946dd51f670b0.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="なぜ自然言語処理にとって単語の分散表現は重要なのか？ by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/a58636f946dd51f670b0" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="なぜ自然言語処理にとって単語の分散表現は重要なのか？" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/a58636f946dd51f670b0" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/a58636f946dd51f670b0" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/a58636f946dd51f670b0" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:474575,&quot;uuid&quot;:&quot;a58636f946dd51f670b0&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;Hironsan&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-b00f24ac-ed2f-4d46-8d55-9bfeb5213c95"></div>
+    <div id="CommentListContainer-react-component-b00f24ac-ed2f-4d46-8d55-9bfeb5213c95"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="PWySwDJZezuDogIo0Rjm7pIpcvtIlepZiUmFq7Gr/ZofesLgK+63MWfqbBjCmxnD4xXvn4rbgbJT3HRbjfnwOA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/a58636f946dd51f670b0" /><input type="hidden" name="item_uuid" id="item_uuid" value="a58636f946dd51f670b0" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/Hironsan/items/a58636f946dd51f670b0", "id": 474575, "uuid": "a58636f946dd51f670b0" }</script><script class="js-user" type="application/json">{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="P9f23yxsko6LYRhBBzAv2D74cmrTtD8txF5ZfINEfHkdwab/NdtehG8pdnEUs9D1T8TvDhH6VMYey6iMvxZx2w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/a58636f946dd51f670b0" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-60064a257a213198cd13df56dcca54cf.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>
