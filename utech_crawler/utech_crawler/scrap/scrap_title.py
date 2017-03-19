@@ -10,6 +10,7 @@ class ScrapTitle:
                 title_a = soup.find("title")
                 title_w = str(title_a)
                 title_t = title_w.replace("<title>","")
-                self.title = title_t.replace(" - Qiita</title>","")
+                title_b = title_t.replace(" - Qiita</title>","")
+                self.title = title_b.replace(" ","")
         def output(self):
                 return self.title
