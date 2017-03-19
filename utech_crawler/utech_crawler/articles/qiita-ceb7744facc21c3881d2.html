@@ -1,0 +1,413 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>教師なし学習による異常値検知: マハラノビス距離 (理論編) - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="マハラノビス距離に基づく異常値検知について説明をします．
+実装編はこちら
+
+これは，教師なし学習により，データのパタンを学習し，このデータから著しく外れたデータを異常値として検出する方法です．
+マハラノビス距離とは，統計学で用いられる距離を表す手法の1つです．
+似た距離の表す手法としてユークリッド距離がありますね．
+
+
+おさらい
+
+まずはじめにユークリッド距離の説明をしておさらいをしたいと思います．
+ユークリッド距離とは，いわゆる「一般的」な距離を表す手法です．
+ピタゴ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="ss_shopetan" name="twitter:creator" /><meta content="教師なし学習による異常値検知: マハラノビス距離 (理論編) - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/shopetan/items/ceb7744facc21c3881d2" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="&lt;b&gt;マハラノビス距離&lt;/b&gt;に基づく異常値検知について説明をします．
+[実装編はこちら](http://qiita.com/shopetan/items/30f6e0932485c976a946)
+
+これは，教師なし学習により，デー..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="rURXNBKh+Y6wjfAwoBOsB+VVVdi8caPW0WKspk8hJ4dSuwfvo2qdpdBR1oRPXTuzJqcnBnpkGu6wSeA2krJL5w==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"shopetan","type":"items","id":"ceb7744facc21c3881d2"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-a16a729c-3220-481f-bcbe-ded3a3d59424"></div>
+    <div id="HeaderContainer-react-component-a16a729c-3220-481f-bcbe-ded3a3d59424"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">教師なし学習による異常値検知: マハラノビス距離 (理論編)</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="10"><a class="u-link-unstyled TagList__label" href="/tags/%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5%E3%81%A8%E5%A4%89%E5%8C%96%E6%A4%9C%E7%9F%A5"><img alt="異常検知と変化検知" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/e63566a27ee6d48e16cbc4e2bf51bdcc6804cc43/medium.jpg?1440386889" /><span>異常検知と変化検知</span></a></li><li class="TagList__item" data-count="109"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%87%E3%83%BC%E3%82%BF%E5%8F%AF%E8%A6%96%E5%8C%96"><img alt="データ可視化" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/87ea213935898917d64a7230e768b9b50b6319e7/medium.jpg?1483335629" /><span>データ可視化</span></a></li><li class="TagList__item" data-count="264"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%87%E3%83%BC%E3%82%BF%E5%88%86%E6%9E%90"><img alt="データ分析" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>データ分析</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">246</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:246,&quot;uuid&quot;:&quot;ceb7744facc21c3881d2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></li><li class="js-hovercard" data-hovercard-target-name="neka-nat@github"><a itemprop="url" href="/neka-nat@github"><img alt="neka-nat@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14516/profile-images/1473683376" /></a></li><li class="js-hovercard" data-hovercard-target-name="k_tada000"><a itemprop="url" href="/k_tada000"><img alt="k_tada000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64308/profile-images/1473696541" /></a></li><li class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></li><li class="js-hovercard" data-hovercard-target-name="kounoike"><a itemprop="url" href="/kounoike"><img alt="kounoike" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53147/profile-images/1473692969" /></a></li><li class="js-hovercard" data-hovercard-target-name="puriketu99"><a itemprop="url" href="/puriketu99"><img alt="puriketu99" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1630/profile-images/1473683734" /></a></li><li class="js-hovercard" data-hovercard-target-name="T_Shinaji"><a itemprop="url" href="/T_Shinaji"><img alt="T_Shinaji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/65106/profile-images/1473696787" /></a></li><li class="js-hovercard" data-hovercard-target-name="ksomemo"><a itemprop="url" href="/ksomemo"><img alt="ksomemo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6982/profile-images/1473684010" /></a></li><li class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></li><li class="js-hovercard" data-hovercard-target-name="task_woof"><a itemprop="url" href="/task_woof"><img alt="task_woof" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28260/profile-images/1473685166" /></a></li><li><a href="/shopetan/items/ceb7744facc21c3881d2/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/shopetan"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55673/profile-images/1473693754" alt="1473693754" /></a> <a class="u-link-unstyled" href="/shopetan">shopetan</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-09-27T23:10:47+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-09-27">Edited at <time datetime="2015-10-07T15:35:31+09:00" itemprop="dateModified">2015-10-07</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/shopetan/items/ceb7744facc21c3881d2/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">3</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/shopetan/items/ceb7744facc21c3881d2/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(3)</span></a></li><li><a href="/shopetan/items/ceb7744facc21c3881d2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-ceb7744facc21c3881d2" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p><b>マハラノビス距離</b>に基づく異常値検知について説明をします．<br>
+<a href="http://qiita.com/shopetan/items/30f6e0932485c976a946" id="reference-114cb6cd080364a5d9ad">実装編はこちら</a></p>
+
+<p>これは，教師なし学習により，データのパタンを学習し，このデータから著しく外れたデータを異常値として検出する方法です．<br>
+マハラノビス距離とは，統計学で用いられる距離を表す手法の1つです．<br>
+似た距離の表す手法として<b>ユークリッド距離</b>がありますね．</p>
+
+<h1>
+<span id="おさらい" class="fragment"></span><a href="#%E3%81%8A%E3%81%95%E3%82%89%E3%81%84"><i class="fa fa-link"></i></a>おさらい</h1>
+
+<p>まずはじめにユークリッド距離の説明をしておさらいをしたいと思います．<br>
+ユークリッド距離とは，いわゆる「一般的」な距離を表す手法です．<br>
+ピタゴラスの定理で求められることはご存知だと思います．<br>
+簡単に2次元平面で考えると，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{ \displaystyle
+p = (p_1,p_2)
+}
+</pre></div></div>
+
+<p>および，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{ \displaystyle
+q = (q_1,q_2)
+}
+</pre></div></div>
+
+<p>のとき，それらの距離は</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{ \displaystyle
+d(p,q) = \sqrt{(p_1 - q_1)^2 + (p_2 - q_2)^2}
+}
+</pre></div></div>
+
+<p>で求められますね．<br>
+これが一般的な距離計算の手法です．</p>
+
+<h1>
+<span id="マハラノビス距離" class="fragment"></span><a href="#%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2"><i class="fa fa-link"></i></a>マハラノビス距離</h1>
+
+<p>マハラノビス距離は，先程も説明したように，統計学で用いられる距離を表す手法の1つです．<br>
+どういうタイミングで用いられるかというと，<b>多次元のデータが相関を持つ場合に使用される</b>機会が多いです．</p>
+
+<p>仮に，データがn次元の連続ベクトルであるとして，得られたデータ列を，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+ x^m = x_1,x_2,…x_m
+</pre></div></div>
+
+<p>(これらは全てベクトルの集合と考えて下さい)として，</p>
+
+<p>i番目のデータは，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{ 
+  x_i = \left(
+    \begin{array}{c}
+      x_i,_1 \\
+      x_i,_2 \\
+      \vdots \\
+      x_i,_n
+    \end{array}
+  \right)
+}
+</pre></div></div>
+
+<p>と記すとき，その平均値ベクトル</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+μ
+</pre></div></div>
+
+<p>，分散共分散行列</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\sum_{}
+</pre></div></div>
+
+<p>は以下のように求められます．</p>
+
+<p>平均値ベクトル</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{ 
+  μ = \frac{1}{m} \sum_{i=1}^m x_i
+}
+</pre></div></div>
+
+<p>分散共分散行列</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\sum_{} = \frac{1}{m}\sum_{i=1}^m (x_i - μ)(x_i - μ)^{\mathrm{T}}
+</pre></div></div>
+
+<p>そこで，θをしきい値パラメータとして，新しいデータxに対して，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+  θ &lt; \sqrt{(x_i - μ) ^{\mathrm{T}}\sum{}^{-1} (x_i - μ) }
+</pre></div></div>
+
+<p>を満たすならば，xは異常値であると判定します．<br>
+この式の右辺がマハラノビス距離と呼ばれるものです．</p>
+
+<h1>
+<span id="もっとマハラノビス距離" class="fragment"></span><a href="#%E3%82%82%E3%81%A3%E3%81%A8%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2"><i class="fa fa-link"></i></a>もっとマハラノビス距離</h1>
+
+<p>ここで，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\sum_{}
+</pre></div></div>
+
+<p>が単位行列であるときは，ユークリッド距離の2乗が求まります．<br>
+<b>対角行列</b>であるときには，次元ごとのスケールが異なります．<br>
+<b>非対角行列</b>であるときは，これにさらに回転が加わることになります．</p>
+
+<p>下記に示すのは，2次元ベクトル上でのマハラノビス距離に基づく外れ値検出のイメージ図です．<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/55673/06964005-b6f2-2a00-9140-829bfabd4554.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/55673/06964005-b6f2-2a00-9140-829bfabd4554.png" alt="20150704155700.png"></a></p>
+
+<p>これは，プロットされた点が，データ点であり，そのデータ点を覆うように楕円が表示されています．</p>
+
+<p>この楕円の中に含まれていない点が外れ値になります．<br>
+したがって，閾値θは，この楕円の大きさを示すものであり，どの程度許すかによって外れ値の割合が変化してきます．</p>
+
+<h1>
+<span id="ユークリッド距離とマハラノビス距離の違い" class="fragment"></span><a href="#%E3%83%A6%E3%83%BC%E3%82%AF%E3%83%AA%E3%83%83%E3%83%89%E8%B7%9D%E9%9B%A2%E3%81%A8%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2%E3%81%AE%E9%81%95%E3%81%84"><i class="fa fa-link"></i></a>ユークリッド距離とマハラノビス距離の違い</h1>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/55673/b6ef7702-0bec-103e-c5e8-4885784fa8a5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/55673/b6ef7702-0bec-103e-c5e8-4885784fa8a5.png" alt="20150704160419.png"></a></p>
+
+<p>この図を見てもらうのが分かりやすいです．<br>
+ユークリッド距離とマハラノビス距離の違いは，距離を定義する際に，多次元のデータの相関を考慮しているかいないかという点にあります．<br>
+マハラノビス距離において，相関が強い距離の方向とは，実際の距離よりも相対的に短くなるという考え方です．<br>
+ユークリッド距離の場合，距離はx軸，y軸ともに等しい距離になります．<br>
+しかしマハラノビス距離は，x軸，y軸ともに分散で形が定まっています．<br>
+つまり，<b>分散が大きいと，原点からの距離はあまり離れていない</b>と解釈することができますし，<br>
+<b>分散が小さいと，原点からの距離は大きく離れている</b>ということになります．</p>
+
+<h1>
+<span id="もう少し詳しくマハラノビス距離" class="fragment"></span><a href="#%E3%82%82%E3%81%86%E5%B0%91%E3%81%97%E8%A9%B3%E3%81%97%E3%81%8F%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2"><i class="fa fa-link"></i></a>もう少し詳しくマハラノビス距離</h1>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/55673/f194f646-45ec-6b09-dc2d-03500c24c78f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/55673/f194f646-45ec-6b09-dc2d-03500c24c78f.png" alt="20150704160726.png"></a></p>
+
+<p>この図は，原点から楕円が複数にわたって描かれています．<br>
+この楕円の大きさが，異常値の閾値の大きさを示しています．<br>
+閾値が大きいと楕円が大きく，異常値の割合は少なくなります．</p>
+
+<p>楕円の形は分散によって決まるという話をしましたが，この図を山の等高線のようなイメージで解釈してもらっても結構です．<br>
+等高線は，同じ高さにある山の部分をくくっています．<br>
+マハラノビス距離も同じです．<br>
+軸という概念を考えずに，同じ楕円で囲まれた範囲のものが閾値の値になっているという解釈をすれば，円の歪み方にも納得がいくのではないかと思います．</p>
+
+<h1>
+<span id="マハラノビス距離の問題点" class="fragment"></span><a href="#%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2%E3%81%AE%E5%95%8F%E9%A1%8C%E7%82%B9"><i class="fa fa-link"></i></a>マハラノビス距離の問題点</h1>
+
+<p>マハラノビス距離による異常値検出の手法では，平均値ベクトルと分数といった基本概念を通じて異常値の概念を定式化しています．<br>
+しかし，平均値自身は，異常値の影響を大きくウケるため，中央値の考え方を利用して異常値検出を行う方法も提案されていたりします．(ここでは割愛)</p>
+
+<p>また，個人的に重要なのは，この<b>マハラノビス距離を用いた距離計算手法では，boolean値のみのデータは使えません．</b><br>
+(1 or 0 の平均値から，1 or 0の論理値を引いて… という手法になるので，何が起きるかは考えてみてください…)</p>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<ul>
+<li>マハラノビス距離は，距離を一般化したものである．</li>
+<li>マハラノビス距離は，各次元における相関を考慮した距離である．</li>
+</ul>
+
+<p>次回は実装編ということでpythonで実際に<a href="http://qiita.com/shopetan/items/30f6e0932485c976a946">実装</a>を行ってみます．</p>
+<div class="hidden"><form class="js-task-list-update" action="/shopetan/items/ceb7744facc21c3881d2" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="3IHsJfCOSL34OTh5vhKfWaf3dq1or6lt6K4ysdhWvKAjfrz+QUUslpjlHs1RXAjtZAUEc666EFWJhX4hBcXQwA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1444199731" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+&lt;b&gt;マハラノビス距離&lt;/b&gt;に基づく異常値検知について説明をします．
+[実装編はこちら](http://qiita.com/shopetan/items/30f6e0932485c976a946)
+
+これは，教師なし学習により，データのパタンを学習し，このデータから著しく外れたデータを異常値として検出する方法です．
+マハラノビス距離とは，統計学で用いられる距離を表す手法の1つです．
+似た距離の表す手法として&lt;b&gt;ユークリッド距離&lt;/b&gt;がありますね．
+
+# おさらい
+まずはじめにユークリッド距離の説明をしておさらいをしたいと思います．
+ユークリッド距離とは，いわゆる「一般的」な距離を表す手法です．
+ピタゴラスの定理で求められることはご存知だと思います．
+簡単に2次元平面で考えると，
+
+```math
+{ \displaystyle
+p = (p_1,p_2)
+}
+```
+および，
+
+```math
+{ \displaystyle
+q = (q_1,q_2)
+}
+```
+のとき，それらの距離は
+
+```math
+{ \displaystyle
+d(p,q) = \sqrt{(p_1 - q_1)^2 + (p_2 - q_2)^2}
+}
+```
+
+で求められますね．
+これが一般的な距離計算の手法です．
+
+# マハラノビス距離
+マハラノビス距離は，先程も説明したように，統計学で用いられる距離を表す手法の1つです．
+どういうタイミングで用いられるかというと，&lt;b&gt;多次元のデータが相関を持つ場合に使用される&lt;/b&gt;機会が多いです．
+
+仮に，データがn次元の連続ベクトルであるとして，得られたデータ列を，
+
+```math
+ x^m = x_1,x_2,…x_m
+```
+(これらは全てベクトルの集合と考えて下さい)として，
+
+i番目のデータは，
+
+```math
+{ 
+  x_i = \left(
+    \begin{array}{c}
+      x_i,_1 \\
+      x_i,_2 \\
+      \vdots \\
+      x_i,_n
+    \end{array}
+  \right)
+}
+```
+
+と記すとき，その平均値ベクトル
+
+```math
+μ
+```
+，分散共分散行列
+
+```math
+\sum_{}
+```
+
+は以下のように求められます．
+
+平均値ベクトル
+
+```math
+{ 
+  μ = \frac{1}{m} \sum_{i=1}^m x_i
+}
+```
+
+分散共分散行列
+
+```math
+\sum_{} = \frac{1}{m}\sum_{i=1}^m (x_i - μ)(x_i - μ)^{\mathrm{T}}
+```
+
+
+そこで，θをしきい値パラメータとして，新しいデータxに対して，
+
+```math
+  θ &lt; \sqrt{(x_i - μ) ^{\mathrm{T}}\sum{}^{-1} (x_i - μ) }
+```
+
+を満たすならば，xは異常値であると判定します．
+この式の右辺がマハラノビス距離と呼ばれるものです．
+
+# もっとマハラノビス距離
+ここで，
+
+```math
+\sum_{}
+```
+が単位行列であるときは，ユークリッド距離の2乗が求まります．
+&lt;b&gt;対角行列&lt;/b&gt;であるときには，次元ごとのスケールが異なります．
+&lt;b&gt;非対角行列&lt;/b&gt;であるときは，これにさらに回転が加わることになります．
+
+下記に示すのは，2次元ベクトル上でのマハラノビス距離に基づく外れ値検出のイメージ図です．
+![20150704155700.png](https://qiita-image-store.s3.amazonaws.com/0/55673/06964005-b6f2-2a00-9140-829bfabd4554.png)
+
+
+これは，プロットされた点が，データ点であり，そのデータ点を覆うように楕円が表示されています．
+
+この楕円の中に含まれていない点が外れ値になります．
+したがって，閾値θは，この楕円の大きさを示すものであり，どの程度許すかによって外れ値の割合が変化してきます．
+
+# ユークリッド距離とマハラノビス距離の違い
+![20150704160419.png](https://qiita-image-store.s3.amazonaws.com/0/55673/b6ef7702-0bec-103e-c5e8-4885784fa8a5.png)
+
+この図を見てもらうのが分かりやすいです．
+ユークリッド距離とマハラノビス距離の違いは，距離を定義する際に，多次元のデータの相関を考慮しているかいないかという点にあります．
+マハラノビス距離において，相関が強い距離の方向とは，実際の距離よりも相対的に短くなるという考え方です．
+ユークリッド距離の場合，距離はx軸，y軸ともに等しい距離になります．
+しかしマハラノビス距離は，x軸，y軸ともに分散で形が定まっています．
+つまり，&lt;b&gt;分散が大きいと，原点からの距離はあまり離れていない&lt;/b&gt;と解釈することができますし，
+&lt;b&gt;分散が小さいと，原点からの距離は大きく離れている&lt;/b&gt;ということになります．
+
+# もう少し詳しくマハラノビス距離
+![20150704160726.png](https://qiita-image-store.s3.amazonaws.com/0/55673/f194f646-45ec-6b09-dc2d-03500c24c78f.png)
+
+この図は，原点から楕円が複数にわたって描かれています．
+この楕円の大きさが，異常値の閾値の大きさを示しています．
+閾値が大きいと楕円が大きく，異常値の割合は少なくなります．
+
+楕円の形は分散によって決まるという話をしましたが，この図を山の等高線のようなイメージで解釈してもらっても結構です．
+等高線は，同じ高さにある山の部分をくくっています．
+マハラノビス距離も同じです．
+軸という概念を考えずに，同じ楕円で囲まれた範囲のものが閾値の値になっているという解釈をすれば，円の歪み方にも納得がいくのではないかと思います．
+
+# マハラノビス距離の問題点
+マハラノビス距離による異常値検出の手法では，平均値ベクトルと分数といった基本概念を通じて異常値の概念を定式化しています．
+しかし，平均値自身は，異常値の影響を大きくウケるため，中央値の考え方を利用して異常値検出を行う方法も提案されていたりします．(ここでは割愛)
+
+また，個人的に重要なのは，この&lt;b&gt;マハラノビス距離を用いた距離計算手法では，boolean値のみのデータは使えません．&lt;/b&gt;
+(1 or 0 の平均値から，1 or 0の論理値を引いて… という手法になるので，何が起きるかは考えてみてください…)
+
+# まとめ
+
++ マハラノビス距離は，距離を一般化したものである．
++ マハラノビス距離は，各次元における相関を考慮した距離である．
+
+次回は実装編ということでpythonで実際に[実装](http://qiita.com/shopetan/items/30f6e0932485c976a946)を行ってみます．
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="教師なし学習による異常値検知: マハラノビス距離 (理論編) by @ss_shopetan on @Qiita" data-url="http://qiita.com/shopetan/items/ceb7744facc21c3881d2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="教師なし学習による異常値検知: マハラノビス距離 (理論編)" href="http://b.hatena.ne.jp/entry/http://qiita.com/shopetan/items/ceb7744facc21c3881d2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shopetan/items/ceb7744facc21c3881d2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shopetan/items/ceb7744facc21c3881d2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/shopetan"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/55673/profile-images/1473693754" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/shopetan">shopetan</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">636</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;shopetan&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-5f95a6f2-1b8f-4043-bb31-50ab31d0a97f"></div>
+    <div id="UserFollowButton-react-component-5f95a6f2-1b8f-4043-bb31-50ab31d0a97f"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shopetan/items/58a62a366aac4f5faa20">Node.js + Express 4.x + MongoDB(Mongoose)でRESTfulなjsonAPIサーバの作成を丁寧に解説する．+ テストクライアントを用いたAPIテストまで</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shopetan/items/ceb7744facc21c3881d2">教師なし学習による異常値検知: マハラノビス距離 (理論編)</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shopetan/items/30f6e0932485c976a946">教師なし学習による異常値検知: マハラノビス距離 (実装編)</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shopetan/items/eddcacec21cc7ea274f9">Golangで自分自身で定義したパッケージをインポートする方法あれこれ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shopetan/items/b2e890c0e54d3cd6a8f5">Sequelizeのerror(),success()はもう死んでいる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%81%95%E3%82%89%E3%81%84\&quot;\u003eおさらい\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2\&quot;\u003eマハラノビス距離\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%82%E3%81%A3%E3%81%A8%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2\&quot;\u003eもっとマハラノビス距離\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A6%E3%83%BC%E3%82%AF%E3%83%AA%E3%83%83%E3%83%89%E8%B7%9D%E9%9B%A2%E3%81%A8%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2%E3%81%AE%E9%81%95%E3%81%84\&quot;\u003eユークリッド距離とマハラノビス距離の違い\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%82%E3%81%86%E5%B0%91%E3%81%97%E8%A9%B3%E3%81%97%E3%81%8F%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2\&quot;\u003eもう少し詳しくマハラノビス距離\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9E%E3%83%8F%E3%83%A9%E3%83%8E%E3%83%93%E3%82%B9%E8%B7%9D%E9%9B%A2%E3%81%AE%E5%95%8F%E9%A1%8C%E7%82%B9\&quot;\u003eマハラノビス距離の問題点\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-f862233b-33f2-45f7-9ff8-1503d92fd48e"></div>
+    <div id="Toc-react-component-f862233b-33f2-45f7-9ff8-1503d92fd48e"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:246,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;ceb7744facc21c3881d2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="neka-nat@github"><a itemprop="url" href="/neka-nat@github"><img alt="neka-nat@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14516/profile-images/1473683376" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="k_tada000"><a itemprop="url" href="/k_tada000"><img alt="k_tada000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64308/profile-images/1473696541" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kounoike"><a itemprop="url" href="/kounoike"><img alt="kounoike" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53147/profile-images/1473692969" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="puriketu99"><a itemprop="url" href="/puriketu99"><img alt="puriketu99" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1630/profile-images/1473683734" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="T_Shinaji"><a itemprop="url" href="/T_Shinaji"><img alt="T_Shinaji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/65106/profile-images/1473696787" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ksomemo"><a itemprop="url" href="/ksomemo"><img alt="ksomemo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6982/profile-images/1473684010" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="task_woof"><a itemprop="url" href="/task_woof"><img alt="task_woof" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28260/profile-images/1473685166" /></a></div></div><div class="ArticleFooter__user"><a href="/shopetan/items/ceb7744facc21c3881d2/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/ceb7744facc21c3881d2/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/shopetan/items/ceb7744facc21c3881d2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/shopetan/items/30f6e0932485c976a946#_reference-dfd93aec9624e7e18282"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/55673/profile-images/1473693754" />教師なし学習による異常値検知: マハラノビス距離 (実装編)</a><time class="references_datetime js-dateTimeView" datetime="2015-10-01T08:40:24+00:00">over 1 year ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="教師なし学習による異常値検知: マハラノビス距離 (理論編) by @ss_shopetan on @Qiita" data-url="http://qiita.com/shopetan/items/ceb7744facc21c3881d2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="教師なし学習による異常値検知: マハラノビス距離 (理論編)" href="http://b.hatena.ne.jp/entry/http://qiita.com/shopetan/items/ceb7744facc21c3881d2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shopetan/items/ceb7744facc21c3881d2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shopetan/items/ceb7744facc21c3881d2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/shopetan\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;shopetan\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;shopetan\&quot;\u003e@shopetan\u003c/a\u003e 記事ありがとうございます！勉強不足で申し訳ないのですが2つほどご質問が...\u003cbr\u003e\n\&quot;マハラノビス距離の問題点\&quot;の部分の中央値を利用した異常値検出とは、Hampel identifierの話でしょうか？その場合、中央値などでマハラノビス距離の表式中の平均・分散行列を置き換えるということで合っていますでしょうか？\u003c/p\u003e\n\n\u003cp\u003eお時間があればご回答いただけると幸いです。どうぞよろしくお願いいたします!\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-11T13:52:59+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:510606,&quot;is_team&quot;:false,&quot;item_id&quot;:331520,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;ceb7744facc21c3881d2&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@shopetan 記事ありがとうございます！勉強不足で申し訳ないのですが2つほどご質問が...\n\&quot;マハラノビス距離の問題点\&quot;の部分の中央値を利用した異常値検出とは、Hampel identifierの話でしょうか？その場合、中央値などでマハラノビス距離の表式中の平均・分散行列を置き換えるということで合っていますでしょうか？\n\nお時間があればご回答いただけると幸いです。どうぞよろしくお願いいたします!\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/shopetan/items/ceb7744facc21c3881d2#comment-887263bd7218ef6aa9be&quot;,&quot;user&quot;:{&quot;contribution&quot;:165,&quot;created_at&quot;:&quot;2013-04-16T09:35:32+09:00&quot;,&quot;id&quot;:19990,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/19990/profile-images/1479444464&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;sshojiro&quot;},&quot;uuid&quot;:&quot;887263bd7218ef6aa9be&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:331520,&quot;uuid&quot;:&quot;ceb7744facc21c3881d2&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;shopetan&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:55673,&quot;url_name&quot;:&quot;shopetan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/55673/profile-images/1473693754&quot;},{&quot;id&quot;:19990,&quot;url_name&quot;:&quot;sshojiro&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/19990/profile-images/1479444464&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-32654d13-b27b-460c-8078-4767dc50969a"></div>
+    <div id="CommentListContainer-react-component-32654d13-b27b-460c-8078-4767dc50969a"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="WI6/+14LLeI78K31NQ6NUH+k5dJwX9EwHLpquhjvttmnce8g78BJyVssi0HaQBrkvFaXDLZKaAh9kSYqxXzauQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shopetan/items/ceb7744facc21c3881d2" /><input type="hidden" name="item_uuid" id="item_uuid" value="ceb7744facc21c3881d2" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/shopetan/items/ceb7744facc21c3881d2", "id": 331520, "uuid": "ceb7744facc21c3881d2" }</script><script class="js-user" type="application/json">{&quot;id&quot;:55673,&quot;url_name&quot;:&quot;shopetan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/55673/profile-images/1473693754&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="NhjBWenc9j7M6yaiDJBQtLbn9Rl2fCzFmULsQj9qsmrJ55GCWBeSFaw3ABbj3scAdRWHx7Bplf34aaDS4vneCg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shopetan/items/ceb7744facc21c3881d2" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

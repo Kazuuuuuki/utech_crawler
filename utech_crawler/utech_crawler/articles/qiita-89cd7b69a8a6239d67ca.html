@@ -1,0 +1,422 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>LSTMネットワークの概要 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Christopher Olah氏のブログ記事
+http://colah.github.io/posts/2015-08-Understanding-LSTMs/
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+
+
+
+リカレントニューラルネットワーク
+
+人間は毎秒ゼロから思考を開始することはありません。このエッセイを読んでいる間、あなたは前の単語の理解に基づいて、各単語を理解します。すべてを捨てて、またゼロから思考を開始してはいません。あなたの思考は持続..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="KojiOhki" name="twitter:creator" /><meta content="LSTMネットワークの概要 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Christopher Olah氏のブログ記事
+http://colah.github.io/posts/2015-08-Understanding-LSTMs/
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+---..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="PNwnFGkXNRdBRtjg8bKde8sp4eBvmtypfq7kmpFDqk0i7WCIx8i5adXgkYtwExha+ckG6dVl85N4KYcdMiz8Yw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"KojiOhki","type":"items","id":"89cd7b69a8a6239d67ca"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-abd5afb4-b9db-4b67-a1b7-f73f2ffa5786"></div>
+    <div id="HeaderContainer-react-component-abd5afb4-b9db-4b67-a1b7-f73f2ffa5786"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">LSTMネットワークの概要</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">366</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="6 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>6</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:366,&quot;uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="kmiyachi1024"><a itemprop="url" href="/kmiyachi1024"><img alt="kmiyachi1024" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15046/profile-images/1473683626" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="hoxo_m"><a itemprop="url" href="/hoxo_m"><img alt="hoxo_m" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2570/profile-images/1478138583" /></a></li><li class="js-hovercard" data-hovercard-target-name="akiraa"><a itemprop="url" href="/akiraa"><img alt="akiraa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/85927/profile-images/1473703582" /></a></li><li class="js-hovercard" data-hovercard-target-name="yeto"><a itemprop="url" href="/yeto"><img alt="yeto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26992/profile-images/1473759809" /></a></li><li class="js-hovercard" data-hovercard-target-name="dkt"><a itemprop="url" href="/dkt"><img alt="dkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/89459/profile-images/1473704760" /></a></li><li class="js-hovercard" data-hovercard-target-name="dubsadara"><a itemprop="url" href="/dubsadara"><img alt="dubsadara" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/95833/profile-images/1473706695" /></a></li><li class="js-hovercard" data-hovercard-target-name="suesh32@github"><a itemprop="url" href="/suesh32@github"><img alt="suesh32@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21498/profile-images/1473683347" /></a></li><li class="js-hovercard" data-hovercard-target-name="hogefugabar"><a itemprop="url" href="/hogefugabar"><img alt="hogefugabar" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" /></a></li><li class="js-hovercard" data-hovercard-target-name="murataR"><a itemprop="url" href="/murataR"><img alt="murataR" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106926/profile-images/1473710084" /></a></li><li><a href="/KojiOhki/items/89cd7b69a8a6239d67ca/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/KojiOhki"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" alt="1473684259" /></a> <a class="u-link-unstyled" href="/KojiOhki">KojiOhki</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-01-08T18:22:20+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-01-08">Edited at <time datetime="2016-12-05T15:03:45+09:00" itemprop="dateModified">2016-12-05</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/KojiOhki/items/89cd7b69a8a6239d67ca/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">3</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/KojiOhki/items/89cd7b69a8a6239d67ca/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(3)</span></a></li><li><a href="/KojiOhki/items/89cd7b69a8a6239d67ca.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-89cd7b69a8a6239d67ca" itemprop="articleBody"><p>Christopher Olah氏のブログ記事<br>
+<a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/" class="autolink" rel="nofollow noopener" target="_blank">http://colah.github.io/posts/2015-08-Understanding-LSTMs/</a><br>
+の翻訳です。<br>
+翻訳の誤りなどあればご指摘お待ちしております。</p>
+
+<hr>
+
+<h2>
+<span id="リカレントニューラルネットワーク" class="fragment"></span><a href="#%E3%83%AA%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF"><i class="fa fa-link"></i></a>リカレントニューラルネットワーク</h2>
+
+<p>人間は毎秒ゼロから思考を開始することはありません。このエッセイを読んでいる間、あなたは前の単語の理解に基づいて、各単語を理解します。すべてを捨てて、またゼロから思考を開始してはいません。あなたの思考は持続性を持っています。</p>
+
+<p>従来のニューラルネットワークは、これを行うことができません、それは主要な欠点のように思えます。たとえば、映画の中の各時点でどのような種類の出来事が起こっているかを分類したいと想像してください。従来のニューラルネットワークが、映画の前の出来事についての推論を後のものに教えるためにどのように使用できるかは不明です。</p>
+
+<p>リカレントニューラルネットワークは、この問題に対処します。それは内部にループを持ち、情報を持続させることができるネットワークです。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-rolled.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-rolled.png" alt="図"></a><br>
+<strong>リカレントニューラルネットワークはループを持つ</strong></p>
+
+<p>上の図で、ニューラルネットワークのかけら、 $A$ は、入力 $x_t$ を見て、値 $h_t$ を出力します。ループは、情報をネットワークの１ステップから次のステップに渡すことを可能にします。</p>
+
+<p>このようなループにより、リカレントニューラルネットワークは不可解なものに思われます。しかし、もう少し考えると、それが通常のニューラルネットワークとそれほど違いがないことが判ります。リカレントニューラルネットワークは、同じネットワークの複数のコピーであり、それぞれが後続のネットワークにメッセージを渡すと考えることができます。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-unrolled.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-unrolled.png" alt="図"></a><br>
+<strong>展開されたリカレントニューラルネットワーク</strong></p>
+
+<p>この鎖状の性質は、リカレントニューラルネットワークが配列やリストに密に関連していることを明らかにします。それは、このようなデータに使用するための自然なアーキテクチャです。</p>
+
+<p>そして、それは確かに使用されています！ここ数年、さまざまな問題にRNNが適用され、信じられないほどの成功がありました：音声認識、言語モデリング、翻訳、画像キャプション…リストは続きます。RNNにより達成することができる、驚くべき偉業に関する議論は、 Andrej Karpathy の優れたブログ記事、<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/" rel="nofollow noopener" target="_blank">リカレントニューラルネットワークの理不尽な効力</a>に託します。でも、それらは本当にかなり素晴らしいです。</p>
+
+<p>これらの成功に欠かせないことに、「LSTM」の使用があります。LSTMは非常に特別な種類のリカレントニューラルネットワークであり、多くのタスクにおいて、標準バージョンよりもはるかに優れた働きをします。リカレントニューラルネットワークに基づくほぼすべてのエキサイティングな結果は、これを用いて達成されています。このエッセイが探求するのは、これらLSTMです。</p>
+
+<h2>
+<span id="長期依存性の問題" class="fragment"></span><a href="#%E9%95%B7%E6%9C%9F%E4%BE%9D%E5%AD%98%E6%80%A7%E3%81%AE%E5%95%8F%E9%A1%8C"><i class="fa fa-link"></i></a>長期依存性の問題</h2>
+
+<p>RNNのアピールの１つは、前のビデオ・フレームの使用が現在のフレームの理解を助けるように、前の情報を現在のタスクに関係づけることができるというアイデアです。RNNにこれができれば、RNNはとても役に立つでしょう。しかし、できるでしょうか？それは場合によります。</p>
+
+<p>時おり、私たちは現在のタスクを実行するのに、最新の情報を見てする必要があります。例えば、言語モデルが、以前の単語に基づいて、次の単語の予測を行うと考えてください。「the clouds are in the sky,」の最後の単語を予測する場合、これ以外のコンテキストを必要としません、次の単語が sky になることはかなり明白です。このように関連する情報とそれを必要とする場所のギャップが小さい場合、RNNは過去の情報を利用することを学習することができます。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-shorttermdepdencies.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-shorttermdepdencies.png" alt="図"></a></p>
+
+<p>しかし、より多くのコンテキストを必要とする場合もあります。テキスト「 I grew up in France… I speak fluent French. 」の最後の単語の予測を試みると考えてみましょう。直近の情報は、次の単語がおそらく言語の名前であることを示唆していますが、どの言語か絞り込みたい場合、さらに後ろから、 France のコンテキストを必要とします。関連する情報とそれを必要とする場所のギャップが非常に大きくなることも十分あり得ます。</p>
+
+<p>残念ながら、ギャップが大きくなるに従い、RNNは情報を関連づけて学習することができなくなります。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-longtermdependencies.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-longtermdependencies.png" alt="図"></a></p>
+
+<p>理論上、RNNはこのような「長期の依存性」を取り扱うことが十分できます。この形式の例題（toy problems）を解決するために、人が慎重にパラメータを選ぶことはできます。悲しいことに、実際には、RNNがそれを学習できるようにはならないようです。この問題は <a href="http://people.idsia.ch/%7Ejuergen/SeppHochreiter1991ThesisAdvisorSchmidhuber.pdf" rel="nofollow noopener" target="_blank">Hochreiter (1991) [ドイツ語]</a> と  <a href="http://www-dsi.ing.unifi.it/%7Epaolo/ps/tnn-94-gradient.pdf" rel="nofollow noopener" target="_blank">Bengio, et al. (1994)</a> により徹底的に調査され、それが難しいいくつかのかなり基本的な理由が見つかりました。</p>
+
+<p>ありがたいことに、LSTMにはこの問題がありません。</p>
+
+<h2>
+<span id="lstmネットワーク" class="fragment"></span><a href="#lstm%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF"><i class="fa fa-link"></i></a>LSTMネットワーク</h2>
+
+<p>Long Short Term Memory ネットワークは、通常は「LSTM」と呼ばれ、長期的な依存関係を学習することのできる、RNNの特別な一種です。これらは <a href="http://deeplearning.cs.cmu.edu/pdfs/Hochreiter97_lstm.pdf" rel="nofollow noopener" target="_blank">Hochreiter &amp; Schmidhuber（1997）</a> により導入され、後続の研究<sup id="fnref1"><a href="#fn1" rel="footnote" title="原著者に加えて、多くの人がモダンLSTMに貢献しました。非包括的なリストは、次のとおりです：Felix Gers 、 Fred Cummins 、 Santiago Fernandez 、 Justin Bayer 、 Daan Wierstra 、 Julian Togelius 、 Faustian Gomez 、 Matteo Gagliolo 、 Alex Graves">1</a></sup>で多くの人々によって洗練され、広められました。それは多種多様な問題にものすごくよく動作し、現在では広く使用されています。</p>
+
+<p>LSTMは長期の依存性の問題を回避するように明示的に設計されています。長時間の情報を記憶することは実質的にそのデフォルトの動作であり、学習するのに苦労はありません！</p>
+
+<p>すべてのリカレントニューラルネットワークは、ニューラルネットワークのモジュールを繰り返す、鎖状をしています。標準のRNNでは、この繰り返しモジュールは、単一の tanh 層という、非常に単純な構造を持ちます。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-SimpleRNN.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-SimpleRNN.png" alt="図"></a><br>
+<strong>標準RNNの繰り返しモジュールは単一の層を含む</strong></p>
+
+<p>LSTMもまたこの鎖のような構造を持ちますが、繰り返しモジュールは異なる構造を持ちます。単一のニューラルネットワーク層ではなく、非常に特別な方法で相互作用する、４つの層を持ちます。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png" alt="図"></a><br>
+<strong>LSTMの繰り返しモジュールは4つの相互作用する層を含む</strong></p>
+
+<p>詳細については心配しないでください。後に一歩一歩LSTMの図を見ていきます。今のところは、後で使用する表記を覚えておきましょう。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM2-notation.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM2-notation.png" alt="図"></a></p>
+
+<p>上の図で、それぞれの線は、ベクトル全体を、一つのノードの出力から他のノードの入力に運びます。ピンクの円は、ベクトルの加算のような、一点の操作を表し、黄色のボックスは、学習されるニューラルネットワークの層です。合流している線は連結を意味し、分岐している線は内容がコピーされ、そのコピーが別の場所に行くことを意味します。</p>
+
+<h2>
+<span id="lstmの中心的アイデア" class="fragment"></span><a href="#lstm%E3%81%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E3%82%A2%E3%82%A4%E3%83%87%E3%82%A2"><i class="fa fa-link"></i></a>LSTMの中心的アイデア</h2>
+
+<p>LSTMの鍵は、セル状態、図の上部を通る水平線です。</p>
+
+<p>セル状態は一種のコンベア・ベルトのようなものです。それはいくつかのマイナーな線形相互作用のみを伴い、鎖全体をまっすぐに走ります。情報は不変で、それに沿って流れることは非常に簡単です。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-C-line.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-C-line.png" alt="図"></a></p>
+
+<p>LSTMは、セル状態に対し情報を削除したり追加する機能を持っています。この操作はゲートと呼ばれる構造によりしっかり制御されます。</p>
+
+<p>ゲートは選択的に情報を通す方法です。これはシグモイド・ニューラルネット層と一点の乗算により構成されます。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-gate.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-gate.png" alt="図"></a></p>
+
+<p>シグモイド層は0から1までの数値を出力します。この数値は各コンポーネントをどの程度通すべきかを表します。0は「何も通さない」を、1は「全てを通す」を意味します！</p>
+
+<p>LSTMは、セル状態を保護し、制御するために、このようなゲートを３つ持ちます。</p>
+
+<h2>
+<span id="ステップバイステップlstmウォークスルー" class="fragment"></span><a href="#%E3%82%B9%E3%83%86%E3%83%83%E3%83%97%E3%83%90%E3%82%A4%E3%82%B9%E3%83%86%E3%83%83%E3%83%97lstm%E3%82%A6%E3%82%A9%E3%83%BC%E3%82%AF%E3%82%B9%E3%83%AB%E3%83%BC"><i class="fa fa-link"></i></a>ステップ・バイ・ステップLSTMウォークスルー</h2>
+
+<p>LSTMの最初のステップは、セル状態から捨てる情報を判定することです。この判定は「忘却ゲート層」と呼ばれるシグモイド層によって行われます。それは、 $h_{t-1}$ と $x_t$ を見て、セル状態 $C_{t-1}$ の中の各数値のために $0$ と $1$ の間の数値を出力します。 $1$ は「完全に維持する」を表し、 $0$ は「完全に取り除く」を表します。</p>
+
+<p>では、前のすべての単語に基づいて次の単語を予測する、言語モデルの例に戻りましょう。このような問題では、正しい代名詞を使用するために、セル状態は現在の主語の性別を含むかもしれません。新しい主語を見るときには、古い主語の性別は忘れたいです。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-f.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-f.png" alt="図"></a></p>
+
+<p>次のステップは、セル状態で保存する新たな情報を判定することです。これには2つの部分があります。まず、「入力ゲート層」と呼ばれるシグモイド層は、どの値を更新するかを判定します。次に、 tanh 層は、セル状態に加えられる新たな候補値のベクトル $\tilde{C}_t$ を作成します。次のステップでは、状態を更新するために、これら2つを組み合わせます。</p>
+
+<p>言語モデルの例では、忘れようとしている古いものを置き換えるために、セル状態に新たな主語の性別を追加したいです。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-i.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-i.png" alt="図"></a></p>
+
+<p>そして、古いセル状態 $C_{t-1}$ から新しいセル状態 $C_t$ に更新します。何をするべきかについては前のステップですでに判定しました。今、実際にそれをする必要があります。</p>
+
+<p>古い状態に $f_t$ を掛け、さきほど忘れると判定されたものを忘れます。そして、 $i_t*\tilde{C}_t$ を加えます。これは、各状態値を更新すると決定した割合でスケーリングされた、新たな候補値です。</p>
+
+<p>言語モデルの場合、前のステップで判定した通り、ここで実際に古い主語の性別に関する情報を落とし、新たな情報を加えます。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-C.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-C.png" alt="図"></a></p>
+
+<p>最後に、出力するものを判定する必要があります。この出力は、セル状態に基づいて行われますが、フィルタリングされたバージョンになります。まず、シグモイド層を実行します。この層は、セル状態のどの部分を出力するかを判定します。その後、判定された部分のみ出力するため、セル状態に（値を-1と1の間に圧縮するために） $tanh$ を適用し、それにシグモイド・ゲートの出力を掛けます。</p>
+
+<p>言語モデルの例では、主語を見たとき、動詞が次に来る場合には、動詞に関連する情報を出力することを求められるかもしれません。例えば、主語が単数か複数かを出力するかもしれません。動詞が後につづく場合、どの活用形であるべきかわかるためです。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-o.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-o.png" alt="図"></a></p>
+
+<h2>
+<span id="lstmのバリエーション" class="fragment"></span><a href="#lstm%E3%81%AE%E3%83%90%E3%83%AA%E3%82%A8%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3"><i class="fa fa-link"></i></a>LSTMのバリエーション</h2>
+
+<p>これまで説明してきたのは、かなりノーマルなLSTMです。でも、すべてのLSTMが上記と同じではありません。実際には、LSTMを含むほぼすべての論文は、わずかに異なるバージョンを使用しているようです。違いは軽微なものですが、いくつかについて言及する価値があります。</p>
+
+<p><a rel="nofollow noopener" target="_blank">Gers &amp; Schmidhuber (2000)</a> により導入された、一般的なLSTMのバリエーションの一つは、「のぞき穴の結合」を加えています。これは、ゲート層にセル状態を見させることを意味します。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-peepholes.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-peepholes.png" alt="図"></a></p>
+
+<p>上の図ではすべてのゲートにのぞき穴が追加されていますが、多くの論文では、いくつかにはのぞき穴を与え、他のものには与えません。</p>
+
+<p>別のバリエーションでは、忘却ゲートと入力ゲートを組み合わせて使用します。何を忘れ、新しい情報を何に加えるべきかを別々に判定する代わりに、これらの判定を同時に行います。その場所に何かを入力するときのみ、忘却します。古いものを忘れたときのみ、状態に新しい値を入力します。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-tied.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-tied.png" alt="図"></a></p>
+
+<p>LSTMのもう少し劇的なバリエーションは、 <a href="http://arxiv.org/pdf/1406.1078v3.pdf" rel="nofollow noopener" target="_blank">Cho, et al. (2014)</a> により導入された、 Gated Recurrent Unit 、あるいはGRUです。これは忘却ゲートと入力ゲートを単一の「更新ゲート」に組み合わせます。また、セル状態と隠れ状態をマージし、他のいくつかの変更を加えます。結果として得られるモデルは、標準的なLSTMモデルよりもシンプルであり、ますます一般的になってきています。</p>
+
+<p><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png" alt="図"></a></p>
+
+<p>これらは、最も注目すべきLSTMのバリエーションのほんの一部です。他にも、 <a href="http://arxiv.org/pdf/1508.03790v2.pdf" rel="nofollow noopener" target="_blank">Yao, et al. (2015)</a> による Depth Gated RNNs などがあります。また、長期の依存性に取り組むまったく異なるアプローチ、 <a href="http://arxiv.org/pdf/1402.3511v1.pdf" rel="nofollow noopener" target="_blank">Koutnik, et al. (2014)</a> による Clockwork RNNs などもあります。</p>
+
+<p>これらのバリエーションのうちどれがベストでしょうか？違いは重要でしょうか？ <a href="http://arxiv.org/pdf/1503.04069.pdf" rel="nofollow noopener" target="_blank">Greff, et al. (2015)</a> は、ポピュラーなバリエーションのすばらしい比較を行い、それらすべてがほぼ同じだと結論づけました。 <a href="http://jmlr.org/proceedings/papers/v37/jozefowicz15.pdf" rel="nofollow noopener" target="_blank">Jozefowicz, et al. (2015)</a> は、１万以上のRNNのアーキテクチャをテストし、その一部は特定のタスクにおいてはLSTMよりも良いと結論づけました。</p>
+
+<h2>
+<span id="結論" class="fragment"></span><a href="#%E7%B5%90%E8%AB%96"><i class="fa fa-link"></i></a>結論</h2>
+
+<p>さきほど、人々がRNNで達成した顕著な成果を述べました。基本的にこれらのすべてがLSTMを使用して達成されます。それはほとんどのタスクにおいて本当に多くの良い働きをします！</p>
+
+<p>一連の方程式として書かれると、LSTMはかなり威圧的に見えます。このエッセイで一歩一歩見ていくことで、それがもう少し親しみやすくなっていれば幸いです。</p>
+
+<p>LSTMは、RNNで達成することができるものにおける大きな一歩でした。以下の疑問は自然です：ほかに大きな一歩はありますか？研究者の間で共通の意見は次のとおりです：「はい！次の一歩があり、それはアテンションです！」。そのアイデアは、RNNのすべてのステップが、情報のいくつかの大きなコレクションから、見るために情報を摘まめるようにするというものです。たとえば、画像を説明するキャプションを作成するためにRNNを使用する場合、出力する単語ごとに、見るために画像の一部を摘まむかもしれません。実際、 <a href="http://arxiv.org/pdf/1502.03044v2.pdf" rel="nofollow noopener" target="_blank">Xu, et al. (2015)</a> は、まさにこれを行いました、アテンションを知りたい場合、それは楽しい出発点かもしれません！アテンションを使用した、いくつかの本当にエキサイティングな結果があり、角を曲がればさらにたくさんあるように思われます…</p>
+
+<p>アテンションはRNN研究の唯一のエキサイティングな糸ではありません。たとえば、 <a href="http://arxiv.org/pdf/1507.01526v1.pdf" rel="nofollow noopener" target="_blank">Kalchbrenner, et al. (2015)</a> によるGrid LSTMは、非常に有望に思えます。生成モデルにRNNを使用した研究（ <a href="http://arxiv.org/pdf/1502.04623.pdf" rel="nofollow noopener" target="_blank">Gregor, et al. (2015)</a> 、 <a href="http://arxiv.org/pdf/1506.02216v3.pdf" rel="nofollow noopener" target="_blank">Chung, et al. (2015)</a> 、 <a href="http://arxiv.org/pdf/1411.7610v3.pdf" rel="nofollow noopener" target="_blank">Bayer &amp; Osendorfer (2015)</a> など）も、非常に興味深いと思われます。ここ数年は、リカレントニューラルネットワークにとってエキサイティングな時間でした。今後もさらにそうであることを約束します！</p>
+
+<h2>
+<span id="謝辞" class="fragment"></span><a href="#%E8%AC%9D%E8%BE%9E"><i class="fa fa-link"></i></a>謝辞</h2>
+
+<p>LSTMをより良く理解する手助けをし、可視化についてコメントし、この記事にフィードバックしてくださった方々に感謝いたします。</p>
+
+<p>有益なフィードバックをくださったGoogleの同僚、特に <a href="http://research.google.com/pubs/OriolVinyals.html" rel="nofollow noopener" target="_blank">Oriol Vinyals</a> 、 <a href="http://research.google.com/pubs/GregCorrado.html" rel="nofollow noopener" target="_blank">Greg Corrado</a> 、 <a href="http://research.google.com/pubs/JonathonShlens.html" rel="nofollow noopener" target="_blank">Jon Shlens</a> 、 <a href="http://people.cs.umass.edu/%7Eluke/" rel="nofollow noopener" target="_blank">Luke Vilnis</a> 、 <a href="http://www.cs.toronto.edu/%7Eilya/" rel="nofollow noopener" target="_blank">Ilya Sutskever</a> に非常に感謝しています。また、<a href="https://www.linkedin.com/pub/dario-amodei/4/493/393" rel="nofollow noopener" target="_blank">Dario Amodei</a> 、 <a href="http://cs.stanford.edu/%7Ejsteinhardt/" rel="nofollow noopener" target="_blank">Jacob Steinhardt</a> を含め、時間を割いて助けてくださった、多くの友人や同僚に感謝します。図について非常に考え深い対応のため、 <a href="http://www.kyunghyuncho.me/" rel="nofollow noopener" target="_blank">Kyunghyun Cho</a> には特に感謝しています。</p>
+
+<p>この投稿以前、私は、ニューラルネットワークを教える2つのセミナー・シリーズの中で、LSTMを説明する練習をしました。忍耐づよく参加し、フィードバックしてくださったみなさまに感謝します。</p>
+
+<hr>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>原著者に加えて、多くの人がモダンLSTMに貢献しました。非包括的なリストは、次のとおりです：Felix Gers 、 Fred Cummins 、 Santiago Fernandez 、 Justin Bayer 、 Daan Wierstra 、 Julian Togelius 、 Faustian Gomez 、 Matteo Gagliolo 、 <a href="https://scholar.google.com/citations?user=DaFHynwAAAAJ&amp;hl=en" rel="nofollow noopener" target="_blank">Alex Graves</a> <a href="#fnref1">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/KojiOhki/items/89cd7b69a8a6239d67ca" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="V3C8JMA9iLk91glhauFs2piDdHBMbW/rDNFZtIPY5olJQfu4buIEx6lwQArrQOn7qmOTefaSQNEKVjozILewpw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1480917825" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Christopher Olah氏のブログ記事
+http://colah.github.io/posts/2015-08-Understanding-LSTMs/
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+---
+
+
+##リカレントニューラルネットワーク
+
+人間は毎秒ゼロから思考を開始することはありません。このエッセイを読んでいる間、あなたは前の単語の理解に基づいて、各単語を理解します。すべてを捨てて、またゼロから思考を開始してはいません。あなたの思考は持続性を持っています。
+
+従来のニューラルネットワークは、これを行うことができません、それは主要な欠点のように思えます。たとえば、映画の中の各時点でどのような種類の出来事が起こっているかを分類したいと想像してください。従来のニューラルネットワークが、映画の前の出来事についての推論を後のものに教えるためにどのように使用できるかは不明です。
+
+リカレントニューラルネットワークは、この問題に対処します。それは内部にループを持ち、情報を持続させることができるネットワークです。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-rolled.png)
+**リカレントニューラルネットワークはループを持つ**
+
+上の図で、ニューラルネットワークのかけら、 $A$ は、入力 $x_t$ を見て、値 $h_t$ を出力します。ループは、情報をネットワークの１ステップから次のステップに渡すことを可能にします。
+
+このようなループにより、リカレントニューラルネットワークは不可解なものに思われます。しかし、もう少し考えると、それが通常のニューラルネットワークとそれほど違いがないことが判ります。リカレントニューラルネットワークは、同じネットワークの複数のコピーであり、それぞれが後続のネットワークにメッセージを渡すと考えることができます。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-unrolled.png)
+**展開されたリカレントニューラルネットワーク**
+
+この鎖状の性質は、リカレントニューラルネットワークが配列やリストに密に関連していることを明らかにします。それは、このようなデータに使用するための自然なアーキテクチャです。
+
+そして、それは確かに使用されています！ここ数年、さまざまな問題にRNNが適用され、信じられないほどの成功がありました：音声認識、言語モデリング、翻訳、画像キャプション…リストは続きます。RNNにより達成することができる、驚くべき偉業に関する議論は、 Andrej Karpathy の優れたブログ記事、[リカレントニューラルネットワークの理不尽な効力](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)に託します。でも、それらは本当にかなり素晴らしいです。
+
+これらの成功に欠かせないことに、「LSTM」の使用があります。LSTMは非常に特別な種類のリカレントニューラルネットワークであり、多くのタスクにおいて、標準バージョンよりもはるかに優れた働きをします。リカレントニューラルネットワークに基づくほぼすべてのエキサイティングな結果は、これを用いて達成されています。このエッセイが探求するのは、これらLSTMです。
+
+##長期依存性の問題
+
+RNNのアピールの１つは、前のビデオ・フレームの使用が現在のフレームの理解を助けるように、前の情報を現在のタスクに関係づけることができるというアイデアです。RNNにこれができれば、RNNはとても役に立つでしょう。しかし、できるでしょうか？それは場合によります。
+
+時おり、私たちは現在のタスクを実行するのに、最新の情報を見てする必要があります。例えば、言語モデルが、以前の単語に基づいて、次の単語の予測を行うと考えてください。「the clouds are in the sky,」の最後の単語を予測する場合、これ以外のコンテキストを必要としません、次の単語が sky になることはかなり明白です。このように関連する情報とそれを必要とする場所のギャップが小さい場合、RNNは過去の情報を利用することを学習することができます。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-shorttermdepdencies.png)
+
+しかし、より多くのコンテキストを必要とする場合もあります。テキスト「 I grew up in France… I speak fluent French. 」の最後の単語の予測を試みると考えてみましょう。直近の情報は、次の単語がおそらく言語の名前であることを示唆していますが、どの言語か絞り込みたい場合、さらに後ろから、 France のコンテキストを必要とします。関連する情報とそれを必要とする場所のギャップが非常に大きくなることも十分あり得ます。
+
+残念ながら、ギャップが大きくなるに従い、RNNは情報を関連づけて学習することができなくなります。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/RNN-longtermdependencies.png)
+
+理論上、RNNはこのような「長期の依存性」を取り扱うことが十分できます。この形式の例題（toy problems）を解決するために、人が慎重にパラメータを選ぶことはできます。悲しいことに、実際には、RNNがそれを学習できるようにはならないようです。この問題は [Hochreiter (1991) [ドイツ語]](http://people.idsia.ch/~juergen/SeppHochreiter1991ThesisAdvisorSchmidhuber.pdf) と  [Bengio, et al. (1994)](http://www-dsi.ing.unifi.it/~paolo/ps/tnn-94-gradient.pdf) により徹底的に調査され、それが難しいいくつかのかなり基本的な理由が見つかりました。
+
+ありがたいことに、LSTMにはこの問題がありません。
+
+##LSTMネットワーク
+
+Long Short Term Memory ネットワークは、通常は「LSTM」と呼ばれ、長期的な依存関係を学習することのできる、RNNの特別な一種です。これらは [Hochreiter &amp; Schmidhuber（1997）](http://deeplearning.cs.cmu.edu/pdfs/Hochreiter97_lstm.pdf) により導入され、後続の研究[^1]で多くの人々によって洗練され、広められました。それは多種多様な問題にものすごくよく動作し、現在では広く使用されています。
+
+LSTMは長期の依存性の問題を回避するように明示的に設計されています。長時間の情報を記憶することは実質的にそのデフォルトの動作であり、学習するのに苦労はありません！
+
+すべてのリカレントニューラルネットワークは、ニューラルネットワークのモジュールを繰り返す、鎖状をしています。標準のRNNでは、この繰り返しモジュールは、単一の tanh 層という、非常に単純な構造を持ちます。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-SimpleRNN.png)
+**標準RNNの繰り返しモジュールは単一の層を含む**
+
+LSTMもまたこの鎖のような構造を持ちますが、繰り返しモジュールは異なる構造を持ちます。単一のニューラルネットワーク層ではなく、非常に特別な方法で相互作用する、４つの層を持ちます。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png)
+**LSTMの繰り返しモジュールは4つの相互作用する層を含む**
+
+詳細については心配しないでください。後に一歩一歩LSTMの図を見ていきます。今のところは、後で使用する表記を覚えておきましょう。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM2-notation.png)
+
+上の図で、それぞれの線は、ベクトル全体を、一つのノードの出力から他のノードの入力に運びます。ピンクの円は、ベクトルの加算のような、一点の操作を表し、黄色のボックスは、学習されるニューラルネットワークの層です。合流している線は連結を意味し、分岐している線は内容がコピーされ、そのコピーが別の場所に行くことを意味します。
+
+##LSTMの中心的アイデア
+LSTMの鍵は、セル状態、図の上部を通る水平線です。
+
+セル状態は一種のコンベア・ベルトのようなものです。それはいくつかのマイナーな線形相互作用のみを伴い、鎖全体をまっすぐに走ります。情報は不変で、それに沿って流れることは非常に簡単です。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-C-line.png)
+
+LSTMは、セル状態に対し情報を削除したり追加する機能を持っています。この操作はゲートと呼ばれる構造によりしっかり制御されます。
+
+ゲートは選択的に情報を通す方法です。これはシグモイド・ニューラルネット層と一点の乗算により構成されます。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-gate.png)
+
+シグモイド層は0から1までの数値を出力します。この数値は各コンポーネントをどの程度通すべきかを表します。0は「何も通さない」を、1は「全てを通す」を意味します！
+
+LSTMは、セル状態を保護し、制御するために、このようなゲートを３つ持ちます。
+
+##ステップ・バイ・ステップLSTMウォークスルー
+
+LSTMの最初のステップは、セル状態から捨てる情報を判定することです。この判定は「忘却ゲート層」と呼ばれるシグモイド層によって行われます。それは、 $h_{t-1}$ と $x_t$ を見て、セル状態 $C_{t-1}$ の中の各数値のために $0$ と $1$ の間の数値を出力します。 $1$ は「完全に維持する」を表し、 $0$ は「完全に取り除く」を表します。
+
+では、前のすべての単語に基づいて次の単語を予測する、言語モデルの例に戻りましょう。このような問題では、正しい代名詞を使用するために、セル状態は現在の主語の性別を含むかもしれません。新しい主語を見るときには、古い主語の性別は忘れたいです。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-f.png)
+
+次のステップは、セル状態で保存する新たな情報を判定することです。これには2つの部分があります。まず、「入力ゲート層」と呼ばれるシグモイド層は、どの値を更新するかを判定します。次に、 tanh 層は、セル状態に加えられる新たな候補値のベクトル $\\tilde{C}_t$ を作成します。次のステップでは、状態を更新するために、これら2つを組み合わせます。
+
+言語モデルの例では、忘れようとしている古いものを置き換えるために、セル状態に新たな主語の性別を追加したいです。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-i.png)
+
+そして、古いセル状態 $C_{t-1}$ から新しいセル状態 $C_t$ に更新します。何をするべきかについては前のステップですでに判定しました。今、実際にそれをする必要があります。
+
+古い状態に $f_t$ を掛け、さきほど忘れると判定されたものを忘れます。そして、 $i_t*\\tilde{C}_t$ を加えます。これは、各状態値を更新すると決定した割合でスケーリングされた、新たな候補値です。
+
+言語モデルの場合、前のステップで判定した通り、ここで実際に古い主語の性別に関する情報を落とし、新たな情報を加えます。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-C.png)
+
+最後に、出力するものを判定する必要があります。この出力は、セル状態に基づいて行われますが、フィルタリングされたバージョンになります。まず、シグモイド層を実行します。この層は、セル状態のどの部分を出力するかを判定します。その後、判定された部分のみ出力するため、セル状態に（値を-1と1の間に圧縮するために） $tanh$ を適用し、それにシグモイド・ゲートの出力を掛けます。
+
+言語モデルの例では、主語を見たとき、動詞が次に来る場合には、動詞に関連する情報を出力することを求められるかもしれません。例えば、主語が単数か複数かを出力するかもしれません。動詞が後につづく場合、どの活用形であるべきかわかるためです。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-focus-o.png)
+
+##LSTMのバリエーション
+これまで説明してきたのは、かなりノーマルなLSTMです。でも、すべてのLSTMが上記と同じではありません。実際には、LSTMを含むほぼすべての論文は、わずかに異なるバージョンを使用しているようです。違いは軽微なものですが、いくつかについて言及する価値があります。
+
+[Gers &amp; Schmidhuber (2000)](ftp://ftp.idsia.ch/pub/juergen/TimeCount-IJCNN2000.pdf) により導入された、一般的なLSTMのバリエーションの一つは、「のぞき穴の結合」を加えています。これは、ゲート層にセル状態を見させることを意味します。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-peepholes.png)
+
+上の図ではすべてのゲートにのぞき穴が追加されていますが、多くの論文では、いくつかにはのぞき穴を与え、他のものには与えません。
+
+別のバリエーションでは、忘却ゲートと入力ゲートを組み合わせて使用します。何を忘れ、新しい情報を何に加えるべきかを別々に判定する代わりに、これらの判定を同時に行います。その場所に何かを入力するときのみ、忘却します。古いものを忘れたときのみ、状態に新しい値を入力します。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-tied.png)
+
+LSTMのもう少し劇的なバリエーションは、 [Cho, et al. (2014)](http://arxiv.org/pdf/1406.1078v3.pdf) により導入された、 Gated Recurrent Unit 、あるいはGRUです。これは忘却ゲートと入力ゲートを単一の「更新ゲート」に組み合わせます。また、セル状態と隠れ状態をマージし、他のいくつかの変更を加えます。結果として得られるモデルは、標準的なLSTMモデルよりもシンプルであり、ますます一般的になってきています。
+
+![図](http://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-var-GRU.png)
+
+これらは、最も注目すべきLSTMのバリエーションのほんの一部です。他にも、 [Yao, et al. (2015)](http://arxiv.org/pdf/1508.03790v2.pdf) による Depth Gated RNNs などがあります。また、長期の依存性に取り組むまったく異なるアプローチ、 [Koutnik, et al. (2014)](http://arxiv.org/pdf/1402.3511v1.pdf) による Clockwork RNNs などもあります。
+
+これらのバリエーションのうちどれがベストでしょうか？違いは重要でしょうか？ [Greff, et al. (2015)](http://arxiv.org/pdf/1503.04069.pdf) は、ポピュラーなバリエーションのすばらしい比較を行い、それらすべてがほぼ同じだと結論づけました。 [Jozefowicz, et al. (2015)](http://jmlr.org/proceedings/papers/v37/jozefowicz15.pdf) は、１万以上のRNNのアーキテクチャをテストし、その一部は特定のタスクにおいてはLSTMよりも良いと結論づけました。
+
+##結論
+さきほど、人々がRNNで達成した顕著な成果を述べました。基本的にこれらのすべてがLSTMを使用して達成されます。それはほとんどのタスクにおいて本当に多くの良い働きをします！
+
+一連の方程式として書かれると、LSTMはかなり威圧的に見えます。このエッセイで一歩一歩見ていくことで、それがもう少し親しみやすくなっていれば幸いです。
+
+LSTMは、RNNで達成することができるものにおける大きな一歩でした。以下の疑問は自然です：ほかに大きな一歩はありますか？研究者の間で共通の意見は次のとおりです：「はい！次の一歩があり、それはアテンションです！」。そのアイデアは、RNNのすべてのステップが、情報のいくつかの大きなコレクションから、見るために情報を摘まめるようにするというものです。たとえば、画像を説明するキャプションを作成するためにRNNを使用する場合、出力する単語ごとに、見るために画像の一部を摘まむかもしれません。実際、 [Xu, et al. (2015)](http://arxiv.org/pdf/1502.03044v2.pdf) は、まさにこれを行いました、アテンションを知りたい場合、それは楽しい出発点かもしれません！アテンションを使用した、いくつかの本当にエキサイティングな結果があり、角を曲がればさらにたくさんあるように思われます…
+
+アテンションはRNN研究の唯一のエキサイティングな糸ではありません。たとえば、 [Kalchbrenner, et al. (2015)](http://arxiv.org/pdf/1507.01526v1.pdf) によるGrid LSTMは、非常に有望に思えます。生成モデルにRNNを使用した研究（ [Gregor, et al. (2015)](http://arxiv.org/pdf/1502.04623.pdf) 、 [Chung, et al. (2015)](http://arxiv.org/pdf/1506.02216v3.pdf) 、 [Bayer &amp; Osendorfer (2015)](http://arxiv.org/pdf/1411.7610v3.pdf) など）も、非常に興味深いと思われます。ここ数年は、リカレントニューラルネットワークにとってエキサイティングな時間でした。今後もさらにそうであることを約束します！
+
+##謝辞
+
+LSTMをより良く理解する手助けをし、可視化についてコメントし、この記事にフィードバックしてくださった方々に感謝いたします。
+
+有益なフィードバックをくださったGoogleの同僚、特に [Oriol Vinyals](http://research.google.com/pubs/OriolVinyals.html) 、 [Greg Corrado](http://research.google.com/pubs/GregCorrado.html) 、 [Jon Shlens](http://research.google.com/pubs/JonathonShlens.html) 、 [Luke Vilnis](http://people.cs.umass.edu/~luke/) 、 [Ilya Sutskever](http://www.cs.toronto.edu/~ilya/) に非常に感謝しています。また、[Dario Amodei](https://www.linkedin.com/pub/dario-amodei/4/493/393) 、 [Jacob Steinhardt](http://cs.stanford.edu/~jsteinhardt/) を含め、時間を割いて助けてくださった、多くの友人や同僚に感謝します。図について非常に考え深い対応のため、 [Kyunghyun Cho](http://www.kyunghyuncho.me/) には特に感謝しています。
+
+この投稿以前、私は、ニューラルネットワークを教える2つのセミナー・シリーズの中で、LSTMを説明する練習をしました。忍耐づよく参加し、フィードバックしてくださったみなさまに感謝します。
+
+[^1]: 原著者に加えて、多くの人がモダンLSTMに貢献しました。非包括的なリストは、次のとおりです：Felix Gers 、 Fred Cummins 、 Santiago Fernandez 、 Justin Bayer 、 Daan Wierstra 、 Julian Togelius 、 Faustian Gomez 、 Matteo Gagliolo 、 [Alex Graves](https://scholar.google.com/citations?user=DaFHynwAAAAJ&amp;hl=en)
+
+---
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="LSTMネットワークの概要 by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="LSTMネットワークの概要" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/KojiOhki"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/KojiOhki">KojiOhki</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1874</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;KojiOhki&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-7df29030-25ba-4c29-b4d2-0f6e5cd6b363"></div>
+    <div id="UserFollowButton-react-component-7df29030-25ba-4c29-b4d2-0f6e5cd6b363"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/89cd7b69a8a6239d67ca">LSTMネットワークの概要</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/af2241027b00f892d2bd">ニューラルネットワーク、多様体、トポロジー</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/ff6ae04d6cf02f1b6edf">TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/64a2ee54214b01a411c7">TensorFlowチュートリアル - 熟練者のためのディープMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/dab6922b6cd7b990c002">TensorFlowチュートリアル - 画像認識（翻訳）</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AA%E3%82%AB%E3%83%AC%E3%83%B3%E3%83%88%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\&quot;\u003eリカレントニューラルネットワーク\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%95%B7%E6%9C%9F%E4%BE%9D%E5%AD%98%E6%80%A7%E3%81%AE%E5%95%8F%E9%A1%8C\&quot;\u003e長期依存性の問題\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\&quot;\u003eLSTMネットワーク\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AE%E4%B8%AD%E5%BF%83%E7%9A%84%E3%82%A2%E3%82%A4%E3%83%87%E3%82%A2\&quot;\u003eLSTMの中心的アイデア\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B9%E3%83%86%E3%83%83%E3%83%97%E3%83%90%E3%82%A4%E3%82%B9%E3%83%86%E3%83%83%E3%83%97lstm%E3%82%A6%E3%82%A9%E3%83%BC%E3%82%AF%E3%82%B9%E3%83%AB%E3%83%BC\&quot;\u003eステップ・バイ・ステップLSTMウォークスルー\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AE%E3%83%90%E3%83%AA%E3%82%A8%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3\&quot;\u003eLSTMのバリエーション\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E8%AB%96\&quot;\u003e結論\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AC%9D%E8%BE%9E\&quot;\u003e謝辞\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-64fe3eed-d1d7-4d96-8a40-e2af0f2989ac"></div>
+    <div id="Toc-react-component-64fe3eed-d1d7-4d96-8a40-e2af0f2989ac"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:366,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kmiyachi1024"><a itemprop="url" href="/kmiyachi1024"><img alt="kmiyachi1024" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15046/profile-images/1473683626" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hoxo_m"><a itemprop="url" href="/hoxo_m"><img alt="hoxo_m" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2570/profile-images/1478138583" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="akiraa"><a itemprop="url" href="/akiraa"><img alt="akiraa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/85927/profile-images/1473703582" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yeto"><a itemprop="url" href="/yeto"><img alt="yeto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26992/profile-images/1473759809" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dkt"><a itemprop="url" href="/dkt"><img alt="dkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/89459/profile-images/1473704760" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dubsadara"><a itemprop="url" href="/dubsadara"><img alt="dubsadara" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/95833/profile-images/1473706695" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="suesh32@github"><a itemprop="url" href="/suesh32@github"><img alt="suesh32@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21498/profile-images/1473683347" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hogefugabar"><a itemprop="url" href="/hogefugabar"><img alt="hogefugabar" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="murataR"><a itemprop="url" href="/murataR"><img alt="murataR" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106926/profile-images/1473710084" /></a></div></div><div class="ArticleFooter__user"><a href="/KojiOhki/items/89cd7b69a8a6239d67ca/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/89cd7b69a8a6239d67ca/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/KojiOhki/items/89cd7b69a8a6239d67ca.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 4 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/komakomako/items/0d138e885bc8ba79c1cd#_reference-299bc8074ab6e3fe585e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/80357/profile-images/1473701762" />【深層学習】再帰ニューラルネットワークに関する良ページまとめ [DW 5日目]</a><time class="references_datetime js-dateTimeView" datetime="2016-05-03T09:36:08+00:00">11 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/komakomako/items/de5077efa344a8689fa0#_reference-d70cb595faa732fedc90"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/80357/profile-images/1473701762" />深層学習で自動作曲（Stacked LSTM編） [DW 6日目]</a><time class="references_datetime js-dateTimeView" datetime="2016-05-05T17:40:47+00:00">11 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/yuyakato/items/ab38064ca215e8750865#_reference-2945d58b4c3ddfe8b5d3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/58479/profile-images/1473694646" />RNNにsin波を学習させて予測してみた</a><time class="references_datetime js-dateTimeView" datetime="2016-05-13T02:30:05+00:00">10 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/waytoa/items/b2757e9dce564d2358b0#_reference-7a89254571a8f419c380"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/27027/profile-images/1473684802" />TensorFlowの&quot;Recurrent Neural Networks&quot;章に関連する日本語記事</a><time class="references_datetime js-dateTimeView" datetime="2016-05-26T01:44:08+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/yukiB/items/f6314d2861fc8d9b739f#_reference-cbcc68cfa1771d1753fe"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/59864/profile-images/1473695058" />TensorFlowのRNNを基本的なモデルで試す</a><time class="references_datetime js-dateTimeView" datetime="2016-05-29T23:58:42+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/YoshikawaMasashi/items/30667e2308fa7345281b#_reference-590f4a4a353c0641bce7"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/128182/profile-images/1473717121" />リカレントニューラルネットワークによる時系列の生成（人工知能が美術や音楽を作るMagenta 翻訳①）</a><time class="references_datetime js-dateTimeView" datetime="2016-07-03T13:32:00+00:00">9 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/yamano357/items/27bb3d39dc8047c46dba#_reference-909f7683d69fa65a5a37"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99957/profile-images/1473707949" />RでKerasを使う（短歌手習い編）</a><time class="references_datetime js-dateTimeView" datetime="2017-01-03T15:39:27+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/jiny2001/items/85af7dd163a63b3a152a#_reference-cba9378a7ed0333fea87"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/12959344?v=3" />Inside of Deep Learning あるいは深層学習は何を変えるのか</a><time class="references_datetime js-dateTimeView" datetime="2017-01-20T18:26:14+00:00">about 2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenchin110100/items/b34f5106d5a211f4c004#_reference-6e21e267e5603c6fd6f2"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/11845307?v=3" />今更ながらchainerでSeq2Seq（1）</a><time class="references_datetime js-dateTimeView" datetime="2017-02-23T12:12:17+00:00">24 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="LSTMネットワークの概要 by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="LSTMネットワークの概要" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eOtはベクトルでhtは外積の結果なのでベクトルでWoは行列とかそういう補足が全ての変数にあれば技術に疎い私にもこの記事の意味が多少はわかると思うのですが。\u003cbr\u003e\n後〇で囲まれたXの意味とかtanhは正規化でしょうか、δの意味とかLSTMウォークスルーで矢印の各部分が数字なのかベクトルなのか行列なのか図に補足が加われば全く理数系の教育を受けてない私でもなんとなく雰囲気掴めそうなのですがどうでしょうか？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-11-16T13:45:09+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:679063,&quot;is_team&quot;:false,&quot;item_id&quot;:360025,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;Otはベクトルでhtは外積の結果なのでベクトルでWoは行列とかそういう補足が全ての変数にあれば技術に疎い私にもこの記事の意味が多少はわかると思うのですが。\n後〇で囲まれたXの意味とかtanhは正規化でしょうか、δの意味とかLSTMウォークスルーで矢印の各部分が数字なのかベクトルなのか行列なのか図に補足が加われば全く理数系の教育を受けてない私でもなんとなく雰囲気掴めそうなのですがどうでしょうか？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca#comment-b9bd651dab6f4a3069a2&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2014-12-17T17:22:10+09:00&quot;,&quot;id&quot;:63291,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63291/profile-images/1473696221&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;horiesiniti&quot;},&quot;uuid&quot;:&quot;b9bd651dab6f4a3069a2&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e後Wf[ht-1,xt]+bf\u003cbr\u003e\nは行列*ベクトル+ベクトルですか？\u003cbr\u003e\nこれをδ()で囲ってますがδは関数でしょうか？\u003cbr\u003e\nすいません、私が無知なだけなのですが印刷して読んでもどうもわからず。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-11-16T14:03:26+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:679087,&quot;is_team&quot;:false,&quot;item_id&quot;:360025,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;後Wf[ht-1,xt]+bf\nは行列*ベクトル+ベクトルですか？\nこれをδ()で囲ってますがδは関数でしょうか？\nすいません、私が無知なだけなのですが印刷して読んでもどうもわからず。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca#comment-0ed7ab570740ae8f7d9d&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2014-12-17T17:22:10+09:00&quot;,&quot;id&quot;:63291,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63291/profile-images/1473696221&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;horiesiniti&quot;},&quot;uuid&quot;:&quot;0ed7ab570740ae8f7d9d&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eご指摘ありがとうございます。\u003cbr\u003e\n図は翻訳元のままですが、たしかに分かりづらいですよね。\u003cbr\u003e\nWo は行列で、矢印で運ばれているものはすべてベクトルです。\u003cbr\u003e\n〇で囲まれた X や + は、ベクトルの要素ごとの積や和をとったベクトルです。\u003cbr\u003e\n数式内でアスタリスク * で表されているものは外積ではなく、〇で囲まれた X と同じく、要素ごとの積です。\u003cbr\u003e\nσ はシグモイド関数（のベクトル版）です。σ も tanh もベクトルの各要素にこれらの関数を適用し、結果もベクトルになります。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-11-16T16:55:36+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:679281,&quot;is_team&quot;:false,&quot;item_id&quot;:360025,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ご指摘ありがとうございます。\n図は翻訳元のままですが、たしかに分かりづらいですよね。\nWo は行列で、矢印で運ばれているものはすべてベクトルです。\n〇で囲まれた X や + は、ベクトルの要素ごとの積や和をとったベクトルです。\n数式内でアスタリスク * で表されているものは外積ではなく、〇で囲まれた X と同じく、要素ごとの積です。\nσ はシグモイド関数（のベクトル版）です。σ も tanh もベクトルの各要素にこれらの関数を適用し、結果もベクトルになります。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca#comment-d5f101ff449faff98207&quot;,&quot;user&quot;:{&quot;contribution&quot;:1874,&quot;created_at&quot;:&quot;2013-05-31T15:50:07+09:00&quot;,&quot;id&quot;:25103,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;KojiOhki&quot;},&quot;uuid&quot;:&quot;d5f101ff449faff98207&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eこういう技術文書は行列やベクトルくらいはわかるが全く知識がない人（私）から専門家にちかい方まで幅広く読むことを想定していると思うので訳注や補足がいただけるのはありがたいことです。\u003cbr\u003e\n返信ありがとうございます。\u003c/p\u003e\n\n\u003cp\u003e技術文書は私から見るとスポーツクライミングに例えることができそうです。\u003c/p\u003e\n\n\u003cp\u003e出来る人は足掛かりや手がかりがすくなくてもひょいひょい登れます、翻訳する人もわかってる人なので足掛かりが少ないことに疑問を持ちません。\u003c/p\u003e\n\n\u003cp\u003eわからない人は足掛かりや手がかりが少なすぎてどう登ればいいか分からないものです。\u003cbr\u003e\n訳注や補足で足掛かりを増やすことはいいことです。\u003cbr\u003e\nただわかりやすく説明しようと冗長になると今度は昇る高さが高くなったようなものです。\u003cbr\u003e\n情けない話ですがわからない人は冗長な説明をおいきれなくなって混乱します。\u003cbr\u003e\n考えていただきたいのは分かる人の邪魔にならずわからない人には適切なヒントとなる注釈の量とヒントの与え方です。\u003c/p\u003e\n\n\u003cp\u003e今回のような一般向けも想定した技術文書では、内容を読み手がじっくり考えるとき、補足が丁度良い距離の足掛かりになっていれば嬉しいものです。\u003cbr\u003e\nその点を考慮していただけると非常にありがたいです。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-11-18T10:02:52+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:680769,&quot;is_team&quot;:false,&quot;item_id&quot;:360025,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;こういう技術文書は行列やベクトルくらいはわかるが全く知識がない人（私）から専門家にちかい方まで幅広く読むことを想定していると思うので訳注や補足がいただけるのはありがたいことです。\n返信ありがとうございます。\n\n技術文書は私から見るとスポーツクライミングに例えることができそうです。\n\n出来る人は足掛かりや手がかりがすくなくてもひょいひょい登れます、翻訳する人もわかってる人なので足掛かりが少ないことに疑問を持ちません。\n\nわからない人は足掛かりや手がかりが少なすぎてどう登ればいいか分からないものです。\n訳注や補足で足掛かりを増やすことはいいことです。\nただわかりやすく説明しようと冗長になると今度は昇る高さが高くなったようなものです。\n情けない話ですがわからない人は冗長な説明をおいきれなくなって混乱します。\n考えていただきたいのは分かる人の邪魔にならずわからない人には適切なヒントとなる注釈の量とヒントの与え方です。\n\n今回のような一般向けも想定した技術文書では、内容を読み手がじっくり考えるとき、補足が丁度良い距離の足掛かりになっていれば嬉しいものです。\nその点を考慮していただけると非常にありがたいです。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca#comment-f566c4a7f6cdb50c5649&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2014-12-17T17:22:10+09:00&quot;,&quot;id&quot;:63291,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63291/profile-images/1473696221&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;horiesiniti&quot;},&quot;uuid&quot;:&quot;f566c4a7f6cdb50c5649&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e「toy problem of this form」を「この形式のおもちゃの問題」と直訳していますが、「この例題」ぐらいのほうが座りが良いと思います。\u003cbr\u003e\n「toy problem」は現実世界でそんなこと考えてもしょうがないけど単純でわかりやすくした例題を意味します。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-02T14:10:08+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:690325,&quot;is_team&quot;:false,&quot;item_id&quot;:360025,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;「toy problem of this form」を「この形式のおもちゃの問題」と直訳していますが、「この例題」ぐらいのほうが座りが良いと思います。\n「toy problem」は現実世界でそんなこと考えてもしょうがないけど単純でわかりやすくした例題を意味します。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca#comment-b38fe3fd61ae572c6001&quot;,&quot;user&quot;:{&quot;contribution&quot;:9,&quot;created_at&quot;:&quot;2014-06-01T12:46:27+09:00&quot;,&quot;id&quot;:45307,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/45307/profile-images/1473690226&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;NagominHotMotto&quot;},&quot;uuid&quot;:&quot;b38fe3fd61ae572c6001&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eご指摘ありがとうございます。\u003cbr\u003e\n翻訳元の語を残して、「例題（toy problems）」に修正しました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-05T15:05:49+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:691823,&quot;is_team&quot;:false,&quot;item_id&quot;:360025,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ご指摘ありがとうございます。\n翻訳元の語を残して、「例題（toy problems）」に修正しました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca#comment-2a9fada96f977f262cb5&quot;,&quot;user&quot;:{&quot;contribution&quot;:1874,&quot;created_at&quot;:&quot;2013-05-31T15:50:07+09:00&quot;,&quot;id&quot;:25103,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;KojiOhki&quot;},&quot;uuid&quot;:&quot;2a9fada96f977f262cb5&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:360025,&quot;uuid&quot;:&quot;89cd7b69a8a6239d67ca&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;KojiOhki&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;},{&quot;id&quot;:63291,&quot;url_name&quot;:&quot;horiesiniti&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63291/profile-images/1473696221&quot;},{&quot;id&quot;:45307,&quot;url_name&quot;:&quot;NagominHotMotto&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/45307/profile-images/1473690226&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-e4317dac-246e-4ba8-a1b3-023937a22de1"></div>
+    <div id="CommentListContainer-react-component-e4317dac-246e-4ba8-a1b3-023937a22de1"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="1l0DzDa8NNxNcHfFuTV7fT0Yqj6xIvrJXboDqdv5jZDIbERQmGO4otnWPq44lP5cD/hNNwvd1fNbPWAueJbbvg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/89cd7b69a8a6239d67ca" /><input type="hidden" name="item_uuid" id="item_uuid" value="89cd7b69a8a6239d67ca" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/KojiOhki/items/89cd7b69a8a6239d67ca", "id": 360025, "uuid": "89cd7b69a8a6239d67ca" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="i26UVVjZifjN9V17R/+k80VxMgRVWtcpVGIun53Ka12VX9PJ9gYFhllTFBDGXiHSd5HVDe+l+BNS5U0YPqU9cw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/89cd7b69a8a6239d67ca" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

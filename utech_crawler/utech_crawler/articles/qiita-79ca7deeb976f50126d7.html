@@ -1,0 +1,624 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+ChainerでSlack用のbot作成！！
+
+注意：chainer 1.5.1以降のバージョンで動作を試みるとSegmentation faultのバグが出ます
+
+
+pip install chainer==&quot;1.5.1&quot;
+
+
+で1.5.1をインストールしてください。
+
+突然ですが、あなたはこんな衝動にかられたことはないでしょうか？
+Slack上で面白い返事やつぶやきをしてくれるbotやいろんな質問に答えてくれるボットがいれば、会話が盛り上がるし、聞きづらい質問に..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="SnowGushiGit" name="twitter:creator" /><meta content="Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="#ChainerでSlack用のbot作成！！
+
+注意：chainer 1.5.1以降のバージョンで動作を試みると`Segmentation fault`のバグが出ます
+
+```
+pip install chainer==&quot;1.5.1..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="qfuJVqUE9W5Y8aXmDZacxkFLSuDuea1ioXQ0jiXJKV72yoBArLGaPyiMwWzkU2RSDb6/S+e1edvPlMFdwSGqcA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"GushiSnow","type":"items","id":"79ca7deeb976f50126d7"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-e95f2504-1d2f-46f0-a44b-6838b3d72b7e"></div>
+    <div id="HeaderContainer-react-component-e95f2504-1d2f-46f0-a44b-6838b3d72b7e"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Chainer",        "name": "Chainer"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2015/chainer">Chainer Advent Calendar 2015</a> Day 22</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング</h1><ul class="TagList"><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li><li class="TagList__item" data-count="1104"><a class="u-link-unstyled TagList__label" href="/tags/Slack"><img alt="Slack" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/d2b7b96c09e33ea64a9cc7a96809eb325817148e/medium.jpg?1479356425" /><span>Slack</span></a></li><li class="TagList__item" data-count="744"><a class="u-link-unstyled TagList__label" href="/tags/Twitter"><img alt="Twitter" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/cea0a8711a7da568fa9cc3f2cc8d06dff1942808/medium.jpg?1387915412" /><span>Twitter</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="254"><a class="u-link-unstyled TagList__label" href="/tags/%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD"><img alt="人工知能" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/2e7c05efd215b716c8372e4bf0388a3084c98f53/medium.jpg?1433343003" /><span>人工知能</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">241</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="9 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>9</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:241,&quot;uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="uri"><a itemprop="url" href="/uri"><img alt="uri" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19462/profile-images/1473682719" /></a></li><li class="js-hovercard" data-hovercard-target-name="nmatsui"><a itemprop="url" href="/nmatsui"><img alt="nmatsui" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37648/profile-images/1473687497" /></a></li><li class="js-hovercard" data-hovercard-target-name="shuhei_f"><a itemprop="url" href="/shuhei_f"><img alt="shuhei_f" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70763/profile-images/1473698579" /></a></li><li class="js-hovercard" data-hovercard-target-name="lazykyama"><a itemprop="url" href="/lazykyama"><img alt="lazykyama" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360" /></a></li><li class="js-hovercard" data-hovercard-target-name="dario_okazaki"><a itemprop="url" href="/dario_okazaki"><img alt="dario_okazaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11002/profile-images/1473681881" /></a></li><li class="js-hovercard" data-hovercard-target-name="yoshimaa"><a itemprop="url" href="/yoshimaa"><img alt="yoshimaa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44276/profile-images/1473689837" /></a></li><li class="js-hovercard" data-hovercard-target-name="Ki4mTaria"><a itemprop="url" href="/Ki4mTaria"><img alt="Ki4mTaria" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48569/profile-images/1473691396" /></a></li><li class="js-hovercard" data-hovercard-target-name="apto-as"><a itemprop="url" href="/apto-as"><img alt="apto-as" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37871/profile-images/1473687569" /></a></li><li class="js-hovercard" data-hovercard-target-name="sei_shinagawa"><a itemprop="url" href="/sei_shinagawa"><img alt="sei_shinagawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/78026/profile-images/1473762194" /></a></li><li class="js-hovercard" data-hovercard-target-name="blackaplysia"><a itemprop="url" href="/blackaplysia"><img alt="blackaplysia" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21963/profile-images/1473683460" /></a></li><li><a href="/GushiSnow/items/79ca7deeb976f50126d7/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/GushiSnow"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" alt="1473757289" /></a> <a class="u-link-unstyled" href="/GushiSnow">GushiSnow</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-01-04T07:53:42+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-01-04">Edited at <time datetime="2016-05-01T20:02:10+09:00" itemprop="dateModified">2016-05-01</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/GushiSnow/items/79ca7deeb976f50126d7/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">10</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__gist"><span class="fa fa-github"></span><a target="_blank" href="https://gist.github.com/2127770f7d0be8e0c319">Gist</a></div></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/GushiSnow/items/79ca7deeb976f50126d7/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(10)</span></a></li><li><a href="/GushiSnow/items/79ca7deeb976f50126d7.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-79ca7deeb976f50126d7" itemprop="articleBody">
+<h1>
+<span id="chainerでslack用のbot作成" class="fragment"></span><a href="#chainer%E3%81%A7slack%E7%94%A8%E3%81%AEbot%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>ChainerでSlack用のbot作成！！</h1>
+
+<p>注意：chainer 1.5.1以降のバージョンで動作を試みると<code>Segmentation fault</code>のバグが出ます</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+pip install chainer=="1.5.1"
+</pre></div></div>
+
+<p>で1.5.1をインストールしてください。</p>
+
+<p>突然ですが、あなたはこんな衝動にかられたことはないでしょうか？<br>
+Slack上で面白い返事やつぶやきをしてくれるbotやいろんな質問に答えてくれるボットがいれば、会話が盛り上がるし、聞きづらい質問にも答えてくれるのに・・・</p>
+
+<p>私も思ったことがあります。そこで実装してみました。<br>
+最終的にこんな感じの応答を返してくれるようになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/26329015-4bdd-2c52-ee3b-a158caac8e8e.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/26329015-4bdd-2c52-ee3b-a158caac8e8e.jpeg" alt="Screen Shot 2016-01-03 at 21.51.41.jpg"></a></p>
+
+<h2>
+<span id="対象読者" class="fragment"></span><a href="#%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85"><i class="fa fa-link"></i></a>対象読者</h2>
+
+<p>１：中身は分らなくも良いから賢くなるbotを作ってみたい！！<br>
+やるべきアクション：下記リポジトリをgit cloneして環境構築して、実行して下さい！！</p>
+
+<p><a href="https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue</a></p>
+
+<p>２：中身も知って賢くなるbotを作ってみたい！！<br>
+やるべきアクション：この記事を読んで仕組みを理解してからgit cloneして環境構築して、実行して下さい！！</p>
+
+<p><a href="https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue</a></p>
+
+<p>３：ガチの人<br>
+やるべきアクション：アドバイス下さい。お願い致します。</p>
+
+<h1>
+<span id="全体構成" class="fragment"></span><a href="#%E5%85%A8%E4%BD%93%E6%A7%8B%E6%88%90"><i class="fa fa-link"></i></a>全体構成</h1>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/de9b43fb-de89-4435-bf5e-02d4d1dce19f.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/de9b43fb-de89-4435-bf5e-02d4d1dce19f.jpeg" alt="スライド1.jpg"></a></p>
+
+<h1>
+<span id="chainerによる対話モデルの学習" class="fragment"></span><a href="#chainer%E3%81%AB%E3%82%88%E3%82%8B%E5%AF%BE%E8%A9%B1%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>Chainerによる対話モデルの学習</h1>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/599bd4d3-42aa-5e19-1328-b3606103e5f6.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/599bd4d3-42aa-5e19-1328-b3606103e5f6.png" alt="chainer_icon_red.png" width="200" height="200"></a></p>
+
+<p>まずはこの仕組みの根幹となる部分のChainerによる対話モデルから説明していきます。<br>
+参考にしているのは下記の論文です。</p>
+
+<p><a href="http://arxiv.org/pdf/1507.04808.pdf" class="autolink" rel="nofollow noopener" target="_blank">http://arxiv.org/pdf/1507.04808.pdf</a></p>
+
+<p>ではここで対話モデルを学習するまでの構成図を下記に示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/9fd8850c-970c-0e94-abdb-80525856193b.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/9fd8850c-970c-0e94-abdb-80525856193b.jpeg" alt="スライド2.jpg"></a></p>
+
+<p>１：Word2Vecで良い初期値を得るための下準備</p>
+
+<p>使用データは下記のWikipediaのデータからタイトルデータ5000行をランダムに抽出</p>
+
+<p><a href="http://www.mwsoft.jp/programming/munou/wikipedia_data_list.html" class="autolink" rel="nofollow noopener" target="_blank">http://www.mwsoft.jp/programming/munou/wikipedia_data_list.html</a></p>
+
+<p>コードは下記を参考に実装</p>
+
+<p><a href="https://github.com/pfnet/chainer/tree/master/examples/word2vec" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/pfnet/chainer/tree/master/examples/word2vec</a></p>
+
+<p>語彙数：5000<br>
+隠れ層のユニット数：300</p>
+
+<p>上記の数字は対話モデルの語彙から潜在層に写像する層のユニット数に合わして下さい。<br>
+＊注意事項<br>
+対話学習の際に使用するコーパス内での未知語がない方が良いので抽出されたデータと対話破綻コーパスデータの両者をマッチング。対話破綻で検出された未知語を追加という形にしておく方が良いです。<br>
+具体的な流れは下記になります。</p>
+
+<p>１：抽出したデータでWord2Vecを学習<br>
+２：学習したデータと対話破綻コーパスデータでマッチングしないデータがないか確認<br>
+３：マッチングしないデータが検出されたら、Word2Vecの学習データに追加<br>
+４：収束するまで学習</p>
+
+<p>２：得られた初期値を使用して、End to Endのニューラル対話モデルを構成</p>
+
+<p>使用データは下記の対話破綻コーパスを使用（データがないため）<br>
+<a href="http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html?sess=3f6a4f9896295ef2480fa2482de521f6" title="mecab" rel="nofollow noopener" target="_blank">mecab</a> で分かち書きをしてから使用してください。</p>
+
+<p><a href="https://sites.google.com/site/dialoguebreakdowndetection/" class="autolink" rel="nofollow noopener" target="_blank">https://sites.google.com/site/dialoguebreakdowndetection/</a></p>
+
+<p>コードは下記のchainer1.5バージョンの<code>mt_s2s_encdec.py</code>を参考に実装</p>
+
+<p><a href="https://github.com/odashi/chainer_examples" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/odashi/chainer_examples</a></p>
+
+<p>３：Twitterから取得したデータを用いて、再学習</p>
+
+<p>この手法の良い点は良い初期値を得るための工夫をいくつも加えることで、Twitterで取得したデータを用いても適切に学習が進むことです。<br>
+また非常に強力な点はテキスト情報だけでなく、画像情報、音声情報も入力として入れることが可能という点です。</p>
+
+<p>論文では、提案されているが実装出来ていない機能（本記事では実装できていないので今後、実装したいと思います。）</p>
+
+<p>１：Bi-Directional-RNNを用いる事で最初から最後、最後から最初の両方向からの対話の流れを考慮<br>
+２：対話のデータセットもユーザーアクション→応答→ユーザーアクションのトリプルセットで学習することで単純な質問応答ではなく前回の質問も考慮した返答を行なう<br>
+３：トリプルセットを事前学習に使用<br>
+４：トリプルセットのユーザーアクション、応答を利用して最終的なユーザーアクションをMAP推定により推定</p>
+
+<p>モデルの構成自体は翻訳と同様なので、下記の記事が翻訳モデルを実際に実装された方の記事なので参考にされると良いと思います。</p>
+
+<p><a href="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" class="autolink" id="reference-b11274a92dda7c94b9d7">http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e</a></p>
+
+<p>細かい説明は下記のipython notebookで確認できます。</p>
+
+<p><a href="https://github.com/SnowMasaya/Chainer_Machine_Translation_ipython_notebook.git" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/SnowMasaya/Chainer_Machine_Translation_ipython_notebook.git</a></p>
+
+<p>変更した点はWord2Vecによる事前学習の部分です。</p>
+
+<p>下記の記事を参考にしました。</p>
+
+<p><a href="http://qiita.com/tabe2314/items/6c0c1b769e12ab1e2614" class="autolink" id="reference-14dfd50cbd19dc80d997">http://qiita.com/tabe2314/items/6c0c1b769e12ab1e2614</a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+            <span class="k">if</span> <span class="n">dec_flag</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">dst</span><span class="p">[</span><span class="s">"weight_jy"</span><span class="p">]</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">"weight_xi"</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">word2vecFlag</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">namedparams</span><span class="p">(),</span> <span class="n">dst</span><span class="p">[</span><span class="s">"weight_jy"</span><span class="p">]</span><span class="o">.</span><span class="n">namedparams</span><span class="p">()):</span>
+                        <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">'Copy weight_jy'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>変更した部分が事前学習にユーザー入力部だけでなくシステム応答部分の初期値もWord2vecで最適化した値を使用したかったため、上記のようなコードで指定していますが、明らかなハードコーディングなので、後で修正しておきます。</p>
+
+<h1>
+<span id="slackによるbotの応答" class="fragment"></span><a href="#slack%E3%81%AB%E3%82%88%E3%82%8Bbot%E3%81%AE%E5%BF%9C%E7%AD%94"><i class="fa fa-link"></i></a>Slackによるbotの応答</h1>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/fab3a9cd-8bf1-7cc3-4c74-6fe4c6277ce1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/fab3a9cd-8bf1-7cc3-4c74-6fe4c6277ce1.png" alt="slack.png" width="400" height="200"></a></p>
+
+<p>下記のリポジトリを使用しました。</p>
+
+<p><a href="https://github.com/slackhq/python-slackclient" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/slackhq/python-slackclient</a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/a65a021f-3036-ab6a-b3b7-f2ee8f7dc573.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/a65a021f-3036-ab6a-b3b7-f2ee8f7dc573.jpeg" alt="スライド3.jpg"></a></p>
+
+<h2>
+<span id="slackの連携に必要な情報の取得" class="fragment"></span><a href="#slack%E3%81%AE%E9%80%A3%E6%90%BA%E3%81%AB%E5%BF%85%E8%A6%81%E3%81%AA%E6%83%85%E5%A0%B1%E3%81%AE%E5%8F%96%E5%BE%97"><i class="fa fa-link"></i></a>Slackの連携に必要な情報の取得</h2>
+
+<p>下記のサイトが非常に参考になりました。キーの取得だけでなく、今回はユーザーリストとチャネルの指定方法なども参考になった点が良かったです。</p>
+
+<p><a href="https://medium.com/@julianmartinez/how-to-write-a-slack-bot-with-python-code-examples-4ed354407b98#.ngtlokoy8" class="autolink" rel="nofollow noopener" target="_blank">https://medium.com/@julianmartinez/how-to-write-a-slack-bot-with-python-code-examples-4ed354407b98#.ngtlokoy8</a></p>
+
+<p>Slackで情報を取得する際のapiサイト</p>
+
+<p><a href="https://api.slack.com/" class="autolink" rel="nofollow noopener" target="_blank">https://api.slack.com/</a></p>
+
+<p>Slackのapiトークンを取得するサイト</p>
+
+<p><a href="https://api.slack.com/web" class="autolink" rel="nofollow noopener" target="_blank">https://api.slack.com/web</a></p>
+
+<p>Slackでユーザー情報を取得するときに使用</p>
+
+<p><a href="https://api.slack.com/methods/users.list" class="autolink" rel="nofollow noopener" target="_blank">https://api.slack.com/methods/users.list</a></p>
+
+<p>Slackでチャネル情報を取得するときに使用</p>
+
+<p><a href="https://api.slack.com/methods/channels.list" class="autolink" rel="nofollow noopener" target="_blank">https://api.slack.com/methods/channels.list</a></p>
+
+<p>使用例：ユーザー情報を取得したい場合は下記を入力すると取得可能</p>
+
+<p><a href="https://slack.com/api/users.list?token=api%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E3%82%92%E6%8C%87%E5%AE%9A" class="autolink" rel="nofollow noopener" target="_blank">https://slack.com/api/users.list?token=apiトークンを指定</a></p>
+
+<h2>
+<span id="機能概要" class="fragment"></span><a href="#%E6%A9%9F%E8%83%BD%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>機能概要</h2>
+
+<p>１：Web SocketによりSlack上の反応を監視<br>
+２：特定のキーワードを観測したら、反応<br>
+３：反応は今回は応答と学習に分けている</p>
+
+<p>応答の場合のキーワード： chainer:呼びかけの言葉<br>
+学習の場合のキーワード： chainer_train</p>
+
+<p>学習はファインチューニングを採用して、事前に学習したモデルに対してさらに学習を進めることでより高度なモデルに変更しています。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+    <span class="k">def</span> <span class="nf">__input_sentence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c">#1</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__mecab_method</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">"text"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">"chainer:"</span><span class="p">,</span> <span class="s">""</span><span class="p">))</span>
+        <span class="c">#2</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">text</span><span class="p">]</span>
+        <span class="n">src_batch</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="p">[</span><span class="s">"&lt;/s&gt;"</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generation_limit</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">src_batch</span>
+
+    <span class="k">def</span> <span class="nf">__predict_sentence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_batch</span><span class="p">):</span>
+        <span class="c">#1</span>
+        <span class="n">dialogue</span> <span class="o">=</span> <span class="n">EncoderDecoderModelForwardSlack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter</span><span class="p">)</span>
+        <span class="c">#2</span>
+        <span class="n">src_vocab</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s">'.srcvocab'</span><span class="p">)</span>
+        <span class="n">trg_vocab</span> <span class="o">=</span> <span class="n">Vocabulary</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s">'.trgvocab'</span><span class="p">)</span>
+        <span class="c">#3</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">EncoderDecoder</span><span class="o">.</span><span class="n">load_spec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s">'.spec'</span><span class="p">)</span>
+        <span class="n">serializers</span><span class="o">.</span><span class="n">load_hdf5</span><span class="p">(</span><span class="n">dialogue</span><span class="o">.</span><span class="n">model</span> <span class="o">+</span> <span class="s">'.weights'</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="c">#4</span>
+        <span class="n">hyp_batch</span> <span class="o">=</span> <span class="n">dialogue</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">src_batch</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">src_vocab</span><span class="p">,</span> <span class="n">trg_vocab</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">generation_limit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hyp_batch</span>
+</pre></div></div>
+
+<p>上記は応答時のコードの一部を抜粋しています。上記の<code>__input_sentence</code>で入力されたユーザーの文章をchainerで処理できる形に変更して<code>__predict_sentence</code>で対応する文章を予測して返しています。</p>
+
+<p>インプットされた文章に関しての処理は</p>
+
+<p>１：Mecabで分割処理<br>
+２：確率的勾配法で処理しているので単一の文章でも同様の処理が出来るデータ形式に変更</p>
+
+<p>予測に関しての処理は</p>
+
+<p>１：予測用のモデルを作成<br>
+２：入力単語と応答単語の語彙を設定<br>
+３：モデルの詠み込み<br>
+４：応答仮説の予測です。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+
+                <span class="c">#1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__setting_parameter</span><span class="p">()</span>
+                <span class="c">#2</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">EncoderDecoder</span><span class="o">.</span><span class="n">load_spec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">+</span> <span class="s">'.spec'</span><span class="p">)</span>
+                <span class="n">dialogue</span> <span class="o">=</span> <span class="n">EncoderDecoderModelForwardSlack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter</span><span class="p">)</span>
+                <span class="n">serializers</span><span class="o">.</span><span class="n">load_hdf5</span><span class="p">(</span><span class="n">dialogue</span><span class="o">.</span><span class="n">model</span> <span class="o">+</span> <span class="s">'.weights'</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+                <span class="c">#3</span>
+                <span class="n">dialogue</span><span class="o">.</span><span class="n">encdec</span> <span class="o">=</span> <span class="n">model</span>
+                <span class="n">dialogue</span><span class="o">.</span><span class="n">word2vecFlag</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">dialogue</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div></div>
+
+<p>上記はファインチューニング時のコードの一部を抜粋しています。</p>
+
+<p>１：ファインチューニング時に使用する学習データなどの指定を行なう<br>
+２：予め予備学習したモデルの詠み込み<br>
+３：モデルを設定して、学習したモデルのパラメータを使用する設定をオンにする。</p>
+
+<h1>
+<span id="twitter" class="fragment"></span><a href="#twitter"><i class="fa fa-link"></i></a>Twitter</h1>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/ea6c965a-7e8c-582c-accf-ec4c622a0225.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/ea6c965a-7e8c-582c-accf-ec4c622a0225.jpeg" alt="twitter.jpg" width="200" height="200"></a></p>
+
+<p>Twitter関連の処理はTwitterからデータを取得して、SQLiteに保存。SQLiteから学習用のデータを取得するようにしています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/4518d2f9-686b-88f6-a93c-c263aa6bdd54.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/4518d2f9-686b-88f6-a93c-c263aa6bdd54.jpeg" alt="スライド4.jpg"></a></p>
+
+<p>１：Twitterから会話データを取得<br>
+２：SQLiteに保存<br>
+３：SQLiteから、ユーザーアクションとシステム応答に振り分けておく</p>
+
+<p>直接貯めずにSQLiteに保存することでデータを必要な時に必要な分だけ学習できる仕組みになっており、ファインチューニングに重要な速度性を担保することを考慮しています。</p>
+
+<p>Twitterで会話データの取得方法</p>
+
+<p>１：ユーザー指定でつぶやきを取得。その際に<code>in_reply_to_status_id</code>と<code>in_reply_to_screen_name</code>を取得<br>
+２：取得した<code>in_reply_to_screen_name</code>でつぶやきを取得し<code>in_reply_to_status_id</code>が一致するつぶやきを取得<br>
+３：つぶやきと応答の辞書を作成してSQLiteに保存</p>
+
+<h1>
+<span id="総括" class="fragment"></span><a href="#%E7%B7%8F%E6%8B%AC"><i class="fa fa-link"></i></a>総括</h1>
+
+<p>今回は冬の長期休暇を利用して、Chainer + Slack + Twitter連携を行なってみました。<br>
+Chainerは1.5から少ないコードで強力な機能も簡単に使えるようになってきており、他のニューラルネットのツールも出て来ていますが、個人的には好きなので今後も使っていこうと思っています。</p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<p><a href="https://forger.typo3.org/slack/" class="autolink" rel="nofollow noopener" target="_blank">https://forger.typo3.org/slack/</a></p>
+
+<p><a href="https://play.google.com/store/apps/details?id=com.twitter.android&amp;hl=ja" class="autolink" rel="nofollow noopener" target="_blank">https://play.google.com/store/apps/details?id=com.twitter.android&amp;hl=ja</a></p>
+
+<p><a href="http://chainer.org/" class="autolink" rel="nofollow noopener" target="_blank">http://chainer.org/</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/GushiSnow/items/79ca7deeb976f50126d7" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="S+nl23mI8wsDwEWsz1oKqXtDsaQD8Y5EGpn8efAU9zcU2OzNcD2cWnO9ISYmn/I9N7ZEDwo9Wv10eQmqFPx0GQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1462100530" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+#ChainerでSlack用のbot作成！！
+
+注意：chainer 1.5.1以降のバージョンで動作を試みると`Segmentation fault`のバグが出ます
+
+```
+pip install chainer==&quot;1.5.1&quot;
+```
+
+で1.5.1をインストールしてください。
+
+突然ですが、あなたはこんな衝動にかられたことはないでしょうか？
+Slack上で面白い返事やつぶやきをしてくれるbotやいろんな質問に答えてくれるボットがいれば、会話が盛り上がるし、聞きづらい質問にも答えてくれるのに・・・
+
+私も思ったことがあります。そこで実装してみました。
+最終的にこんな感じの応答を返してくれるようになります。
+
+![Screen Shot 2016-01-03 at 21.51.41.jpg](https://qiita-image-store.s3.amazonaws.com/0/10496/26329015-4bdd-2c52-ee3b-a158caac8e8e.jpeg)
+
+
+##対象読者
+
+１：中身は分らなくも良いから賢くなるbotを作ってみたい！！
+やるべきアクション：下記リポジトリをgit cloneして環境構築して、実行して下さい！！
+
+https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue
+
+２：中身も知って賢くなるbotを作ってみたい！！
+やるべきアクション：この記事を読んで仕組みを理解してからgit cloneして環境構築して、実行して下さい！！
+
+https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue
+
+３：ガチの人
+やるべきアクション：アドバイス下さい。お願い致します。
+
+#全体構成
+
+![スライド1.jpg](https://qiita-image-store.s3.amazonaws.com/0/10496/de9b43fb-de89-4435-bf5e-02d4d1dce19f.jpeg)
+
+
+#Chainerによる対話モデルの学習
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/599bd4d3-42aa-5e19-1328-b3606103e5f6.png&quot; alt=&quot;chainer_icon_red.png&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;
+
+
+まずはこの仕組みの根幹となる部分のChainerによる対話モデルから説明していきます。
+参考にしているのは下記の論文です。
+
+http://arxiv.org/pdf/1507.04808.pdf
+
+
+ではここで対話モデルを学習するまでの構成図を下記に示します。
+
+
+![スライド2.jpg](https://qiita-image-store.s3.amazonaws.com/0/10496/9fd8850c-970c-0e94-abdb-80525856193b.jpeg)
+
+
+１：Word2Vecで良い初期値を得るための下準備
+
+使用データは下記のWikipediaのデータからタイトルデータ5000行をランダムに抽出
+
+http://www.mwsoft.jp/programming/munou/wikipedia_data_list.html
+
+コードは下記を参考に実装
+
+https://github.com/pfnet/chainer/tree/master/examples/word2vec
+
+語彙数：5000
+隠れ層のユニット数：300
+
+上記の数字は対話モデルの語彙から潜在層に写像する層のユニット数に合わして下さい。
+＊注意事項
+対話学習の際に使用するコーパス内での未知語がない方が良いので抽出されたデータと対話破綻コーパスデータの両者をマッチング。対話破綻で検出された未知語を追加という形にしておく方が良いです。
+具体的な流れは下記になります。
+
+１：抽出したデータでWord2Vecを学習
+２：学習したデータと対話破綻コーパスデータでマッチングしないデータがないか確認
+３：マッチングしないデータが検出されたら、Word2Vecの学習データに追加
+４：収束するまで学習
+
+
+２：得られた初期値を使用して、End to Endのニューラル対話モデルを構成
+
+使用データは下記の対話破綻コーパスを使用（データがないため）
+[mecab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html?sess=3f6a4f9896295ef2480fa2482de521f6 &quot;mecab&quot;) で分かち書きをしてから使用してください。
+
+https://sites.google.com/site/dialoguebreakdowndetection/
+
+コードは下記のchainer1.5バージョンの`mt_s2s_encdec.py`を参考に実装
+
+https://github.com/odashi/chainer_examples
+
+３：Twitterから取得したデータを用いて、再学習
+
+この手法の良い点は良い初期値を得るための工夫をいくつも加えることで、Twitterで取得したデータを用いても適切に学習が進むことです。
+また非常に強力な点はテキスト情報だけでなく、画像情報、音声情報も入力として入れることが可能という点です。
+
+論文では、提案されているが実装出来ていない機能（本記事では実装できていないので今後、実装したいと思います。）
+
+１：Bi-Directional-RNNを用いる事で最初から最後、最後から最初の両方向からの対話の流れを考慮
+２：対話のデータセットもユーザーアクション→応答→ユーザーアクションのトリプルセットで学習することで単純な質問応答ではなく前回の質問も考慮した返答を行なう
+３：トリプルセットを事前学習に使用
+４：トリプルセットのユーザーアクション、応答を利用して最終的なユーザーアクションをMAP推定により推定
+
+モデルの構成自体は翻訳と同様なので、下記の記事が翻訳モデルを実際に実装された方の記事なので参考にされると良いと思います。
+
+http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e
+
+細かい説明は下記のipython notebookで確認できます。
+
+https://github.com/SnowMasaya/Chainer_Machine_Translation_ipython_notebook.git
+
+変更した点はWord2Vecによる事前学習の部分です。
+
+下記の記事を参考にしました。
+
+http://qiita.com/tabe2314/items/6c0c1b769e12ab1e2614
+
+```py
+            if dec_flag:
+                if dst[&quot;weight_jy&quot;] and child.name == &quot;weight_xi&quot; and self.word2vecFlag:
+                    for a, b in zip(child.namedparams(), dst[&quot;weight_jy&quot;].namedparams()):
+                        b[1].data = a[1].data
+                    print(&#39;Copy weight_jy&#39;)
+```
+
+変更した部分が事前学習にユーザー入力部だけでなくシステム応答部分の初期値もWord2vecで最適化した値を使用したかったため、上記のようなコードで指定していますが、明らかなハードコーディングなので、後で修正しておきます。
+
+#Slackによるbotの応答
+
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/fab3a9cd-8bf1-7cc3-4c74-6fe4c6277ce1.png&quot; alt=&quot;slack.png&quot; width=&quot;400&quot; height=&quot;200&quot;&gt;
+
+下記のリポジトリを使用しました。
+
+https://github.com/slackhq/python-slackclient
+
+![スライド3.jpg](https://qiita-image-store.s3.amazonaws.com/0/10496/a65a021f-3036-ab6a-b3b7-f2ee8f7dc573.jpeg)
+
+##Slackの連携に必要な情報の取得
+
+下記のサイトが非常に参考になりました。キーの取得だけでなく、今回はユーザーリストとチャネルの指定方法なども参考になった点が良かったです。
+
+https://medium.com/@julianmartinez/how-to-write-a-slack-bot-with-python-code-examples-4ed354407b98#.ngtlokoy8
+
+Slackで情報を取得する際のapiサイト
+
+https://api.slack.com/
+
+Slackのapiトークンを取得するサイト
+
+https://api.slack.com/web
+
+Slackでユーザー情報を取得するときに使用
+
+https://api.slack.com/methods/users.list
+
+Slackでチャネル情報を取得するときに使用
+
+https://api.slack.com/methods/channels.list
+
+使用例：ユーザー情報を取得したい場合は下記を入力すると取得可能
+
+https://slack.com/api/users.list?token=apiトークンを指定
+
+##機能概要
+
+１：Web SocketによりSlack上の反応を監視
+２：特定のキーワードを観測したら、反応
+３：反応は今回は応答と学習に分けている
+
+応答の場合のキーワード： chainer:呼びかけの言葉
+学習の場合のキーワード： chainer_train
+
+学習はファインチューニングを採用して、事前に学習したモデルに対してさらに学習を進めることでより高度なモデルに変更しています。
+
+```py
+    def __input_sentence(self):
+        #1
+        text = self.__mecab_method(self.data[0][&quot;text&quot;].replace(&quot;chainer:&quot;, &quot;&quot;))
+        #2
+        data = [text]
+        src_batch = [x + [&quot;&lt;/s&gt;&quot;] * (self.generation_limit - len(x) + 1) for x in data]
+        return src_batch
+
+    def __predict_sentence(self, src_batch):
+        #1
+        dialogue = EncoderDecoderModelForwardSlack(self.parameter)
+        #2
+        src_vocab = Vocabulary.load(self.model_name + &#39;.srcvocab&#39;)
+        trg_vocab = Vocabulary.load(self.model_name + &#39;.trgvocab&#39;)
+        #3
+        model = EncoderDecoder.load_spec(self.model_name + &#39;.spec&#39;)
+        serializers.load_hdf5(dialogue.model + &#39;.weights&#39;, model)
+        #4
+        hyp_batch = dialogue.forward(src_batch, None, src_vocab, trg_vocab, model, False, self.generation_limit)
+        return hyp_batch
+```
+
+上記は応答時のコードの一部を抜粋しています。上記の`__input_sentence`で入力されたユーザーの文章をchainerで処理できる形に変更して`__predict_sentence`で対応する文章を予測して返しています。
+
+インプットされた文章に関しての処理は
+
+１：Mecabで分割処理
+２：確率的勾配法で処理しているので単一の文章でも同様の処理が出来るデータ形式に変更
+
+予測に関しての処理は
+
+１：予測用のモデルを作成
+２：入力単語と応答単語の語彙を設定
+３：モデルの詠み込み
+４：応答仮説の予測です。
+
+```py
+
+                #1
+                self.__setting_parameter()
+                #2
+                model = EncoderDecoder.load_spec(self.model_name + &#39;.spec&#39;)
+                dialogue = EncoderDecoderModelForwardSlack(self.parameter)
+                serializers.load_hdf5(dialogue.model + &#39;.weights&#39;, model)
+                #3
+                dialogue.encdec = model
+                dialogue.word2vecFlag = False
+                dialogue.train()
+```
+
+上記はファインチューニング時のコードの一部を抜粋しています。
+
+１：ファインチューニング時に使用する学習データなどの指定を行なう
+２：予め予備学習したモデルの詠み込み
+３：モデルを設定して、学習したモデルのパラメータを使用する設定をオンにする。
+
+#Twitter
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/ea6c965a-7e8c-582c-accf-ec4c622a0225.jpeg&quot; alt=&quot;twitter.jpg&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;
+
+Twitter関連の処理はTwitterからデータを取得して、SQLiteに保存。SQLiteから学習用のデータを取得するようにしています。
+
+![スライド4.jpg](https://qiita-image-store.s3.amazonaws.com/0/10496/4518d2f9-686b-88f6-a93c-c263aa6bdd54.jpeg)
+
+
+１：Twitterから会話データを取得
+２：SQLiteに保存
+３：SQLiteから、ユーザーアクションとシステム応答に振り分けておく
+
+直接貯めずにSQLiteに保存することでデータを必要な時に必要な分だけ学習できる仕組みになっており、ファインチューニングに重要な速度性を担保することを考慮しています。
+
+Twitterで会話データの取得方法
+
+１：ユーザー指定でつぶやきを取得。その際に`in_reply_to_status_id`と`in_reply_to_screen_name`を取得
+２：取得した`in_reply_to_screen_name`でつぶやきを取得し`in_reply_to_status_id`が一致するつぶやきを取得
+３：つぶやきと応答の辞書を作成してSQLiteに保存
+
+#総括
+
+今回は冬の長期休暇を利用して、Chainer + Slack + Twitter連携を行なってみました。
+Chainerは1.5から少ないコードで強力な機能も簡単に使えるようになってきており、他のニューラルネットのツールも出て来ていますが、個人的には好きなので今後も使っていこうと思っています。
+
+#参考
+
+https://forger.typo3.org/slack/
+
+https://play.google.com/store/apps/details?id=com.twitter.android&amp;hl=ja
+
+http://chainer.org/
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング by @SnowGushiGit on @Qiita" data-url="http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング" href="http://b.hatena.ne.jp/entry/http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/GushiSnow"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/GushiSnow">GushiSnow</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1583</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;GushiSnow&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-3c522b41-dc86-4693-ae01-3e15e26f65c1"></div>
+    <div id="UserFollowButton-react-component-3c522b41-dc86-4693-ae01-3e15e26f65c1"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/79ca7deeb976f50126d7">Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/f032806cfa8cec046318">異常検知と変化検知のまとめ　数式なし</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/8156d440540b0a11dfe6">数式をなるべく使わずにトピックモデルの解説にチャレンジ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/d7c5a09b38d3ca650abd">単純なキーワードマッチングを超えたWikiPediaの知識を利用した自然言語処理を行いたい方へ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/1b855f94bd43001e85e3">結婚式で余興を頼まれた時の画像処理をPythonでやってみる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#chainer%E3%81%A7slack%E7%94%A8%E3%81%AEbot%E4%BD%9C%E6%88%90\&quot;\u003eChainerでSlack用のbot作成！！\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85\&quot;\u003e対象読者\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%A8%E4%BD%93%E6%A7%8B%E6%88%90\&quot;\u003e全体構成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#chainer%E3%81%AB%E3%82%88%E3%82%8B%E5%AF%BE%E8%A9%B1%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003eChainerによる対話モデルの学習\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#slack%E3%81%AB%E3%82%88%E3%82%8Bbot%E3%81%AE%E5%BF%9C%E7%AD%94\&quot;\u003eSlackによるbotの応答\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#slack%E3%81%AE%E9%80%A3%E6%90%BA%E3%81%AB%E5%BF%85%E8%A6%81%E3%81%AA%E6%83%85%E5%A0%B1%E3%81%AE%E5%8F%96%E5%BE%97\&quot;\u003eSlackの連携に必要な情報の取得\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A9%9F%E8%83%BD%E6%A6%82%E8%A6%81\&quot;\u003e機能概要\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#twitter\&quot;\u003eTwitter\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%8F%E6%8B%AC\&quot;\u003e総括\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-43cbfa76-8295-42aa-951e-5892fab38b83"></div>
+    <div id="Toc-react-component-43cbfa76-8295-42aa-951e-5892fab38b83"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:241,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="uri"><a itemprop="url" href="/uri"><img alt="uri" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19462/profile-images/1473682719" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nmatsui"><a itemprop="url" href="/nmatsui"><img alt="nmatsui" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37648/profile-images/1473687497" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shuhei_f"><a itemprop="url" href="/shuhei_f"><img alt="shuhei_f" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70763/profile-images/1473698579" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="lazykyama"><a itemprop="url" href="/lazykyama"><img alt="lazykyama" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dario_okazaki"><a itemprop="url" href="/dario_okazaki"><img alt="dario_okazaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11002/profile-images/1473681881" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yoshimaa"><a itemprop="url" href="/yoshimaa"><img alt="yoshimaa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44276/profile-images/1473689837" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Ki4mTaria"><a itemprop="url" href="/Ki4mTaria"><img alt="Ki4mTaria" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48569/profile-images/1473691396" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="apto-as"><a itemprop="url" href="/apto-as"><img alt="apto-as" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37871/profile-images/1473687569" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sei_shinagawa"><a itemprop="url" href="/sei_shinagawa"><img alt="sei_shinagawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/78026/profile-images/1473762194" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="blackaplysia"><a itemprop="url" href="/blackaplysia"><img alt="blackaplysia" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21963/profile-images/1473683460" /></a></div></div><div class="ArticleFooter__user"><a href="/GushiSnow/items/79ca7deeb976f50126d7/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/79ca7deeb976f50126d7/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/GushiSnow/items/79ca7deeb976f50126d7.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.22</span> article of <a class="title" href="/advent-calendar/2015/chainer">Chainer Advent Calendar 2015</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 21:</span><span class="itemsShowBody_adventCalendar_title"><img alt="GushiSnow" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/GushiSnow/items/249d8a74c53dfb97c0ef">Chainerのexampleのmnistをcythonを使ってどれだけ高速化できるか検証してみた</a></span></li></ul></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング by @SnowGushiGit on @Qiita" data-url="http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング" href="http://b.hatena.ne.jp/entry/http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eはじめまして。\u003cbr\u003e\n面白い試みで大変興味深く拝見しました。\u003c/p\u003e\n\n\u003cp\u003e私もいろいろ試してみたいと思いgithubのソースコードを眺めていたのですが、1点疑問がありますのでご教示頂けますでしょうか。\u003c/p\u003e\n\n\u003cp\u003e\u003ccode\u003eEncoderDecoderModel\u003c/code\u003eの\u003ccode\u003etrain()\u003c/code\u003eで、\u003ccode\u003eVocabulary.new()\u003c/code\u003eにより語彙オブジェクトを生成する際、未知語タグ（\u003ccode\u003e\u0026lt;unk\u0026gt;\u003c/code\u003e）などのために単語IDを調整しているように見受けられます。\u003cbr\u003e\n一方で、pretrainされたword2vecのモデルを使う場合、事前に獲得された語彙には\u003ccode\u003e\u0026lt;unk\u0026gt;\u003c/code\u003eなどのタグは含まれていないという理解です。\u003cbr\u003e\nそのため直観的には、\u003ccode\u003eVocabulary\u003c/code\u003eで生成される語彙オブジェクトとpretrainされたword2vecのモデルとで、単語IDに一貫性がなくなり、意図した良い初期値の獲得が出来ないように思われます。\u003cbr\u003e\nこの点に関して、単語IDにズレが生じても問題ないのでしょうか？\u003c/p\u003e\n\n\u003cp\u003eもし実装などを読み間違えていたり勘違いしていたらすみません。\u003cbr\u003e\nお手数ですが上記についてご回答頂ければ幸いです。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-01-09T20:23:46+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:428541,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;はじめまして。\n面白い試みで大変興味深く拝見しました。\n\n私もいろいろ試してみたいと思いgithubのソースコードを眺めていたのですが、1点疑問がありますのでご教示頂けますでしょうか。\n\n`EncoderDecoderModel`の`train()`で、`Vocabulary.new()`により語彙オブジェクトを生成する際、未知語タグ（`\u003cunk\u003e`）などのために単語IDを調整しているように見受けられます。\n一方で、pretrainされたword2vecのモデルを使う場合、事前に獲得された語彙には`\u003cunk\u003e`などのタグは含まれていないという理解です。\nそのため直観的には、`Vocabulary`で生成される語彙オブジェクトとpretrainされたword2vecのモデルとで、単語IDに一貫性がなくなり、意図した良い初期値の獲得が出来ないように思われます。\nこの点に関して、単語IDにズレが生じても問題ないのでしょうか？\n\nもし実装などを読み間違えていたり勘違いしていたらすみません。\nお手数ですが上記についてご回答頂ければ幸いです。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-e15e5a99a3e3125259e5&quot;,&quot;user&quot;:{&quot;contribution&quot;:278,&quot;created_at&quot;:&quot;2015-04-19T11:50:44+09:00&quot;,&quot;id&quot;:76084,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;lazykyama&quot;},&quot;uuid&quot;:&quot;e15e5a99a3e3125259e5&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eわざわざコメントありがとうございます。\u003cbr\u003e\n\u0026lt;unk\u0026gt;と\u0026lt;s\u0026gt;、\u0026lt;/s\u0026gt;は追加する必要がありますね。\u003c/p\u003e\n\n\u003cp\u003eミスしていますね・・・・\u003cbr\u003e\nグーグルのニュースコーパスでWord2Vecを学習した後に論文上では下記のステップで学習していますね。\u003c/p\u003e\n\n\u003cp\u003e０：未知語はガウシアンモデルで初期化\u003cbr\u003e\n１：オリジナルのWord2Vecに含まれていない特別な対話のトークンを加えて、学習。\u003cbr\u003e\n２：全てのパラメータが収束するまで学習\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003eSpecial dialogue tokens, which\u003cbr\u003e\ndid not exist in the Word2Vec embeddings, were initialized\u003cbr\u003e\nfrom a Gaussian random distribution as before. The training\u003cbr\u003e\nprocedure was carried out in two stages.  First, we trained\u003cbr\u003e\neach neural model with fixed Word2Vec embeddings.  Dur-\u003cbr\u003e\ning this stage, we also trained the speech act and placeholder\u003cbr\u003e\ntokens,  together  with  tokens  not  covered  by  the  original\u003cbr\u003e\nWord2Vec embeddings. In the second stage, we then trained\u003cbr\u003e\nall parameters of each neural model until convergence.\u003c/p\u003e\n\u003c/blockquote\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-01-09T21:40:50+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:428555,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;わざわざコメントありがとうございます。\n\\\u003cunk\\\u003eと\\\u003cs\\\u003e、\\\u003c/s\\\u003eは追加する必要がありますね。\n\nミスしていますね・・・・\nグーグルのニュースコーパスでWord2Vecを学習した後に論文上では下記のステップで学習していますね。\n\n０：未知語はガウシアンモデルで初期化\n１：オリジナルのWord2Vecに含まれていない特別な対話のトークンを加えて、学習。\n２：全てのパラメータが収束するまで学習\n\n\u003e Special dialogue tokens, which\n\u003e did not exist in the Word2Vec embeddings, were initialized\n\u003e from a Gaussian random distribution as before. The training\n\u003e procedure was carried out in two stages.  First, we trained\n\u003e each neural model with fixed Word2Vec embeddings.  Dur-\n\u003e ing this stage, we also trained the speech act and placeholder\n\u003e tokens,  together  with  tokens  not  covered  by  the  original\n\u003e Word2Vec embeddings. In the second stage, we then trained\n\u003e all parameters of each neural model until convergence.\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-b8ac8f424c84e0e60ab6&quot;,&quot;user&quot;:{&quot;contribution&quot;:1583,&quot;created_at&quot;:&quot;2012-10-19T19:54:59+09:00&quot;,&quot;id&quot;:10496,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;GushiSnow&quot;},&quot;uuid&quot;:&quot;b8ac8f424c84e0e60ab6&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eご回答ありがとうございます。\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003eグーグルのニュースコーパスでWord2Vecを学習した後に論文上では下記のステップで学習していますね。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e元の論文を十分確認できていなかったので大変助かりました。確かに言及されていますね。。。\u003cbr\u003e\n頂いた情報を参考に色々試してみたいと思います！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-01-10T18:07:36+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:428697,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ご回答ありがとうございます。\n\n\u003e グーグルのニュースコーパスでWord2Vecを学習した後に論文上では下記のステップで学習していますね。\n\n元の論文を十分確認できていなかったので大変助かりました。確かに言及されていますね。。。\n頂いた情報を参考に色々試してみたいと思います！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-4c63c872b58efbebdbe5&quot;,&quot;user&quot;:{&quot;contribution&quot;:278,&quot;created_at&quot;:&quot;2015-04-19T11:50:44+09:00&quot;,&quot;id&quot;:76084,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;lazykyama&quot;},&quot;uuid&quot;:&quot;4c63c872b58efbebdbe5&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eこちらこそ質問ありがとうございます。\u003c/p\u003e\n\n\u003cp\u003e色々試して頂いて情報共有可能なものであれば、ブログなり、Qiitaなりで共有して頂けると幸いです。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-01-12T08:59:24+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:429099,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;こちらこそ質問ありがとうございます。\n\n色々試して頂いて情報共有可能なものであれば、ブログなり、Qiitaなりで共有して頂けると幸いです。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-a45e56828daf4c1dc647&quot;,&quot;user&quot;:{&quot;contribution&quot;:1583,&quot;created_at&quot;:&quot;2012-10-19T19:54:59+09:00&quot;,&quot;id&quot;:10496,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;GushiSnow&quot;},&quot;uuid&quot;:&quot;a45e56828daf4c1dc647&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e面白い記事をありがとうございます。\u003cbr\u003e\nちょうどやってみたかったことが書かれていて感動しました。\u003c/p\u003e\n\n\u003cp\u003eとりあえず動かしてみようとしていて、分からない点があるのですが、\u003cbr\u003e\nwikipediaのデータ、会話破綻コーパスのデータはどう配置したらいいのでしょうか？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-03-24T19:34:22+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:495679,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;面白い記事をありがとうございます。\nちょうどやってみたかったことが書かれていて感動しました。\n\nとりあえず動かしてみようとしていて、分からない点があるのですが、\nwikipediaのデータ、会話破綻コーパスのデータはどう配置したらいいのでしょうか？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-77acfbc63f2df4d5d750&quot;,&quot;user&quot;:{&quot;contribution&quot;:58,&quot;created_at&quot;:&quot;2014-05-12T15:12:16+09:00&quot;,&quot;id&quot;:43699,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/43699/profile-images/1473689613&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Chan_moro&quot;},&quot;uuid&quot;:&quot;77acfbc63f2df4d5d750&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eご質問ありがとうございます。\u003c/p\u003e\n\n\u003cp\u003e[1]：Wikipediaのデータについて\u003c/p\u003e\n\n\u003cp\u003e１：\u003ccode\u003eword2vec\u003c/code\u003eというフォルダにwikipediaのタイトルデータを設置\u003c/p\u003e\n\n\u003cp\u003e２：下記の用に名前を設定して頂いて\u003c/p\u003e\n\n\u003cp\u003e\u003ccode\u003ejawiki-latest-all-titles-in-ns0\u003c/code\u003e\u003c/p\u003e\n\n\u003cp\u003e３：下記のスクリプトでWord2Vecのモデルが作成できます。\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/word2vec/word2vec_execute.py\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/word2vec/word2vec_execute.py\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003e＊注意点\u003c/p\u003e\n\n\u003cp\u003eタイトルデータは大きく、動作だけを確認したい場合は下記のスクリプトで5000件をランダムに取得するようにしているのでこちらを使用して下さい。\u003c/p\u003e\n\n\u003cp\u003e\u003ccode\u003esh random_choice.sh {wikipediaタイトルデータ名} \u0026gt; {wikipediaタイトルデータ名からランダムに5000件取得されたデータ}\u003c/code\u003e\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/word2vec/random_choice.sh\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/word2vec/random_choice.sh\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003e１：\u003ccode\u003edata\u003c/code\u003e というフォルダを作成していただきます。\u003c/p\u003e\n\n\u003cp\u003e２：対話破綻コーパスからjson形式のデータを取得して、下記のような形式で各対話のデータを保存した\u003ccode\u003elist\u003c/code\u003eファイルを作成します。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\ndev/〇〇.json\ndev/■ ■.json\ndev/◇◇◇.json\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003e３：下記のスクリプトでplayer_1とplayer_2に分けられます。\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/data_load.py\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/data_load.py\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003e４：分けたデータは分ち書きが出来ていないので\u003ccode\u003emecab-ipadic-neologd\u003c/code\u003eを使用した\u003ccode\u003emecab\u003c/code\u003eで分ち書きをして\u003c/p\u003e\n\n\u003cp\u003e各データの名前を下記のようにしてdataフォルダの直下に保存します。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nplayer_1_wakati.txt\nplayer_2_wakati.txt\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003e後は下記の手順にそって試して頂ければ、対話だけなら確認できるかと思います。\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/dialogue.ipynb\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/dialogue.ipynb\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-03-25T06:57:44+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:496087,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ご質問ありがとうございます。\n\n[1]：Wikipediaのデータについて\n\n１：`word2vec`というフォルダにwikipediaのタイトルデータを設置\n\n２：下記の用に名前を設定して頂いて\n\n`jawiki-latest-all-titles-in-ns0`\n\n３：下記のスクリプトでWord2Vecのモデルが作成できます。\n\nhttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/word2vec/word2vec_execute.py\n\n＊注意点\n\nタイトルデータは大きく、動作だけを確認したい場合は下記のスクリプトで5000件をランダムに取得するようにしているのでこちらを使用して下さい。\n\n`sh random_choice.sh {wikipediaタイトルデータ名} \u003e {wikipediaタイトルデータ名からランダムに5000件取得されたデータ}`\n\nhttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/word2vec/random_choice.sh\n\n[2]:対話破綻コーパスについて\n\n１：`data` というフォルダを作成していただきます。\n\n２：対話破綻コーパスからjson形式のデータを取得して、下記のような形式で各対話のデータを保存した`list`ファイルを作成します。\n\n```\ndev/〇〇.json\ndev/■ ■.json\ndev/◇◇◇.json\n```\n\n３：下記のスクリプトでplayer_1とplayer_2に分けられます。\n\nhttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/data_load.py\n\n４：分けたデータは分ち書きが出来ていないので`mecab-ipadic-neologd`を使用した`mecab`で分ち書きをして\n\n各データの名前を下記のようにしてdataフォルダの直下に保存します。\n\n```\nplayer_1_wakati.txt\nplayer_2_wakati.txt\n```\n\n後は下記の手順にそって試して頂ければ、対話だけなら確認できるかと思います。\n\nhttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/dialogue.ipynb\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-2792dd9aa325f960886a&quot;,&quot;user&quot;:{&quot;contribution&quot;:1583,&quot;created_at&quot;:&quot;2012-10-19T19:54:59+09:00&quot;,&quot;id&quot;:10496,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;GushiSnow&quot;},&quot;uuid&quot;:&quot;2792dd9aa325f960886a&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e早速回答いただきありがとうございます！\u003cbr\u003e\n無事slackでボット動かすところまで確認できました！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-03-27T17:24:57+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:497439,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;早速回答いただきありがとうございます！\n無事slackでボット動かすところまで確認できました！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-5a515dbb2a9a16d4df19&quot;,&quot;user&quot;:{&quot;contribution&quot;:58,&quot;created_at&quot;:&quot;2014-05-12T15:12:16+09:00&quot;,&quot;id&quot;:43699,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/43699/profile-images/1473689613&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Chan_moro&quot;},&quot;uuid&quot;:&quot;5a515dbb2a9a16d4df19&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eとても興味の唆る記事で楽しく読ませていただきました。\u003c/p\u003e\n\n\u003cp\u003ewikipediaのデータ、会話破綻コーパスのデータを用意した後、\u003cbr\u003e\n学習させる段階で、\u003cbr\u003e\n\u003ca href=\&quot;https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/dialogue.ipynb\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/dialogue.ipynb\u003c/a\u003e\u003cbr\u003e\nの手順通りにコードを走らせたところ、\u003cbr\u003e\n  File \&quot;/Users/**\u003cem\u003e/Projects/ChainerDialogue/EncoderDecoderModel.py\&quot;, line 168, in print_out\u003cbr\u003e\n    trace(&#39;  src = &#39; + &#39; &#39;.join([x if x != &#39;&#39; else &#39;\u003c/em\u003e&#39; for x in src_batch[K]]))\u003cbr\u003e\nIndexError: list index out of range\u003cbr\u003e\nとのエラーが出ました。コードを追ってみましたが自分ではどうにもなりませんでした。\u003c/p\u003e\n\n\u003cp\u003eエラー解決のための質問をするのは場違いなのは重々承知しているのですが、\u003cbr\u003e\nどうすればコードが通るか教えていただけないでしょうか。\u003c/p\u003e\n\n\u003cp\u003eよろしくお願いいたします。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-08-10T16:22:00+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:611732,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;とても興味の唆る記事で楽しく読ませていただきました。\n\nwikipediaのデータ、会話破綻コーパスのデータを用意した後、\n学習させる段階で、\nhttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/dialogue.ipynb\nの手順通りにコードを走らせたところ、\n  File \&quot;/Users/***/Projects/ChainerDialogue/EncoderDecoderModel.py\&quot;, line 168, in print_out\n    trace(&#39;  src = &#39; + &#39; &#39;.join([x if x != &#39;\u003c/s\u003e&#39; else &#39;*&#39; for x in src_batch[K]]))\nIndexError: list index out of range\nとのエラーが出ました。コードを追ってみましたが自分ではどうにもなりませんでした。\n\nエラー解決のための質問をするのは場違いなのは重々承知しているのですが、\nどうすればコードが通るか教えていただけないでしょうか。\n\nよろしくお願いいたします。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-c35740e7499e9d81eb7a&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2016-08-10T16:08:43+09:00&quot;,&quot;id&quot;:136759,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/136759/profile-images/1473720054&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;miyokiti&quot;},&quot;uuid&quot;:&quot;c35740e7499e9d81eb7a&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003emiyokitiさん\u003c/p\u003e\n\n\u003cp\u003e記事を読んで頂き実装まで試されてありがとうございます。\u003c/p\u003e\n\n\u003cp\u003eエラーですが\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nsrc_batch[K]\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eの配列外にアクセスしているため、発生しているエラーになります。\u003cbr\u003e\nミニバッチのサイズ内でKを設定しているのですが、データがミニバッチのサイズ分ない場合に発生するエラーです。\u003c/p\u003e\n\n\u003cp\u003e修正しておきました。\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;https://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/EncoderDecoderModel.py\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/EncoderDecoderModel.py\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003e下記で学習の途中結果を表示しているのですが、その部分で配列以上の値が来たら、配列のサイズに直すという無理やり修正する形になってしましましたが、これで対応しました。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n    def print_out(self, K, i_epoch, trained, src_batch, trg_batch, hyp_batch):\n        if K \u0026gt; len(src_batch) and K \u0026gt; len(trg_batch) and K \u0026gt; len(hyp_batch):\n            K = len(src_batch) - 1\n\n        trace(&#39;epoch %3d/%3d, sample %8d&#39; % (i_epoch + 1, self.epoch, trained + K + 1))\n        trace(&#39;  src = &#39; + &#39; &#39;.join([x if x != &#39;\u0026lt;/s\u0026gt;&#39; else &#39;*&#39; for x in src_batch[K]]))\n        trace(&#39;  trg = &#39; + &#39; &#39;.join([x if x != &#39;\u0026lt;/s\u0026gt;&#39; else &#39;*&#39; for x in trg_batch[K]]))\ntrace(&#39;  hyp = &#39; + &#39; &#39;.join([x if x != &#39;\u0026lt;/s\u0026gt;&#39; else &#39;*&#39; for x in hyp_batch[K]]))\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-08-10T20:30:30+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:611970,&quot;is_team&quot;:false,&quot;item_id&quot;:358808,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;miyokitiさん\n\n記事を読んで頂き実装まで試されてありがとうございます。\n\nエラーですが\n\n```\nsrc_batch[K]\n```\n\nの配列外にアクセスしているため、発生しているエラーになります。\nミニバッチのサイズ内でKを設定しているのですが、データがミニバッチのサイズ分ない場合に発生するエラーです。\n\n修正しておきました。\n\nhttps://github.com/SnowMasaya/Chainer-Slack-Twitter-Dialogue/blob/master/EncoderDecoderModel.py\n\n下記で学習の途中結果を表示しているのですが、その部分で配列以上の値が来たら、配列のサイズに直すという無理やり修正する形になってしましましたが、これで対応しました。\n\n```\n    def print_out(self, K, i_epoch, trained, src_batch, trg_batch, hyp_batch):\n        if K \u003e len(src_batch) and K \u003e len(trg_batch) and K \u003e len(hyp_batch):\n            K = len(src_batch) - 1\n\n        trace(&#39;epoch %3d/%3d, sample %8d&#39; % (i_epoch + 1, self.epoch, trained + K + 1))\n        trace(&#39;  src = &#39; + &#39; &#39;.join([x if x != &#39;\u003c/s\u003e&#39; else &#39;*&#39; for x in src_batch[K]]))\n        trace(&#39;  trg = &#39; + &#39; &#39;.join([x if x != &#39;\u003c/s\u003e&#39; else &#39;*&#39; for x in trg_batch[K]]))\ntrace(&#39;  hyp = &#39; + &#39; &#39;.join([x if x != &#39;\u003c/s\u003e&#39; else &#39;*&#39; for x in hyp_batch[K]]))\n```\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7#comment-f4cb2a4f2db0cd7a469e&quot;,&quot;user&quot;:{&quot;contribution&quot;:1583,&quot;created_at&quot;:&quot;2012-10-19T19:54:59+09:00&quot;,&quot;id&quot;:10496,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;GushiSnow&quot;},&quot;uuid&quot;:&quot;f4cb2a4f2db0cd7a469e&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:358808,&quot;uuid&quot;:&quot;79ca7deeb976f50126d7&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;GushiSnow&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:10496,&quot;url_name&quot;:&quot;GushiSnow&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;},{&quot;id&quot;:76084,&quot;url_name&quot;:&quot;lazykyama&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360&quot;},{&quot;id&quot;:43699,&quot;url_name&quot;:&quot;Chan_moro&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/43699/profile-images/1473689613&quot;},{&quot;id&quot;:136759,&quot;url_name&quot;:&quot;miyokiti&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/136759/profile-images/1473720054&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-6552b79f-13c4-4ced-b988-37c4ad49e16b"></div>
+    <div id="CommentListContainer-react-component-6552b79f-13c4-4ced-b988-37c4ad49e16b"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="Rkbu0/Ky5tNIOMRTfYrw7+SuUhfNs87uKQ1TkkuJcYAZd+fF+weJgjhFoNmUTwh7qFunvMR/GldH7aZBr2Hyrg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/GushiSnow/items/79ca7deeb976f50126d7" /><input type="hidden" name="item_uuid" id="item_uuid" value="79ca7deeb976f50126d7" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/GushiSnow/items/79ca7deeb976f50126d7", "id": 358808, "uuid": "79ca7deeb976f50126d7" }</script><script class="js-user" type="application/json">{&quot;id&quot;:10496,&quot;url_name&quot;:&quot;GushiSnow&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="gfV3ydoBDlU61SmrEYWOqlNloISfD1E9+CVU9G8+xmTexH7f07RhBEqoTSH4QHY+H5BVL5bDhYSWxaEni9ZFSg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/GushiSnow/items/79ca7deeb976f50126d7" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-74817818-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

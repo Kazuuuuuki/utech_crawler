@@ -1,0 +1,986 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>機械学習アルゴリズムのボトルネックをCythonで改善する話 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+この記事について
+
+
+Pythonを速くする方法について語ります
+プロファイリングによってCPUバウンドな処理のボトルネックを見つけます
+見つけたボトルネックをCythonで改善します
+
+
+
+はじめに
+
+先日Bayesian Personalized Ranking (BPR)というレコメンドアルゴリズムを実装しました。
+こちらの論文の式を参考にコードを書いてみたのですが、実行してみたらちょっと遅すぎて使えなかったため、処理速度の改善に取り組みました。
+その時に試し..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="tn1031" name="twitter:creator" /><meta content="機械学習アルゴリズムのボトルネックをCythonで改善する話 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/tn1031/items/fe83f6d7904871162085" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="#この記事について
+
+- Pythonを速くする方法について語ります
+- プロファイリングによってCPUバウンドな処理のボトルネックを見つけます
+- 見つけたボトルネックをCythonで改善します
+
+# はじめに
+先日Bayesian..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="U/LprdeXG2TAhj3JCsmZ/s3zZ395+E1OXZMfpTydFQaWrBflO01pk1Gocpv2TibL4oFdiFIUljrMsndbFS5wdg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"tn1031","type":"items","id":"fe83f6d7904871162085"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-aef7ebef-b037-4868-9087-2b9be75bf207"></div>
+    <div id="HeaderContainer-react-component-aef7ebef-b037-4868-9087-2b9be75bf207"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">機械学習アルゴリズムのボトルネックをCythonで改善する話</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="31"><a class="u-link-unstyled TagList__label" href="/tags/Cython"><img alt="Cython" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/f189ea18349601928ed07c81e49044155dd50af2/medium.jpg?1484193488" /><span>Cython</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">116</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="2 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>2</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:116,&quot;uuid&quot;:&quot;fe83f6d7904871162085&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></li><li class="js-hovercard" data-hovercard-target-name="miya136x"><a itemprop="url" href="/miya136x"><img alt="miya136x" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99783/profile-images/1473707892" /></a></li><li class="js-hovercard" data-hovercard-target-name="yamano357"><a itemprop="url" href="/yamano357"><img alt="yamano357" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99957/profile-images/1473707949" /></a></li><li class="js-hovercard" data-hovercard-target-name="Ki4mTaria"><a itemprop="url" href="/Ki4mTaria"><img alt="Ki4mTaria" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48569/profile-images/1473691396" /></a></li><li class="js-hovercard" data-hovercard-target-name="canard0328"><a itemprop="url" href="/canard0328"><img alt="canard0328" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52533/profile-images/1473692763" /></a></li><li class="js-hovercard" data-hovercard-target-name="yustoris"><a itemprop="url" href="/yustoris"><img alt="yustoris" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12144/profile-images/1473682291" /></a></li><li class="js-hovercard" data-hovercard-target-name="yudai-nkt"><a itemprop="url" href="/yudai-nkt"><img alt="yudai-nkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92856/profile-images/1473705761" /></a></li><li class="js-hovercard" data-hovercard-target-name="daikumatan"><a itemprop="url" href="/daikumatan"><img alt="daikumatan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73207/profile-images/1473699423" /></a></li><li class="js-hovercard" data-hovercard-target-name="luminor"><a itemprop="url" href="/luminor"><img alt="luminor" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/109257/profile-images/1473710819" /></a></li><li class="js-hovercard" data-hovercard-target-name="ayaniimi213"><a itemprop="url" href="/ayaniimi213"><img alt="ayaniimi213" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31830/profile-images/1473685778" /></a></li><li><a href="/tn1031/items/fe83f6d7904871162085/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/tn1031"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/66317/profile-images/1473697168" alt="1473697168" /></a> <a class="u-link-unstyled" href="/tn1031">tn1031</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-06-26T17:18:23+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-06-26">Edited at <time datetime="2016-07-01T12:25:49+09:00" itemprop="dateModified">2016-07-01</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/tn1031/items/fe83f6d7904871162085/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">3</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/tn1031/items/fe83f6d7904871162085/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(3)</span></a></li><li><a href="/tn1031/items/fe83f6d7904871162085.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-fe83f6d7904871162085" itemprop="articleBody">
+<h1>
+<span id="この記事について" class="fragment"></span><a href="#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6"><i class="fa fa-link"></i></a>この記事について</h1>
+
+<ul>
+<li>Pythonを速くする方法について語ります</li>
+<li>プロファイリングによってCPUバウンドな処理のボトルネックを見つけます</li>
+<li>見つけたボトルネックをCythonで改善します</li>
+</ul>
+
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p>先日Bayesian Personalized Ranking (BPR)というレコメンドアルゴリズムを実装しました。<br>
+<a href="http://arxiv.org/abs/1205.2618" rel="nofollow noopener" target="_blank">こちらの論文</a>の式を参考にコードを書いてみたのですが、実行してみたらちょっと遅すぎて使えなかったため、処理速度の改善に取り組みました。<br>
+その時に試したことを備忘録的にまとめます。</p>
+
+<h1>
+<span id="この記事で用いる手法とコード" class="fragment"></span><a href="#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%A7%E7%94%A8%E3%81%84%E3%82%8B%E6%89%8B%E6%B3%95%E3%81%A8%E3%82%B3%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>この記事で用いる手法とコード</h1>
+
+<p>BPRはユーザ x アイテムの行列の行列分解を与えます。<br>
+ユーザ x アイテムの行列$X$を、ユーザ x ファクターの行列$U$とアイテム x ファクターの行列$V$に分解します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+X = U \cdot V^T
+</pre></div></div>
+
+<p>この問題をどのように解くかはBPRの<a href="http://arxiv.org/abs/1205.2618" rel="nofollow noopener" target="_blank">元論文</a>をご覧ください。</p>
+
+<p>この手法を以下のように実装しました。$X$は<code>scipy.sparse.lil_matrix</code>で定義しています。分解後の$U$と$V$は<code>numpy.array</code>です。<br>
+学習に用いるサンプルをブートストラップサンプリングして、その後$U,V$を更新するという流れです。</p>
+
+<p>このコードについて、モデルの学習の部分である<code>buildModel()</code>を改善したいと思います。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">MFbpr.py</span></div>
+<div class="highlight"><pre>
+<span class="k">class</span> <span class="nc">MFbpr</span><span class="p">(</span><span class="n">Recommender</span><span class="p">):</span>
+    <span class="sd">'''</span>
+<span class="sd">    コンストラクタとか他の処理</span>
+<span class="sd">    '''</span>
+
+    <span class="k">def</span> <span class="nf">buildModel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">loss_pre</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
+        <span class="n">nonzeros</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainMatrix</span><span class="o">.</span><span class="n">nnz</span>
+        <span class="n">hr_prev</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">"Run for BPR. </span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">itr</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">maxIter</span><span class="p">):</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c"># Each training epoch</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">nonzeros</span><span class="p">):</span>
+                <span class="c"># sample a user</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">userCount</span><span class="p">)</span>
+                <span class="n">itemList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainMatrix</span><span class="o">.</span><span class="n">getrowview</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">.</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c"># sample a positive item</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">itemList</span><span class="p">)</span>
+
+                <span class="c"># One SGD step update</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_ui</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="c"># sample a negative item(uniformly random)</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemCount</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainMatrix</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemCount</span><span class="p">)</span>
+
+        <span class="c"># BPR update rules</span>
+        <span class="n">y_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>  <span class="c"># target value of positive instance</span>
+        <span class="n">y_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>  <span class="c"># target value of negative instance</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">partial_loss</span><span class="p">(</span><span class="n">y_pos</span> <span class="o">-</span> <span class="n">y_neg</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">):</span>
+            <span class="n">grad_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad_u</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+
+            <span class="n">grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">exec_bpr.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">MFbpr</span> <span class="kn">import</span> <span class="n">MFbpr</span>
+
+<span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">ratingFile</span><span class="p">,</span> <span class="n">testRatio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">'''</span>
+<span class="sd">    データをロードする処理</span>
+<span class="sd">    '''</span>
+    <span class="k">return</span> <span class="n">trainMatrix</span><span class="p">,</span> <span class="n">testRatings</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="c"># data</span>
+    <span class="n">trainMatrix</span><span class="p">,</span> <span class="n">testRatings</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="s">'yelp.rating'</span><span class="p">)</span>
+
+    <span class="c"># settings</span>
+    <span class="n">topK</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">factors</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">maxIter</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">maxIterOnline</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">lr</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">adaptive</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">init_mean</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">init_stdev</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">reg</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">showProgress</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">showLoss</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="n">bpr</span> <span class="o">=</span> <span class="n">MFbpr</span><span class="p">(</span><span class="n">trainMatrix</span><span class="p">,</span> <span class="n">testRatings</span><span class="p">,</span> <span class="n">topK</span><span class="p">,</span> <span class="n">factors</span><span class="p">,</span> <span class="n">maxIter</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">adaptive</span><span class="p">,</span> <span class="n">reg</span><span class="p">,</span> <span class="n">init_mean</span><span class="p">,</span> <span class="n">init_stdev</span><span class="p">,</span> <span class="n">showProgress</span><span class="p">,</span> <span class="n">showLoss</span><span class="p">)</span>
+    <span class="n">bpr</span><span class="o">.</span><span class="n">buildModel</span><span class="p">()</span>
+
+</pre></div>
+</div>
+
+<p>なお、コードの全量は<a href="https://github.com/tn1031/bpr" rel="nofollow noopener" target="_blank">github</a>で公開しています。</p>
+
+<h1>
+<span id="実行してみる" class="fragment"></span><a href="#%E5%AE%9F%E8%A1%8C%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a>実行してみる</h1>
+
+<p>とりあえず実行してみます。</p>
+
+<h3>
+<span id="設定" class="fragment"></span><a href="#%E8%A8%AD%E5%AE%9A"><i class="fa fa-link"></i></a>設定</h3>
+
+<h5>
+<span id="データ" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>データ</h5>
+
+<ul>
+<li>ユーザ数：25,677</li>
+<li>アイテム数：25,815</li>
+<li>レーティング数(評価が存在するサンプルの個数)：627,775</li>
+</ul>
+
+<h5>
+<span id="ハイパーパラメータ" class="fragment"></span><a href="#%E3%83%8F%E3%82%A4%E3%83%91%E3%83%BC%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>ハイパーパラメータ</h5>
+
+<ul>
+<li>ファクター数：64</li>
+</ul>
+
+<h5>
+<span id="実行環境" class="fragment"></span><a href="#%E5%AE%9F%E8%A1%8C%E7%92%B0%E5%A2%83"><i class="fa fa-link"></i></a>実行環境</h5>
+
+<p>VirtualBox上に構築したメモリ2G、プロセッサ2個のubuntuです。</p>
+
+<h3>
+<span id="実行結果" class="fragment"></span><a href="#%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>実行結果</h3>
+
+<p>ひとつ目の鍵括弧が1イテレーションにかかった時間[s]、最後の鍵括弧はlossの計算にかかった時間[s]です。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt; python exex_bpr.py
+
+Data    yelp.rating
+#Users  25677, #newUser: 588
+#Items  25815
+#Ratings     627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [128.6936481]     [-]loss: 624484.357765 [8.16665792465]
+Iter=1 [137.202406883]   [-]loss: 616970.769244 [7.11149096489]
+Iter=2 [131.134891987]   [-]loss: 609361.307524 [7.12593793869]
+Iter=3 [134.665620804]   [-]loss: 601240.628869 [8.45840716362]
+Iter=4 [134.722868919]   [-]loss: 592053.155587 [7.6300880909]
+</pre></div></div>
+
+<p>約60万サンプルについて計算しているとはいえ、1イテレーション130秒はかかり過ぎな気がします。</p>
+
+<h1>
+<span id="プロファイリング" class="fragment"></span><a href="#%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0"><i class="fa fa-link"></i></a>プロファイリング</h1>
+
+<h2>
+<span id="全体のプロファイリング" class="fragment"></span><a href="#%E5%85%A8%E4%BD%93%E3%81%AE%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0"><i class="fa fa-link"></i></a>全体のプロファイリング</h2>
+
+<p>まずは時間がかかっている部分の特定から始めます。<br>
+Pythonプロファイラの<code>cProfile</code>を使って処理速度を計測します。<br>
+<code>python -m cProfile -s cumulative ***.py</code><br>
+と実行すれば時間のかかった処理を降順で表示をしてくれます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt; python -m cProfile -s cumulative exex_bpr.py
+
+Data    yelp.rating
+#Users  25677, #newUser: 588
+#Items  25815
+#Ratings     627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [244.87996006]    [-]loss: 624394.802988 [53.4806399345]
+Iter=1 [248.624686956]   [-]loss: 616876.50976 [48.6073460579]
+Iter=2 [253.822627068]   [-]loss: 609269.820414 [52.5446169376]
+Iter=3 [261.039247036]   [-]loss: 601207.904104 [53.8221797943]
+Iter=4 [260.285779953]   [-]loss: 592212.148141 [54.9556028843]
+         369374621 function calls (368041918 primitive calls) in 1808.492 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.171    0.171 1808.493 1808.493 exex_bpr.py:3(&lt;module&gt;)
+        1   34.307   34.307 1532.124 1532.124 MFbpr.py:40(buildModel)
+  3067088  535.383    0.000  830.046    0.000 MFbpr.py:92(update_ui)
+  6209078   48.829    0.000  433.564    0.000 lil.py:228(__getitem__)
+  3292937   26.140    0.000  376.631    0.000 lil.py:191(getrowview)
+  3292939   66.488    0.000  346.337    0.000 lil.py:85(__init__)
+        5    0.000    0.000  263.411   52.682 MFbpr.py:117(_showLoss)
+        5   22.098    4.420  263.410   52.682 MFbpr.py:128(loss)
+        1    9.443    9.443  242.550  242.550 exex_bpr.py:9(load_data)
+</pre></div></div>
+
+<p><code>Ordered by: cumulative time</code>という行の下から、関数名と処理に要した時間が羅列されています。これを見ると<code>update_ui</code>という関数が3,067,088回呼ばれてトータル535.383秒かかっていることがわかります。<br>
+(まあ、<code>buildModel</code>の中ではほとんど<code>update_ui</code>しか呼んでないので当然といえば当然ですが．．．)</p>
+
+<p>なお、1イテレーションの実行時間が先程より大きくなっているのはcProfileのオーバーヘッドです。</p>
+
+<h2>
+<span id="行単位のプロファイリング" class="fragment"></span><a href="#%E8%A1%8C%E5%8D%98%E4%BD%8D%E3%81%AE%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0"><i class="fa fa-link"></i></a>行単位のプロファイリング</h2>
+
+<p><a href="https://pypi.python.org/pypi/line_profiler/" rel="nofollow noopener" target="_blank">line_profiler</a>を使えば注目している関数について行単位で計測できます。<br>
+pipでインストールできます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt; pip install line_profiler
+</pre></div></div>
+
+<p><code>line_profiler</code>でプロファイルするためには注目している関数に<code>@profile</code>のデコレータを付ける必要があります。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">MFbpr.py</span></div>
+<div class="highlight"><pre>
+    <span class="nd">@profile</span>
+    <span class="k">def</span> <span class="nf">update_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="c"># sample a negative item(uniformly random)</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemCount</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainMatrix</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemCount</span><span class="p">)</span>
+
+        <span class="c"># BPR update rules</span>
+        <span class="n">y_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>  <span class="c"># target value of positive instance</span>
+        <span class="n">y_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>  <span class="c"># target value of negative instance</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">partial_loss</span><span class="p">(</span><span class="n">y_pos</span> <span class="o">-</span> <span class="n">y_neg</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">):</span>
+            <span class="n">grad_u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad_u</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+
+            <span class="n">grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">reg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+
+</pre></div>
+</div>
+
+<p>あとは<code>kernprof</code>コマンドで実行するだけです。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt; kernprof -l -v exex_bpr.py
+
+Data    yelp.rating
+#Users  25677, #newUser: 588
+#Items  25815
+#Ratings     627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [953.993126154]   [-]loss: 624406.940531 [7.50253987312]
+Iter=1 [962.82383585]    [-]loss: 616855.373858 [7.96375918388]
+Wrote profile results to exex_bpr.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 1082.55 s
+File: MFbpr.py
+Function: update_ui at line 92
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    92                                               @profile
+    93                                               def update_ui(self, u, i):
+    94                                                   # sample a negative item(uniformly random)
+    95   1226961      8241361      6.7      0.8          j = np.random.randint(self.itemCount)
+    96   1228124     39557350     32.2      3.7          while self.trainMatrix[u, j] != 0:
+    97      1163         6123      5.3      0.0              j = np.random.randint(self.itemCount)
+    98                                                       
+    99                                                   # BPR update rules
+   100   1226961      9495381      7.7      0.9          y_pos = self.predict(u, i)  # target value of positive instance
+   101   1226961      4331378      3.5      0.4          y_neg = self.predict(u, j)  # target value of negative instance
+   102   1226961     10002355      8.2      0.9          mult = -self.partial_loss(y_pos - y_neg)
+   103                                                   
+   104  79752465    126523856      1.6     11.7          for f in xrange(self.factors):
+   105  78525504    161882071      2.1     15.0              grad_u = self.V[i, f] - self.V[j, f]
+   106  78525504    191293505      2.4     17.7              self.U[u, f] -= self.lr * (mult * grad_u + self.reg * self.U[u, f])
+   107                                                           
+   108  78525504    137871145      1.8     12.7              grad = self.U[u, f]
+   109  78525504    194033291      2.5     17.9              self.V[i, f] -= self.lr * (mult * grad + self.reg * self.V[i, f])
+   110  78525504    199315454      2.5     18.4              self.V[j, f] -= self.lr * (-mult * grad + self.reg * self.V[j, f])
+
+</pre></div></div>
+
+<p><code>% Time</code>のカラムを見ると、<code>update_ui</code>の処理時間のうち、<strong>90%以上がfor文以下で費やされている</strong>ことがわかりました。</p>
+
+<p>1イテレーションが1,000秒弱と、オーバーヘッドが大変なことになっています。</p>
+
+<h1>
+<span id="cythonで高速化" class="fragment"></span><a href="#cython%E3%81%A7%E9%AB%98%E9%80%9F%E5%8C%96"><i class="fa fa-link"></i></a>Cythonで高速化</h1>
+
+<h2>
+<span id="実装" class="fragment"></span><a href="#%E5%AE%9F%E8%A3%85"><i class="fa fa-link"></i></a>実装</h2>
+
+<p>先ほどのforループをCythonで書き直します。<br>
+Pythonが遅い原因のひとつが、Pythonは動的型付けであるということです。変数を参照するたびに型をチェックしているので、変数の参照が多いプログラムはこの操作にかかる時間が無視できなくなってきます。</p>
+
+<p>Cythonを使って書けばc言語のように変数の型を定義できます。いちいち型の確認が行われないのでかなりの高速化が期待できます。</p>
+
+<p>変数の宣言は<code>cdef</code>で行います。計算に用いるすべての変数の型を定義しておきます。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">fastupdfn.pyx</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="n">cimport</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="n">cimport</span> <span class="n">cython</span>
+
+<span class="n">DOUBLE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+<span class="n">ctypedef</span> <span class="n">np</span><span class="o">.</span><span class="n">float64_t</span> <span class="n">DOUBLE_t</span>
+
+<span class="n">cpdef</span> <span class="n">c_upd</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">DOUBLE_t</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">]</span> <span class="n">U</span><span class="p">,</span> 
+          <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">DOUBLE_t</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">]</span> <span class="n">V</span><span class="p">,</span>
+          <span class="n">double</span> <span class="n">mult</span><span class="p">,</span>
+          <span class="n">double</span> <span class="n">lr</span><span class="p">,</span>
+          <span class="n">double</span> <span class="n">reg</span><span class="p">,</span>
+          <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">u</span><span class="p">,</span>
+          <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">i</span><span class="p">,</span>
+          <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">j</span><span class="p">,</span>
+          <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">factors</span><span class="p">):</span>
+    <span class="n">cdef</span> <span class="n">unsigned</span> <span class="nb">int</span> <span class="n">f</span>
+    <span class="n">cdef</span> <span class="n">double</span> <span class="n">grad_u</span><span class="p">,</span> <span class="n">grad</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">factors</span><span class="p">):</span>
+        <span class="n">grad_u</span> <span class="o">=</span> <span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-</span> <span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+        <span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad_u</span> <span class="o">+</span> <span class="n">reg</span> <span class="o">*</span> <span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+
+        <span class="n">grad</span> <span class="o">=</span> <span class="n">U</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+        <span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad</span> <span class="o">+</span> <span class="n">reg</span> <span class="o">*</span> <span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+        <span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">mult</span> <span class="o">*</span> <span class="n">grad</span> <span class="o">+</span> <span class="n">reg</span> <span class="o">*</span> <span class="n">V</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">f</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">V</span>
+</pre></div>
+</div>
+
+<p>呼び出し元は以下のように書き換えます。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">MFbpr.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">fastupd</span>    <span class="c"># 追加</span>
+
+<span class="k">class</span> <span class="nc">MFbpr</span><span class="p">(</span><span class="n">Recommender</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    中略</span>
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="nf">update_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="c"># sample a negative item(uniformly random)</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemCount</span><span class="p">)</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainMatrix</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemCount</span><span class="p">)</span>
+
+        <span class="c"># BPR update rules</span>
+        <span class="n">y_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>  <span class="c"># target value of positive instance</span>
+        <span class="n">y_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>  <span class="c"># target value of negative instance</span>
+        <span class="n">mult</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">partial_loss</span><span class="p">(</span><span class="n">y_pos</span> <span class="o">-</span> <span class="n">y_neg</span><span class="p">)</span>
+
+        <span class="c"># Cython実装を呼び出す</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">fastupd</span><span class="o">.</span><span class="n">c_upd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">U</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">mult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reg</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">)</span> 
+
+</pre></div>
+</div>
+
+<p>また、Cython実装をコンパイルするための<code>setup.py</code>も用意する必要があります。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">setup.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span> <span class="nn">distutils.extension</span> <span class="kn">import</span> <span class="n">Extension</span>
+<span class="kn">from</span> <span class="nn">Cython.Distutils</span> <span class="kn">import</span> <span class="n">build_ext</span>
+
+<span class="n">setup</span><span class="p">(</span>
+    <span class="n">cmdclass</span><span class="o">=</span><span class="p">{</span><span class="s">'build_ext'</span><span class="p">:</span> <span class="n">build_ext</span><span class="p">},</span>
+    <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span><span class="n">Extension</span><span class="p">(</span><span class="s">"fastupd"</span><span class="p">,</span> <span class="p">[</span><span class="s">"fastupdfn.pyx"</span><span class="p">])]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+
+<p>準備が済んだらコンパイルです。次のコマンドでコンパイルします。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt; python setup.py build_ext --inplace
+</pre></div></div>
+
+<h2>
+<span id="実行" class="fragment"></span><a href="#%E5%AE%9F%E8%A1%8C"><i class="fa fa-link"></i></a>実行</h2>
+
+<p>実行します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt; python exec_bpr.py
+
+Data    yelp.rating
+#Users  25677, #newUser: 588
+#Items  25815
+#Ratings     627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [38.7308020592]   [-]loss: 624282.459815 [8.64863014221]
+Iter=1 [36.7822458744]   [-]loss: 616740.942017 [8.62252616882]
+Iter=2 [35.8996829987]   [-]loss: 609119.520253 [7.9108710289]
+Iter=3 [35.1236720085]   [-]loss: 600992.740207 [8.14179396629]
+Iter=4 [34.9632918835]   [-]loss: 591877.909123 [8.81325411797]
+</pre></div></div>
+
+<p>1イテレーションの実行時間が40秒かからない程度になりました。最初と比べると<strong>3~4倍速くなった</strong>ことになります。</p>
+
+<p><code>line_profiler</code>の結果も載せておきます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt; kernprof -l -v exex_bpr.py
+
+Data    yelp.rating
+#Users  25677, #newUser: 588
+#Items  25815
+#Ratings     627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [66.7851500511]   [-]loss: 624400.680806 [7.92221903801]
+Iter=1 [62.5339269638]   [-]loss: 616866.244211 [7.85720801353]
+Iter=2 [65.6408250332]   [-]loss: 609235.226048 [8.48338794708]
+Iter=3 [66.0613160133]   [-]loss: 601140.035318 [8.52119803429]
+Iter=4 [66.5882000923]   [-]loss: 592026.927719 [8.32318806648]
+Wrote profile results to exex_bpr.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 164.139 s
+File: MFbpr.py
+Function: update_ui at line 93
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    93                                               @profile
+    94                                               def update_ui(self, u, i):
+    95                                                   # sample a negative item(uniformly random)
+    96   3066856     17642519      5.8     10.7          j = np.random.randint(self.itemCount)
+    97   3069840     79530375     25.9     48.5          while self.trainMatrix[u, j] != 0:
+    98      2984        15027      5.0      0.0              j = np.random.randint(self.itemCount)
+    99                                                       
+   100                                                   # BPR update rules
+   101   3066856     17651846      5.8     10.8          y_pos = self.predict(u, i)  # target value of positive instance
+   102   3066856     10985781      3.6      6.7          y_neg = self.predict(u, j)  # target value of negative instance
+   103   3066856     18993291      6.2     11.6          mult = -self.partial_loss(y_pos - y_neg)
+   104                                                  
+   105   3066856     19320147      6.3     11.8          self.U, self.V = fastupd.c_upd(self.U, self.V, mult, self.lr, self.reg, u, i, j, self.factors) 
+
+</pre></div></div>
+
+<p>もともと90%以上を費やしていた行列更新の部分が11.8%に減少しました。Cythonの効果が確認できます。</p>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<p><code>cPrifile</code>や<code>line_profiler</code>を用いたプロファイリングによって処理のボトルネックが発見でき、<code>Cython</code>を使って改善しました。<br>
+1箇所書き換えただけですが、4倍弱速くなりました。</p>
+
+<p>ちなみに、Cythonを適用したコードは<a href="https://github.com/tn1031/bpr" rel="nofollow noopener" target="_blank">github</a>のw_cythonブランチに置きました。そのうちmasterにマージするかもしれません。</p>
+
+<h1>
+<span id="おまけ" class="fragment"></span><a href="#%E3%81%8A%E3%81%BE%E3%81%91"><i class="fa fa-link"></i></a>おまけ？</h1>
+
+<p>for文の部分は、行列の要素を独立に更新しているので完全に並列実行可能です。Cythonには<code>prange()</code>という、for文の処理をマルチスレッドで実行してくれる関数があるので、これを適用することでもう少し改善できるかもしれません。</p>
+<div class="hidden"><form class="js-task-list-update" action="/tn1031/items/fe83f6d7904871162085" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="qjq0iFswvC8d/IHIAkzOp6AXVEhbmqeckofQuU5FVu5vZErAt+rO2IzSzpr+y3GSj2Vuv3B2fOgDprhHZ/Yzng==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1467343549" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+#この記事について
+
+- Pythonを速くする方法について語ります
+- プロファイリングによってCPUバウンドな処理のボトルネックを見つけます
+- 見つけたボトルネックをCythonで改善します
+
+# はじめに
+先日Bayesian Personalized Ranking (BPR)というレコメンドアルゴリズムを実装しました。
+[こちらの論文](http://arxiv.org/abs/1205.2618)の式を参考にコードを書いてみたのですが、実行してみたらちょっと遅すぎて使えなかったため、処理速度の改善に取り組みました。
+その時に試したことを備忘録的にまとめます。
+
+# この記事で用いる手法とコード
+BPRはユーザ x アイテムの行列の行列分解を与えます。
+ユーザ x アイテムの行列$X$を、ユーザ x ファクターの行列$U$とアイテム x ファクターの行列$V$に分解します。
+
+```math
+X = U \cdot V^T
+```
+
+この問題をどのように解くかはBPRの[元論文](http://arxiv.org/abs/1205.2618)をご覧ください。
+
+この手法を以下のように実装しました。$X$は`scipy.sparse.lil_matrix`で定義しています。分解後の$U$と$V$は`numpy.array`です。
+学習に用いるサンプルをブートストラップサンプリングして、その後$U,V$を更新するという流れです。
+
+このコードについて、モデルの学習の部分である`buildModel()`を改善したいと思います。
+
+
+```py:MFbpr.py
+class MFbpr(Recommender):
+    &#39;&#39;&#39;
+    コンストラクタとか他の処理
+    &#39;&#39;&#39;
+    
+    def buildModel(self):
+        loss_pre = sys.float_info.max
+        nonzeros = self.trainMatrix.nnz
+        hr_prev = 0.0
+        sys.stderr.write(&quot;Run for BPR. \n&quot;)
+        for itr in xrange(self.maxIter):
+            start = time.time()
+            
+            # Each training epoch
+            for s in xrange(nonzeros):
+                # sample a user
+                u = np.random.randint(self.userCount)
+                itemList = self.trainMatrix.getrowview(u).rows[0]
+                if len(itemList) == 0:
+                    continue
+                # sample a positive item
+                i = random.choice(itemList)
+                
+                # One SGD step update
+                self.update_ui(u, i)
+                
+    def update_ui(self, u, i):
+        # sample a negative item(uniformly random)
+        j = np.random.randint(self.itemCount)
+        while self.trainMatrix[u, j] != 0:
+            j = np.random.randint(self.itemCount)
+            
+        # BPR update rules
+        y_pos = self.predict(u, i)  # target value of positive instance
+        y_neg = self.predict(u, j)  # target value of negative instance
+        mult = -self.partial_loss(y_pos - y_neg)
+        
+        for f in xrange(self.factors):
+            grad_u = self.V[i, f] - self.V[j, f]
+            self.U[u, f] -= self.lr * (mult * grad_u + self.reg * self.U[u, f])
+                
+            grad = self.U[u, f]
+            self.V[i, f] -= self.lr * (mult * grad + self.reg * self.V[i, f])
+            self.V[j, f] -= self.lr * (-mult * grad + self.reg * self.V[j, f])
+```
+
+```py:exec_bpr.py
+from MFbpr import MFbpr
+
+def load_data(ratingFile, testRatio=0.1):
+    &#39;&#39;&#39;
+    データをロードする処理
+    &#39;&#39;&#39;
+    return trainMatrix, testRatings
+
+if __name__ == &quot;__main__&quot;:
+    # data
+    trainMatrix, testRatings = load_data(&#39;yelp.rating&#39;)
+
+    # settings
+    topK = 100
+    factors = 64
+    maxIter = 10
+    maxIterOnline = 1
+    lr = 0.01
+    adaptive = False
+    init_mean = 0.0
+    init_stdev = 0.1
+    reg = 0.01
+    showProgress = False
+    showLoss = True
+
+    bpr = MFbpr(trainMatrix, testRatings, topK, factors, maxIter, lr, adaptive, reg, init_mean, init_stdev, showProgress, showLoss)
+    bpr.buildModel()
+
+```
+
+なお、コードの全量は[github](https://github.com/tn1031/bpr)で公開しています。
+
+# 実行してみる
+とりあえず実行してみます。
+###設定
+#####データ
+- ユーザ数：25,677
+- アイテム数：25,815
+- レーティング数(評価が存在するサンプルの個数)：627,775
+
+#####ハイパーパラメータ
+- ファクター数：64
+
+#####実行環境
+VirtualBox上に構築したメモリ2G、プロセッサ2個のubuntuです。
+
+###実行結果
+ひとつ目の鍵括弧が1イテレーションにかかった時間[s]、最後の鍵括弧はlossの計算にかかった時間[s]です。
+
+```
+&gt; python exex_bpr.py
+
+Data	yelp.rating
+#Users	25677, #newUser: 588
+#Items	25815
+#Ratings	 627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [128.6936481]	 [-]loss: 624484.357765 [8.16665792465]
+Iter=1 [137.202406883]	 [-]loss: 616970.769244 [7.11149096489]
+Iter=2 [131.134891987]	 [-]loss: 609361.307524 [7.12593793869]
+Iter=3 [134.665620804]	 [-]loss: 601240.628869 [8.45840716362]
+Iter=4 [134.722868919]	 [-]loss: 592053.155587 [7.6300880909]
+```
+
+
+約60万サンプルについて計算しているとはいえ、1イテレーション130秒はかかり過ぎな気がします。
+
+# プロファイリング
+## 全体のプロファイリング
+まずは時間がかかっている部分の特定から始めます。
+Pythonプロファイラの`cProfile`を使って処理速度を計測します。
+`python -m cProfile -s cumulative ***.py`
+と実行すれば時間のかかった処理を降順で表示をしてくれます。
+
+
+```
+&gt; python -m cProfile -s cumulative exex_bpr.py
+
+Data	yelp.rating
+#Users	25677, #newUser: 588
+#Items	25815
+#Ratings	 627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [244.87996006]	 [-]loss: 624394.802988 [53.4806399345]
+Iter=1 [248.624686956]	 [-]loss: 616876.50976 [48.6073460579]
+Iter=2 [253.822627068]	 [-]loss: 609269.820414 [52.5446169376]
+Iter=3 [261.039247036]	 [-]loss: 601207.904104 [53.8221797943]
+Iter=4 [260.285779953]	 [-]loss: 592212.148141 [54.9556028843]
+         369374621 function calls (368041918 primitive calls) in 1808.492 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.171    0.171 1808.493 1808.493 exex_bpr.py:3(&lt;module&gt;)
+        1   34.307   34.307 1532.124 1532.124 MFbpr.py:40(buildModel)
+  3067088  535.383    0.000  830.046    0.000 MFbpr.py:92(update_ui)
+  6209078   48.829    0.000  433.564    0.000 lil.py:228(__getitem__)
+  3292937   26.140    0.000  376.631    0.000 lil.py:191(getrowview)
+  3292939   66.488    0.000  346.337    0.000 lil.py:85(__init__)
+        5    0.000    0.000  263.411   52.682 MFbpr.py:117(_showLoss)
+        5   22.098    4.420  263.410   52.682 MFbpr.py:128(loss)
+        1    9.443    9.443  242.550  242.550 exex_bpr.py:9(load_data)
+```
+
+`Ordered by: cumulative time`という行の下から、関数名と処理に要した時間が羅列されています。これを見ると`update_ui`という関数が3,067,088回呼ばれてトータル535.383秒かかっていることがわかります。
+(まあ、`buildModel`の中ではほとんど`update_ui`しか呼んでないので当然といえば当然ですが．．．)
+
+なお、1イテレーションの実行時間が先程より大きくなっているのはcProfileのオーバーヘッドです。
+
+
+## 行単位のプロファイリング
+[line_profiler](https://pypi.python.org/pypi/line_profiler/)を使えば注目している関数について行単位で計測できます。
+pipでインストールできます。
+
+```
+&gt; pip install line_profiler
+```
+
+`line_profiler`でプロファイルするためには注目している関数に`@profile`のデコレータを付ける必要があります。
+
+```py:MFbpr.py
+    @profile
+    def update_ui(self, u, i):
+        # sample a negative item(uniformly random)
+        j = np.random.randint(self.itemCount)
+        while self.trainMatrix[u, j] != 0:
+            j = np.random.randint(self.itemCount)
+
+        # BPR update rules
+        y_pos = self.predict(u, i)  # target value of positive instance
+        y_neg = self.predict(u, j)  # target value of negative instance
+        mult = -self.partial_loss(y_pos - y_neg)
+
+        for f in xrange(self.factors):
+            grad_u = self.V[i, f] - self.V[j, f]
+            self.U[u, f] -= self.lr * (mult * grad_u + self.reg * self.U[u, f])
+
+            grad = self.U[u, f]
+            self.V[i, f] -= self.lr * (mult * grad + self.reg * self.V[i, f])
+            self.V[j, f] -= self.lr * (-mult * grad + self.reg * self.V[j, f])
+
+```
+
+あとは`kernprof`コマンドで実行するだけです。
+
+```
+&gt; kernprof -l -v exex_bpr.py
+
+Data	yelp.rating
+#Users	25677, #newUser: 588
+#Items	25815
+#Ratings	 627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [953.993126154]	 [-]loss: 624406.940531 [7.50253987312]
+Iter=1 [962.82383585]	 [-]loss: 616855.373858 [7.96375918388]
+Wrote profile results to exex_bpr.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 1082.55 s
+File: MFbpr.py
+Function: update_ui at line 92
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    92                                               @profile
+    93                                               def update_ui(self, u, i):
+    94                                                   # sample a negative item(uniformly random)
+    95   1226961      8241361      6.7      0.8          j = np.random.randint(self.itemCount)
+    96   1228124     39557350     32.2      3.7          while self.trainMatrix[u, j] != 0:
+    97      1163         6123      5.3      0.0              j = np.random.randint(self.itemCount)
+    98                                                       
+    99                                                   # BPR update rules
+   100   1226961      9495381      7.7      0.9          y_pos = self.predict(u, i)  # target value of positive instance
+   101   1226961      4331378      3.5      0.4          y_neg = self.predict(u, j)  # target value of negative instance
+   102   1226961     10002355      8.2      0.9          mult = -self.partial_loss(y_pos - y_neg)
+   103                                                   
+   104  79752465    126523856      1.6     11.7          for f in xrange(self.factors):
+   105  78525504    161882071      2.1     15.0              grad_u = self.V[i, f] - self.V[j, f]
+   106  78525504    191293505      2.4     17.7              self.U[u, f] -= self.lr * (mult * grad_u + self.reg * self.U[u, f])
+   107                                                           
+   108  78525504    137871145      1.8     12.7              grad = self.U[u, f]
+   109  78525504    194033291      2.5     17.9              self.V[i, f] -= self.lr * (mult * grad + self.reg * self.V[i, f])
+   110  78525504    199315454      2.5     18.4              self.V[j, f] -= self.lr * (-mult * grad + self.reg * self.V[j, f])
+
+```
+
+`% Time`のカラムを見ると、`update_ui`の処理時間のうち、**90%以上がfor文以下で費やされている**ことがわかりました。
+
+1イテレーションが1,000秒弱と、オーバーヘッドが大変なことになっています。
+
+#Cythonで高速化
+##実装
+先ほどのforループをCythonで書き直します。
+Pythonが遅い原因のひとつが、Pythonは動的型付けであるということです。変数を参照するたびに型をチェックしているので、変数の参照が多いプログラムはこの操作にかかる時間が無視できなくなってきます。
+
+Cythonを使って書けばc言語のように変数の型を定義できます。いちいち型の確認が行われないのでかなりの高速化が期待できます。
+
+変数の宣言は`cdef`で行います。計算に用いるすべての変数の型を定義しておきます。
+
+```py:fastupdfn.pyx
+import numpy as np
+cimport numpy as np
+cimport cython
+
+DOUBLE = np.float64
+ctypedef np.float64_t DOUBLE_t
+
+cpdef c_upd(np.ndarray[DOUBLE_t, ndim=2] U, 
+          np.ndarray[DOUBLE_t, ndim=2] V,
+          double mult,
+          double lr,
+          double reg,
+          unsigned int u,
+          unsigned int i,
+          unsigned int j,
+          unsigned int factors):
+    cdef unsigned int f
+    cdef double grad_u, grad
+    for f in xrange(factors):
+        grad_u = V[i, f] - V[j, f]
+        U[u, f] -= lr * (mult * grad_u + reg * U[u, f])
+        
+        grad = U[u, f]
+        V[i, f] -= lr * (mult * grad + reg * V[i, f])
+        V[j, f] -= lr * (-mult * grad + reg * V[j, f])
+        
+    return U, V
+```
+
+呼び出し元は以下のように書き換えます。
+
+```py:MFbpr.py
+import fastupd    # 追加
+
+class MFbpr(Recommender):
+    &quot;&quot;&quot;
+    中略
+    &quot;&quot;&quot;
+    def update_ui(self, u, i):
+        # sample a negative item(uniformly random)
+        j = np.random.randint(self.itemCount)
+        while self.trainMatrix[u, j] != 0:
+            j = np.random.randint(self.itemCount)
+            
+        # BPR update rules
+        y_pos = self.predict(u, i)  # target value of positive instance
+        y_neg = self.predict(u, j)  # target value of negative instance
+        mult = -self.partial_loss(y_pos - y_neg)
+       
+        # Cython実装を呼び出す
+        self.U, self.V = fastupd.c_upd(self.U, self.V, mult, self.lr, self.reg, u, i, j, self.factors) 
+
+```
+
+また、Cython実装をコンパイルするための`setup.py`も用意する必要があります。
+
+```py:setup.py
+from distutils.core import setup
+from distutils.extension import Extension
+from Cython.Distutils import build_ext
+
+setup(
+    cmdclass={&#39;build_ext&#39;: build_ext},
+    ext_modules=[Extension(&quot;fastupd&quot;, [&quot;fastupdfn.pyx&quot;])]
+)
+```
+
+準備が済んだらコンパイルです。次のコマンドでコンパイルします。
+
+```
+&gt; python setup.py build_ext --inplace
+```
+
+##実行
+実行します。
+
+```
+&gt; python exec_bpr.py
+
+Data	yelp.rating
+#Users	25677, #newUser: 588
+#Items	25815
+#Ratings	 627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [38.7308020592]	 [-]loss: 624282.459815 [8.64863014221]
+Iter=1 [36.7822458744]	 [-]loss: 616740.942017 [8.62252616882]
+Iter=2 [35.8996829987]	 [-]loss: 609119.520253 [7.9108710289]
+Iter=3 [35.1236720085]	 [-]loss: 600992.740207 [8.14179396629]
+Iter=4 [34.9632918835]	 [-]loss: 591877.909123 [8.81325411797]
+```
+
+1イテレーションの実行時間が40秒かからない程度になりました。最初と比べると**3~4倍速くなった**ことになります。
+
+`line_profiler`の結果も載せておきます。
+
+```
+&gt; kernprof -l -v exex_bpr.py
+
+Data	yelp.rating
+#Users	25677, #newUser: 588
+#Items	25815
+#Ratings	 627775.0 (train), 73167(test), 10056(#newTestRatings)
+Run for BPR. 
+Iter=0 [66.7851500511]	 [-]loss: 624400.680806 [7.92221903801]
+Iter=1 [62.5339269638]	 [-]loss: 616866.244211 [7.85720801353]
+Iter=2 [65.6408250332]	 [-]loss: 609235.226048 [8.48338794708]
+Iter=3 [66.0613160133]	 [-]loss: 601140.035318 [8.52119803429]
+Iter=4 [66.5882000923]	 [-]loss: 592026.927719 [8.32318806648]
+Wrote profile results to exex_bpr.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 164.139 s
+File: MFbpr.py
+Function: update_ui at line 93
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    93                                               @profile
+    94                                               def update_ui(self, u, i):
+    95                                                   # sample a negative item(uniformly random)
+    96   3066856     17642519      5.8     10.7          j = np.random.randint(self.itemCount)
+    97   3069840     79530375     25.9     48.5          while self.trainMatrix[u, j] != 0:
+    98      2984        15027      5.0      0.0              j = np.random.randint(self.itemCount)
+    99                                                       
+   100                                                   # BPR update rules
+   101   3066856     17651846      5.8     10.8          y_pos = self.predict(u, i)  # target value of positive instance
+   102   3066856     10985781      3.6      6.7          y_neg = self.predict(u, j)  # target value of negative instance
+   103   3066856     18993291      6.2     11.6          mult = -self.partial_loss(y_pos - y_neg)
+   104                                                  
+   105   3066856     19320147      6.3     11.8          self.U, self.V = fastupd.c_upd(self.U, self.V, mult, self.lr, self.reg, u, i, j, self.factors) 
+
+```
+
+もともと90%以上を費やしていた行列更新の部分が11.8%に減少しました。Cythonの効果が確認できます。
+
+#まとめ
+`cPrifile`や`line_profiler`を用いたプロファイリングによって処理のボトルネックが発見でき、`Cython`を使って改善しました。
+1箇所書き換えただけですが、4倍弱速くなりました。
+
+ちなみに、Cythonを適用したコードは[github](https://github.com/tn1031/bpr)のw_cythonブランチに置きました。そのうちmasterにマージするかもしれません。
+
+#おまけ？
+for文の部分は、行列の要素を独立に更新しているので完全に並列実行可能です。Cythonには`prange()`という、for文の処理をマルチスレッドで実行してくれる関数があるので、これを適用することでもう少し改善できるかもしれません。
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="機械学習アルゴリズムのボトルネックをCythonで改善する話 by @tn1031 on @Qiita" data-url="http://qiita.com/tn1031/items/fe83f6d7904871162085" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="機械学習アルゴリズムのボトルネックをCythonで改善する話" href="http://b.hatena.ne.jp/entry/http://qiita.com/tn1031/items/fe83f6d7904871162085" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tn1031/items/fe83f6d7904871162085" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tn1031/items/fe83f6d7904871162085" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/tn1031"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/66317/profile-images/1473697168" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/tn1031">tn1031</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">268</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;tn1031&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-4a6b7c0f-019e-4738-ac6b-04cbc61a4242"></div>
+    <div id="UserFollowButton-react-component-4a6b7c0f-019e-4738-ac6b-04cbc61a4242"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tn1031/items/fe83f6d7904871162085">機械学習アルゴリズムのボトルネックをCythonで改善する話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tn1031/items/96e7131cd41df1aebe85">次元の呪いについて</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tn1031/items/e95083cef14db3471af3">Bayesian NMFを確率的変分ベイズ法で解く</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tn1031/items/0445f8840fd0f8c6d568">[論文紹介] Pixel-Level Domain Transfer</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tn1031/items/af76cc737f4517770c48">[論文紹介] PRISM: A System forWeighted Multi-Color Browsing of Fashion Products</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/vasily"><img alt="株式会社VASILY" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/477e52da0a468d92de7e431335c70c35c8a16111/original.jpg?1488206556" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6\&quot;\u003eこの記事について\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%A7%E7%94%A8%E3%81%84%E3%82%8B%E6%89%8B%E6%B3%95%E3%81%A8%E3%82%B3%E3%83%BC%E3%83%89\&quot;\u003eこの記事で用いる手法とコード\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A1%8C%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003e実行してみる\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A8%AD%E5%AE%9A\&quot;\u003e設定\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF\&quot;\u003eデータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8F%E3%82%A4%E3%83%91%E3%83%BC%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF\&quot;\u003eハイパーパラメータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A1%8C%E7%92%B0%E5%A2%83\&quot;\u003e実行環境\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C\&quot;\u003e実行結果\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\n\n\u003ca href=\&quot;#%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0\&quot;\u003eプロファイリング\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%A8%E4%BD%93%E3%81%AE%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0\&quot;\u003e全体のプロファイリング\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A1%8C%E5%8D%98%E4%BD%8D%E3%81%AE%E3%83%97%E3%83%AD%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AA%E3%83%B3%E3%82%B0\&quot;\u003e行単位のプロファイリング\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#cython%E3%81%A7%E9%AB%98%E9%80%9F%E5%8C%96\&quot;\u003eCythonで高速化\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A3%85\&quot;\u003e実装\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A1%8C\&quot;\u003e実行\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\n\n\u003ca href=\&quot;#%E3%81%8A%E3%81%BE%E3%81%91\&quot;\u003eおまけ？\u003c/a\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-db394b9c-34eb-42e0-9164-55fb62609f7f"></div>
+    <div id="Toc-react-component-db394b9c-34eb-42e0-9164-55fb62609f7f"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:116,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;fe83f6d7904871162085&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="miya136x"><a itemprop="url" href="/miya136x"><img alt="miya136x" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99783/profile-images/1473707892" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yamano357"><a itemprop="url" href="/yamano357"><img alt="yamano357" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99957/profile-images/1473707949" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Ki4mTaria"><a itemprop="url" href="/Ki4mTaria"><img alt="Ki4mTaria" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48569/profile-images/1473691396" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="canard0328"><a itemprop="url" href="/canard0328"><img alt="canard0328" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52533/profile-images/1473692763" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yustoris"><a itemprop="url" href="/yustoris"><img alt="yustoris" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12144/profile-images/1473682291" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yudai-nkt"><a itemprop="url" href="/yudai-nkt"><img alt="yudai-nkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92856/profile-images/1473705761" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="daikumatan"><a itemprop="url" href="/daikumatan"><img alt="daikumatan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73207/profile-images/1473699423" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="luminor"><a itemprop="url" href="/luminor"><img alt="luminor" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/109257/profile-images/1473710819" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ayaniimi213"><a itemprop="url" href="/ayaniimi213"><img alt="ayaniimi213" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31830/profile-images/1473685778" /></a></div></div><div class="ArticleFooter__user"><a href="/tn1031/items/fe83f6d7904871162085/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/fe83f6d7904871162085/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/tn1031/items/fe83f6d7904871162085.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="機械学習アルゴリズムのボトルネックをCythonで改善する話 by @tn1031 on @Qiita" data-url="http://qiita.com/tn1031/items/fe83f6d7904871162085" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="機械学習アルゴリズムのボトルネックをCythonで改善する話" href="http://b.hatena.ne.jp/entry/http://qiita.com/tn1031/items/fe83f6d7904871162085" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tn1031/items/fe83f6d7904871162085" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tn1031/items/fe83f6d7904871162085" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eupdate_ui関数のループ部分を，numpy的に（＝ループを使わずに）書いて実行してみたところ，約3.8倍高速化されました．具体的には，\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;py\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n        \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003exrange\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003efactors\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e):\u003c/span\u003e\n            \u003cspan class=\&quot;n\&quot;\u003egrad_u\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ej\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n            \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eU\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eu\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003elr\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emult\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003egrad_u\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereg\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eU\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eu\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e])\u003c/span\u003e\n\n            \u003cspan class=\&quot;n\&quot;\u003egrad\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eU\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eu\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n            \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003elr\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emult\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003egrad\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereg\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e])\u003c/span\u003e\n            \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ej\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003elr\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e-\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emult\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003egrad\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereg\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ej\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ef\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e])\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eから\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;py\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n        \u003cspan class=\&quot;n\&quot;\u003egrad_u\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ej\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n        \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eU\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eu\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003elr\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emult\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003egrad_u\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereg\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eU\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eu\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e])\u003c/span\u003e\n\n        \u003cspan class=\&quot;n\&quot;\u003egrad\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eU\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eu\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n        \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003elr\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emult\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003egrad\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereg\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ei\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e])\u003c/span\u003e\n        \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ej\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-=\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003elr\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e-\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emult\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003egrad\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereg\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eV\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ej\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e])\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eに書き換えたところ，各コードの私の環境における実行結果は，\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nRun for BPR. \nIter=0 [238.934000015]   [-]loss: 624415.507758 [22.6480000019]\nIter=1 [239.621000051]   [-]loss: 616880.888637 [22.9579999447]\nIter=2 [242.042999983]   [-]loss: 609191.55903 [22.6449999809]\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eから\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nRun for BPR. \nIter=0 [62.8139998913]   [-]loss: 624243.622106 [22.5450000763]\nIter=1 [63.0400002003]   [-]loss: 616731.703339 [23.0089998245]\nIter=2 [63.131000042]    [-]loss: 609132.552445 [22.742000103]\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eになりました．\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-26T23:38:29+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:574952,&quot;is_team&quot;:false,&quot;item_id&quot;:403168,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;fe83f6d7904871162085&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;update_ui関数のループ部分を，numpy的に（＝ループを使わずに）書いて実行してみたところ，約3.8倍高速化されました．具体的には，\n\n```py\n        for f in xrange(self.factors):\n            grad_u = self.V[i, f] - self.V[j, f]\n            self.U[u, f] -= self.lr * (mult * grad_u + self.reg * self.U[u, f])\n\n            grad = self.U[u, f]\n            self.V[i, f] -= self.lr * (mult * grad + self.reg * self.V[i, f])\n            self.V[j, f] -= self.lr * (-mult * grad + self.reg * self.V[j, f])\n```\n\nから\n\n```py\n        grad_u = self.V[i] - self.V[j]\n        self.U[u] -= self.lr * (mult * grad_u + self.reg * self.U[u])\n\n        grad = self.U[u]\n        self.V[i] -= self.lr * (mult * grad + self.reg * self.V[i])\n        self.V[j] -= self.lr * (-mult * grad + self.reg * self.V[j])\n```\n\nに書き換えたところ，各コードの私の環境における実行結果は，\n\n```\nRun for BPR. \nIter=0 [238.934000015]   [-]loss: 624415.507758 [22.6480000019]\nIter=1 [239.621000051]   [-]loss: 616880.888637 [22.9579999447]\nIter=2 [242.042999983]   [-]loss: 609191.55903 [22.6449999809]\n```\n\nから\n\n```\nRun for BPR. \nIter=0 [62.8139998913]   [-]loss: 624243.622106 [22.5450000763]\nIter=1 [63.0400002003]   [-]loss: 616731.703339 [23.0089998245]\nIter=2 [63.131000042]    [-]loss: 609132.552445 [22.742000103]\n```\n\nになりました．\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tn1031/items/fe83f6d7904871162085#comment-2a250d6cfa9a3647f333&quot;,&quot;user&quot;:{&quot;contribution&quot;:4,&quot;created_at&quot;:&quot;2015-08-21T16:30:02+09:00&quot;,&quot;id&quot;:90308,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/90308/profile-images/1473705052&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;ronekko&quot;},&quot;uuid&quot;:&quot;2a250d6cfa9a3647f333&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/ronekko\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;ronekko\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;ronekko\&quot;\u003e@ronekko\u003c/a\u003e \u003cbr\u003e\n実験していただいてありがとうございます。先にそちらを試すべきでしたね。\u003cbr\u003e\n私の環境では45秒前後という結果になりました。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nRun for BPR. \nIter=0 [51.5537450314]   [-]loss: 624344.304041 [8.7810049057]\nIter=1 [47.0682270527]   [-]loss: 616776.732256 [9.59387278557]\nIter=2 [45.9531531334]   [-]loss: 609074.102593 [9.33118891716]\nIter=3 [45.5639669895]   [-]loss: 600851.544578 [7.83452391624]\nIter=4 [42.8317232132]   [-]loss: 591482.577977 [8.68618488312]\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-07-01T12:30:22+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:580065,&quot;is_team&quot;:false,&quot;item_id&quot;:403168,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;fe83f6d7904871162085&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@ronekko \n実験していただいてありがとうございます。先にそちらを試すべきでしたね。\n私の環境では45秒前後という結果になりました。\n\n```\nRun for BPR. \nIter=0 [51.5537450314]\t [-]loss: 624344.304041 [8.7810049057]\nIter=1 [47.0682270527]\t [-]loss: 616776.732256 [9.59387278557]\nIter=2 [45.9531531334]\t [-]loss: 609074.102593 [9.33118891716]\nIter=3 [45.5639669895]\t [-]loss: 600851.544578 [7.83452391624]\nIter=4 [42.8317232132]\t [-]loss: 591482.577977 [8.68618488312]\n```\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tn1031/items/fe83f6d7904871162085#comment-de6228acab9aae9f44e2&quot;,&quot;user&quot;:{&quot;contribution&quot;:268,&quot;created_at&quot;:&quot;2015-01-17T11:07:29+09:00&quot;,&quot;id&quot;:66317,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/66317/profile-images/1473697168&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;tn1031&quot;},&quot;uuid&quot;:&quot;de6228acab9aae9f44e2&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:403168,&quot;uuid&quot;:&quot;fe83f6d7904871162085&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;tn1031&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:66317,&quot;url_name&quot;:&quot;tn1031&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/66317/profile-images/1473697168&quot;},{&quot;id&quot;:90308,&quot;url_name&quot;:&quot;ronekko&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/90308/profile-images/1473705052&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-f402d58a-24b3-40e7-876a-620855d0e1b1"></div>
+    <div id="CommentListContainer-react-component-f402d58a-24b3-40e7-876a-620855d0e1b1"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="LmvSI9iDk8octiWhq1/+gIfDiBL5z+3BpRkhCQjDrvPrNSxrNFnhPY2YavNX2EG1qLGy5dIjNrU0OEn3IXDLgw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tn1031/items/fe83f6d7904871162085" /><input type="hidden" name="item_uuid" id="item_uuid" value="fe83f6d7904871162085" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/tn1031/items/fe83f6d7904871162085", "id": 403168, "uuid": "fe83f6d7904871162085" }</script><script class="js-user" type="application/json">{&quot;id&quot;:66317,&quot;url_name&quot;:&quot;tn1031&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/66317/profile-images/1473697168&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="JRhBAMGPWQmv+gJqLSJ89QbF5gwwDA6ZjOFvbqku0gXgRr9ILVUr/j7UTTjRpcPAKbfc+xvg1e0dwAeQgJ23dQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tn1031/items/fe83f6d7904871162085" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,774 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="TensorFlowとは2015/11/9にオープンソース化されたGoogleの機械学習ライブラリです。この記事ではディープラーニングと言われる多層構造のニューラルネットワークをTensorFlowを利用して構築しています。
+
+TensorFlowはPythonから操作できますがバックエンドではC++で高速に計算しています。macのPython2.7系環境でTensorFlowの上級者用チュートリアルを行い、手書き認識率99.2%の多層構造の畳み込みニューラルネットワー..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/haminiku/items/36982ae65a770565458d" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="TensorFlowとは2015/11/9にオープンソース化されたGoogleの機械学習ライブラリです。この記事ではディープラーニングと言われる多層構造のニューラルネットワークをTensorFlowを利用して構築しています。
+
+Ten..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="snT5VZOAc1xrhIaupfna63IXCe0XpKhbG1xdjQV7MdpKkceZBUbyu2DQ9TjUwZ38C64UxjCU5K/6aZaDNZdOdg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"haminiku","type":"items","id":"36982ae65a770565458d"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-28975175-f54e-4fb2-a757-44206d4bc8fb"></div>
+    <div id="HeaderContainer-react-component-28975175-f54e-4fb2-a757-44206d4bc8fb"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">1370</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="2 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>2</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:1370,&quot;uuid&quot;:&quot;36982ae65a770565458d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="tt_w54s"><a itemprop="url" href="/tt_w54s"><img alt="tt_w54s" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52660/profile-images/1473692800" /></a></li><li class="js-hovercard" data-hovercard-target-name="TakesxiSximada"><a itemprop="url" href="/TakesxiSximada"><img alt="TakesxiSximada" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/36261/profile-images/1473687011" /></a></li><li class="js-hovercard" data-hovercard-target-name="soundTricker"><a itemprop="url" href="/soundTricker"><img alt="soundTricker" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2965/profile-images/1473682415" /></a></li><li class="js-hovercard" data-hovercard-target-name="yasunori"><a itemprop="url" href="/yasunori"><img alt="yasunori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/176/profile-images/1473682067" /></a></li><li class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></li><li class="js-hovercard" data-hovercard-target-name="sinmetal"><a itemprop="url" href="/sinmetal"><img alt="sinmetal" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15640/profile-images/1474548897" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></li><li class="js-hovercard" data-hovercard-target-name="kazunori279"><a itemprop="url" href="/kazunori279"><img alt="kazunori279" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38290/profile-images/1473687710" /></a></li><li class="js-hovercard" data-hovercard-target-name="sergeant-wizard"><a itemprop="url" href="/sergeant-wizard"><img alt="sergeant-wizard" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" /></a></li><li><a href="/haminiku/items/36982ae65a770565458d/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/haminiku"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/65312/profile-images/1473696847" alt="1473696847" /></a> <a class="u-link-unstyled" href="/haminiku">haminiku</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-11-10T16:00:57+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-11-10">Edited at <time datetime="2015-11-11T00:08:35+09:00" itemprop="dateModified">2015-11-11</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/haminiku/items/36982ae65a770565458d/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">13</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/haminiku/items/36982ae65a770565458d/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(13)</span></a></li><li><a href="/haminiku/items/36982ae65a770565458d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-36982ae65a770565458d" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>TensorFlowとは2015/11/9にオープンソース化されたGoogleの機械学習ライブラリです。この記事ではディープラーニングと言われる多層構造のニューラルネットワークをTensorFlowを利用して構築しています。</p>
+
+<p>TensorFlowはPythonから操作できますがバックエンドではC++で高速に計算しています。macのPython2.7系環境でTensorFlowの上級者用チュートリアルを行い、手書き認識率99.2%の多層構造の畳み込みニューラルネットワークモデルの分類器を構築したときの作業メモです。特別な設定なしにCPU使用率270%メモリ600MByteとちゃんと並列計算してくれました。MNISTランキングを見ると認識率99.2%は上位のモデルとなるようです。</p>
+
+<h1>
+<span id="tensorflowチュートリアル" class="fragment"></span><a href="#tensorflow%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB"><i class="fa fa-link"></i></a>TensorFlowチュートリアル</h1>
+
+<p>TensorFlowの初心者用と上級者用チュートリアル2つに取り組んでみました。チュートリアルではMNISTと呼ばれる手書きデータセットを利用して、機械学習と学習データを用いた分類器を構築して手書き画像の認識を行います。初心者用チュートリアルでは精度90%前後の分類器を、上級者用では精度99.2%前後の分類器を構築します。上級者用チュートリアルではディープラーニングと言われる多層構造のニューラルネットワークを構築するチュートリアルとなっています。<br>
+<a href="http://tensorflow.org/tutorials/mnist/beginners/index.md" rel="nofollow noopener" target="_blank">MNIST For ML Beginners</a><br>
+<a href="http://tensorflow.org/tutorials/mnist/pros/index.md" rel="nofollow noopener" target="_blank">Deep MNIST for Experts</a></p>
+
+<p>■ 画像:今回試験に利用するMNIST手書きデータセットの一部<br>
+MNISTデータは28x28ピクセルの数字の手書きデータセットです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/65312/6e3ceb37-b016-b01f-d5b6-17c2b4309b38.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/65312/6e3ceb37-b016-b01f-d5b6-17c2b4309b38.png" alt="mn.png" title="mn.png"></a></p>
+
+<h1>
+<span id="セットアップ" class="fragment"></span><a href="#%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97"><i class="fa fa-link"></i></a>セットアップ</h1>
+
+<p>環境はmacでpython 2.7系です。拙い翻訳ですが出来るだけコメントを残してみました。怪しいと思ったらチュートリアルの原文を読むことをオススメします。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">セットアップ</span></div>
+<div class="highlight"><pre>
+<span class="c"># TensorFlowのインストール</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">storage</span><span class="o">.</span><span class="n">googleapis</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">tensorflow</span><span class="o">/</span><span class="n">mac</span><span class="o">/</span><span class="n">tensorflow</span><span class="o">-</span><span class="mf">0.5</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="n">py2</span><span class="o">-</span><span class="n">none</span><span class="o">-</span><span class="nb">any</span><span class="o">.</span><span class="n">whl</span>
+
+<span class="c"># TensorFlowのインストールの確認</span>
+<span class="n">python</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="s">'Hello, TensorFlow!'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">hello</span><span class="p">)</span>
+<span class="n">Hello</span><span class="p">,</span> <span class="n">TensorFlow</span><span class="err">!</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
+<span class="mi">42</span>
+
+<span class="c"># MNIST手書きデータ展開用のディレクトリ作成</span>
+<span class="n">mkdir</span> <span class="o">~/</span><span class="n">tensorflow</span>
+<span class="n">cd</span> <span class="o">~/</span><span class="n">tensorflow</span>
+
+<span class="n">touch</span> <span class="n">input_data</span><span class="o">.</span><span class="n">py</span>
+<span class="n">vi</span> <span class="n">input_data</span><span class="o">.</span><span class="n">py</span>
+<span class="c"># こちらの内容をinput_data.pyにコピペ</span>
+<span class="c"># https://tensorflow.googlesource.com/tensorflow/+/master/tensorflow/g3doc/tutorials/mnist/input_data.py</span>
+<span class="c"># input_data.pyをimportすると内部でMNISTデータセットをダウンロードしてメモリ上に展開してくれます。</span>
+
+<span class="c"># input_data.pyの試験</span>
+<span class="n">python</span>
+<span class="o">&gt;&gt;&gt;</span><span class="kn">import</span> <span class="nn">input_data</span>
+<span class="o">&gt;&gt;&gt;</span><span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s">'MNIST_data'</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+</pre></div>
+</div>
+
+<h1>
+<span id="初心者用のmnistチュートリアル" class="fragment"></span><a href="#%E5%88%9D%E5%BF%83%E8%80%85%E7%94%A8%E3%81%AEmnist%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB"><i class="fa fa-link"></i></a>初心者用のMNISTチュートリアル</h1>
+
+<p>TensorFlowを利用して簡単なMNIST分類器を構築して、手書き文字の認識を行います。コピペしても動くように書いておきました。<br>
+参考:<a href="http://tensorflow.org/tutorials/mnist/beginners/index.md" rel="nofollow noopener" target="_blank">MNIST For ML Beginners</a></p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">mnist_beginner.py</span></div>
+<div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">import</span> <span class="nn">input_data</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="c"># mnistデータ読み込み</span>
+<span class="k">print</span> <span class="s">"****MNISTデータ読み込み****"</span>
+<span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s">"MNIST_data/"</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">TtensorFlowのチュートリアル開始</span>
+<span class="sd">TtensorFlowのバックエンドではC++の高速なライブラリを使用しています。</span>
+<span class="sd">ロジスティック回帰モデルを構築します。</span>
+<span class="sd">"""</span>
+<span class="k">print</span> <span class="s">"****Start Tutorial****"</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">784</span><span class="p">])</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">784</span><span class="p">,</span> <span class="mi">10</span><span class="p">]))</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">10</span><span class="p">]))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+<span class="n">y_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+<span class="c"># In this case, we ask TensorFlow to minimize cross_entropy</span>
+<span class="c"># using the gradient descent algorithm with a learning rate of 0.01.</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
+
+<span class="c"># 学習変数とセッションの初期化</span>
+<span class="k">print</span> <span class="s">"****init****"</span>
+<span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">()</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+
+<span class="c"># 1000回学習</span>
+<span class="k">print</span> <span class="s">"****1000回学習と結果表示****"</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">train_step</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+
+<span class="c"># 結果表示</span>
+<span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">correct_prediction</span><span class="p">,</span> <span class="s">"float"</span><span class="p">))</span>
+<span class="k">print</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">})</span>
+
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="shell-session">
+<div class="code-lang"><span class="bold">実行結果</span></div>
+<div class="highlight"><pre>
+<span class="go">&gt;&gt;&gt;python ./mnist_beginner.py</span>
+<span class="go">****MNISTデータ読み込み****</span>
+<span class="go">Extracting MNIST_data/train-images-idx3-ubyte.gz</span>
+<span class="go">Extracting MNIST_data/train-labels-idx1-ubyte.gz</span>
+<span class="go">Extracting MNIST_data/t10k-images-idx3-ubyte.gz</span>
+<span class="go">Extracting MNIST_data/t10k-labels-idx1-ubyte.gz</span>
+<span class="go">****Start Tutorial****</span>
+<span class="go">****init****</span>
+<span class="go">can't determine number of CPU cores: assuming 4</span>
+<span class="go">I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4</span>
+<span class="go">can't determine number of CPU cores: assuming 4</span>
+<span class="go">I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4</span>
+<span class="go">****1000回学習と結果表示****</span>
+<span class="go">0.9098</span>
+
+</pre></div>
+</div>
+
+<h1>
+<span id="上級者用のmnistチュートリアル" class="fragment"></span><a href="#%E4%B8%8A%E7%B4%9A%E8%80%85%E7%94%A8%E3%81%AEmnist%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB"><i class="fa fa-link"></i></a>上級者用のMNISTチュートリアル</h1>
+
+<p>TensorFlowを利用して深層畳み込みニューラルネットワークMNIST分類器を構築して手書き文字を認識するチュートリアルです。コピペしても動くように書いておきました。<br>
+<a href="http://tensorflow.org/tutorials/mnist/pros/index.md" rel="nofollow noopener" target="_blank">Deep MNIST for Experts</a></p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">mnist_expert.py</span></div>
+<div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">unicode_literals</span>
+<span class="kn">import</span> <span class="nn">input_data</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+
+<span class="c"># mnistデータ読み込み</span>
+<span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s">"MNIST_data/"</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># cross_entropyを実装</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">InteractiveSession</span><span class="p">()</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">784</span><span class="p">])</span>
+<span class="n">y_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">784</span><span class="p">,</span> <span class="mi">10</span><span class="p">]))</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">10</span><span class="p">]))</span>
+<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">())</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+<span class="c"># In this case, we ask TensorFlow to minimize cross_entropy</span>
+<span class="c"># using the gradient descent algorithm with a learning rate of 0.01.</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
+
+<span class="c"># 1000回学習</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">]})</span>
+
+<span class="c"># 結果表示</span>
+<span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">correct_prediction</span><span class="p">,</span> <span class="s">"float"</span><span class="p">))</span>
+<span class="k">print</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">})</span>
+<span class="c"># 結果精度91%前後</span>
+
+<span class="c">##########################################</span>
+<span class="c"># 深層畳み込みニューラルネットワークを構築</span>
+<span class="c"># Build a Multilayer Convolutional Network</span>
+<span class="c"># 精度91%は悪いから深層畳み込みモデルを構築して99.2%を目指す</span>
+<span class="c">###########################################</span>
+
+<span class="sd">"""</span>
+<span class="sd">ちょっと理解できませんでした.. </span>
+<span class="sd">多層になると損失関数のパラメータ勾配が限りなくゼロに近づく勾配消失問題(Vanishing gradient problem)対策のために、少量のノイズで重みを初期化する関数みたいです。</span>
+
+<span class="sd">Weight Initialization</span>
+
+<span class="sd">To create this model, we're going to need to create a lot of weights and biases.</span>
+<span class="sd">One should generally initialize weights with a small amount of noise for symmetry breaking,</span>
+<span class="sd">and to prevent 0 gradients. Since we're using ReLU neurons, it is also good practice to initialize</span>
+<span class="sd">them with a slightly positive initial bias to avoid "dead neurons." Instead of doing this repeatedly</span>
+<span class="sd">while we build the model, let's create two handy functions to do it for us.</span>
+<span class="sd">"""</span>
+
+
+<span class="k">def</span> <span class="nf">weight_variable</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+    <span class="n">initial</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">bias_variable</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+    <span class="n">initial</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">initial</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">Convolution and Pooling</span>
+<span class="sd">TensorFlow also gives us a lot of flexibility in convolution and pooling operations.</span>
+<span class="sd">How do we handle the boundaries? What is our stride size? In this example,</span>
+<span class="sd">we're always going to choose the vanilla version. Our convolutions uses a stride of one</span>
+<span class="sd">and are zero padded so that the output is the same size as the input. Our pooling is plain old</span>
+<span class="sd">max pooling over 2x2 blocks. To keep our code cleaner, let's also abstract those operations into functions.</span>
+<span class="sd">"""</span>
+
+
+<span class="k">def</span> <span class="nf">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">max_pool_2x2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                          <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">)</span>
+<span class="sd">"""</span>
+<span class="sd">第1レイヤー 5x5パッチで32の特徴を計算</span>
+<span class="sd">[5, 5, 1, 32] は最初の5,5はパッチサイズ,1は入力チャンネル数,32は出力チャンネル数</span>
+<span class="sd">"""</span>
+<span class="n">W_conv1</span> <span class="o">=</span> <span class="n">weight_variable</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">])</span>
+<span class="n">b_conv1</span> <span class="o">=</span> <span class="n">bias_variable</span><span class="p">([</span><span class="mi">32</span><span class="p">])</span>
+<span class="n">x_image</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">h_conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x_image</span><span class="p">,</span> <span class="n">W_conv1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_conv1</span><span class="p">)</span>
+<span class="n">h_pool1</span> <span class="o">=</span> <span class="n">max_pool_2x2</span><span class="p">(</span><span class="n">h_conv1</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">第2レイヤー 5x5パッチで64の特徴を計算</span>
+<span class="sd">"""</span>
+<span class="n">W_conv2</span> <span class="o">=</span> <span class="n">weight_variable</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">])</span>
+<span class="n">b_conv2</span> <span class="o">=</span> <span class="n">bias_variable</span><span class="p">([</span><span class="mi">64</span><span class="p">])</span>
+<span class="n">h_conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">conv2d</span><span class="p">(</span><span class="n">h_pool1</span><span class="p">,</span> <span class="n">W_conv2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_conv2</span><span class="p">)</span>
+<span class="n">h_pool2</span> <span class="o">=</span> <span class="n">max_pool_2x2</span><span class="p">(</span><span class="n">h_conv2</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">密集接続レイヤー</span>
+
+<span class="sd">画像サイズ7x7に還元されているので、1024のニューロンと完全に接続する層（翻訳がかなり怪しいので原文読んでください）MNISTデータは28x28ピクセルなので1/16ずつ読むみたいです。</span>
+
+<span class="sd">Densely Connected Layer</span>
+
+<span class="sd">Now that the image size has been reduced to 7x7, we add a fully-connected layer with 1024 neurons to allow</span>
+<span class="sd">processing on the entire image. We reshape the tensor from the pooling layer into a batch of vectors,</span>
+<span class="sd">multiply by a weight matrix, add a bias, and apply a ReLU.</span>
+<span class="sd">"""</span>
+<span class="n">W_fc1</span> <span class="o">=</span> <span class="n">weight_variable</span><span class="p">([</span><span class="mi">7</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">1024</span><span class="p">])</span>
+<span class="n">b_fc1</span> <span class="o">=</span> <span class="n">bias_variable</span><span class="p">([</span><span class="mi">1024</span><span class="p">])</span>
+<span class="n">h_pool2_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">h_pool2</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">64</span><span class="p">])</span>
+<span class="n">h_fc1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h_pool2_flat</span><span class="p">,</span> <span class="n">W_fc1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_fc1</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">過剰適合を排除する</span>
+
+<span class="sd">Dropout</span>
+
+<span class="sd">To reduce overfitting, we will apply dropout before the readout layer. We create a placeholder</span>
+<span class="sd">for the probability that a neuron's output is kept during dropout. This allows us to turn dropout</span>
+<span class="sd">on during training, and turn it off during testing. TensorFlow's tf.nn.dropout op automatically</span>
+<span class="sd">handles scaling neuron outputs in addition to masking them, so dropout just works without any additional scaling.</span>
+<span class="sd">"""</span>
+<span class="n">keep_prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">)</span>
+<span class="n">h_fc1_drop</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">h_fc1</span><span class="p">,</span> <span class="n">keep_prob</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">読み出し層</span>
+<span class="sd">第1層のロジスティック回帰のように、ロジスティック回帰層を追加</span>
+
+<span class="sd">Readout Layer</span>
+<span class="sd">Finally, we add a softmax layer, just like for the one layer softmax regression above.</span>
+<span class="sd">"""</span>
+<span class="n">W_fc2</span> <span class="o">=</span> <span class="n">weight_variable</span><span class="p">([</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+<span class="n">b_fc2</span> <span class="o">=</span> <span class="n">bias_variable</span><span class="p">([</span><span class="mi">10</span><span class="p">])</span>
+
+<span class="n">y_conv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h_fc1_drop</span><span class="p">,</span> <span class="n">W_fc2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_fc2</span><span class="p">)</span>
+
+<span class="sd">"""</span>
+<span class="sd">モデルの学習と評価</span>
+<span class="sd">TensorFlowを使用して、洗練された深い学習モデルの学習と評価を行います。</span>
+<span class="sd">"""</span>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_conv</span><span class="p">))</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
+<span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_conv</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">correct_prediction</span><span class="p">,</span> <span class="s">"float"</span><span class="p">))</span>
+<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">())</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20000</span><span class="p">):</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">train_accuracy</span> <span class="o">=</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">x</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+        <span class="k">print</span> <span class="s">"step </span><span class="si">%d</span><span class="s">, training accuracy </span><span class="si">%g</span><span class="s">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">train_accuracy</span><span class="p">)</span>
+    <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">})</span>
+
+<span class="c"># 結果表示</span>
+<span class="k">print</span> <span class="s">"test accuracy </span><span class="si">%g</span><span class="s">"</span> <span class="o">%</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">keep_prob</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+
+
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="shell-session">
+<div class="code-lang"><span class="bold">実行結果（実行に1時間くらい掛かった）</span></div>
+<div class="highlight"><pre>
+<span class="go">&gt;&gt;&gt;python ./mnist_expert.py</span>
+<span class="go">Extracting MNIST_data/train-images-idx3-ubyte.gz</span>
+<span class="go">Extracting MNIST_data/train-labels-idx1-ubyte.gz</span>
+<span class="go">Extracting MNIST_data/t10k-images-idx3-ubyte.gz</span>
+<span class="go">Extracting MNIST_data/t10k-labels-idx1-ubyte.gz</span>
+<span class="go">can't determine number of CPU cores: assuming 4</span>
+<span class="go">I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4</span>
+<span class="go">can't determine number of CPU cores: assuming 4</span>
+<span class="go">I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4</span>
+<span class="go">0.9092</span>
+<span class="go">step 0, training accuracy 0.06</span>
+<span class="go">step 100, training accuracy 0.68</span>
+<span class="go">step 200, training accuracy 0.9</span>
+<span class="go">step 300, training accuracy 0.98</span>
+<span class="go">step 400, training accuracy 0.9</span>
+<span class="go">step 500, training accuracy 0.94</span>
+<span class="go">step 600, training accuracy 0.92</span>
+<span class="go">step 700, training accuracy 0.84</span>
+<span class="go">step 800, training accuracy 0.92</span>
+<span class="go">step 900, training accuracy 0.94</span>
+<span class="go">step 1000, training accuracy 0.98</span>
+<span class="go">step 1100, training accuracy 0.96</span>
+<span class="go">step 1200, training accuracy 0.98</span>
+<span class="go">step 1300, training accuracy 0.96</span>
+<span class="go">step 1400, training accuracy 0.98</span>
+<span class="go">step 1500, training accuracy 0.98</span>
+<span class="go">step 1600, training accuracy 0.96</span>
+<span class="go">step 1700, training accuracy 0.96</span>
+<span class="go">step 1800, training accuracy 0.96</span>
+<span class="go">....</span>
+<span class="go">step 19600, training accuracy 1</span>
+<span class="go">step 19700, training accuracy 0.98</span>
+<span class="go">step 19800, training accuracy 1</span>
+<span class="go">step 19900, training accuracy 1</span>
+<span class="go">test accuracy 0.992</span>
+
+</pre></div>
+</div>
+
+<p>■ 画像:TensorFlowの動作フロー<br>
+上級チュートリアルが終わったあとこのgifを見直すと、少しだけ意味が理解できるようになりました。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/65312/c8430ab5-bdac-8fc5-d227-4842829790b1.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/65312/c8430ab5-bdac-8fc5-d227-4842829790b1.gif" alt="tensors_flowing.gif"></a></p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<p><a href="http://tensorflow.org/" rel="nofollow noopener" target="_blank">TensorFlow</a><br>
+<a href="http://tensorflow.org/tutorials/mnist/beginners/index.md" rel="nofollow noopener" target="_blank">MNIST For ML Beginners</a><br>
+<a href="http://tensorflow.org/tutorials/mnist/pros/index.md" rel="nofollow noopener" target="_blank">Deep MNIST for Experts</a><br>
+<a href="https://tensorflow.googlesource.com/tensorflow/+/master/tensorflow/g3doc/tutorials/mnist/input_data.py" rel="nofollow noopener" target="_blank">import_data.py</a><br>
+<a href="http://yann.lecun.com/exdb/mnist/" rel="nofollow noopener" target="_blank">MNIST手書きデータセット</a><br>
+<a href="http://japanese.engadget.com/2015/11/09/google-tensorflow/" rel="nofollow noopener" target="_blank">Google、人工知能ライブラリ TensorFlow をオープンソース化。音声検索や写真認識、翻訳の基盤技術ディープラーニングを商利用可で解放</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/haminiku/items/36982ae65a770565458d" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="CdeS39z9WxVrTCs6yBtUZEw/ri79YwvwsQ/d+Nq298DxMqwTSjva8mAYWKy5IxNzNYazBdpTRwRQOhb26lqIbA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1447168115" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+TensorFlowとは2015/11/9にオープンソース化されたGoogleの機械学習ライブラリです。この記事ではディープラーニングと言われる多層構造のニューラルネットワークをTensorFlowを利用して構築しています。
+
+TensorFlowはPythonから操作できますがバックエンドではC++で高速に計算しています。macのPython2.7系環境でTensorFlowの上級者用チュートリアルを行い、手書き認識率99.2%の多層構造の畳み込みニューラルネットワークモデルの分類器を構築したときの作業メモです。特別な設定なしにCPU使用率270%メモリ600MByteとちゃんと並列計算してくれました。MNISTランキングを見ると認識率99.2%は上位のモデルとなるようです。
+
+# TensorFlowチュートリアル
+TensorFlowの初心者用と上級者用チュートリアル2つに取り組んでみました。チュートリアルではMNISTと呼ばれる手書きデータセットを利用して、機械学習と学習データを用いた分類器を構築して手書き画像の認識を行います。初心者用チュートリアルでは精度90%前後の分類器を、上級者用では精度99.2%前後の分類器を構築します。上級者用チュートリアルではディープラーニングと言われる多層構造のニューラルネットワークを構築するチュートリアルとなっています。
+[MNIST For ML Beginners](http://tensorflow.org/tutorials/mnist/beginners/index.md)
+[Deep MNIST for Experts](http://tensorflow.org/tutorials/mnist/pros/index.md)
+
+■ 画像:今回試験に利用するMNIST手書きデータセットの一部
+MNISTデータは28x28ピクセルの数字の手書きデータセットです。
+![mn.png](https://qiita-image-store.s3.amazonaws.com/0/65312/6e3ceb37-b016-b01f-d5b6-17c2b4309b38.png &quot;mn.png&quot;)
+
+
+
+# セットアップ
+環境はmacでpython 2.7系です。拙い翻訳ですが出来るだけコメントを残してみました。怪しいと思ったらチュートリアルの原文を読むことをオススメします。
+
+```py:セットアップ
+# TensorFlowのインストール
+pip install https://storage.googleapis.com/tensorflow/mac/tensorflow-0.5.0-py2-none-any.whl
+
+# TensorFlowのインストールの確認
+python
+&gt;&gt;&gt; import tensorflow as tf
+&gt;&gt;&gt; hello = tf.constant(&#39;Hello, TensorFlow!&#39;)
+&gt;&gt;&gt; sess = tf.Session()
+&gt;&gt;&gt; print sess.run(hello)
+Hello, TensorFlow!
+&gt;&gt;&gt; a = tf.constant(10)
+&gt;&gt;&gt; b = tf.constant(32)
+&gt;&gt;&gt; print sess.run(a+b)
+42
+
+# MNIST手書きデータ展開用のディレクトリ作成
+mkdir ~/tensorflow
+cd ~/tensorflow
+
+touch input_data.py
+vi input_data.py
+# こちらの内容をinput_data.pyにコピペ
+# https://tensorflow.googlesource.com/tensorflow/+/master/tensorflow/g3doc/tutorials/mnist/input_data.py
+# input_data.pyをimportすると内部でMNISTデータセットをダウンロードしてメモリ上に展開してくれます。
+
+# input_data.pyの試験
+python
+&gt;&gt;&gt;import input_data
+&gt;&gt;&gt;mnist = input_data.read_data_sets(&#39;MNIST_data&#39;, one_hot=True)
+
+```
+
+# 初心者用のMNISTチュートリアル
+TensorFlowを利用して簡単なMNIST分類器を構築して、手書き文字の認識を行います。コピペしても動くように書いておきました。
+参考:[MNIST For ML Beginners](http://tensorflow.org/tutorials/mnist/beginners/index.md)
+
+```py:mnist_beginner.py
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
+import input_data
+import tensorflow as tf
+# mnistデータ読み込み
+print &quot;****MNISTデータ読み込み****&quot;
+mnist = input_data.read_data_sets(&quot;MNIST_data/&quot;, one_hot=True)
+
+&quot;&quot;&quot;
+TtensorFlowのチュートリアル開始
+TtensorFlowのバックエンドではC++の高速なライブラリを使用しています。
+ロジスティック回帰モデルを構築します。
+&quot;&quot;&quot;
+print &quot;****Start Tutorial****&quot;
+x = tf.placeholder(&quot;float&quot;, [None, 784])
+W = tf.Variable(tf.zeros([784, 10]))
+b = tf.Variable(tf.zeros([10]))
+y = tf.nn.softmax(tf.matmul(x, W) + b)
+y_ = tf.placeholder(&quot;float&quot;, [None, 10])
+cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
+
+# In this case, we ask TensorFlow to minimize cross_entropy
+# using the gradient descent algorithm with a learning rate of 0.01.
+train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
+
+# 学習変数とセッションの初期化
+print &quot;****init****&quot;
+init = tf.initialize_all_variables()
+sess = tf.Session()
+sess.run(init)
+
+# 1000回学習
+print &quot;****1000回学習と結果表示****&quot;
+for i in range(1000):
+    batch_xs, batch_ys = mnist.train.next_batch(100)
+    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+
+# 結果表示
+correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, &quot;float&quot;))
+print sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels})
+
+```
+
+```shell-session:実行結果
+&gt;&gt;&gt;python ./mnist_beginner.py
+****MNISTデータ読み込み****
+Extracting MNIST_data/train-images-idx3-ubyte.gz
+Extracting MNIST_data/train-labels-idx1-ubyte.gz
+Extracting MNIST_data/t10k-images-idx3-ubyte.gz
+Extracting MNIST_data/t10k-labels-idx1-ubyte.gz
+****Start Tutorial****
+****init****
+can&#39;t determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4
+can&#39;t determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4
+****1000回学習と結果表示****
+0.9098
+
+```
+
+
+# 上級者用のMNISTチュートリアル
+TensorFlowを利用して深層畳み込みニューラルネットワークMNIST分類器を構築して手書き文字を認識するチュートリアルです。コピペしても動くように書いておきました。
+[Deep MNIST for Experts](http://tensorflow.org/tutorials/mnist/pros/index.md)
+
+
+```py:mnist_expert.py
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, unicode_literals
+import input_data
+import tensorflow as tf
+
+# mnistデータ読み込み
+mnist = input_data.read_data_sets(&quot;MNIST_data/&quot;, one_hot=True)
+
+# cross_entropyを実装
+sess = tf.InteractiveSession()
+x = tf.placeholder(&quot;float&quot;, shape=[None, 784])
+y_ = tf.placeholder(&quot;float&quot;, shape=[None, 10])
+W = tf.Variable(tf.zeros([784, 10]))
+b = tf.Variable(tf.zeros([10]))
+sess.run(tf.initialize_all_variables())
+y = tf.nn.softmax(tf.matmul(x, W) + b)
+cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
+
+# In this case, we ask TensorFlow to minimize cross_entropy
+# using the gradient descent algorithm with a learning rate of 0.01.
+train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
+
+# 1000回学習
+for i in range(1000):
+    batch = mnist.train.next_batch(50)
+    train_step.run(feed_dict={x: batch[0], y_: batch[1]})
+
+# 結果表示
+correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, &quot;float&quot;))
+print accuracy.eval(feed_dict={x: mnist.test.images, y_: mnist.test.labels})
+# 結果精度91%前後
+
+##########################################
+# 深層畳み込みニューラルネットワークを構築
+# Build a Multilayer Convolutional Network
+# 精度91%は悪いから深層畳み込みモデルを構築して99.2%を目指す
+###########################################
+
+&quot;&quot;&quot;
+ちょっと理解できませんでした.. 
+多層になると損失関数のパラメータ勾配が限りなくゼロに近づく勾配消失問題(Vanishing gradient problem)対策のために、少量のノイズで重みを初期化する関数みたいです。
+
+Weight Initialization
+
+To create this model, we&#39;re going to need to create a lot of weights and biases.
+One should generally initialize weights with a small amount of noise for symmetry breaking,
+and to prevent 0 gradients. Since we&#39;re using ReLU neurons, it is also good practice to initialize
+them with a slightly positive initial bias to avoid &quot;dead neurons.&quot; Instead of doing this repeatedly
+while we build the model, let&#39;s create two handy functions to do it for us.
+&quot;&quot;&quot;
+
+
+def weight_variable(shape):
+    initial = tf.truncated_normal(shape, stddev=0.1)
+    return tf.Variable(initial)
+
+
+def bias_variable(shape):
+    initial = tf.constant(0.1, shape=shape)
+    return tf.Variable(initial)
+
+&quot;&quot;&quot;
+Convolution and Pooling
+TensorFlow also gives us a lot of flexibility in convolution and pooling operations.
+How do we handle the boundaries? What is our stride size? In this example,
+we&#39;re always going to choose the vanilla version. Our convolutions uses a stride of one
+and are zero padded so that the output is the same size as the input. Our pooling is plain old
+max pooling over 2x2 blocks. To keep our code cleaner, let&#39;s also abstract those operations into functions.
+&quot;&quot;&quot;
+
+
+def conv2d(x, W):
+    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=&#39;SAME&#39;)
+
+
+def max_pool_2x2(x):
+    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
+                          strides=[1, 2, 2, 1], padding=&#39;SAME&#39;)
+&quot;&quot;&quot;
+第1レイヤー 5x5パッチで32の特徴を計算
+[5, 5, 1, 32] は最初の5,5はパッチサイズ,1は入力チャンネル数,32は出力チャンネル数
+&quot;&quot;&quot;
+W_conv1 = weight_variable([5, 5, 1, 32])
+b_conv1 = bias_variable([32])
+x_image = tf.reshape(x, [-1, 28, 28, 1])
+h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+h_pool1 = max_pool_2x2(h_conv1)
+
+&quot;&quot;&quot;
+第2レイヤー 5x5パッチで64の特徴を計算
+&quot;&quot;&quot;
+W_conv2 = weight_variable([5, 5, 32, 64])
+b_conv2 = bias_variable([64])
+h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+h_pool2 = max_pool_2x2(h_conv2)
+
+&quot;&quot;&quot;
+密集接続レイヤー
+
+画像サイズ7x7に還元されているので、1024のニューロンと完全に接続する層（翻訳がかなり怪しいので原文読んでください）MNISTデータは28x28ピクセルなので1/16ずつ読むみたいです。
+
+Densely Connected Layer
+
+Now that the image size has been reduced to 7x7, we add a fully-connected layer with 1024 neurons to allow
+processing on the entire image. We reshape the tensor from the pooling layer into a batch of vectors,
+multiply by a weight matrix, add a bias, and apply a ReLU.
+&quot;&quot;&quot;
+W_fc1 = weight_variable([7 * 7 * 64, 1024])
+b_fc1 = bias_variable([1024])
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 7 * 64])
+h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+&quot;&quot;&quot;
+過剰適合を排除する
+
+Dropout
+
+To reduce overfitting, we will apply dropout before the readout layer. We create a placeholder
+for the probability that a neuron&#39;s output is kept during dropout. This allows us to turn dropout
+on during training, and turn it off during testing. TensorFlow&#39;s tf.nn.dropout op automatically
+handles scaling neuron outputs in addition to masking them, so dropout just works without any additional scaling.
+&quot;&quot;&quot;
+keep_prob = tf.placeholder(&quot;float&quot;)
+h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+&quot;&quot;&quot;
+読み出し層
+第1層のロジスティック回帰のように、ロジスティック回帰層を追加
+
+Readout Layer
+Finally, we add a softmax layer, just like for the one layer softmax regression above.
+&quot;&quot;&quot;
+W_fc2 = weight_variable([1024, 10])
+b_fc2 = bias_variable([10])
+
+y_conv = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
+
+&quot;&quot;&quot;
+モデルの学習と評価
+TensorFlowを使用して、洗練された深い学習モデルの学習と評価を行います。
+&quot;&quot;&quot;
+cross_entropy = -tf.reduce_sum(y_ * tf.log(y_conv))
+train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, &quot;float&quot;))
+sess.run(tf.initialize_all_variables())
+for i in range(20000):
+    batch = mnist.train.next_batch(50)
+    if i % 100 == 0:
+        train_accuracy = accuracy.eval(feed_dict={
+            x: batch[0], y_: batch[1], keep_prob: 1.0})
+        print &quot;step %d, training accuracy %g&quot; % (i, train_accuracy)
+    train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
+
+# 結果表示
+print &quot;test accuracy %g&quot; % accuracy.eval(feed_dict={
+    x: mnist.test.images, y_: mnist.test.labels, keep_prob: 1.0})
+
+
+```
+
+```shell-session:実行結果（実行に1時間くらい掛かった）
+&gt;&gt;&gt;python ./mnist_expert.py
+Extracting MNIST_data/train-images-idx3-ubyte.gz
+Extracting MNIST_data/train-labels-idx1-ubyte.gz
+Extracting MNIST_data/t10k-images-idx3-ubyte.gz
+Extracting MNIST_data/t10k-labels-idx1-ubyte.gz
+can&#39;t determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4
+can&#39;t determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4
+0.9092
+step 0, training accuracy 0.06
+step 100, training accuracy 0.68
+step 200, training accuracy 0.9
+step 300, training accuracy 0.98
+step 400, training accuracy 0.9
+step 500, training accuracy 0.94
+step 600, training accuracy 0.92
+step 700, training accuracy 0.84
+step 800, training accuracy 0.92
+step 900, training accuracy 0.94
+step 1000, training accuracy 0.98
+step 1100, training accuracy 0.96
+step 1200, training accuracy 0.98
+step 1300, training accuracy 0.96
+step 1400, training accuracy 0.98
+step 1500, training accuracy 0.98
+step 1600, training accuracy 0.96
+step 1700, training accuracy 0.96
+step 1800, training accuracy 0.96
+....
+step 19600, training accuracy 1
+step 19700, training accuracy 0.98
+step 19800, training accuracy 1
+step 19900, training accuracy 1
+test accuracy 0.992
+
+```
+
+■ 画像:TensorFlowの動作フロー
+上級チュートリアルが終わったあとこのgifを見直すと、少しだけ意味が理解できるようになりました。
+![tensors_flowing.gif](https://qiita-image-store.s3.amazonaws.com/0/65312/c8430ab5-bdac-8fc5-d227-4842829790b1.gif)
+
+
+# 参考
+[TensorFlow](http://tensorflow.org/)
+[MNIST For ML Beginners](http://tensorflow.org/tutorials/mnist/beginners/index.md)
+[Deep MNIST for Experts](http://tensorflow.org/tutorials/mnist/pros/index.md)
+[import_data.py](https://tensorflow.googlesource.com/tensorflow/+/master/tensorflow/g3doc/tutorials/mnist/input_data.py)
+[MNIST手書きデータセット](http://yann.lecun.com/exdb/mnist/)
+[Google、人工知能ライブラリ TensorFlow をオープンソース化。音声検索や写真認識、翻訳の基盤技術ディープラーニングを商利用可で解放](http://japanese.engadget.com/2015/11/09/google-tensorflow/)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築 on @Qiita" data-url="http://qiita.com/haminiku/items/36982ae65a770565458d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築" href="http://b.hatena.ne.jp/entry/http://qiita.com/haminiku/items/36982ae65a770565458d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/haminiku/items/36982ae65a770565458d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/haminiku/items/36982ae65a770565458d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/haminiku"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/65312/profile-images/1473696847" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/haminiku">haminiku</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">12403</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;haminiku&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-d65437c8-3297-450b-baf7-0b217464d186"></div>
+    <div id="UserFollowButton-react-component-d65437c8-3297-450b-baf7-0b217464d186"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/haminiku/items/711cbdb894d1d6839e3e">2016年 独りで新規WEBサービスを開発・運用した際の知見</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/haminiku/items/36982ae65a770565458d">TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/haminiku/items/9f1b9a2fb773c732c494">たった1人から始める社内テストコード文化</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/haminiku/items/a032d94e4f0d862df2b2">pythonと遺伝的アルゴリズムで作るFX自動売買システム その1</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/haminiku/items/43bafbb9d74ef3a1f74c">Redis 本番障害から学んだコードレビューの勘所</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tensorflow%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB\&quot;\u003eTensorFlowチュートリアル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97\&quot;\u003eセットアップ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%9D%E5%BF%83%E8%80%85%E7%94%A8%E3%81%AEmnist%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB\&quot;\u003e初心者用のMNISTチュートリアル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%8A%E7%B4%9A%E8%80%85%E7%94%A8%E3%81%AEmnist%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB\&quot;\u003e上級者用のMNISTチュートリアル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-d52007e6-54eb-4136-ac27-25e33c80f4fb"></div>
+    <div id="Toc-react-component-d52007e6-54eb-4136-ac27-25e33c80f4fb"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:1370,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;36982ae65a770565458d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tt_w54s"><a itemprop="url" href="/tt_w54s"><img alt="tt_w54s" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52660/profile-images/1473692800" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TakesxiSximada"><a itemprop="url" href="/TakesxiSximada"><img alt="TakesxiSximada" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/36261/profile-images/1473687011" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="soundTricker"><a itemprop="url" href="/soundTricker"><img alt="soundTricker" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2965/profile-images/1473682415" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yasunori"><a itemprop="url" href="/yasunori"><img alt="yasunori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/176/profile-images/1473682067" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sinmetal"><a itemprop="url" href="/sinmetal"><img alt="sinmetal" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15640/profile-images/1474548897" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kazunori279"><a itemprop="url" href="/kazunori279"><img alt="kazunori279" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38290/profile-images/1473687710" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sergeant-wizard"><a itemprop="url" href="/sergeant-wizard"><img alt="sergeant-wizard" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" /></a></div></div><div class="ArticleFooter__user"><a href="/haminiku/items/36982ae65a770565458d/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/36982ae65a770565458d/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/haminiku/items/36982ae65a770565458d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 4 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/sergeant-wizard/items/e3b06ef1af5d3c7e22d1#_reference-d2f5e1fbf11522ec1a37"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" />TensorFlow Tutorial Deep MNIST for Expertsのネットワーク構造整理</a><time class="references_datetime js-dateTimeView" datetime="2015-11-10T08:38:00+00:00">over 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/yamano357/items/66272759fc29a5a2dd01#_reference-e71a0f5ab17d10854449"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99957/profile-images/1473707949" />とりいそぎ{PythonInR}でRからTensorFlowを動かしてみた</a><time class="references_datetime js-dateTimeView" datetime="2015-11-10T15:16:33+00:00">over 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/sergeant-wizard/items/fdf4d64a0d221a81da34#_reference-f7b42bbb6528e9f56881"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" />TensorFlowとTensorBoardでニューラルネットワークを可視化</a><time class="references_datetime js-dateTimeView" datetime="2015-11-11T04:06:56+00:00">over 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/tomo_makes/items/af23c1ac0d94b764da55#_reference-bf18e107b1836387f54a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/64608/profile-images/1473696640" />TensorFlow紹介文の適当和訳 ななめ読み用</a><time class="references_datetime js-dateTimeView" datetime="2015-11-11T14:01:29+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/papa_dacchi/items/509e1b21cc0acd9d0335#_reference-ce9c4b038193ee14bfc5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/78460/profile-images/1474372514" />TensorFlowとscikit-learnを比べてみた　～文字認識編</a><time class="references_datetime js-dateTimeView" datetime="2015-12-09T03:22:50+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ikki8412/items/95bc81a744dc377d9119#_reference-aa1216de1f1343dd8530"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103809/profile-images/1473709116" />TensorFlow mnistエキスパート編の記録(TensorBoardの視覚化)</a><time class="references_datetime js-dateTimeView" datetime="2015-12-09T06:07:19+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/shu223/items/a4fc17eb3356a6068553#_reference-c79706199501a670fa17"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" />ディープラーニングの有名ライブラリ5種を最短距離で試す半日コース（TensorFlow, Chainer, Caffe, DeepDream, 画風変換）</a><time class="references_datetime js-dateTimeView" datetime="2016-01-12T00:34:06+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/shngt/items/c84ddb034a2cc4c4632e#_reference-6162df9989ecdfeb9626"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103085/profile-images/1479473183" />Azure Machine Learningをわかった気になるために細かいことは気にせずに機械学習のことをまとめてみる - ディープラーニングの手前まで</a><time class="references_datetime js-dateTimeView" datetime="2016-05-29T16:25:23+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/To_Murakami/items/35d1b3144a0d017ad0ee#_reference-5da6c886e3b2153bf6fd"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/127228/profile-images/1480559862" />【社内勉強会】TensorFlowのCNNのMNIST学習コードを噛み砕いてみる</a><time class="references_datetime js-dateTimeView" datetime="2016-07-03T05:26:53+00:00">9 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築 on @Qiita" data-url="http://qiita.com/haminiku/items/36982ae65a770565458d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築" href="http://b.hatena.ne.jp/entry/http://qiita.com/haminiku/items/36982ae65a770565458d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/haminiku/items/36982ae65a770565458d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/haminiku/items/36982ae65a770565458d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eわかりやすい説明をありがとうございます．標記の件で気になったところがあったのでコメントさせていただきます．\u003c/p\u003e\n\n\u003cp\u003eWeight Initializationのところですが，「ノイズを除去して」ではなくて「ノイズを入れて」の誤記ではないでしょうか？\u003cbr\u003e\n全てのweightがゼロだと常に損失関数のパラメータ勾配が全部ゼロになってしまうので，そうでない乱数なり定数なりの初期化が必要だよってところだと思います．\u003cbr\u003e\n乱数を正にバイアスかける理由の方ですが，こっちは多層パーセプトロンで隠れ層にReLUを使う場合はそうしたほうがすべての細胞を効率的に使えるからだよってことだと思います．\u003c/p\u003e\n\n\u003cp\u003e以下蛇足ですが，それに対する理由を考えたので一応書いておきます．\u003c/p\u003e\n\n\u003cp\u003eReLUの出力は常に正の値です．また学習時，各ReLU細胞は出力がゼロでないとき（=活性度が正のとき）だけその細胞に繋がる入力側のweightが更新されます．\u003cbr\u003e\nweightを乱数で初期化すると，細胞数がたくさんあるときには時に``全ての訓練入力に対して常に出力がゼロの（死んだ）細胞&#39;&#39;が発生するような状況がまれに起こりえます（細胞に繋がるweightが全部負など．）．\u003cbr\u003e\nこのとき，この死んだ細胞に繋がるweightはいくら頑張っても更新はされないので，このぶんネットワークが無駄になってしまいます．\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-10T22:46:10+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:380813,&quot;is_team&quot;:false,&quot;item_id&quot;:341794,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;36982ae65a770565458d&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;わかりやすい説明をありがとうございます．標記の件で気になったところがあったのでコメントさせていただきます．\n\nWeight Initializationのところですが，「ノイズを除去して」ではなくて「ノイズを入れて」の誤記ではないでしょうか？\n全てのweightがゼロだと常に損失関数のパラメータ勾配が全部ゼロになってしまうので，そうでない乱数なり定数なりの初期化が必要だよってところだと思います．\n乱数を正にバイアスかける理由の方ですが，こっちは多層パーセプトロンで隠れ層にReLUを使う場合はそうしたほうがすべての細胞を効率的に使えるからだよってことだと思います．\n\n以下蛇足ですが，それに対する理由を考えたので一応書いておきます．\n\n\nReLUの出力は常に正の値です．また学習時，各ReLU細胞は出力がゼロでないとき（=活性度が正のとき）だけその細胞に繋がる入力側のweightが更新されます．\nweightを乱数で初期化すると，細胞数がたくさんあるときには時に``全ての訓練入力に対して常に出力がゼロの（死んだ）細胞&#39;&#39;が発生するような状況がまれに起こりえます（細胞に繋がるweightが全部負など．）．\nこのとき，この死んだ細胞に繋がるweightはいくら頑張っても更新はされないので，このぶんネットワークが無駄になってしまいます．\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/haminiku/items/36982ae65a770565458d#comment-9f6f0b60a315c2143e51&quot;,&quot;user&quot;:{&quot;contribution&quot;:935,&quot;created_at&quot;:&quot;2015-03-17T09:44:47+09:00&quot;,&quot;id&quot;:72529,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/72529/profile-images/1473699182&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Ugo-Nama&quot;},&quot;uuid&quot;:&quot;9f6f0b60a315c2143e51&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/Ugo-Nama\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;Ugo-Nama\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;Ugo-Nama\&quot;\u003e@Ugo-Nama\u003c/a\u003e \u003cbr\u003e\nご指摘ありがとうございます。原文で\u003ccode\u003eOne should generally initialize weights with a small amount of noise for symmetry breaking\u003c/code\u003eと書いてある通りノイズを除去ではなく、少量のノイズで重みを初期化するようです。訂正致します。\u003c/p\u003e\n\n\u003cp\u003e多層になると損失関数のパラメータ勾配が限りなくゼロに近づく勾配消失問題(Vanishing gradient problem)の対策のようですね。勉強になりました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-10T23:53:37+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:380862,&quot;is_team&quot;:false,&quot;item_id&quot;:341794,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;36982ae65a770565458d&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@Ugo-Nama \nご指摘ありがとうございます。原文で`One should generally initialize weights with a small amount of noise for symmetry breaking`と書いてある通りノイズを除去ではなく、少量のノイズで重みを初期化するようです。訂正致します。\n\n多層になると損失関数のパラメータ勾配が限りなくゼロに近づく勾配消失問題(Vanishing gradient problem)の対策のようですね。勉強になりました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/haminiku/items/36982ae65a770565458d#comment-f1c8d4571755fdab3976&quot;,&quot;user&quot;:{&quot;contribution&quot;:12403,&quot;created_at&quot;:&quot;2015-01-07T18:36:04+09:00&quot;,&quot;id&quot;:65312,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/65312/profile-images/1473696847&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;haminiku&quot;},&quot;uuid&quot;:&quot;f1c8d4571755fdab3976&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:341794,&quot;uuid&quot;:&quot;36982ae65a770565458d&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;haminiku&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:65312,&quot;url_name&quot;:&quot;haminiku&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/65312/profile-images/1473696847&quot;},{&quot;id&quot;:72529,&quot;url_name&quot;:&quot;Ugo-Nama&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/72529/profile-images/1473699182&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-0a9cddab-0c6e-49e8-a4e7-46bc351d4da7"></div>
+    <div id="CommentListContainer-react-component-0a9cddab-0c6e-49e8-a4e7-46bc351d4da7"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="mUVbRyFKNeXWbUmgH6dDxY+XqBKcKBAzRvEXekuIhSZhoGWLt4y0At05OjZunwTS9i61ObsYXMenxNx0e2T6ig==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/haminiku/items/36982ae65a770565458d" /><input type="hidden" name="item_uuid" id="item_uuid" value="36982ae65a770565458d" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/haminiku/items/36982ae65a770565458d", "id": 341794, "uuid": "36982ae65a770565458d" }</script><script class="js-user" type="application/json">{&quot;id&quot;:65312,&quot;url_name&quot;:&quot;haminiku&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/65312/profile-images/1473696847&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="FIjbJw+BAMEaQRFHI/1qzScKsny+NvEKkVDCg9+hqnfsbeXrmUeBJhEVYtFSxS3aXrOvV5kGvf5wZQmN703V2w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/haminiku/items/36982ae65a770565458d" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-69760509-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

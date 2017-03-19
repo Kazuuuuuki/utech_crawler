@@ -1,0 +1,888 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【機械学習】Google翻訳(みたいなもの)を自作してみた。 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+
+はじめに
+
+最近機械学習熱いし、その波に乗りたいなということで、大学時代に若干触れていた自然言語処理の知識を生かして、タイトルの通りGoogle翻訳のような機械翻訳機を作成してみました。
+結果、ページトップのアニメーションのような動作をする翻訳機を作れましたが、翻訳精度はgoogle翻訳に惨敗でした。どこらへんが惨敗だったのかは最後のまとめでちょっとだけ触れます。
+
+結果的には惨敗だったのですが、自分が作ったモデルで翻訳できた瞬間はとても嬉しかったので、自分の子供..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="【機械学習】Google翻訳(みたいなもの)を自作してみた。 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="![movie-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/74192/b3b029a2-8837-d4ed-0af9-bda3294a5597.gif)
+..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="Gmgaw+lDh13ErDY6Hy0stoypWhCf7dWHSAP5jYf6uKUNTtHUaMhUDzgZpNsMhXb98Qp5es2IicplT9x7t4Q4BQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"R-Yoshi","type":"items","id":"9a809c0a03e02874fabb"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-56406d7f-7e0f-4f34-9eb1-da3805d3f16d"></div>
+    <div id="HeaderContainer-react-component-56406d7f-7e0f-4f34-9eb1-da3805d3f16d"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86",        "name": "自然言語処理"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2015/basicinc">プログラミング大好きベーシック Advent Calendar 2015</a> Day 22</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">【機械学習】Google翻訳(みたいなもの)を自作してみた。</h1><ul class="TagList"><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="1035"><a class="u-link-unstyled TagList__label" href="/tags/%E5%88%9D%E5%BF%83%E8%80%85"><img alt="初心者" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/f9384932787d996b6e1ed26d7d0b2bc2a9e36441/medium.jpg?1443704516" /><span>初心者</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="2935"><a class="u-link-unstyled TagList__label" href="/tags/C++"><img alt="C++" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/2f1bca4f52b2c48a0282062eff2db8323fcddc2a/medium.jpg?1364837801" /><span>C++</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">119</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="4 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>4</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:119,&quot;uuid&quot;:&quot;9a809c0a03e02874fabb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="g_ryotaro"><a itemprop="url" href="/g_ryotaro"><img alt="g_ryotaro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74197/profile-images/1475214966" /></a></li><li class="js-hovercard" data-hovercard-target-name="mmusasabi"><a itemprop="url" href="/mmusasabi"><img alt="mmusasabi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42310/profile-images/1473689110" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kaki_Shoichi"><a itemprop="url" href="/Kaki_Shoichi"><img alt="Kaki_Shoichi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49347/profile-images/1473691696" /></a></li><li class="js-hovercard" data-hovercard-target-name="ryosukes"><a itemprop="url" href="/ryosukes"><img alt="ryosukes" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37036/profile-images/1473687285" /></a></li><li class="js-hovercard" data-hovercard-target-name="na1412"><a itemprop="url" href="/na1412"><img alt="na1412" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50898/profile-images/1473692257" /></a></li><li class="js-hovercard" data-hovercard-target-name="s-mori"><a itemprop="url" href="/s-mori"><img alt="s-mori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42253/profile-images/1480732297" /></a></li><li class="js-hovercard" data-hovercard-target-name="ykyk1218"><a itemprop="url" href="/ykyk1218"><img alt="ykyk1218" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6808/profile-images/1476028634" /></a></li><li class="js-hovercard" data-hovercard-target-name="Viarofka"><a itemprop="url" href="/Viarofka"><img alt="Viarofka" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14465/profile-images/1473758001" /></a></li><li class="js-hovercard" data-hovercard-target-name="roki1801"><a itemprop="url" href="/roki1801"><img alt="roki1801" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68751/profile-images/1473761819" /></a></li><li class="js-hovercard" data-hovercard-target-name="kkyouhei"><a itemprop="url" href="/kkyouhei"><img alt="kkyouhei" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35451/profile-images/1473686727" /></a></li><li><a href="/R-Yoshi/items/9a809c0a03e02874fabb/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/R-Yoshi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74192/profile-images/1473699759" alt="1473699759" /></a> <a class="u-link-unstyled" href="/R-Yoshi">R-Yoshi</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-22T13:35:55+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-22">Edited at <time datetime="2016-07-11T16:37:14+09:00" itemprop="dateModified">2016-07-11</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/R-Yoshi/items/9a809c0a03e02874fabb/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">11</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/R-Yoshi/items/9a809c0a03e02874fabb/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(11)</span></a></li><li><a href="/R-Yoshi/items/9a809c0a03e02874fabb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-9a809c0a03e02874fabb" itemprop="articleBody"><p><a href="https://qiita-image-store.s3.amazonaws.com/0/74192/b3b029a2-8837-d4ed-0af9-bda3294a5597.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/74192/b3b029a2-8837-d4ed-0af9-bda3294a5597.gif" alt="movie-compressor.gif"></a></p>
+
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p>最近機械学習熱いし、その波に乗りたいなということで、大学時代に若干触れていた自然言語処理の知識を生かして、タイトルの通りGoogle翻訳のような機械翻訳機を作成してみました。<br>
+結果、ページトップのアニメーションのような動作をする翻訳機を作れましたが、翻訳精度はgoogle翻訳に惨敗でした。どこらへんが惨敗だったのかは最後のまとめでちょっとだけ触れます。</p>
+
+<p>結果的には惨敗だったのですが、自分が作ったモデルで翻訳できた瞬間はとても嬉しかったので、自分の子供のような存在を生み出す喜びを誰かに共感していただきたく思い、機械翻訳機を作成して得た自然言語処理(ほぼ翻訳)に関する知見とその方法をまとめてみました！</p>
+
+<p>自然言語処理というなかなかに難しいジャンルなので、途中眠たくなるような説明や数式も一応紹介いたしますが、 <strong>この記事のゴールはオリジナルな翻訳モデルを作成し上のアニメーションのようにターミナル(黒い画面のやつ)上で翻訳を行うこと</strong>です！<br>
+なので、説明とか良いから早く自分で一通り作らせて！という方は<a href="#no4">記事の最後の方</a>までスクロールしちゃってください。</p>
+
+<p>※ちなみに記事中で紹介しているリンク先は個人的に説明が分かりやすいと思ったサイトをあげさせていただいています。<br>
+※凄くボリューミーな内容になってしまったので目次を見て気になる部分だけ拾い読みしてください。</p>
+
+<h2>
+<span id="目次" class="fragment"></span><a href="#%E7%9B%AE%E6%AC%A1"><i class="fa fa-link"></i></a>目次</h2>
+
+<h4>
+<span id="1そもそも機械翻訳って" class="fragment"></span><a href="#1%E3%81%9D%E3%82%82%E3%81%9D%E3%82%82%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3%E3%81%A3%E3%81%A6"><i class="fa fa-link"></i></a>1.<a href="#no1">そもそも機械翻訳って</a>
+</h4>
+
+<h4>
+<span id="2ルールベース機械翻訳" class="fragment"></span><a href="#2%E3%83%AB%E3%83%BC%E3%83%AB%E3%83%99%E3%83%BC%E3%82%B9%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3"><i class="fa fa-link"></i></a>2.<a href="#no2">ルールベース機械翻訳</a>
+</h4>
+
+<h4>
+<span id="3統計的機械翻訳" class="fragment"></span><a href="#3%E7%B5%B1%E8%A8%88%E7%9A%84%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3"><i class="fa fa-link"></i></a>3.<a href="#no3">統計的機械翻訳</a>
+</h4>
+
+<h4>
+<span id="4ここから作業開始" class="fragment"></span><a href="#4%E3%81%93%E3%81%93%E3%81%8B%E3%82%89%E4%BD%9C%E6%A5%AD%E9%96%8B%E5%A7%8B"><i class="fa fa-link"></i></a>4.<a href="#no4">ここから作業開始</a>
+</h4>
+
+<h4>
+<span id="5自作したモデルを用いた翻訳の実行" class="fragment"></span><a href="#5%E8%87%AA%E4%BD%9C%E3%81%97%E3%81%9F%E3%83%A2%E3%83%87%E3%83%AB%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E7%BF%BB%E8%A8%B3%E3%81%AE%E5%AE%9F%E8%A1%8C"><i class="fa fa-link"></i></a>5.<a href="#no5">自作したモデルを用いた翻訳の実行</a>
+</h4>
+
+<h4>
+<span id="6まとめ" class="fragment"></span><a href="#6%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>6.<a href="#no6">まとめ</a>
+</h4>
+
+<p></p><hr>
+
+<h2>
+<span id="1そもそも機械翻訳って-1" class="fragment"></span><a href="#1%E3%81%9D%E3%82%82%E3%81%9D%E3%82%82%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3%E3%81%A3%E3%81%A6-1"><i class="fa fa-link"></i></a><div id="no1">1.そもそも機械翻訳って</div>
+</h2>
+
+<p>みなさんも恐らく大変お世話になっているであろう、<a href="https://translate.google.co.jp/?hl=ja" rel="nofollow noopener" target="_blank">google翻訳</a>や<a href="http://honyaku.yahoo.co.jp/" rel="nofollow noopener" target="_blank">yahoo翻訳</a>といった、何かしらの言語を入力したら指定した言語の翻訳結果を出力してくれるあのサービスに用いられている技術のことです。</p>
+
+<p>ノータイムで入力に対する翻訳結果を吐き出してくれるあのサービス、当たり前ですが人間がレスポンスを返しているのではなく、入力に対して尤もらしい答えを機械がレスポンスしてくれています。<br>
+つまり機械翻訳とはその名の通り、人手による翻訳では無く、機械が行ってくれる翻訳のことですね！</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/74192/830bbaa0-613e-59d1-dcb9-1de9fe09be24.png" target="_blank" rel="nofollow noopener"><img width="562" alt="スクリーンショット 2015-12-19 21.13.22.png" src="https://qiita-image-store.s3.amazonaws.com/0/74192/830bbaa0-613e-59d1-dcb9-1de9fe09be24.png"></a></p>
+
+<p>そして、現在サービスとして提供されている機械翻訳の技術の手法としては主に、<strong>ルールベースの翻訳手法(RBMT)</strong>と<strong>統計ベースの翻訳手法</strong>の2つがあります。<br>
+2つの翻訳方式の違いとメリットデメリットを次で簡単に説明致します。</p>
+
+<h2>
+<span id="2ルールベース機械翻訳rbmt-rule-base-machine-translation" class="fragment"></span><a href="#2%E3%83%AB%E3%83%BC%E3%83%AB%E3%83%99%E3%83%BC%E3%82%B9%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3rbmt-rule-base-machine-translation"><i class="fa fa-link"></i></a><div id="no2">2.ルールベース機械翻訳(RBMT: Rule Base Machine Translation)</div>
+</h2>
+
+<p>ルールベース翻訳とは、原言語を<a href="https://ja.wikipedia.org/wiki/%E6%A7%8B%E6%96%87%E8%A7%A3%E6%9E%90" rel="nofollow noopener" target="_blank">構文解析</a>して文法構造を把握した後、辞書を用いて<a href="https://ja.wikipedia.org/wiki/%E6%96%87%E7%AF%80" rel="nofollow noopener" target="_blank">文節単位</a>で目的言語へ翻訳し、最後に目的言語の文法へ翻訳した文字列を並び変える方法です。<br>
+文字で説明すると良く分からないのですが、実際にやっている作業は単純で以下で説明する通りです！</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+（例）「私はサッカーをします」という入力の時
+
+①文節単位に文を区切ります。
+　私は / サッカーを / します
+
+②文節間の修飾関係(係り受け構造)を把握します。
+　私は　　　 =&gt; します(主語と動詞)
+　サッカーを =&gt; します(目的語と動詞)
+　この修飾関係を出すことで以下のような構文構造になっていることがわかります。
+　私は(主語)　/　サッカーを(目的語)　/ します(動詞)
+　
+③次に、それぞれの文節を辞書を用いて翻訳します。
+　私は =&gt; I / サッカーを =&gt; soccer / します =&gt; play
+
+④最後に英語の構文ルールに従い文節の並び替えを行います。
+　I play soccer (S + V + O) 
+　
+　そして以下のような翻訳結果が求まります。
+　翻訳結果 : I play soccer
+</pre></div></div>
+
+<h3>
+<span id="メリット" class="fragment"></span><a href="#%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>メリット</h3>
+
+<ul>
+<li>大量の学習データを必要としない。</li>
+<li>入力のジャンルに合わせた辞書を用いる事で翻訳精度を向上することが可能である。</li>
+<li>言語ルールと文法ルールと辞書さえあればどんな言語でも割と安定した結果を求められる。</li>
+<li>研究期間が長く辞書が充実しているので、メジャーな言語だと高い精度で結果が求まる。</li>
+</ul>
+
+<h3>
+<span id="デメリット" class="fragment"></span><a href="#%E3%83%87%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>デメリット</h3>
+
+<ul>
+<li>辞書自体は翻訳家により作成されるのでコストが高くなる。</li>
+<li>マイナーな言語だと対応が難しい。</li>
+<li>既に翻訳結果の精度向上に限界が来ている説がある。</li>
+</ul>
+
+<h2>
+<span id="3-統計的機械翻訳smt-statistical-machine-translation" class="fragment"></span><a href="#3-%E7%B5%B1%E8%A8%88%E7%9A%84%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3smt-statistical-machine-translation"><i class="fa fa-link"></i></a><div id="no3">3. 統計的機械翻訳(SMT: Statistical Machine Translation)</div>
+</h2>
+
+<p><a href="http://www.kecl.ntt.co.jp/rps/research/innovative/research_innovative03.html" rel="nofollow noopener" target="_blank">統計的機械翻訳</a>とは、原言語と目的言語の対訳文から意味的な等価性を、目的言語からその言語らしさを学習して確率モデルを作成し、作成したモデルから意味的な等価性と目的言語らしさの確率が最大となるような文を翻訳結果として出力する手法です。</p>
+
+<p>良くわかんない人のために凄くざっくり説明すると、大量の対訳文を集めて、その文から目的言語の言語ルールと文法ルールを作って、入力に対してそれぞれのルールをいい感じに満たす最もそれっぽい答えを翻訳結果としましょう！という感じですね！この大量の対訳文から確率モデルを作成することを学習といいます。<br>
+今回は、こちらの<strong>統計的機械翻訳手法を用いて翻訳を行う</strong>ので、詳細を以下でしっかり説明します。</p>
+
+<h3>
+<span id="翻訳確率" class="fragment"></span><a href="#%E7%BF%BB%E8%A8%B3%E7%A2%BA%E7%8E%87"><i class="fa fa-link"></i></a>翻訳確率</h3>
+
+<p>まず、翻訳を行う上で肝になる確率モデルの説明をします!<br>
+原言語をf、目的言語をe、翻訳確率をe(hat)とすると以下のように表せます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\hat{e} = argmax_{e}P(e\ |\ f)
+</pre></div></div>
+
+<p>この式を<a href="https://ja.wikipedia.org/wiki/%E3%83%99%E3%82%A4%E3%82%BA%E3%81%AE%E5%AE%9A%E7%90%86" rel="nofollow noopener" target="_blank">ベイズの定理</a>を用いることにより以下のような式に変形できます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\hat{e} = argmax_{e}{P(f\ |\ e)}{P(e)}
+</pre></div></div>
+
+<p>ここで表されるP(f|e)は翻訳モデルを、P(e)は言語モデルを表しています。<br>
+つまり、統計的手法を用いた翻訳では、P(f|e)P(e)を最大化する解を尤もらしい翻訳結果として出力します。</p>
+
+<h3>
+<span id="言語モデル" class="fragment"></span><a href="#%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB"><i class="fa fa-link"></i></a>言語モデル</h3>
+
+<p>次に翻訳に用いられる言語モデルを説明します！<br>
+言語モデルとは一言で表すと、人間が用いるであろう「言葉らしさ」を確率としてモデル化したものです。具体的に説明すると、ある単語の後にはどんな単語が現れるか、という確率を目的言語文から学習しています！<br>
+<a href="http://www.ic.daito.ac.jp/%7Emizutani/mining/n_gram.html" rel="nofollow noopener" target="_blank">N-gram言語モデル</a>では、文字列のN番目に来る単語はN-1個前の単語に依存しているという風にみなしています。これは以下の式のように表されます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+P(e) = \prod_{i=1}^{N}P(t_i|t_{i-n+1},t_{i-n+2},...,t_{i-1} )
+</pre></div></div>
+
+<h3>
+<span id="翻訳モデル" class="fragment"></span><a href="#%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB"><i class="fa fa-link"></i></a>翻訳モデル</h3>
+
+<p>翻訳モデルは原言語と目的言語の意味的な等価性を確率的に表したモデルのことです！<br>
+翻訳モデルの確率は両言語のフレーズの対応(アライメント)と、フレーズの翻訳確率により決定されます。<br>
+ここでアライメントaが与えられているとすると翻訳確率P(f|e)は以下のような式で表すことできます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{aligned}
+P(f|e) &amp; = \sum_{a}P(f , a\ |\ e)\\
+&amp; = \sum_{a}P(f\ |\ e,a)P(a\ |\ e)
+\end{aligned}
+</pre></div></div>
+
+<p>アライメントは<a href="http://unicorn.ike.tottori-u.ac.jp/2009/s062041/paper/master_thesis/node20.html" rel="nofollow noopener" target="_blank">リオーダリングモデル</a>、フレーズの翻訳確率は<a href="http://unicorn.ike.tottori-u.ac.jp/2010/s072047/paper/graduation-thesis/node9.html" rel="nofollow noopener" target="_blank">フレーズテーブル</a>に格納されます。<br>
+ここの理解がとても重要と<a href="http://www.coronasha.co.jp/np/isbn/9784339027518/" rel="nofollow noopener" target="_blank">参考書</a>には書いてありますが良い事例がなくて理解が難しい...。<br>
+とりあえず、ここではそういうものなんだな！と割り切って先に進めます！</p>
+
+<h4>
+<span id="メリット-1" class="fragment"></span><a href="#%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88-1"><i class="fa fa-link"></i></a>メリット</h4>
+
+<ul>
+<li>人手による辞書作成の必要がない。</li>
+<li>言語に依存する事なくモデルを作成できる。</li>
+<li>割と新しめの技術なので研究が盛んである。</li>
+<li>安価に高速に翻訳ができる。</li>
+</ul>
+
+<h4>
+<span id="デメリット-1" class="fragment"></span><a href="#%E3%83%87%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88-1"><i class="fa fa-link"></i></a>デメリット</h4>
+
+<ul>
+<li>学習用の大量の対訳文が必要である。</li>
+<li>学習データに未知語が存在すると翻訳精度が低くなる。</li>
+</ul>
+
+<p>なんと言っても、統計的機械翻訳手法は<strong>人手による辞書作成の必要がないため</strong>、コーパスさえ準備することが出来れば<strong>言語に依存する事なく</strong>翻訳モデルを作成できるところに利点があると思います！</p>
+
+<h2>
+<span id="4ここから作業開始-1" class="fragment"></span><a href="#4%E3%81%93%E3%81%93%E3%81%8B%E3%82%89%E4%BD%9C%E6%A5%AD%E9%96%8B%E5%A7%8B-1"><i class="fa fa-link"></i></a><div id="no4">4.ここから作業開始</div>
+</h2>
+
+<p>説明が長くなりましたが、ここから実際にコンソール上で行う作業を説明致します！<br>
+今回の作業は、<a href="http://www.statmt.org/moses/" rel="nofollow noopener" target="_blank">Moses(モーゼ)</a>という翻訳モデルと言語モデルから翻訳結果を出力するデコーダを用いて行います！<br>
+基本的に<a href="http://www.statmt.org/moses/manual/manual.pdf" rel="nofollow noopener" target="_blank">Mosesのマニュアル</a>に作業方法は書いてあるので、そちらに準じて行っていきます。</p>
+
+<h3>
+<span id="環境構築" class="fragment"></span><a href="#%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89"><i class="fa fa-link"></i></a>環境構築</h3>
+
+<h4>
+<span id="仮想環境の準備-vagrant-ubuntu-1404" class="fragment"></span><a href="#%E4%BB%AE%E6%83%B3%E7%92%B0%E5%A2%83%E3%81%AE%E6%BA%96%E5%82%99-vagrant-ubuntu-1404"><i class="fa fa-link"></i></a>仮想環境の準備 (Vagrant, Ubuntu 14.04)</h4>
+
+<p>まず仮想環境を準備致します！<br>
+ローカルでも作業できるのですが、環境構築が難しく何度もやり直したくなる衝動に駆られると思うので最初から仮想環境で行うことをお勧め致します！<br>
+Ubuntu 14.04を用いましたが理由は特に無いです。<br>
+以後、Ubuntu環境でのセットアップ方法について説明していきますが、他のOSで行いたい場合は<a href="http://www.statmt.org/moses/manual/manual.pdf" rel="nofollow noopener" target="_blank">マニュアル</a>を参照してそれぞれの環境に合わせてセットアップを行ってください。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ mkdir ~/nlp
+$ cd ~/nlp
+$ vagrant init
+$ vagrant box add nlp https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box
+
+</pre></div></div>
+
+<div class="code-frame" data-lang="Vagrantfile"><div class="highlight"><pre>
+15: config.vm.box = "base"
+=&gt;  config.vm.box = "nlp"
+
+51: #vb.memory = "1024"
+=&gt;  vb.customize ["modifyvm", :id, "--memory", "4096"]
+</pre></div></div>
+
+<p>以上のようにVagrantfileの該当行数の書き換えを行なってください。<br>
+ちなみに4096という数字はメモリ4Gを表しているのですが、モデルの学習にはやたらと<strong>メモリを消費する</strong>のでこれくらい使用できるメモリが無いとなかなか厳しいかもしれません。<br>
+どうしてもハード的に性能が劣る場合は、<a href="http://www.statmt.org/moses/?n=Moses.Packages" rel="nofollow noopener" target="_blank">Amazon AWSのAMI</a>も準備されているのでそちらを使って行ってみてください！</p>
+
+<p>ここまで記述出来たらあとは以下のようにvagrantを起動してください。</p>
+
+<div class="code-frame" data-lang="~/nlp"><div class="highlight"><pre>
+$ vagrant up
+$ vagrant ssh
+</pre></div></div>
+
+<h4>
+<span id="mosesのインストール" class="fragment"></span><a href="#moses%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB"><i class="fa fa-link"></i></a>Mosesのインストール</h4>
+
+<p>一番最初に、翻訳モデルと言語モデルから翻訳結果を出力するデコーダの役割をするMosesのインストールを行います。ちなみにUbuntu環境ではboostをインストールする必要がありますが、環境によってはこのboostのインストールは必要ないそうです！<br>
+ちなみにこのMosesを動作させる事が一番のハードルでした...。<br>
+悪戦苦闘しましたが最終的にうまくいった方法を下で説明します。</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+#Mosesの動作に必要なパッケージのインストール
+$ sudo apt-get install build-essential git-core pkg-config automake libtool wget
+zlib1g-dev python-dev libbz2-dev
+
+#Mosesのコンパイルに必要なboostのセットアップ
+(boost無しでMosesをコンパイルしようとしたら、libboost_serialization.so.1.59.0: cannot open shared object file: No such file or directoryと怒られた。)
+$ cd ~
+$ wget http://downloads.sourceforge.net/boost/boost_1_59_0.tar.bz2
+$ tar jxvf boost_1_59_0.tar.bz2
+$ cd boost_1_59_0
+$ ./b2 -j4 --prefix=$PWD --libdir=$PWD/lib64 --layout=system link=static install || echo FAILURE
+
+#Mosesのセットアップ
+$ git clone https://github.com/moses-smt/mosesdecoder.git
+$ cd mosesdecoder
+$ ./bjam --with-boost=$HOME/boost_1_59_0 -j4 
+</pre></div></div>
+
+<p>boostを自分でセットアップした場合は、boostのパスを指定してコンパイルしてあげる必要があります。あとwarningが沢山出ると思いますが、errorが出なければ万事OKです！</p>
+
+<p>最後に以下の様にテストして、無事出力が得られればMosesのセットアップ完了です！<br>
+このテストではサンプルとして提供されている英語の言語モデルと独英の翻訳モデルを参照し、ドイツ語の入力を英語に翻訳しています。</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+$ cd ~
+$ wget http://www.statmt.org/moses/download/sample-models.tgz 
+$ tar xzf sample-models.tgz
+$ cd sample-models
+$ ~/mosesdecoder/bin/moses -f phrase-model/moses.ini &lt;phrase-model/in&gt; out 
+</pre></div></div>
+
+<div class="code-frame" data-lang="out"><div class="highlight"><pre>
+#以下の文字列が得られていれば無事セットアップ完了
+This is a house
+</pre></div></div>
+
+<h4>
+<span id="学習に用いる日英パラレルコーパスの加工" class="fragment"></span><a href="#%E5%AD%A6%E7%BF%92%E3%81%AB%E7%94%A8%E3%81%84%E3%82%8B%E6%97%A5%E8%8B%B1%E3%83%91%E3%83%A9%E3%83%AC%E3%83%AB%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%81%AE%E5%8A%A0%E5%B7%A5"><i class="fa fa-link"></i></a>学習に用いる日英パラレルコーパスの加工</h4>
+
+<p>次に学習に必要な日英対訳コーパスの加工を行います。このパラレルコーパスを見つけることがなかなか難しいのですが、このパラレルコーパスの内容に翻訳精度が大きく影響を受けてしまうので頑張って使用可能なコーパスを探してみてください！</p>
+
+<h5>
+<span id="パラレルコーパスの準備" class="fragment"></span><a href="#%E3%83%91%E3%83%A9%E3%83%AC%E3%83%AB%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%81%AE%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>パラレルコーパスの準備</h5>
+
+<p>ちなみに僕は<a href="https://alaginrc.nict.go.jp/WikiCorpus/" rel="nofollow noopener" target="_blank">日英京都関連文書コーパス</a>を使用させていただきました！</p>
+
+<blockquote>
+<p>「本サービスで使用している[データ]はWikipediaの日本語文を国立研究開発法人情報通信研究機構が英訳したものを、Creative Comons Attribution-Share-Alike License 3.0による利用許諾のもと使用しております。詳細は<a href="http://creativecommons.org/licenses/by-sa/3.0/%E3%81%8A%E3%82%88%E3%81%B3http://alaginrc.nict.go.jp/WikiCorpus/%E3%82%92%E3%81%94%E8%A6%A7%E4%B8%8B%E3%81%95%E3%81%84%E3%80%82%E3%80%8D" class="autolink" rel="nofollow noopener" target="_blank">http://creativecommons.org/licenses/by-sa/3.0/およびhttp://alaginrc.nict.go.jp/WikiCorpus/をご覧下さい。」</a></p>
+</blockquote>
+
+<p><a href="https://alaginrc.nict.go.jp/WikiCorpus/" rel="nofollow noopener" target="_blank">日英京都関連文書コーパス</a>のは.xmlファイルに対訳文が表記されていますので、jタグのものをwiki.en-ja.jaへ、e type="check"タグのものをwiki.en-ja.enへ、それぞれ以下の画像のようにタグ内の文字列だけ抜き出してください。うまく抜き取ることが出来れば、約50万文の対訳文ができると思います！</p>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">wiki.en-ja.ja</span></div>
+<div class="highlight"><pre>
+1: 日本の水墨画を一変させた。
+2: 備中国に生まれ、京都・相国寺に入ってから周防国に移る。
+3: その後遣明使に随行して中国(明)に渡って中国の水墨画を学んだ。
+4: 作品は数多く、中国風の山水画だけでなく人物画や花鳥画もよくした。
+5: 大胆な構図と力強い筆線は非常に個性的な画風を作り出している。
+#以下約50万行続く
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="text">
+<div class="code-lang"><span class="bold">wiki.en-ja.en</span></div>
+<div class="highlight"><pre>
+1: He revolutionized the Japanese ink pointing.
+2: Born in Bicchu Province, he moved to Suo Province after SShoku-ji Temple in Kyoto
+3: Later he accompanied a mission to Ming Dynasty China and learned Chinese ink pointing.
+4: His works were many, including not only Chineses-style landscape paintings, but also portraits and pictures of flowers and birds.
+5: His bold compositions and strong brush strokes constituted an extremly distinctive style.
+#以下約50万行続く
+</pre></div>
+</div>
+
+<p>これらのファイルを以下の様に作成したcorpusディレクトリの中に格納します。<br>
+vagrantの共通ディレクトリを利用してファイルの受け渡しを行っています。</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+$ mkdir ~/corpus
+$ mv /vagrant/wiki.en-ja.ja /vagrant/wiki.en-ja.en ~/corpus
+</pre></div></div>
+
+<h5>
+<span id="文を学習に適した形に加工する" class="fragment"></span><a href="#%E6%96%87%E3%82%92%E5%AD%A6%E7%BF%92%E3%81%AB%E9%81%A9%E3%81%97%E3%81%9F%E5%BD%A2%E3%81%AB%E5%8A%A0%E5%B7%A5%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>文を学習に適した形に加工する</h5>
+
+<p>次に、パラレルコーパスから取得した文を学習に適した形にするために、以下の3ステップを行います。</p>
+
+<ul>
+<li>tokenisation : 文を単語区切りにする。</li>
+<li>lowercasing : 単語の小文字化</li>
+<li>cleaning : 単語数が80文字以上の文は精度が低くなるので取り除く。</li>
+</ul>
+
+<p>まず、tokenisationを行います。<br>
+英語はmosesに元々入っているスクリプトを使用し、日本語の加工には<a href="http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html?sess=3f6a4f9896295ef2480fa2482de521f6" rel="nofollow noopener" target="_blank">mecab</a>を使用します。<br>
+mecabが入っていない方はapt-getで<a href="http://taoru.hateblo.jp/entry/20110405/1302033243" rel="nofollow noopener" target="_blank">辞書と一緒にインストール</a>してください。</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+#英語のトークン化
+$ ~/mosesdecoder/dist/tokenizer.perl -l en &lt;~/corpus/wiki.en-ja.en&gt; ~/corpus/wiki.en-ja.tok.en
+
+#日本語のトークン化
+$ mecab -O wakati &lt; ~/corpus/wiki.en-ja.ja &gt; ~/corpus/wiki.en-ja.tok.ja
+</pre></div></div>
+
+<p>学習の際に英語の大文字と小文字が混在していると別のトークンとして扱われてしまうので、通常であればトークンの大文字・小文字を多数決で決めるtruecasingを行いますが、truecasingを行うためのモデルが無いので、今回は全部小文字に合わせるlowercasingを行います！</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+#英語の小文字化
+$ ~/mosesdecoder/scripts/tokenizer/lowercase.perl &lt;~/corpus/wiki.en-ja.tok.en&gt; ~/corpus/wiki.en-ja.low.en
+
+#一応日本語も小文字化
+$ ~/mosesdecoder/scripts/tokenizer/lowercase.perl &lt;~/corpus/wiki.en-ja.tok.ja&gt; ~/corpus/wiki.en-ja.low.ja
+</pre></div></div>
+
+<p>そして最後に、学習モデルの精度をあげるためのcleaningを行います。</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+$ cd ~/corpus
+$ ~/mosesdecoder/scripts/training/clean-corpus-n.perl wiki.en-ja.low ja en wiki.en-ja.clean 1 80
+</pre></div></div>
+
+<p>以上でコーパスの加工は終了です！</p>
+
+<h4>
+<span id="言語モデル翻訳モデルの学習" class="fragment"></span><a href="#%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>言語モデル・翻訳モデルの学習</h4>
+
+<p>ここまできて、やっとモデルの学習に入ることができます！<br>
+最初にも言いましたが、モデルの学習は、メモリの消費量が激しいのにプラスして結構な時間を必要とするので、パソコンを使用しない放置できる時間にコマンドを実行することを推奨します。<br>
+大体ですが、僕の環境で50万分のコーパスを用いた場合に、言語モデルの学習に20分、翻訳モデルの学習に3時間を要しました。</p>
+
+<h5>
+<span id="言語モデルの学習" class="fragment"></span><a href="#%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>言語モデルの学習</h5>
+
+<p>言語モデルを学習させるソフトウェアとして、IRSTLMやSRILMなどが有名です。<br>
+それらのソフトは7-gramモデルが作成できたり、ライセンスが柔軟などのメリットがありますが、特に今回はそこまでの機能を必要としないので、Moses付属のKenLMを用いて、5-gramの言語モデルを80%のメモリを使用して作成します。</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+$ ~/mosesdecoder/bin/lmplz -o 5 -S 80% -T ./ &lt; ~/corpus/wiki.en-ja.low.ja &gt; wiki.en-ja.arpa.ja
+</pre></div></div>
+
+<h5>
+<span id="翻訳モデルの学習" class="fragment"></span><a href="#%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>翻訳モデルの学習</h5>
+
+<p>最後に翻訳モデルの学習を行います！<br>
+翻訳モデルの学習では主に、<a href="https://github.com/moses-smt/giza-pp" rel="nofollow noopener" target="_blank">giza++</a>を用いたワードアライメントや、フレーズのスコアリング、フレーズテーブルの作成などが行われ、デコードの際にそれらを参照するMosesの設定ファイルが作り出されます。</p>
+
+<div class="code-frame" data-lang="Ubuntu-console"><div class="highlight"><pre>
+#ワードアライメントに必要なgiza++のセットアップ
+$ git clone https://github.com/moses-smt/giza-pp.git ~/
+$ cd ~/giza-pp
+$ make
+
+#mosesからgiza++を参照できるようにバイナリファイルを作成しコピーする。
+$ cd ~/mosesdecoder
+$ mkdir tools
+$ cp ~/giza-pp/GIZA++-v2/GIZA++ ~/giza-pp/GIZA++-v2/snt2cooc.out ~/giza-pp/mkcls-v2/mkcls tools
+
+#翻訳モデルの学習(約3時間)
+$ mkdir ~/work
+$ cd ~/work
+$ ~/mosesdecoder/scripts/training/train-model.perl --root-dir ./ --corpus ~/work/corpus/wiki.en-ja.clean --f en --e ja --lm 0:5:$HOME/corpus/wiki.en-ja.arpa.ja
+</pre></div></div>
+
+<p>翻訳モデルの学習が完了した後、workディレクトリの中に、giza.en-ja、giza.ja-en、modelのディレクトリが存在し、model/moses.iniが出来ていれば完成。</p>
+
+<h2>
+<span id="5自作したモデルを用いた翻訳の実行-1" class="fragment"></span><a href="#5%E8%87%AA%E4%BD%9C%E3%81%97%E3%81%9F%E3%83%A2%E3%83%87%E3%83%AB%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E7%BF%BB%E8%A8%B3%E3%81%AE%E5%AE%9F%E8%A1%8C-1"><i class="fa fa-link"></i></a><div id="no5">5.自作したモデルを用いた翻訳の実行</div>
+</h2>
+
+<p>moses.iniの設定ファイルが完成すると先ほど作成した言語モデルと翻訳モデルを参照した機械翻訳を行うことができます！<br>
+その方法ですが最初にテストした時と同様にmoses.ini引数に指定し、mosesコマンドを実行します。</p>
+
+<p>インストールから引っかかり、モデルの作成にやたらと時間がかかり、苦労して苦労してここまで辿りついたので立ち上がった時はすごく嬉しいです！！<br>
+</p><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/74192/4ecb7cf1-fd72-fbc0-9cd5-ae11758c4bf0.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/74192/4ecb7cf1-fd72-fbc0-9cd5-ae11758c4bf0.gif" alt="born-compressor.gif"></a><br>
+
+
+<p>以下のgifが実行している様子です！<br>
+"my name is sesshu"に対し、"私の名は雪舟"が得られ、"this is a house"に対し、"これは家"が得られています！<br>
+無事翻訳でき、翻訳確率も求められていることが確認できます！<br>
+</p><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/74192/4ff8e445-5dcd-16dc-e03a-a622be0d0787.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/74192/4ff8e445-5dcd-16dc-e03a-a622be0d0787.gif" alt="movie-compressor.gif"></a><br>
+
+
+<h2>
+<span id="6まとめ-1" class="fragment"></span><a href="#6%E3%81%BE%E3%81%A8%E3%82%81-1"><i class="fa fa-link"></i></a><div id="no6">6.まとめ</div>
+</h2>
+
+<p>うまくいった例だけ紹介しましたが、未知語が出てきた場合や入力に大文字が混じっている場合にうまく翻訳できないことが多々ありました。<br>
+あと、学習データが京都の割と硬派な文書だったこともあり、言い回しも普通の人が話し言葉で使わないような言い回しを使っていました。</p>
+
+<p>翻訳精度の向上方法の1つに単純にコーパスの量が影響していたりもするので、例えば話言葉が含まれたパラレルコーパスを追加して再度学習し直してみるともっと多様な言い回しに対応した翻訳が行われるかもしれないですね！googleとの圧倒的な違いは学習に用いられるコーパスの量の差にもあると思います。(他にもまだまだ沢山の要因がありますが)</p>
+
+<p>ちなみに、このMosesはxml-rpcを使用することでwebサーバとして動作させることも可能です！<br>
+なので、パラレルコーパスを独自に集め、学習に用いることできる人は自分のサービスに組み込むことも可能になりますね！</p>
+
+<p>他にもMosesを様々な形で使用できるようにオプションが整備されているので、興味がある方は<a href="http://www.statmt.org/moses/manual/manual.pdf" rel="nofollow noopener" target="_blank">マニュアル</a>を確認してみると良いかと思います！</p>
+
+<p>アドベントカレンダーも早いもので残りもあと3日ですね！<br>
+<a href="http://qiita.com/advent-calendar/2015/basicinc">プログラミング大好きベーシック</a>のアドベントカレンダー、明日は、<a href="http://qiita.com/Kaki_Shoichi">kakizaki</a>さんです！</p>
+
+<p>長くなりましたが、最後までお読み頂きありがとうございます！！</p>
+<div class="hidden"><form class="js-task-list-update" action="/R-Yoshi/items/9a809c0a03e02874fabb" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="Rq1ECBZtyAaIfaNqR5IncJNBJt3Or5+dbs0VEx2+JdxRi48fl+YbVHTIMYtUOn077uIFt5zKw9BDgTDlLcClfA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1468222634" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+![movie-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/74192/b3b029a2-8837-d4ed-0af9-bda3294a5597.gif)
+
+#はじめに
+
+最近機械学習熱いし、その波に乗りたいなということで、大学時代に若干触れていた自然言語処理の知識を生かして、タイトルの通りGoogle翻訳のような機械翻訳機を作成してみました。
+結果、ページトップのアニメーションのような動作をする翻訳機を作れましたが、翻訳精度はgoogle翻訳に惨敗でした。どこらへんが惨敗だったのかは最後のまとめでちょっとだけ触れます。
+
+結果的には惨敗だったのですが、自分が作ったモデルで翻訳できた瞬間はとても嬉しかったので、自分の子供のような存在を生み出す喜びを誰かに共感していただきたく思い、機械翻訳機を作成して得た自然言語処理(ほぼ翻訳)に関する知見とその方法をまとめてみました！
+
+自然言語処理というなかなかに難しいジャンルなので、途中眠たくなるような説明や数式も一応紹介いたしますが、 &lt;strong&gt;この記事のゴールはオリジナルな翻訳モデルを作成し上のアニメーションのようにターミナル(黒い画面のやつ)上で翻訳を行うこと&lt;/strong&gt;です！
+なので、説明とか良いから早く自分で一通り作らせて！という方は&lt;a href=&quot;#no4&quot;&gt;記事の最後の方&lt;/a&gt;までスクロールしちゃってください。
+
+※ちなみに記事中で紹介しているリンク先は個人的に説明が分かりやすいと思ったサイトをあげさせていただいています。
+※凄くボリューミーな内容になってしまったので目次を見て気になる部分だけ拾い読みしてください。
+
+
+##目次
+
+####1.&lt;a href=&quot;#no1&quot;&gt;そもそも機械翻訳って&lt;/a&gt;
+####2.&lt;a href=&quot;#no2&quot;&gt;ルールベース機械翻訳&lt;/a&gt;
+####3.&lt;a href=&quot;#no3&quot;&gt;統計的機械翻訳&lt;/a&gt;
+####4.&lt;a href=&quot;#no4&quot;&gt;ここから作業開始&lt;/a&gt;
+####5.&lt;a href=&quot;#no5&quot;&gt;自作したモデルを用いた翻訳の実行&lt;/a&gt;
+####6.&lt;a href=&quot;#no6&quot;&gt;まとめ&lt;/a&gt;
+
+&lt;HR&gt;
+
+##&lt;div id=&quot;no1&quot;&gt;1.そもそも機械翻訳って&lt;/div&gt;
+みなさんも恐らく大変お世話になっているであろう、[google翻訳](https://translate.google.co.jp/?hl=ja)や[yahoo翻訳](http://honyaku.yahoo.co.jp/)といった、何かしらの言語を入力したら指定した言語の翻訳結果を出力してくれるあのサービスに用いられている技術のことです。
+
+ノータイムで入力に対する翻訳結果を吐き出してくれるあのサービス、当たり前ですが人間がレスポンスを返しているのではなく、入力に対して尤もらしい答えを機械がレスポンスしてくれています。
+つまり機械翻訳とはその名の通り、人手による翻訳では無く、機械が行ってくれる翻訳のことですね！
+
+&lt;img width=&quot;562&quot; alt=&quot;スクリーンショット 2015-12-19 21.13.22.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/74192/830bbaa0-613e-59d1-dcb9-1de9fe09be24.png&quot;&gt;
+
+
+
+
+そして、現在サービスとして提供されている機械翻訳の技術の手法としては主に、&lt;strong&gt;ルールベースの翻訳手法(RBMT)&lt;/strong&gt;と&lt;strong&gt;統計ベースの翻訳手法&lt;/strong&gt;の2つがあります。
+2つの翻訳方式の違いとメリットデメリットを次で簡単に説明致します。
+
+##&lt;div id=&quot;no2&quot;&gt;2.ルールベース機械翻訳(RBMT: Rule Base Machine Translation)&lt;/div&gt;
+ルールベース翻訳とは、原言語を[構文解析](https://ja.wikipedia.org/wiki/%E6%A7%8B%E6%96%87%E8%A7%A3%E6%9E%90)して文法構造を把握した後、辞書を用いて[文節単位](https://ja.wikipedia.org/wiki/%E6%96%87%E7%AF%80)で目的言語へ翻訳し、最後に目的言語の文法へ翻訳した文字列を並び変える方法です。
+文字で説明すると良く分からないのですが、実際にやっている作業は単純で以下で説明する通りです！
+
+```
+（例）「私はサッカーをします」という入力の時
+
+①文節単位に文を区切ります。
+　私は / サッカーを / します
+
+②文節間の修飾関係(係り受け構造)を把握します。
+　私は　　　 =&gt; します(主語と動詞)
+　サッカーを =&gt; します(目的語と動詞)
+　この修飾関係を出すことで以下のような構文構造になっていることがわかります。
+　私は(主語)　/　サッカーを(目的語)　/ します(動詞)
+　
+③次に、それぞれの文節を辞書を用いて翻訳します。
+　私は =&gt; I / サッカーを =&gt; soccer / します =&gt; play
+
+④最後に英語の構文ルールに従い文節の並び替えを行います。
+　I play soccer (S + V + O) 
+　
+　そして以下のような翻訳結果が求まります。
+　翻訳結果 : I play soccer
+```
+
+###メリット
+- 大量の学習データを必要としない。
+- 入力のジャンルに合わせた辞書を用いる事で翻訳精度を向上することが可能である。
+- 言語ルールと文法ルールと辞書さえあればどんな言語でも割と安定した結果を求められる。
+- 研究期間が長く辞書が充実しているので、メジャーな言語だと高い精度で結果が求まる。
+
+
+###デメリット
+- 辞書自体は翻訳家により作成されるのでコストが高くなる。
+- マイナーな言語だと対応が難しい。
+- 既に翻訳結果の精度向上に限界が来ている説がある。
+
+
+
+##&lt;div id=&quot;no3&quot;&gt;3. 統計的機械翻訳(SMT: Statistical Machine Translation)&lt;/div&gt;
+[統計的機械翻訳](http://www.kecl.ntt.co.jp/rps/research/innovative/research_innovative03.html)とは、原言語と目的言語の対訳文から意味的な等価性を、目的言語からその言語らしさを学習して確率モデルを作成し、作成したモデルから意味的な等価性と目的言語らしさの確率が最大となるような文を翻訳結果として出力する手法です。
+
+良くわかんない人のために凄くざっくり説明すると、大量の対訳文を集めて、その文から目的言語の言語ルールと文法ルールを作って、入力に対してそれぞれのルールをいい感じに満たす最もそれっぽい答えを翻訳結果としましょう！という感じですね！この大量の対訳文から確率モデルを作成することを学習といいます。
+今回は、こちらの&lt;strong&gt;統計的機械翻訳手法を用いて翻訳を行う&lt;/strong&gt;ので、詳細を以下でしっかり説明します。
+
+
+###翻訳確率
+まず、翻訳を行う上で肝になる確率モデルの説明をします!
+原言語をf、目的言語をe、翻訳確率をe(hat)とすると以下のように表せます。
+
+```math
+\hat{e} = argmax_{e}P(e\ |\ f)
+```
+この式を[ベイズの定理](https://ja.wikipedia.org/wiki/%E3%83%99%E3%82%A4%E3%82%BA%E3%81%AE%E5%AE%9A%E7%90%86)を用いることにより以下のような式に変形できます。
+
+```math
+\hat{e} = argmax_{e}{P(f\ |\ e)}{P(e)}
+```
+ここで表されるP(f|e)は翻訳モデルを、P(e)は言語モデルを表しています。
+つまり、統計的手法を用いた翻訳では、P(f|e)P(e)を最大化する解を尤もらしい翻訳結果として出力します。
+
+
+###言語モデル
+次に翻訳に用いられる言語モデルを説明します！
+言語モデルとは一言で表すと、人間が用いるであろう「言葉らしさ」を確率としてモデル化したものです。具体的に説明すると、ある単語の後にはどんな単語が現れるか、という確率を目的言語文から学習しています！
+[N-gram言語モデル](http://www.ic.daito.ac.jp/~mizutani/mining/n_gram.html)では、文字列のN番目に来る単語はN-1個前の単語に依存しているという風にみなしています。これは以下の式のように表されます。
+
+```math
+P(e) = \prod_{i=1}^{N}P(t_i|t_{i-n+1},t_{i-n+2},...,t_{i-1} )
+```
+
+
+
+###翻訳モデル
+翻訳モデルは原言語と目的言語の意味的な等価性を確率的に表したモデルのことです！
+翻訳モデルの確率は両言語のフレーズの対応(アライメント)と、フレーズの翻訳確率により決定されます。
+ここでアライメントaが与えられているとすると翻訳確率P(f|e)は以下のような式で表すことできます。
+
+```math
+\begin{aligned}
+P(f|e) &amp; = \sum_{a}P(f , a\ |\ e)\\
+&amp; = \sum_{a}P(f\ |\ e,a)P(a\ |\ e)
+\end{aligned}
+```
+
+アライメントは[リオーダリングモデル](http://unicorn.ike.tottori-u.ac.jp/2009/s062041/paper/master_thesis/node20.html)、フレーズの翻訳確率は[フレーズテーブル](http://unicorn.ike.tottori-u.ac.jp/2010/s072047/paper/graduation-thesis/node9.html)に格納されます。
+ここの理解がとても重要と[参考書](http://www.coronasha.co.jp/np/isbn/9784339027518/)には書いてありますが良い事例がなくて理解が難しい...。
+とりあえず、ここではそういうものなんだな！と割り切って先に進めます！
+
+
+####メリット
+- 人手による辞書作成の必要がない。
+- 言語に依存する事なくモデルを作成できる。
+- 割と新しめの技術なので研究が盛んである。
+- 安価に高速に翻訳ができる。
+
+
+####デメリット
+- 学習用の大量の対訳文が必要である。
+- 学習データに未知語が存在すると翻訳精度が低くなる。
+
+なんと言っても、統計的機械翻訳手法は&lt;strong&gt;人手による辞書作成の必要がないため&lt;/strong&gt;、コーパスさえ準備することが出来れば&lt;strong&gt;言語に依存する事なく&lt;/strong&gt;翻訳モデルを作成できる&lt;/strong&gt;ところに利点があると思います！
+
+##&lt;div id=&quot;no4&quot;&gt;4.ここから作業開始&lt;/div&gt;
+説明が長くなりましたが、ここから実際にコンソール上で行う作業を説明致します！
+今回の作業は、[Moses(モーゼ)](http://www.statmt.org/moses/)という翻訳モデルと言語モデルから翻訳結果を出力するデコーダを用いて行います！
+基本的に[Mosesのマニュアル](http://www.statmt.org/moses/manual/manual.pdf)に作業方法は書いてあるので、そちらに準じて行っていきます。
+###環境構築
+
+####仮想環境の準備 (Vagrant, Ubuntu 14.04)
+まず仮想環境を準備致します！
+ローカルでも作業できるのですが、環境構築が難しく何度もやり直したくなる衝動に駆られると思うので最初から仮想環境で行うことをお勧め致します！
+Ubuntu 14.04を用いましたが理由は特に無いです。
+以後、Ubuntu環境でのセットアップ方法について説明していきますが、他のOSで行いたい場合は[マニュアル](http://www.statmt.org/moses/manual/manual.pdf)を参照してそれぞれの環境に合わせてセットアップを行ってください。
+
+```
+$ mkdir ~/nlp
+$ cd ~/nlp
+$ vagrant init
+$ vagrant box add nlp https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box
+
+```
+```Vagrantfile
+15: config.vm.box = &quot;base&quot;
+=&gt;  config.vm.box = &quot;nlp&quot;
+
+51: #vb.memory = &quot;1024&quot;
+=&gt;  vb.customize [&quot;modifyvm&quot;, :id, &quot;--memory&quot;, &quot;4096&quot;]
+```
+以上のようにVagrantfileの該当行数の書き換えを行なってください。
+ちなみに4096という数字はメモリ4Gを表しているのですが、モデルの学習にはやたらと&lt;strong&gt;メモリを消費する&lt;/strong&gt;のでこれくらい使用できるメモリが無いとなかなか厳しいかもしれません。
+どうしてもハード的に性能が劣る場合は、[Amazon AWSのAMI](http://www.statmt.org/moses/?n=Moses.Packages)も準備されているのでそちらを使って行ってみてください！
+
+ここまで記述出来たらあとは以下のようにvagrantを起動してください。
+
+```~/nlp
+$ vagrant up
+$ vagrant ssh
+```
+
+####Mosesのインストール
+一番最初に、翻訳モデルと言語モデルから翻訳結果を出力するデコーダの役割をするMosesのインストールを行います。ちなみにUbuntu環境ではboostをインストールする必要がありますが、環境によってはこのboostのインストールは必要ないそうです！
+ちなみにこのMosesを動作させる事が一番のハードルでした...。
+悪戦苦闘しましたが最終的にうまくいった方法を下で説明します。
+
+```Ubuntu-console
+#Mosesの動作に必要なパッケージのインストール
+$ sudo apt-get install build-essential git-core pkg-config automake libtool wget
+zlib1g-dev python-dev libbz2-dev
+
+#Mosesのコンパイルに必要なboostのセットアップ
+(boost無しでMosesをコンパイルしようとしたら、libboost_serialization.so.1.59.0: cannot open shared object file: No such file or directoryと怒られた。)
+$ cd ~
+$ wget http://downloads.sourceforge.net/boost/boost_1_59_0.tar.bz2
+$ tar jxvf boost_1_59_0.tar.bz2
+$ cd boost_1_59_0
+$ ./b2 -j4 --prefix=$PWD --libdir=$PWD/lib64 --layout=system link=static install || echo FAILURE
+
+#Mosesのセットアップ
+$ git clone https://github.com/moses-smt/mosesdecoder.git
+$ cd mosesdecoder
+$ ./bjam --with-boost=$HOME/boost_1_59_0 -j4 
+```
+boostを自分でセットアップした場合は、boostのパスを指定してコンパイルしてあげる必要があります。あとwarningが沢山出ると思いますが、errorが出なければ万事OKです！
+
+最後に以下の様にテストして、無事出力が得られればMosesのセットアップ完了です！
+このテストではサンプルとして提供されている英語の言語モデルと独英の翻訳モデルを参照し、ドイツ語の入力を英語に翻訳しています。
+
+```Ubuntu-console
+$ cd ~
+$ wget http://www.statmt.org/moses/download/sample-models.tgz 
+$ tar xzf sample-models.tgz
+$ cd sample-models
+$ ~/mosesdecoder/bin/moses -f phrase-model/moses.ini &lt;phrase-model/in&gt; out 
+```
+```out
+#以下の文字列が得られていれば無事セットアップ完了
+This is a house
+```
+
+####学習に用いる日英パラレルコーパスの加工
+次に学習に必要な日英対訳コーパスの加工を行います。このパラレルコーパスを見つけることがなかなか難しいのですが、このパラレルコーパスの内容に翻訳精度が大きく影響を受けてしまうので頑張って使用可能なコーパスを探してみてください！
+
+#####パラレルコーパスの準備
+ちなみに僕は[日英京都関連文書コーパス](https://alaginrc.nict.go.jp/WikiCorpus/)を使用させていただきました！
+&gt;「本サービスで使用している[データ]はWikipediaの日本語文を国立研究開発法人情報通信研究機構が英訳したものを、Creative Comons Attribution-Share-Alike License 3.0による利用許諾のもと使用しております。詳細はhttp://creativecommons.org/licenses/by-sa/3.0/およびhttp://alaginrc.nict.go.jp/WikiCorpus/をご覧下さい。」
+
+[日英京都関連文書コーパス](https://alaginrc.nict.go.jp/WikiCorpus/)のは.xmlファイルに対訳文が表記されていますので、jタグのものをwiki.en-ja.jaへ、e type=&quot;check&quot;タグのものをwiki.en-ja.enへ、それぞれ以下の画像のようにタグ内の文字列だけ抜き出してください。うまく抜き取ることが出来れば、約50万文の対訳文ができると思います！
+
+```wiki.en-ja.ja
+1: 日本の水墨画を一変させた。
+2: 備中国に生まれ、京都・相国寺に入ってから周防国に移る。
+3: その後遣明使に随行して中国(明)に渡って中国の水墨画を学んだ。
+4: 作品は数多く、中国風の山水画だけでなく人物画や花鳥画もよくした。
+5: 大胆な構図と力強い筆線は非常に個性的な画風を作り出している。
+#以下約50万行続く
+```
+
+```wiki.en-ja.en
+1: He revolutionized the Japanese ink pointing.
+2: Born in Bicchu Province, he moved to Suo Province after SShoku-ji Temple in Kyoto
+3: Later he accompanied a mission to Ming Dynasty China and learned Chinese ink pointing.
+4: His works were many, including not only Chineses-style landscape paintings, but also portraits and pictures of flowers and birds.
+5: His bold compositions and strong brush strokes constituted an extremly distinctive style.
+#以下約50万行続く
+```
+
+
+これらのファイルを以下の様に作成したcorpusディレクトリの中に格納します。
+vagrantの共通ディレクトリを利用してファイルの受け渡しを行っています。
+
+```Ubuntu-console
+$ mkdir ~/corpus
+$ mv /vagrant/wiki.en-ja.ja /vagrant/wiki.en-ja.en ~/corpus
+```
+#####文を学習に適した形に加工する
+次に、パラレルコーパスから取得した文を学習に適した形にするために、以下の3ステップを行います。
+
+- tokenisation : 文を単語区切りにする。
+- lowercasing : 単語の小文字化
+- cleaning : 単語数が80文字以上の文は精度が低くなるので取り除く。
+
+まず、tokenisationを行います。
+英語はmosesに元々入っているスクリプトを使用し、日本語の加工には[mecab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html?sess=3f6a4f9896295ef2480fa2482de521f6)を使用します。
+mecabが入っていない方はapt-getで[辞書と一緒にインストール](http://taoru.hateblo.jp/entry/20110405/1302033243)してください。
+
+```Ubuntu-console
+#英語のトークン化
+$ ~/mosesdecoder/dist/tokenizer.perl -l en &lt;~/corpus/wiki.en-ja.en&gt; ~/corpus/wiki.en-ja.tok.en
+
+#日本語のトークン化
+$ mecab -O wakati &lt; ~/corpus/wiki.en-ja.ja &gt; ~/corpus/wiki.en-ja.tok.ja
+```
+
+学習の際に英語の大文字と小文字が混在していると別のトークンとして扱われてしまうので、通常であればトークンの大文字・小文字を多数決で決めるtruecasingを行いますが、truecasingを行うためのモデルが無いので、今回は全部小文字に合わせるlowercasingを行います！
+
+```Ubuntu-console
+#英語の小文字化
+$ ~/mosesdecoder/scripts/tokenizer/lowercase.perl &lt;~/corpus/wiki.en-ja.tok.en&gt; ~/corpus/wiki.en-ja.low.en
+
+#一応日本語も小文字化
+$ ~/mosesdecoder/scripts/tokenizer/lowercase.perl &lt;~/corpus/wiki.en-ja.tok.ja&gt; ~/corpus/wiki.en-ja.low.ja
+```
+
+そして最後に、学習モデルの精度をあげるためのcleaningを行います。
+
+```Ubuntu-console
+$ cd ~/corpus
+$ ~/mosesdecoder/scripts/training/clean-corpus-n.perl wiki.en-ja.low ja en wiki.en-ja.clean 1 80
+```
+
+以上でコーパスの加工は終了です！
+
+####言語モデル・翻訳モデルの学習
+ここまできて、やっとモデルの学習に入ることができます！
+最初にも言いましたが、モデルの学習は、メモリの消費量が激しいのにプラスして結構な時間を必要とするので、パソコンを使用しない放置できる時間にコマンドを実行することを推奨します。
+大体ですが、僕の環境で50万分のコーパスを用いた場合に、言語モデルの学習に20分、翻訳モデルの学習に3時間を要しました。
+
+#####言語モデルの学習
+言語モデルを学習させるソフトウェアとして、IRSTLMやSRILMなどが有名です。
+それらのソフトは7-gramモデルが作成できたり、ライセンスが柔軟などのメリットがありますが、特に今回はそこまでの機能を必要としないので、Moses付属のKenLMを用いて、5-gramの言語モデルを80%のメモリを使用して作成します。
+
+```Ubuntu-console
+$ ~/mosesdecoder/bin/lmplz -o 5 -S 80% -T ./ &lt; ~/corpus/wiki.en-ja.low.ja &gt; wiki.en-ja.arpa.ja
+```
+
+#####翻訳モデルの学習
+最後に翻訳モデルの学習を行います！
+翻訳モデルの学習では主に、[giza++](https://github.com/moses-smt/giza-pp)を用いたワードアライメントや、フレーズのスコアリング、フレーズテーブルの作成などが行われ、デコードの際にそれらを参照するMosesの設定ファイルが作り出されます。
+
+```Ubuntu-console
+#ワードアライメントに必要なgiza++のセットアップ
+$ git clone https://github.com/moses-smt/giza-pp.git ~/
+$ cd ~/giza-pp
+$ make
+
+#mosesからgiza++を参照できるようにバイナリファイルを作成しコピーする。
+$ cd ~/mosesdecoder
+$ mkdir tools
+$ cp ~/giza-pp/GIZA++-v2/GIZA++ ~/giza-pp/GIZA++-v2/snt2cooc.out ~/giza-pp/mkcls-v2/mkcls tools
+
+#翻訳モデルの学習(約3時間)
+$ mkdir ~/work
+$ cd ~/work
+$ ~/mosesdecoder/scripts/training/train-model.perl --root-dir ./ --corpus ~/work/corpus/wiki.en-ja.clean --f en --e ja --lm 0:5:$HOME/corpus/wiki.en-ja.arpa.ja
+```
+
+翻訳モデルの学習が完了した後、workディレクトリの中に、giza.en-ja、giza.ja-en、modelのディレクトリが存在し、model/moses.iniが出来ていれば完成。
+
+##&lt;div id=&quot;no5&quot;&gt;5.自作したモデルを用いた翻訳の実行&lt;/div&gt;
+moses.iniの設定ファイルが完成すると先ほど作成した言語モデルと翻訳モデルを参照した機械翻訳を行うことができます！
+その方法ですが最初にテストした時と同様にmoses.ini引数に指定し、mosesコマンドを実行します。
+
+インストールから引っかかり、モデルの作成にやたらと時間がかかり、苦労して苦労してここまで辿りついたので立ち上がった時はすごく嬉しいです！！
+&lt;center&gt;
+![born-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/74192/4ecb7cf1-fd72-fbc0-9cd5-ae11758c4bf0.gif)
+&lt;/center&gt;
+
+以下のgifが実行している様子です！
+&quot;my name is sesshu&quot;に対し、&quot;私の名は雪舟&quot;が得られ、&quot;this is a house&quot;に対し、&quot;これは家&quot;が得られています！
+無事翻訳でき、翻訳確率も求められていることが確認できます！
+&lt;center&gt;
+![movie-compressor.gif](https://qiita-image-store.s3.amazonaws.com/0/74192/4ff8e445-5dcd-16dc-e03a-a622be0d0787.gif)
+&lt;/center&gt;
+
+##&lt;div id=&quot;no6&quot;&gt;6.まとめ&lt;/div&gt;
+うまくいった例だけ紹介しましたが、未知語が出てきた場合や入力に大文字が混じっている場合にうまく翻訳できないことが多々ありました。
+あと、学習データが京都の割と硬派な文書だったこともあり、言い回しも普通の人が話し言葉で使わないような言い回しを使っていました。
+
+翻訳精度の向上方法の1つに単純にコーパスの量が影響していたりもするので、例えば話言葉が含まれたパラレルコーパスを追加して再度学習し直してみるともっと多様な言い回しに対応した翻訳が行われるかもしれないですね！googleとの圧倒的な違いは学習に用いられるコーパスの量の差にもあると思います。(他にもまだまだ沢山の要因がありますが)
+
+ちなみに、このMosesはxml-rpcを使用することでwebサーバとして動作させることも可能です！
+なので、パラレルコーパスを独自に集め、学習に用いることできる人は自分のサービスに組み込むことも可能になりますね！
+
+他にもMosesを様々な形で使用できるようにオプションが整備されているので、興味がある方は[マニュアル](http://www.statmt.org/moses/manual/manual.pdf)を確認してみると良いかと思います！
+
+アドベントカレンダーも早いもので残りもあと3日ですね！
+[プログラミング大好きベーシック](http://qiita.com/advent-calendar/2015/basicinc)のアドベントカレンダー、明日は、[kakizaki](http://qiita.com/Kaki_Shoichi)さんです！
+
+長くなりましたが、最後までお読み頂きありがとうございます！！
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【機械学習】Google翻訳(みたいなもの)を自作してみた。 on @Qiita" data-url="http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【機械学習】Google翻訳(みたいなもの)を自作してみた。" href="http://b.hatena.ne.jp/entry/http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/R-Yoshi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/74192/profile-images/1473699759" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/R-Yoshi">R-Yoshi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1139</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;R-Yoshi&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-39384eef-6796-472f-97c5-cb25f4221083"></div>
+    <div id="UserFollowButton-react-component-39384eef-6796-472f-97c5-cb25f4221083"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/R-Yoshi/items/35627978de3764fa4451">【2016年夏】個人的に注目なフロントエンドで使えるJavaScriptフレームワークまとめ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/R-Yoshi/items/30f965dc44b7c533ef95">HTMLやCSS設計がよく分から無いというあなたへ。知ることから始める5つのTIPS</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/R-Yoshi/items/9a809c0a03e02874fabb">【機械学習】Google翻訳(みたいなもの)を自作してみた。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/R-Yoshi/items/ee49d90eb910dfdd104f">【2016年冬】最新CSSフレームワークまとめ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/R-Yoshi/items/267ea5d1eb0e2719eb7f">ReactとRefluxJSを用いた快適View生活</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/basicinc"><img alt="株式会社ベーシック" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/366c872964dd688f5e2e89008f37328e1f14c897/original.jpg?1404190898" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%9B%AE%E6%AC%A1\&quot;\u003e目次\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1%E3%81%9D%E3%82%82%E3%81%9D%E3%82%82%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3%E3%81%A3%E3%81%A6\&quot;\u003e1.\u003c/a\u003e\u003ca href=\&quot;#no1\&quot;\u003eそもそも機械翻訳って\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E3%83%AB%E3%83%BC%E3%83%AB%E3%83%99%E3%83%BC%E3%82%B9%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3\&quot;\u003e2.\u003c/a\u003e\u003ca href=\&quot;#no2\&quot;\u003eルールベース機械翻訳\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3%E7%B5%B1%E8%A8%88%E7%9A%84%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3\&quot;\u003e3.\u003c/a\u003e\u003ca href=\&quot;#no3\&quot;\u003e統計的機械翻訳\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#4%E3%81%93%E3%81%93%E3%81%8B%E3%82%89%E4%BD%9C%E6%A5%AD%E9%96%8B%E5%A7%8B\&quot;\u003e4.\u003c/a\u003e\u003ca href=\&quot;#no4\&quot;\u003eここから作業開始\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#5%E8%87%AA%E4%BD%9C%E3%81%97%E3%81%9F%E3%83%A2%E3%83%87%E3%83%AB%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E7%BF%BB%E8%A8%B3%E3%81%AE%E5%AE%9F%E8%A1%8C\&quot;\u003e5.\u003c/a\u003e\u003ca href=\&quot;#no5\&quot;\u003e自作したモデルを用いた翻訳の実行\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#6%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003e6.\u003c/a\u003e\u003ca href=\&quot;#no6\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1%E3%81%9D%E3%82%82%E3%81%9D%E3%82%82%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3%E3%81%A3%E3%81%A6-1\&quot;\u003e\u003cdiv id=\&quot;no1\&quot;\u003e1.そもそも機械翻訳って\u003c/div\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E3%83%AB%E3%83%BC%E3%83%AB%E3%83%99%E3%83%BC%E3%82%B9%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3rbmt-rule-base-machine-translation\&quot;\u003e\u003cdiv id=\&quot;no2\&quot;\u003e2.ルールベース機械翻訳(RBMT: Rule Base Machine Translation)\u003c/div\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88\&quot;\u003eメリット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88\&quot;\u003eデメリット\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-%E7%B5%B1%E8%A8%88%E7%9A%84%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3smt-statistical-machine-translation\&quot;\u003e\u003cdiv id=\&quot;no3\&quot;\u003e3. 統計的機械翻訳(SMT: Statistical Machine Translation)\u003c/div\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%BF%BB%E8%A8%B3%E7%A2%BA%E7%8E%87\&quot;\u003e翻訳確率\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB\&quot;\u003e言語モデル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB\&quot;\u003e翻訳モデル\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88-1\&quot;\u003eメリット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A1%E3%83%AA%E3%83%83%E3%83%88-1\&quot;\u003eデメリット\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#4%E3%81%93%E3%81%93%E3%81%8B%E3%82%89%E4%BD%9C%E6%A5%AD%E9%96%8B%E5%A7%8B-1\&quot;\u003e\u003cdiv id=\&quot;no4\&quot;\u003e4.ここから作業開始\u003c/div\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89\&quot;\u003e環境構築\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BB%AE%E6%83%B3%E7%92%B0%E5%A2%83%E3%81%AE%E6%BA%96%E5%82%99-vagrant-ubuntu-1404\&quot;\u003e仮想環境の準備 (Vagrant, Ubuntu 14.04)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#moses%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB\&quot;\u003eMosesのインストール\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AD%A6%E7%BF%92%E3%81%AB%E7%94%A8%E3%81%84%E3%82%8B%E6%97%A5%E8%8B%B1%E3%83%91%E3%83%A9%E3%83%AC%E3%83%AB%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%81%AE%E5%8A%A0%E5%B7%A5\&quot;\u003e学習に用いる日英パラレルコーパスの加工\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%91%E3%83%A9%E3%83%AC%E3%83%AB%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%81%AE%E6%BA%96%E5%82%99\&quot;\u003eパラレルコーパスの準備\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%87%E3%82%92%E5%AD%A6%E7%BF%92%E3%81%AB%E9%81%A9%E3%81%97%E3%81%9F%E5%BD%A2%E3%81%AB%E5%8A%A0%E5%B7%A5%E3%81%99%E3%82%8B\&quot;\u003e文を学習に適した形に加工する\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003e言語モデル・翻訳モデルの学習\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003e言語モデルの学習\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003e翻訳モデルの学習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#5%E8%87%AA%E4%BD%9C%E3%81%97%E3%81%9F%E3%83%A2%E3%83%87%E3%83%AB%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E7%BF%BB%E8%A8%B3%E3%81%AE%E5%AE%9F%E8%A1%8C-1\&quot;\u003e\u003cdiv id=\&quot;no5\&quot;\u003e5.自作したモデルを用いた翻訳の実行\u003c/div\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#6%E3%81%BE%E3%81%A8%E3%82%81-1\&quot;\u003e\u003cdiv id=\&quot;no6\&quot;\u003e6.まとめ\u003c/div\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-fdd49d0c-3fd2-460c-b7b1-496c8d18311c"></div>
+    <div id="Toc-react-component-fdd49d0c-3fd2-460c-b7b1-496c8d18311c"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:119,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;9a809c0a03e02874fabb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="g_ryotaro"><a itemprop="url" href="/g_ryotaro"><img alt="g_ryotaro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74197/profile-images/1475214966" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mmusasabi"><a itemprop="url" href="/mmusasabi"><img alt="mmusasabi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42310/profile-images/1473689110" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kaki_Shoichi"><a itemprop="url" href="/Kaki_Shoichi"><img alt="Kaki_Shoichi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49347/profile-images/1473691696" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ryosukes"><a itemprop="url" href="/ryosukes"><img alt="ryosukes" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37036/profile-images/1473687285" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="na1412"><a itemprop="url" href="/na1412"><img alt="na1412" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50898/profile-images/1473692257" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="s-mori"><a itemprop="url" href="/s-mori"><img alt="s-mori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42253/profile-images/1480732297" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ykyk1218"><a itemprop="url" href="/ykyk1218"><img alt="ykyk1218" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6808/profile-images/1476028634" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Viarofka"><a itemprop="url" href="/Viarofka"><img alt="Viarofka" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14465/profile-images/1473758001" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="roki1801"><a itemprop="url" href="/roki1801"><img alt="roki1801" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68751/profile-images/1473761819" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kkyouhei"><a itemprop="url" href="/kkyouhei"><img alt="kkyouhei" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35451/profile-images/1473686727" /></a></div></div><div class="ArticleFooter__user"><a href="/R-Yoshi/items/9a809c0a03e02874fabb/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/9a809c0a03e02874fabb/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/R-Yoshi/items/9a809c0a03e02874fabb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.22</span> article of <a class="title" href="/advent-calendar/2015/basicinc">プログラミング大好きベーシック Advent Calendar 2015</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 21:</span><span class="itemsShowBody_adventCalendar_title"><img alt="ykyk1218" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/6808/profile-images/1476028634" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/ykyk1218/items/e666d6c4b33e451eb7b1">iOS端末同士をbluetooth通信させて端末間の距離っぽいものを測る</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 23:</span><span class="itemsShowBody_adventCalendar_title"><img alt="Kaki_Shoichi" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/49347/profile-images/1473691696" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/Kaki_Shoichi/items/8b1c625a9ed10e3769b8">AndroidWearのFace(文字盤)をアニメのキャラにしたかったので自作した話(作成手順公開)</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/kanjirz50/items/c8ca50466b57a619e2a2#_reference-eb45b2cc285355a518e2"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/117443/profile-images/1477575901" />Mosesの後輩への引き継ぎのためのまとめ</a><time class="references_datetime js-dateTimeView" datetime="2016-09-02T01:29:53+00:00">7 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/knok/items/df7a155d17e3c9a12e94#_reference-4ca3f4ae64c2157de91c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/31714/profile-images/1473685754" />seq2seqで利用可能な日本語対話データセットをダウンロードするツール</a><time class="references_datetime js-dateTimeView" datetime="2016-11-10T06:39:55+00:00">4 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【機械学習】Google翻訳(みたいなもの)を自作してみた。 on @Qiita" data-url="http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【機械学習】Google翻訳(みたいなもの)を自作してみた。" href="http://b.hatena.ne.jp/entry/http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e画像が消えている様です。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-12-22T13:52:47+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:418509,&quot;is_team&quot;:false,&quot;item_id&quot;:355482,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9a809c0a03e02874fabb&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;画像が消えている様です。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb#comment-282f6552504ada891899&quot;,&quot;user&quot;:{&quot;contribution&quot;:2160,&quot;created_at&quot;:&quot;2011-10-24T09:15:36+09:00&quot;,&quot;id&quot;:665,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/665/profile-images/1484629793&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;mattn&quot;},&quot;uuid&quot;:&quot;282f6552504ada891899&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/mattn\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;mattn\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;mattn\&quot;\u003e@mattn\u003c/a\u003e \u003cbr\u003e\n不手際で画像が消えてしまってました！\u003cbr\u003e\n修正いたしました！報告ありがとうございます！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-12-22T13:57:53+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:418513,&quot;is_team&quot;:false,&quot;item_id&quot;:355482,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9a809c0a03e02874fabb&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@mattn \n不手際で画像が消えてしまってました！\n修正いたしました！報告ありがとうございます！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb#comment-cc9f53fd35aa9c0c7763&quot;,&quot;user&quot;:{&quot;contribution&quot;:1139,&quot;created_at&quot;:&quot;2015-04-02T16:37:31+09:00&quot;,&quot;id&quot;:74192,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74192/profile-images/1473699759&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;R-Yoshi&quot;},&quot;uuid&quot;:&quot;cc9f53fd35aa9c0c7763&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eこんにちは。統計翻訳の研究をしているものです。\u003cbr\u003e\n翻訳の性能を上げるノウハウは色々ありますので、工夫次第で良くなると思います。\u003c/p\u003e\n\n\u003cp\u003eところでmosesですが、masterブランチは開発用ブランチなので不安定です。\u003cbr\u003e\n(作りかけのコードが放り込まれていたり、たまにはバグが入っていたりします。)\u003cbr\u003e\n一般的な用途であればリリース用ブランチをcheckoutしてからビルドすることをおすすめします。\u003cbr\u003e\n\u003ca href=\&quot;https://github.com/moses-smt/mosesdecoder/tree/RELEASE-3.0\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/moses-smt/mosesdecoder/tree/RELEASE-3.0\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-12-25T00:27:25+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:420190,&quot;is_team&quot;:false,&quot;item_id&quot;:355482,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9a809c0a03e02874fabb&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;こんにちは。統計翻訳の研究をしているものです。\n翻訳の性能を上げるノウハウは色々ありますので、工夫次第で良くなると思います。\n\nところでmosesですが、masterブランチは開発用ブランチなので不安定です。\n(作りかけのコードが放り込まれていたり、たまにはバグが入っていたりします。)\n一般的な用途であればリリース用ブランチをcheckoutしてからビルドすることをおすすめします。\nhttps://github.com/moses-smt/mosesdecoder/tree/RELEASE-3.0\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb#comment-fa55d835fc1001ef2b09&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-12-25T00:16:31+09:00&quot;,&quot;id&quot;:106966,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/106966/profile-images/1473710095&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;jnory&quot;},&quot;uuid&quot;:&quot;fa55d835fc1001ef2b09&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/jnory\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;jnory\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;jnory\&quot;\u003e@jnory\u003c/a\u003e \u003c/p\u003e\n\n\u003cp\u003eコメントありがとうございます！\u003cbr\u003e\n現場の人の声は勉強になります！！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-12-25T09:17:14+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:420266,&quot;is_team&quot;:false,&quot;item_id&quot;:355482,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9a809c0a03e02874fabb&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@jnory \n\nコメントありがとうございます！\n現場の人の声は勉強になります！！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb#comment-852737d4159a6f9b6af0&quot;,&quot;user&quot;:{&quot;contribution&quot;:1139,&quot;created_at&quot;:&quot;2015-04-02T16:37:31+09:00&quot;,&quot;id&quot;:74192,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74192/profile-images/1473699759&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;R-Yoshi&quot;},&quot;uuid&quot;:&quot;852737d4159a6f9b6af0&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:355482,&quot;uuid&quot;:&quot;9a809c0a03e02874fabb&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;R-Yoshi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:74192,&quot;url_name&quot;:&quot;R-Yoshi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74192/profile-images/1473699759&quot;},{&quot;id&quot;:665,&quot;url_name&quot;:&quot;mattn&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/665/profile-images/1484629793&quot;},{&quot;id&quot;:106966,&quot;url_name&quot;:&quot;jnory&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/106966/profile-images/1473710095&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-a2f2e5cc-15b3-4e34-9ea1-7ab70da16b3e"></div>
+    <div id="CommentListContainer-react-component-a2f2e5cc-15b3-4e34-9ea1-7ab70da16b3e"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="+xxrqDFwdTqxJiznL08+xp2+bfyxqiys4M22TP1wiO3sOqC/sPumaE2TvgY852SN4B1OluPPcOHNgZO6zQ4ITQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/R-Yoshi/items/9a809c0a03e02874fabb" /><input type="hidden" name="item_uuid" id="item_uuid" value="9a809c0a03e02874fabb" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/R-Yoshi/items/9a809c0a03e02874fabb", "id": 355482, "uuid": "9a809c0a03e02874fabb" }</script><script class="js-user" type="application/json">{&quot;id&quot;:74192,&quot;url_name&quot;:&quot;R-Yoshi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74192/profile-images/1473699759&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="ER2uKE0UZa6rV8D0HBgiBWMiv3Io/A4tPW8wgD3dfSsGO2U/zJ+2/FfiUhUPsHhOHoGcGHqZUmAQIxV2DaP9iw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/R-Yoshi/items/9a809c0a03e02874fabb" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-80699715-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,778 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>TensorFlowにiOSサポートが追加されたそうなので試してみた - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="TensorFlow に iOS サポートが追加された というニュースを見かけたので、ビルドして、iOSで動作させてみました。
+
+
+
+（たまたま目の前にあった扇風機もバッチリ認識してくれました）
+
+本記事では最終的にうまくいった手順を書いています。この手順をなぞってみるにあたってTensorFlowや機械学習・ディープラーニングについての専門知識は不要ですのでぜひお試しください！
+
+
+ビルド手順
+
+
+iOS向けにTensorFlowをビルドする
+
+iOSサポートバージョ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="shu223" name="twitter:creator" /><meta content="TensorFlowにiOSサポートが追加されたそうなので試してみた - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/shu223/items/ce190ea6669b2636a8a7" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="[TensorFlow に iOS サポートが追加された](http://japan.cnet.com/news/service/35083908/) というニュースを見かけたので、&lt;b&gt;ビルドして、iOSで動作&lt;/b&gt;させてみました..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="TTHo4ziD4nZNWSoPAFWWz4fz/KnCc7AQ4ZWPnHFraicW/6XZCJ9H0ZGn+LKLnLTk6+meZGoXWjzx0v3EoC/2zg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"shu223","type":"items","id":"ce190ea6669b2636a8a7"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-3b4c7264-d523-4fd8-8918-aebaa1e38ba5"></div>
+    <div id="HeaderContainer-react-component-3b4c7264-d523-4fd8-8918-aebaa1e38ba5"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">TensorFlowにiOSサポートが追加されたそうなので試してみた</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="8969"><a class="u-link-unstyled TagList__label" href="/tags/iOS"><img alt="iOS" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/7d705cc5b20b094a52f4a328019a74d180ddb1f9/medium.jpg?1474336232" /><span>iOS</span></a></li><li class="TagList__item" data-count="254"><a class="u-link-unstyled TagList__label" href="/tags/%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD"><img alt="人工知能" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/2e7c05efd215b716c8372e4bf0388a3084c98f53/medium.jpg?1433343003" /><span>人工知能</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">387</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:387,&quot;uuid&quot;:&quot;ce190ea6669b2636a8a7&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="leon_AKQJT"><a itemprop="url" href="/leon_AKQJT"><img alt="leon_AKQJT" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35340/profile-images/1473686685" /></a></li><li class="js-hovercard" data-hovercard-target-name="zephiransas"><a itemprop="url" href="/zephiransas"><img alt="zephiransas" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12019/profile-images/1473682250" /></a></li><li class="js-hovercard" data-hovercard-target-name="wakafuji"><a itemprop="url" href="/wakafuji"><img alt="wakafuji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13204/profile-images/1473757830" /></a></li><li class="js-hovercard" data-hovercard-target-name="HitoshiHaga"><a itemprop="url" href="/HitoshiHaga"><img alt="HitoshiHaga" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/107986/profile-images/1473710412" /></a></li><li class="js-hovercard" data-hovercard-target-name="susieyy"><a itemprop="url" href="/susieyy"><img alt="susieyy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4943/profile-images/1473681085" /></a></li><li class="js-hovercard" data-hovercard-target-name="fulihata"><a itemprop="url" href="/fulihata"><img alt="fulihata" class="thumb thumb--xs" src="https://twimg0-a.akamaihd.net/profile_images/1281073294/image_normal.jpg" /></a></li><li class="js-hovercard" data-hovercard-target-name="inamiy"><a itemprop="url" href="/inamiy"><img alt="inamiy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2249/profile-images/1487482925" /></a></li><li class="js-hovercard" data-hovercard-target-name="tatezo_san"><a itemprop="url" href="/tatezo_san"><img alt="tatezo_san" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99672/profile-images/1473707859" /></a></li><li class="js-hovercard" data-hovercard-target-name="teratera"><a itemprop="url" href="/teratera"><img alt="teratera" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/120949/profile-images/1473714745" /></a></li><li class="js-hovercard" data-hovercard-target-name="hnakamur"><a itemprop="url" href="/hnakamur"><img alt="hnakamur" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3227/profile-images/1473682812" /></a></li><li><a href="/shu223/items/ce190ea6669b2636a8a7/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/shu223"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" alt="1473682733" /></a> <a class="u-link-unstyled" href="/shu223">shu223</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-07-21T09:45:24+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-07-21">Edited at <time datetime="2016-08-22T14:41:18+09:00" itemprop="dateModified">2016-08-22</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/shu223/items/ce190ea6669b2636a8a7/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">6</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/shu223/items/ce190ea6669b2636a8a7/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(6)</span></a></li><li><a href="/shu223/items/ce190ea6669b2636a8a7.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-ce190ea6669b2636a8a7" itemprop="articleBody"><p><a href="http://japan.cnet.com/news/service/35083908/" rel="nofollow noopener" target="_blank">TensorFlow に iOS サポートが追加された</a> というニュースを見かけたので、<b>ビルドして、iOSで動作</b>させてみました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/4b7ddd7b-357d-a2fc-32a7-64878e020de5.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/4b7ddd7b-357d-a2fc-32a7-64878e020de5.jpeg" width="240"></a></p>
+
+<p>（<b>たまたま目の前にあった扇風機もバッチリ認識</b>してくれました）</p>
+
+<p>本記事では<b>最終的にうまくいった手順</b>を書いています。この手順をなぞってみるにあたって<b><span class="deco">TensorFlowや機械学習・ディープラーニングについての専門知識は不要</span></b>ですのでぜひお試しください！</p>
+
+<h2>
+<span id="ビルド手順" class="fragment"></span><a href="#%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86"><i class="fa fa-link"></i></a>ビルド手順</h2>
+
+<h3>
+<span id="ios向けにtensorflowをビルドする" class="fragment"></span><a href="#ios%E5%90%91%E3%81%91%E3%81%ABtensorflow%E3%82%92%E3%83%93%E3%83%AB%E3%83%89%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>iOS向けにTensorFlowをビルドする</h3>
+
+<p>iOSサポートバージョンである<b>v0.9.0をチェックアウト</b>して、以下の手順でビルドしていきます。手順はこの通りになぞるだけですし、<b>ほぼスクリプトを実行するだけ</b>で非常に簡単です（が、<span class="deco">実行時間がかなりかかります</span>）。</p>
+
+<ul>
+<li>スクリプトを実行して Eigen や Protobuf 等の依存ライブラリをダウンロード</li>
+</ul>
+
+<div class="code-frame" data-lang="bash"><div class="highlight"><pre>
+<span class="nb">cd </span>tensorflow
+tensorflow/contrib/makefile/download_dependencies.sh
+</pre></div></div>
+
+<ul>
+<li>protobuf をビルド＆インストール</li>
+</ul>
+
+<div class="code-frame" data-lang="bash"><div class="highlight"><pre>
+<span class="nb">cd </span>tensorflow/contrib/makefile/downloads/protobuf/
+./autogen.sh
+./configure
+make
+sudo make install
+</pre></div></div>
+
+<p>ここで、僕の環境では <code>./autogen.sh</code> 実行時に</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+Can't exec "aclocal": No such file or directory at /usr/local/Cellar/autoconf/2.69/share/autoconf/Autom4te/FileUtils.pm line 326.
+autoreconf: failed to run aclocal: No such file or directory
+shuichi-MacBook-Pro-Retina-15inch:protobuf shuichi$ ./configure
+-bash: ./configure: No such file or directory
+</pre></div></div>
+
+<p>というエラーが出ました。<a href="http://qiita.com/DQNEO/items/11d6056547cab0632901" id="reference-14247abbbbc4bf986dde">"aclocal"というのは、"automake"パッケージに含まれているらしい</a>ので、automakeをインストール。</p>
+
+<div class="code-frame" data-lang="bash"><div class="highlight"><pre>
+brew instal automake
+</pre></div></div>
+
+<p>で、改めて</p>
+
+<div class="code-frame" data-lang="bash"><div class="highlight"><pre>
+./autogen.sh
+./configure
+make
+sudo make install
+</pre></div></div>
+
+<ul>
+<li>iOS native版のprotobufをビルド</li>
+</ul>
+
+<div class="code-frame" data-lang="bash"><div class="highlight"><pre>
+<span class="nb">cd</span> ../../../../..
+tensorflow/contrib/makefile/compile_ios_protobuf.sh
+</pre></div></div>
+
+<ul>
+<li>iOSアーキテクチャ向けにTensorFlowをビルド</li>
+</ul>
+
+<div class="code-frame" data-lang="bash"><div class="highlight"><pre>
+tensorflow/contrib/makefile/compile_ios_tensorflow.sh
+</pre></div></div>
+
+<h3>
+<span id="2016822追記v0100-rc0-のビルド" class="fragment"></span><a href="#2016822%E8%BF%BD%E8%A8%98v0100-rc0-%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89"><i class="fa fa-link"></i></a>（2016.8.22追記）v0.10.0 RC0 のビルド</h3>
+
+<p>現時点での最新Releaseである <a href="https://github.com/tensorflow/tensorflow/releases/tag/v0.10.0rc0" rel="nofollow noopener" target="_blank">v0.10.0 RC0</a> は、上記手順でビルドしようとすると compile_ios_tensorflow.sh を実行するところでコケてしまったのですが、今は各ビルドの手順がまるっと入ったスクリプトが用意されているようです。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+tensorflow/contrib/makefile/build_all_ios.sh
+</pre></div></div>
+
+<p><strong>依存ライブラリのダウンロードからiOSアーキテクチャ向けビルドまで、これ一発でok</strong>でした。</p>
+
+<h2>
+<span id="サンプルをビルドする" class="fragment"></span><a href="#%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%92%E3%83%93%E3%83%AB%E3%83%89%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>サンプルをビルドする</h2>
+
+<p><code>tensorflow/tensorflow/contrib/ios_example</code> に2種類のサンプルがあります。</p>
+
+<p>simple と名付けられたサンプルアプリは、今回<b>ビルドした static library をアプリ内に組み込む際の最小実装</b>としての参考にはなりそうですが、デモとして見て楽しい機能があるわけではないので、本記事ではもう一方の camera の方を紹介します。</p>
+
+<p>まず、<a href="https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip" rel="nofollow noopener" target="_blank">このファイル</a>をダウンロードして、解凍すると入っている、</p>
+
+<ul>
+<li>imagenet_comp_graph_label_strings.txt</li>
+<li>tensorflow_inception_graph.pb</li>
+</ul>
+
+<p>の2つのファイルを、<code>tensorflow/contrib/ios_examples/camera/data</code> に置きます。<sup id="fnref1"><a href="#fn1" rel="footnote" title="ちなみにこのとき、 https://github.com/miyosuda/TensorFlowAndroidDemo/find/master にある同名ファイルを使っても、ちゃんと動きません。参考">1</a></sup></p>
+
+<p>この Inception というのはGoogleが提供する<b>画像認識用の学習済みモデル</b>のようです。</p>
+
+<ul>
+<li><a href="https://research.googleblog.com/2016/03/train-your-own-image-classifier-with.html" class="autolink" rel="nofollow noopener" target="_blank">https://research.googleblog.com/2016/03/train-your-own-image-classifier-with.html</a></li>
+<li><a href="https://github.com/google/inception" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/google/inception</a></li>
+</ul>
+
+<h2>
+<span id="cameraサンプル実行例" class="fragment"></span><a href="#camera%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E5%AE%9F%E8%A1%8C%E4%BE%8B"><i class="fa fa-link"></i></a>cameraサンプル実行例</h2>
+
+<p>cameraサンプルを実行すると、すぐにカメラが起動します。身近のものを色々と映してみました。（リアルタイムカメラ入力に対する認識結果を表示してくれます）</p>
+
+<h3>
+<span id="macbook" class="fragment"></span><a href="#macbook"><i class="fa fa-link"></i></a>MacBook</h3>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/eb67230c-ae2b-22ae-4e95-e5b0fb17c0cf.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/eb67230c-ae2b-22ae-4e95-e5b0fb17c0cf.jpeg" width="240"></a></p>
+
+<p>"Notebook" "Laptop" どっちでも正解！</p>
+
+<h3>
+<span id="扇風機" class="fragment"></span><a href="#%E6%89%87%E9%A2%A8%E6%A9%9F"><i class="fa fa-link"></i></a>扇風機</h3>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/4b7ddd7b-357d-a2fc-32a7-64878e020de5.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/4b7ddd7b-357d-a2fc-32a7-64878e020de5.jpeg" width="240"></a></p>
+
+<p>"Electric Fan" 正解！</p>
+
+<h3>
+<span id="椅子" class="fragment"></span><a href="#%E6%A4%85%E5%AD%90"><i class="fa fa-link"></i></a>椅子</h3>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/120b6678-aead-b9f7-b460-5b1164095395.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/120b6678-aead-b9f7-b460-5b1164095395.jpeg" width="240"></a></p>
+
+<p>"Folding Chair"（折りたたみ椅子） 惜しい。。ですが、そもそも <code>imagenet_comp_graph_label_strings.txt</code> には chair が3種類しかなくて、その中では一番近いと言ってもいいかもしれません。</p>
+
+<h3>
+<span id="iphone" class="fragment"></span><a href="#iphone"><i class="fa fa-link"></i></a>iPhone</h3>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/5a587869-cfec-565e-2765-c115d66acd92.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/5a587869-cfec-565e-2765-c115d66acd92.jpeg" width="240"></a></p>
+
+<p>"iPod"・・・惜しい！<b>iPhone 6 Plusなのでほぼ正解</b>と言ってもいいかもしれません。</p>
+
+<h2>
+<span id="パフォーマンス" class="fragment"></span><a href="#%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9"><i class="fa fa-link"></i></a>パフォーマンス</h2>
+
+<p>今回cameraサンプルを試したデバイスはiPhone 6だったのですが、<strong>認識はまだまだリアルタイムとは言い難く、数秒単位の遅延</strong>がある感じでした。まだiOS向けにビルドできるようになったというだけで<b>iOSにおける GPU Accelerated はされてない</b>ですし、パフォーマンスの最適化はまだまだこれからのようです。</p>
+
+<p>ちなみに <b>iOS 10 で Accelerate.framework に追加された BNNS</b> (Basic neural network subroutines) を使用した最適化もissueに挙がっています。</p>
+
+<ul>
+<li><a href="https://github.com/tensorflow/tensorflow/issues/3001" rel="nofollow noopener" target="_blank">Use Basic neural network subroutines (BNNS) on iOS · Issue #3001 · tensorflow/tensorflow</a></li>
+</ul>
+
+<h2>
+<span id="ビルド手順の情報ソース" class="fragment"></span><a href="#%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86%E3%81%AE%E6%83%85%E5%A0%B1%E3%82%BD%E3%83%BC%E3%82%B9"><i class="fa fa-link"></i></a>ビルド手順の情報ソース</h2>
+
+<p>iOSサポートバージョンである<a href="https://github.com/tensorflow/tensorflow/tree/v0.9.0" rel="nofollow noopener" target="_blank">0.9.0</a>の<strong>トップ階層にあるREADMEを見ても、iOSについては書かれていません</strong>。</p>
+
+<p>上述したビルド手順は<a href="https://github.com/petewarden4prs/tensorflow/blob/c7c966eb2f1ac5d89ce7999d7eab53783e74abb7/tensorflow/contrib/makefile/README.md#ios" rel="nofollow noopener" target="_blank"><code>contrib/makefile</code> 配下のREADME</a>に書かれています。</p>
+
+<p>関連情報を以下にまとめておきます。</p>
+
+<ul>
+<li>iOSサポートのIssue: <a href="https://github.com/tensorflow/tensorflow/issues/16" rel="nofollow noopener" target="_blank">iOS Support and Example · Issue #16</a>
+</li>
+<li>iOSサポートのPull Request: <a href="https://github.com/tensorflow/tensorflow/pull/2561" rel="nofollow noopener" target="_blank">Added iOS example by petewarden · Pull Request #2561</a>
+</li>
+<li>一番関連するコミット: <a href="https://github.com/tensorflow/tensorflow/pull/2561/commits/c7c966eb2f1ac5d89ce7999d7eab53783e74abb7" rel="nofollow noopener" target="_blank">Enabled optimization flags for makefile, and added iOS example</a>
+</li>
+</ul>
+
+<h2>
+<span id="サンプルのソースコードを読んでみる" class="fragment"></span><a href="#%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%AE%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E8%AA%AD%E3%82%93%E3%81%A7%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a>サンプルのソースコードを読んでみる</h2>
+
+<p>サンプルは全編Objective-C++で書かれています。読んでもわからないだろうと思いつつ、せっかくなので読んでみます。</p>
+
+<h3>
+<span id="tensorflow_utils" class="fragment"></span><a href="#tensorflow_utils"><i class="fa fa-link"></i></a>tensorflow_utils</h3>
+
+<p>モデルとラベルデータを読み込むメソッドと、認識結果を返すメソッドを持つユーティリティクラスのようです。</p>
+
+<div class="code-frame" data-lang="cpp">
+<div class="code-lang"><span class="bold">tensorflow_utils.h</span></div>
+<div class="highlight"><pre>
+<span class="n">tensorflow</span><span class="o">::</span><span class="n">Status</span> <span class="n">LoadModel</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">NSString</span><span class="o">*</span> <span class="n">file_type</span><span class="p">,</span>
+                             <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Session</span><span class="o">&gt;*</span> <span class="n">session</span><span class="p">);</span>
+<span class="n">tensorflow</span><span class="o">::</span><span class="n">Status</span> <span class="n">LoadLabels</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">NSString</span><span class="o">*</span> <span class="n">file_type</span><span class="p">,</span>
+                              <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;*</span> <span class="n">label_strings</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">GetTopN</span><span class="p">(</span><span class="k">const</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">TensorMap</span><span class="o">&lt;</span><span class="n">Eigen</span><span class="o">::</span><span class="n">Tensor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">RowMajor</span><span class="o">&gt;</span><span class="p">,</span>
+             <span class="n">Eigen</span><span class="o">::</span><span class="n">Aligned</span><span class="o">&gt;&amp;</span> <span class="n">prediction</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">num_results</span><span class="p">,</span>
+             <span class="k">const</span> <span class="kt">float</span> <span class="n">threshold</span><span class="p">,</span>
+             <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="o">&gt;*</span> <span class="n">top_results</span><span class="p">);</span>
+</pre></div>
+</div>
+
+<p>汎用的に使えそう。</p>
+
+<h3>
+<span id="ios_image_load" class="fragment"></span><a href="#ios_image_load"><i class="fa fa-link"></i></a>ios_image_load</h3>
+
+<p>画像ファイルを読み込むクラス。</p>
+
+<div class="code-frame" data-lang="cpp">
+<div class="code-lang"><span class="bold">ios_image_load.h</span></div>
+<div class="highlight"><pre>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">uint8</span><span class="o">&gt;</span> <span class="n">LoadImageFromFile</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">file_name</span><span class="p">,</span>
+             <span class="kt">int</span><span class="o">*</span> <span class="n">out_width</span><span class="p">,</span>
+             <span class="kt">int</span><span class="o">*</span> <span class="n">out_height</span><span class="p">,</span>
+             <span class="kt">int</span><span class="o">*</span> <span class="n">out_channels</span><span class="p">);</span>
+</pre></div>
+</div>
+
+<p>プロジェクトには追加されているけど使われてないっぽい。</p>
+
+<h3>
+<span id="cameraexampleviewcontroller" class="fragment"></span><a href="#cameraexampleviewcontroller"><i class="fa fa-link"></i></a>CameraExampleViewController</h3>
+
+<p>サンプル本体。肝っぽいところだけを拾っていくと、</p>
+
+<p><code>std::unique_ptr&lt;tensorflow::Session&gt;</code> なメンバ変数を定義して、</p>
+
+<div class="code-frame" data-lang="cpp">
+<div class="code-lang"><span class="bold">CameraExampleViewController.mm</span></div>
+<div class="highlight"><pre>
+<span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Session</span><span class="o">&gt;</span> <span class="n">tf_session</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<p>viewDidLoadのタイミングで<b>モデルを〜.pbファイルからロード</b>。</p>
+
+<div class="code-frame" data-lang="cpp">
+<div class="code-lang"><span class="bold">CameraExampleViewController.mm</span></div>
+<div class="highlight"><pre>
+<span class="n">tensorflow</span><span class="o">::</span><span class="n">Status</span> <span class="n">load_status</span> <span class="o">=</span>
+  <span class="n">LoadModel</span><span class="p">(</span><span class="err">@</span><span class="s">"tensorflow_inception_graph"</span><span class="p">,</span> <span class="err">@</span><span class="s">"pb"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tf_session</span><span class="p">);</span>
+</pre></div>
+</div>
+
+<p>で、カメラからのリアルタイム入力が得られるたびに呼ばれるデリゲートメソッドを見てみると、</p>
+
+<div class="code-frame" data-lang="objc">
+<div class="code-lang"><span class="bold">CameraExampleViewController.mm</span></div>
+<div class="highlight"><pre>
+<span class="p">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">captureOutput:</span><span class="p">(</span><span class="bp">AVCaptureOutput</span> <span class="o">*</span><span class="p">)</span><span class="nv">captureOutput</span>
+<span class="nf">didOutputSampleBuffer:</span><span class="p">(</span><span class="n">CMSampleBufferRef</span><span class="p">)</span><span class="nv">sampleBuffer</span>
+       <span class="nf">fromConnection:</span><span class="p">(</span><span class="bp">AVCaptureConnection</span> <span class="o">*</span><span class="p">)</span><span class="nv">connection</span> <span class="p">{</span>
+  <span class="n">CVPixelBufferRef</span> <span class="n">pixelBuffer</span> <span class="o">=</span> <span class="n">CMSampleBufferGetImageBuffer</span><span class="p">(</span><span class="n">sampleBuffer</span><span class="p">);</span>
+  <span class="p">[</span><span class="nb">self</span> <span class="nl">runCNNOnFrame</span><span class="p">:</span><span class="n">pixelBuffer</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>CMSampleBufferRef から CVPixelBufferRef を取得して <code>runCNNOnFrame:</code> を呼んでいるだけのようです。</p>
+
+<p><code>runCNNOnFrame:</code> はコードが若干長いですが、このへんと、</p>
+
+<div class="code-frame" data-lang="cpp">
+<div class="code-lang"><span class="bold">CameraExampleViewController.mm</span></div>
+<div class="highlight"><pre>
+<span class="n">tensorflow</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">image_tensor</span><span class="p">(</span>
+    <span class="n">tensorflow</span><span class="o">::</span><span class="n">DT_FLOAT</span><span class="p">,</span>
+    <span class="n">tensorflow</span><span class="o">::</span><span class="n">TensorShape</span><span class="p">(</span>
+        <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="n">wanted_height</span><span class="p">,</span> <span class="n">wanted_width</span><span class="p">,</span> <span class="n">wanted_channels</span><span class="p">}));</span>
+<span class="k">auto</span> <span class="n">image_tensor_mapped</span> <span class="o">=</span> <span class="n">image_tensor</span><span class="p">.</span><span class="n">tensor</span><span class="o">&lt;</span><span class="kt">float</span><span class="p">,</span> <span class="mi">4</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="n">tensorflow</span><span class="o">::</span><span class="n">uint8</span> <span class="o">*</span><span class="n">in</span> <span class="o">=</span> <span class="n">sourceStartAddr</span><span class="p">;</span>
+<span class="kt">float</span> <span class="o">*</span><span class="n">out</span> <span class="o">=</span> <span class="n">image_tensor_mapped</span><span class="p">.</span><span class="n">data</span><span class="p">();</span>
+</pre></div>
+</div>
+
+<p>このへんが肝っぽいです。</p>
+
+<div class="code-frame" data-lang="cpp">
+<div class="code-lang"><span class="bold">CameraExampleViewController.mm</span></div>
+<div class="highlight"><pre>
+<span class="k">if</span> <span class="p">(</span><span class="n">tf_session</span><span class="p">.</span><span class="n">get</span><span class="p">())</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">input_layer</span> <span class="o">=</span> <span class="s">"input"</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">output_layer</span> <span class="o">=</span> <span class="s">"output"</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Tensor</span><span class="o">&gt;</span> <span class="n">outputs</span><span class="p">;</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">Status</span> <span class="n">run_status</span> <span class="o">=</span> <span class="n">tf_session</span><span class="o">-&gt;</span><span class="n">Run</span><span class="p">(</span>
+      <span class="p">{{</span><span class="n">input_layer</span><span class="p">,</span> <span class="n">image_tensor</span><span class="p">}},</span> <span class="p">{</span><span class="n">output_layer</span><span class="p">},</span> <span class="p">{},</span> <span class="o">&amp;</span><span class="n">outputs</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">run_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Running model failed:"</span> <span class="o">&lt;&lt;</span> <span class="n">run_status</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">tensorflow</span><span class="o">::</span><span class="n">Tensor</span> <span class="o">*</span><span class="n">output</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="k">auto</span> <span class="n">predictions</span> <span class="o">=</span> <span class="n">output</span><span class="o">-&gt;</span><span class="n">flat</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="c1">// ラベル取得</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>が、すみません、それぞれ何をやっているのかを解説するにはTensorFlowの処理をちゃんと理解する必要がありそうです。。（勉強します）</p>
+
+<h2>
+<span id="自分のアプリに組み込む" class="fragment"></span><a href="#%E8%87%AA%E5%88%86%E3%81%AE%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AB%E7%B5%84%E3%81%BF%E8%BE%BC%E3%82%80"><i class="fa fa-link"></i></a>自分のアプリに組み込む</h2>
+
+<p>試せていませんが、<a href="http://stackoverflow.com/questions/37769904/how-to-compile-ios-example-in-tensorflow" rel="nofollow noopener" target="_blank">こちら</a> に手順が示されていました。</p>
+
+<ul>
+<li>ユニバーサルなstatic library（libtensorflow-core.a）をビルドしてプロジェクトに追加する
+
+<ul>
+<li>[Library Search Paths] にも追加。</li>
+</ul>
+</li>
+</ul>
+
+<blockquote>
+<p>The `compile_ios_tensorflow.sh' script builds a universal static library in tensorflow/contrib/makefile/gen/lib/libtensorflow-core.a. You'll need to add this to your linking build stage, and in Search Paths add tensorflow/contrib/makefile/gen/lib to the Library Search Paths setting.</p>
+</blockquote>
+
+<ul>
+<li>libprotobuf.a と libprotobuf-lite.a をプロジェクトに追加する。
+
+<ul>
+<li>[Library Search Paths]にも追加</li>
+</ul>
+</li>
+</ul>
+
+<blockquote>
+<p>You'll also need to add libprotobuf.a and libprotobuf-lite.a from tensorflow/contrib/makefile/gen/protobuf_ios/lib to your Build Stages and Library Search Paths.</p>
+</blockquote>
+
+<ul>
+<li>[Header Search paths] を追加</li>
+</ul>
+
+<blockquote>
+<p>The Header Search paths needs to contain the root folder of tensorflow, tensorflow/contrib/makefile/downloads/protobuf/src, tensorflow/contrib/makefile/downloads, tensorflow/contrib/makefile/downloads/eigen-eigen-, and tensorflow/contrib/makefile/gen/proto.</p>
+</blockquote>
+
+<ul>
+<li>[Other Linker Flags] に <code>-force_load</code> を追加</li>
+</ul>
+
+<blockquote>
+<p>In the Linking section, you need to add -force_load followed by the path to the TensorFlow static library in the Other Linker Flags section. This ensures that the global C++ objects that are used to register important classes inside the library are not stripped out. To the linker, they can appear unused because no other code references the variables, but in fact their constructors have the important side effect of registering the class.</p>
+</blockquote>
+
+<ul>
+<li>bitcodeを無効にする</li>
+</ul>
+
+<blockquote>
+<p>The library doesn't currently support bitcode, so you'll need to disable that in your project settings.</p>
+</blockquote>
+
+<h2>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h2>
+
+<p>TensorFlowをiOS向けにビルドし、付属のサンプルを動かしてみました。パフォーマンスの最適化等、まだまだこれから感はありますが、扇風機や椅子、ノートパソコンやiPhone等、大きさも形も全然違うものを認識してくれて未来を感じます。</p>
+
+<p>試してみるだけなら機械学習やTensorFlowについての専門知識を必要としませんし、ぜひお手元で動かしてみてください！</p>
+
+<p>また、本記事同様に「とりあえず動かしてみる」シリーズとして、こちらもよろしければどうぞ：</p>
+
+<ul>
+<li><a href="http://qiita.com/shu223/items/a4fc17eb3356a6068553" id="reference-c3a228bdc4b3ce90c064">ディープラーニングの有名ライブラリ5種を最短距離で試す半日コース（TensorFlow, Chainer, Caffe, DeepDream, 画風変換） - Qiita</a></li>
+</ul>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>ちなみにこのとき、 <a href="https://github.com/miyosuda/TensorFlowAndroidDemo/find/master" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/miyosuda/TensorFlowAndroidDemo/find/master</a> にある同名ファイルを使っても、ちゃんと動きません。<a href="https://github.com/tensorflow/tensorflow/issues/2923" rel="nofollow noopener" target="_blank">参考</a> <a href="#fnref1">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/shu223/items/ce190ea6669b2636a8a7" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="dLrcE0d3s7F27mMKX+PIzczbH9xNERpif07o8ZUmCpsvdJEpd2sWFqoQsbfUKurmoMF9EeV18E5vCZqpRGKWcg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1471844478" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+[TensorFlow に iOS サポートが追加された](http://japan.cnet.com/news/service/35083908/) というニュースを見かけたので、&lt;b&gt;ビルドして、iOSで動作&lt;/b&gt;させてみました。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/4b7ddd7b-357d-a2fc-32a7-64878e020de5.jpeg&quot; width=&quot;240&quot;&gt;
+
+（&lt;b&gt;たまたま目の前にあった扇風機もバッチリ認識&lt;/b&gt;してくれました）
+
+
+本記事では&lt;b&gt;最終的にうまくいった手順&lt;/b&gt;を書いています。この手順をなぞってみるにあたって&lt;b&gt;&lt;span class=&quot;deco&quot; style=&quot;color:#FF0000;&quot;&gt;TensorFlowや機械学習・ディープラーニングについての専門知識は不要&lt;/span&gt;&lt;/b&gt;ですのでぜひお試しください！
+
+
+##ビルド手順
+
+###iOS向けにTensorFlowをビルドする
+
+iOSサポートバージョンである&lt;b&gt;v0.9.0をチェックアウト&lt;/b&gt;して、以下の手順でビルドしていきます。手順はこの通りになぞるだけですし、&lt;b&gt;ほぼスクリプトを実行するだけ&lt;/b&gt;で非常に簡単です（が、&lt;span class=&quot;deco&quot; style=&quot;color:#FF0000;&quot;&gt;実行時間がかなりかかります&lt;/span&gt;）。
+
+
+- スクリプトを実行して Eigen や Protobuf 等の依存ライブラリをダウンロード
+
+```bash
+cd tensorflow
+tensorflow/contrib/makefile/download_dependencies.sh
+```
+
+
+- protobuf をビルド＆インストール
+
+```bash
+cd tensorflow/contrib/makefile/downloads/protobuf/
+./autogen.sh
+./configure
+make
+sudo make install
+```
+
+
+ここで、僕の環境では `./autogen.sh` 実行時に
+
+```
+Can&#39;t exec &quot;aclocal&quot;: No such file or directory at /usr/local/Cellar/autoconf/2.69/share/autoconf/Autom4te/FileUtils.pm line 326.
+autoreconf: failed to run aclocal: No such file or directory
+shuichi-MacBook-Pro-Retina-15inch:protobuf shuichi$ ./configure
+-bash: ./configure: No such file or directory
+```
+
+というエラーが出ました。[&quot;aclocal&quot;というのは、&quot;automake&quot;パッケージに含まれているらしい](http://qiita.com/DQNEO/items/11d6056547cab0632901)ので、automakeをインストール。
+
+```bash
+brew instal automake
+```
+
+
+で、改めて
+
+```bash
+./autogen.sh
+./configure
+make
+sudo make install
+```
+
+
+- iOS native版のprotobufをビルド
+
+```bash
+cd ../../../../..
+tensorflow/contrib/makefile/compile_ios_protobuf.sh
+```
+
+
+- iOSアーキテクチャ向けにTensorFlowをビルド
+
+```bash
+tensorflow/contrib/makefile/compile_ios_tensorflow.sh
+```
+
+###（2016.8.22追記）v0.10.0 RC0 のビルド
+
+現時点での最新Releaseである [v0.10.0 RC0](https://github.com/tensorflow/tensorflow/releases/tag/v0.10.0rc0) は、上記手順でビルドしようとすると compile_ios_tensorflow.sh を実行するところでコケてしまったのですが、今は各ビルドの手順がまるっと入ったスクリプトが用意されているようです。
+
+```
+tensorflow/contrib/makefile/build_all_ios.sh
+```
+
+**依存ライブラリのダウンロードからiOSアーキテクチャ向けビルドまで、これ一発でok**でした。
+
+
+##サンプルをビルドする
+
+`tensorflow/tensorflow/contrib/ios_example` に2種類のサンプルがあります。
+
+
+simple と名付けられたサンプルアプリは、今回&lt;b&gt;ビルドした static library をアプリ内に組み込む際の最小実装&lt;/b&gt;としての参考にはなりそうですが、デモとして見て楽しい機能があるわけではないので、本記事ではもう一方の camera の方を紹介します。
+
+
+まず、[このファイル](https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip)をダウンロードして、解凍すると入っている、
+
+- imagenet_comp_graph_label_strings.txt
+- tensorflow_inception_graph.pb
+
+の2つのファイルを、`tensorflow/contrib/ios_examples/camera/data` に置きます。[^1]
+
+[^1]: ちなみにこのとき、 https://github.com/miyosuda/TensorFlowAndroidDemo/find/master にある同名ファイルを使っても、ちゃんと動きません。[参考](https://github.com/tensorflow/tensorflow/issues/2923)
+
+
+この Inception というのはGoogleが提供する&lt;b&gt;画像認識用の学習済みモデル&lt;/b&gt;のようです。
+
+- https://research.googleblog.com/2016/03/train-your-own-image-classifier-with.html
+- https://github.com/google/inception
+
+
+##cameraサンプル実行例
+
+cameraサンプルを実行すると、すぐにカメラが起動します。身近のものを色々と映してみました。（リアルタイムカメラ入力に対する認識結果を表示してくれます）
+
+
+###MacBook
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/eb67230c-ae2b-22ae-4e95-e5b0fb17c0cf.jpeg&quot; width=&quot;240&quot;&gt;
+
+&quot;Notebook&quot; &quot;Laptop&quot; どっちでも正解！
+
+
+###扇風機
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/4b7ddd7b-357d-a2fc-32a7-64878e020de5.jpeg&quot; width=&quot;240&quot;&gt;
+
+&quot;Electric Fan&quot; 正解！
+
+
+###椅子
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/120b6678-aead-b9f7-b460-5b1164095395.jpeg&quot; width=&quot;240&quot;&gt;
+
+&quot;Folding Chair&quot;（折りたたみ椅子） 惜しい。。ですが、そもそも `imagenet_comp_graph_label_strings.txt` には chair が3種類しかなくて、その中では一番近いと言ってもいいかもしれません。
+
+
+###iPhone
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/5a587869-cfec-565e-2765-c115d66acd92.jpeg&quot; width=&quot;240&quot;&gt;
+
+&quot;iPod&quot;・・・惜しい！&lt;b&gt;iPhone 6 Plusなのでほぼ正解&lt;/b&gt;と言ってもいいかもしれません。
+
+
+##パフォーマンス
+
+今回cameraサンプルを試したデバイスはiPhone 6だったのですが、**認識はまだまだリアルタイムとは言い難く、数秒単位の遅延**がある感じでした。まだiOS向けにビルドできるようになったというだけで&lt;b&gt;iOSにおける GPU Accelerated はされてない&lt;/b&gt;ですし、パフォーマンスの最適化はまだまだこれからのようです。
+
+
+ちなみに &lt;b&gt;iOS 10 で Accelerate.framework に追加された BNNS&lt;/b&gt; (Basic neural network subroutines) を使用した最適化もissueに挙がっています。
+
+- [Use Basic neural network subroutines (BNNS) on iOS &amp;#183; Issue #3001 &amp;#183; tensorflow/tensorflow](https://github.com/tensorflow/tensorflow/issues/3001)
+
+
+##ビルド手順の情報ソース
+
+iOSサポートバージョンである[0.9.0](https://github.com/tensorflow/tensorflow/tree/v0.9.0)の**トップ階層にあるREADMEを見ても、iOSについては書かれていません**。
+
+上述したビルド手順は[`contrib/makefile` 配下のREADME](https://github.com/petewarden4prs/tensorflow/blob/c7c966eb2f1ac5d89ce7999d7eab53783e74abb7/tensorflow/contrib/makefile/README.md#ios)に書かれています。
+
+関連情報を以下にまとめておきます。
+
+- iOSサポートのIssue: [iOS Support and Example &amp;#183; Issue #16](https://github.com/tensorflow/tensorflow/issues/16)
+- iOSサポートのPull Request: [Added iOS example by petewarden &amp;#183; Pull Request #2561](https://github.com/tensorflow/tensorflow/pull/2561)
+- 一番関連するコミット: [Enabled optimization flags for makefile, and added iOS example](https://github.com/tensorflow/tensorflow/pull/2561/commits/c7c966eb2f1ac5d89ce7999d7eab53783e74abb7)
+
+
+##サンプルのソースコードを読んでみる
+
+サンプルは全編Objective-C++で書かれています。読んでもわからないだろうと思いつつ、せっかくなので読んでみます。
+
+
+###tensorflow_utils
+
+モデルとラベルデータを読み込むメソッドと、認識結果を返すメソッドを持つユーティリティクラスのようです。
+
+```cpp:tensorflow_utils.h
+tensorflow::Status LoadModel(NSString* file_name, NSString* file_type,
+                             std::unique_ptr&lt;tensorflow::Session&gt;* session);
+tensorflow::Status LoadLabels(NSString* file_name, NSString* file_type,
+                              std::vector&lt;std::string&gt;* label_strings);
+void GetTopN(const Eigen::TensorMap&lt;Eigen::Tensor&lt;float, 1, Eigen::RowMajor&gt;,
+             Eigen::Aligned&gt;&amp; prediction, const int num_results,
+             const float threshold,
+             std::vector&lt;std::pair&lt;float, int&gt; &gt;* top_results);
+```
+
+汎用的に使えそう。
+
+
+###ios_image_load
+
+画像ファイルを読み込むクラス。
+
+```cpp:ios_image_load.h
+std::vector&lt;tensorflow::uint8&gt; LoadImageFromFile(const char* file_name,
+             int* out_width,
+             int* out_height,
+             int* out_channels);
+```
+
+プロジェクトには追加されているけど使われてないっぽい。
+
+
+###CameraExampleViewController
+
+サンプル本体。肝っぽいところだけを拾っていくと、
+
+
+`std::unique_ptr&lt;tensorflow::Session&gt;` なメンバ変数を定義して、
+
+```cpp:CameraExampleViewController.mm
+std::unique_ptr&lt;tensorflow::Session&gt; tf_session;
+```
+
+
+viewDidLoadのタイミングで&lt;b&gt;モデルを&amp;#12316;.pbファイルからロード&lt;/b&gt;。
+
+```cpp:CameraExampleViewController.mm
+tensorflow::Status load_status =
+  LoadModel(@&quot;tensorflow_inception_graph&quot;, @&quot;pb&quot;, &amp;tf_session);
+```
+
+
+で、カメラからのリアルタイム入力が得られるたびに呼ばれるデリゲートメソッドを見てみると、
+
+```objc:CameraExampleViewController.mm
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection {
+  CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+  [self runCNNOnFrame:pixelBuffer];
+}
+```
+
+CMSampleBufferRef から CVPixelBufferRef を取得して `runCNNOnFrame:` を呼んでいるだけのようです。
+
+
+`runCNNOnFrame:` はコードが若干長いですが、このへんと、
+
+```cpp:CameraExampleViewController.mm
+tensorflow::Tensor image_tensor(
+    tensorflow::DT_FLOAT,
+    tensorflow::TensorShape(
+        {1, wanted_height, wanted_width, wanted_channels}));
+auto image_tensor_mapped = image_tensor.tensor&lt;float, 4&gt;();
+tensorflow::uint8 *in = sourceStartAddr;
+float *out = image_tensor_mapped.data();
+```
+
+
+このへんが肝っぽいです。
+
+```cpp:CameraExampleViewController.mm
+if (tf_session.get()) {
+  std::string input_layer = &quot;input&quot;;
+  std::string output_layer = &quot;output&quot;;
+  std::vector&lt;tensorflow::Tensor&gt; outputs;
+  tensorflow::Status run_status = tf_session-&gt;Run(
+      {{input_layer, image_tensor}}, {output_layer}, {}, &amp;outputs);
+  if (!run_status.ok()) {
+    LOG(ERROR) &lt;&lt; &quot;Running model failed:&quot; &lt;&lt; run_status;
+  } else {
+    tensorflow::Tensor *output = &amp;outputs[0];
+    auto predictions = output-&gt;flat&lt;float&gt;();
+
+    // ラベル取得
+  }
+}
+```
+
+
+が、すみません、それぞれ何をやっているのかを解説するにはTensorFlowの処理をちゃんと理解する必要がありそうです。。（勉強します）
+
+
+##自分のアプリに組み込む
+
+試せていませんが、[こちら](http://stackoverflow.com/questions/37769904/how-to-compile-ios-example-in-tensorflow) に手順が示されていました。
+
+- ユニバーサルなstatic library（libtensorflow-core.a）をビルドしてプロジェクトに追加する
+  - [Library Search Paths] にも追加。
+
+&gt; The `compile_ios_tensorflow.sh&#39; script builds a universal static library in tensorflow/contrib/makefile/gen/lib/libtensorflow-core.a. You&#39;ll need to add this to your linking build stage, and in Search Paths add tensorflow/contrib/makefile/gen/lib to the Library Search Paths setting.
+
+- libprotobuf.a と libprotobuf-lite.a をプロジェクトに追加する。
+  - [Library Search Paths]にも追加
+
+&gt; You&#39;ll also need to add libprotobuf.a and libprotobuf-lite.a from tensorflow/contrib/makefile/gen/protobuf_ios/lib to your Build Stages and Library Search Paths.
+
+
+- [Header Search paths] を追加
+
+&gt; The Header Search paths needs to contain the root folder of tensorflow, tensorflow/contrib/makefile/downloads/protobuf/src, tensorflow/contrib/makefile/downloads, tensorflow/contrib/makefile/downloads/eigen-eigen-, and tensorflow/contrib/makefile/gen/proto.
+
+- [Other Linker Flags] に `-force_load` を追加
+
+&gt; In the Linking section, you need to add -force_load followed by the path to the TensorFlow static library in the Other Linker Flags section. This ensures that the global C++ objects that are used to register important classes inside the library are not stripped out. To the linker, they can appear unused because no other code references the variables, but in fact their constructors have the important side effect of registering the class.
+
+- bitcodeを無効にする
+
+&gt; The library doesn&#39;t currently support bitcode, so you&#39;ll need to disable that in your project settings.
+
+
+##まとめ
+
+TensorFlowをiOS向けにビルドし、付属のサンプルを動かしてみました。パフォーマンスの最適化等、まだまだこれから感はありますが、扇風機や椅子、ノートパソコンやiPhone等、大きさも形も全然違うものを認識してくれて未来を感じます。
+
+
+試してみるだけなら機械学習やTensorFlowについての専門知識を必要としませんし、ぜひお手元で動かしてみてください！
+
+また、本記事同様に「とりあえず動かしてみる」シリーズとして、こちらもよろしければどうぞ：
+
+- [ディープラーニングの有名ライブラリ5種を最短距離で試す半日コース（TensorFlow, Chainer, Caffe, DeepDream, 画風変換） - Qiita](http://qiita.com/shu223/items/a4fc17eb3356a6068553)
+
+ 
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowにiOSサポートが追加されたそうなので試してみた by @shu223 on @Qiita" data-url="http://qiita.com/shu223/items/ce190ea6669b2636a8a7" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowにiOSサポートが追加されたそうなので試してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/shu223/items/ce190ea6669b2636a8a7" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shu223/items/ce190ea6669b2636a8a7" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shu223/items/ce190ea6669b2636a8a7" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/shu223"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/shu223">shu223</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">18292</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;shu223&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-3d974bd0-516e-44e1-bf35-a47bbe56ae8f"></div>
+    <div id="UserFollowButton-react-component-3d974bd0-516e-44e1-bf35-a47bbe56ae8f"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/a4fc17eb3356a6068553">ディープラーニングの有名ライブラリ5種を最短距離で試す半日コース（TensorFlow, Chainer, Caffe, DeepDream, 画風変換）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/a895a989e84219e5302e">iOSアプリ開発に役立つTips100連発！</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/9e3a50e092c2997fe6d2">例の機械学習コースが良いらしいと知りながらも2年間スルーし続けたがやはり良かったという話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/9cbde46c0690f1952750">機械学習はじめの一歩に役立つ記事のまとめ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/ffd2202eaf92d342f83d">「顔以外」のものを画像認識する</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86\&quot;\u003eビルド手順\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#ios%E5%90%91%E3%81%91%E3%81%ABtensorflow%E3%82%92%E3%83%93%E3%83%AB%E3%83%89%E3%81%99%E3%82%8B\&quot;\u003eiOS向けにTensorFlowをビルドする\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2016822%E8%BF%BD%E8%A8%98v0100-rc0-%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89\&quot;\u003e（2016.8.22追記）v0.10.0 RC0 のビルド\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%92%E3%83%93%E3%83%AB%E3%83%89%E3%81%99%E3%82%8B\&quot;\u003eサンプルをビルドする\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#camera%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E5%AE%9F%E8%A1%8C%E4%BE%8B\&quot;\u003ecameraサンプル実行例\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#macbook\&quot;\u003eMacBook\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%87%E9%A2%A8%E6%A9%9F\&quot;\u003e扇風機\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A4%85%E5%AD%90\&quot;\u003e椅子\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#iphone\&quot;\u003eiPhone\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9\&quot;\u003eパフォーマンス\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%93%E3%83%AB%E3%83%89%E6%89%8B%E9%A0%86%E3%81%AE%E6%83%85%E5%A0%B1%E3%82%BD%E3%83%BC%E3%82%B9\&quot;\u003eビルド手順の情報ソース\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%AE%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E8%AA%AD%E3%82%93%E3%81%A7%E3%81%BF%E3%82%8B\&quot;\u003eサンプルのソースコードを読んでみる\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tensorflow_utils\&quot;\u003etensorflow_utils\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#ios_image_load\&quot;\u003eios_image_load\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#cameraexampleviewcontroller\&quot;\u003eCameraExampleViewController\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%87%AA%E5%88%86%E3%81%AE%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AB%E7%B5%84%E3%81%BF%E8%BE%BC%E3%82%80\&quot;\u003e自分のアプリに組み込む\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-09f688c4-51ee-4e7b-b586-108200ccee1e"></div>
+    <div id="Toc-react-component-09f688c4-51ee-4e7b-b586-108200ccee1e"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:387,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;ce190ea6669b2636a8a7&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="leon_AKQJT"><a itemprop="url" href="/leon_AKQJT"><img alt="leon_AKQJT" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35340/profile-images/1473686685" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zephiransas"><a itemprop="url" href="/zephiransas"><img alt="zephiransas" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12019/profile-images/1473682250" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="wakafuji"><a itemprop="url" href="/wakafuji"><img alt="wakafuji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13204/profile-images/1473757830" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HitoshiHaga"><a itemprop="url" href="/HitoshiHaga"><img alt="HitoshiHaga" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/107986/profile-images/1473710412" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="susieyy"><a itemprop="url" href="/susieyy"><img alt="susieyy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4943/profile-images/1473681085" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fulihata"><a itemprop="url" href="/fulihata"><img alt="fulihata" class="thumb thumb--xs" src="https://twimg0-a.akamaihd.net/profile_images/1281073294/image_normal.jpg" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="inamiy"><a itemprop="url" href="/inamiy"><img alt="inamiy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2249/profile-images/1487482925" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tatezo_san"><a itemprop="url" href="/tatezo_san"><img alt="tatezo_san" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99672/profile-images/1473707859" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="teratera"><a itemprop="url" href="/teratera"><img alt="teratera" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/120949/profile-images/1473714745" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hnakamur"><a itemprop="url" href="/hnakamur"><img alt="hnakamur" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3227/profile-images/1473682812" /></a></div></div><div class="ArticleFooter__user"><a href="/shu223/items/ce190ea6669b2636a8a7/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/ce190ea6669b2636a8a7/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/shu223/items/ce190ea6669b2636a8a7.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 1 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/shu223/items/a2808e9dfccbd23387ff#_reference-0fd9df4d010575850e23"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" />TensorFlowの学習済みモデルを拾ってきてiOSで利用する</a><time class="references_datetime js-dateTimeView" datetime="2016-08-24T00:40:37+00:00">7 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/CatDust/items/5ef40f9bfcb42048db95#_reference-1a0ae50764930def2845"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/68056/profile-images/1473697721" />TensorflowをiOSで試してみた　その２</a><time class="references_datetime js-dateTimeView" datetime="2016-10-25T00:01:52+00:00">5 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/mainyaa/items/4b4e4d47868133410a96#_reference-b9891782d93a734d5a54"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/5704/profile-images/1473682198" />お手軽にrealtime画像認識をAndroid/iOSで動かす</a><time class="references_datetime js-dateTimeView" datetime="2016-12-04T21:57:24+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kei_bility/items/ac51d05ca6280b572db6#_reference-4b5138f64053f9398554"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/137365/profile-images/1479117274" />TensorFlowの学習モデルによるモバイル端末でのリアルタイム画像認識</a><time class="references_datetime js-dateTimeView" datetime="2017-01-18T11:17:46+00:00">about 2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/keonheon/items/82f4731afb4c99a09791#_reference-66d90402660855a985ef"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99969/profile-images/1473763154" />TensorFlow iOS カメラサンプルで自作した画像分類器を動かす</a><time class="references_datetime js-dateTimeView" datetime="2017-02-21T09:46:08+00:00">26 days ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/lumbermill/items/767ef1420dabffc776af#_reference-b11c2696a0479f6d13fb"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50780/profile-images/1473692220" />TensorFlowのiOSデモをビルドする</a><time class="references_datetime js-dateTimeView" datetime="2017-03-10T09:25:52+00:00">9 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowにiOSサポートが追加されたそうなので試してみた by @shu223 on @Qiita" data-url="http://qiita.com/shu223/items/ce190ea6669b2636a8a7" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowにiOSサポートが追加されたそうなので試してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/shu223/items/ce190ea6669b2636a8a7" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shu223/items/ce190ea6669b2636a8a7" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shu223/items/ce190ea6669b2636a8a7" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eたぶん誤変換だと思いますが、扇風機はElectric fanです。funcじゃないです。。。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-07-21T11:50:14+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:595880,&quot;is_team&quot;:false,&quot;item_id&quot;:409666,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;ce190ea6669b2636a8a7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;たぶん誤変換だと思いますが、扇風機はElectric fanです。funcじゃないです。。。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/shu223/items/ce190ea6669b2636a8a7#comment-201b44314f60b5252f8e&quot;,&quot;user&quot;:{&quot;contribution&quot;:305,&quot;created_at&quot;:&quot;2013-10-25T11:06:00+09:00&quot;,&quot;id&quot;:31245,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/31245/profile-images/1477679767&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;it__ssei&quot;},&quot;uuid&quot;:&quot;201b44314f60b5252f8e&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003efと打つとついfuncとしてしまうようです・・・！ご指摘ありがとうございます！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-07-21T13:05:53+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:595949,&quot;is_team&quot;:false,&quot;item_id&quot;:409666,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;ce190ea6669b2636a8a7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;fと打つとついfuncとしてしまうようです・・・！ご指摘ありがとうございます！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/shu223/items/ce190ea6669b2636a8a7#comment-7a4064b707f2ace7fb5a&quot;,&quot;user&quot;:{&quot;contribution&quot;:18292,&quot;created_at&quot;:&quot;2012-02-09T18:41:10+09:00&quot;,&quot;id&quot;:3180,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;shu223&quot;},&quot;uuid&quot;:&quot;7a4064b707f2ace7fb5a&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ccode\u003ecompile_ios_tensorflow.sh\u003c/code\u003e でどうしても \u003ccode\u003earm64 compilation failed.\u003c/code\u003e とエラーになってしまいます。代わりに \u003ccode\u003ebuild_all_ios.sh\u003c/code\u003e を動かしたら最後まで行きました。この辺りまだしょっちゅう手が入っているようで、すぐ状況変わるかもしれませんが、、ご参考まで。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-08-06T18:41:37+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:608818,&quot;is_team&quot;:false,&quot;item_id&quot;:409666,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;ce190ea6669b2636a8a7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;`compile_ios_tensorflow.sh` でどうしても `arm64 compilation failed.` とエラーになってしまいます。代わりに `build_all_ios.sh` を動かしたら最後まで行きました。この辺りまだしょっちゅう手が入っているようで、すぐ状況変わるかもしれませんが、、ご参考まで。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/shu223/items/ce190ea6669b2636a8a7#comment-6549a81b3f38890cd46b&quot;,&quot;user&quot;:{&quot;contribution&quot;:50,&quot;created_at&quot;:&quot;2014-08-03T22:32:03+09:00&quot;,&quot;id&quot;:50780,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50780/profile-images/1473692220&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;lumbermill&quot;},&quot;uuid&quot;:&quot;6549a81b3f38890cd46b&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:409666,&quot;uuid&quot;:&quot;ce190ea6669b2636a8a7&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;shu223&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:3180,&quot;url_name&quot;:&quot;shu223&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733&quot;},{&quot;id&quot;:31245,&quot;url_name&quot;:&quot;it__ssei&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/31245/profile-images/1477679767&quot;},{&quot;id&quot;:50780,&quot;url_name&quot;:&quot;lumbermill&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50780/profile-images/1473692220&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-83d86dc8-c7b6-4d13-86fe-c0f7f60bd9d6"></div>
+    <div id="CommentListContainer-react-component-83d86dc8-c7b6-4d13-86fe-c0f7f60bd9d6"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="pKhezDPcOeZQkTKFsgNQ9eEP+3h3jDAolQ9UQCCQqAH/ZhP2A8CcQYxv4Dg5ynLejRWZtd/o2gSFSCYY8dQ06A==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shu223/items/ce190ea6669b2636a8a7" /><input type="hidden" name="item_uuid" id="item_uuid" value="ce190ea6669b2636a8a7" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/shu223/items/ce190ea6669b2636a8a7", "id": 409666, "uuid": "ce190ea6669b2636a8a7" }</script><script class="js-user" type="application/json">{&quot;id&quot;:3180,&quot;url_name&quot;:&quot;shu223&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="pwKKEb5/DdNJVzqWdZb/Xc7/+VSxi+hSZyrHC0srznP8zMcrjmOodJWp6Cv+X912ouWbmRnvAn53bbVTmm9Smg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shu223/items/ce190ea6669b2636a8a7" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-3716439-6', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

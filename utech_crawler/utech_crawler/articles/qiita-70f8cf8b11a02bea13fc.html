@@ -1,0 +1,419 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Raspberry Piでワカサギを釣ってみる - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+WHY
+
+ついカッとなってやった、今は反省している。
+
+
+
+WHAT
+
+ラズパイを使ってワカサギを釣る方法です。
+ワカサギ釣りとは、氷上に穴を開けて魚を釣るあれのことです
+
+
+概要
+
+
+ラズパイにはカメラとモータをつけた
+画像処理で竿の先のアタリを検知できたら、モータを回すようにした
+誘い（ちょいちょいって動かして魚を誘う動き）も自動化した
+アタリはパーティクルフィルタというトラッキングアルゴリズムを使った
+
+
+
+工作的なもの
+
+電子工作はやったことがないので、最低..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Raspberry Piでワカサギを釣ってみる - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="## WHY
+ついカッとなってやった、今は反省している。
+![image](https://qiita-image-store.s3.amazonaws.com/0/64964/65440df7-e8ea-6ffb-7809-68e9..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="B/kpSTF4DDolnqg3UMTSLi+S/dJVGyzoabXjTHyYl1DCp9cB3aJ+zbSw52WsQ20bAODHJX7395z4lIuyVSvyIA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"tan-z-tan","type":"items","id":"70f8cf8b11a02bea13fc"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-ee56b1c9-8b8b-43b6-a113-bca355b196c9"></div>
+    <div id="HeaderContainer-react-component-ee56b1c9-8b8b-43b6-a113-bca355b196c9"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/RaspberryPi",        "name": "RaspberryPi"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">Raspberry Piでワカサギを釣ってみる</h1><ul class="TagList"><li class="TagList__item" data-count="1853"><a class="u-link-unstyled TagList__label" href="/tags/RaspberryPi"><img alt="RaspberryPi" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8ccb3c43ecc14983df15c7a8e8a74af21813bef2/medium.jpg?1435295580" /><span>RaspberryPi</span></a></li><li class="TagList__item" data-count="969"><a class="u-link-unstyled TagList__label" href="/tags/IoT"><img alt="IoT" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/de509c507a857a51002b44107a96a2c89452c4c3/medium.jpg?1422923033" /><span>IoT</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">441</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="4 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>4</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:441,&quot;uuid&quot;:&quot;70f8cf8b11a02bea13fc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="kijibato"><a itemprop="url" href="/kijibato"><img alt="kijibato" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/95528/profile-images/1473706597" /></a></li><li class="js-hovercard" data-hovercard-target-name="ichiroex"><a itemprop="url" href="/ichiroex"><img alt="ichiroex" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" /></a></li><li class="js-hovercard" data-hovercard-target-name="morika-t"><a itemprop="url" href="/morika-t"><img alt="morika-t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6535/profile-images/1473682957" /></a></li><li class="js-hovercard" data-hovercard-target-name="pio2"><a itemprop="url" href="/pio2"><img alt="pio2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81959/profile-images/1473702286" /></a></li><li class="js-hovercard" data-hovercard-target-name="shoooo"><a itemprop="url" href="/shoooo"><img alt="shoooo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/54591/profile-images/1473693424" /></a></li><li class="js-hovercard" data-hovercard-target-name="kochory"><a itemprop="url" href="/kochory"><img alt="kochory" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68258/profile-images/1473697785" /></a></li><li class="js-hovercard" data-hovercard-target-name="qqq"><a itemprop="url" href="/qqq"><img alt="qqq" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/66315/profile-images/1473697168" /></a></li><li class="js-hovercard" data-hovercard-target-name="wordijp"><a itemprop="url" href="/wordijp"><img alt="wordijp" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51728/profile-images/1473692528" /></a></li><li class="js-hovercard" data-hovercard-target-name="UedaTakeyuki"><a itemprop="url" href="/UedaTakeyuki"><img alt="UedaTakeyuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46544/profile-images/1489714841" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></li><li><a href="/tan-z-tan/items/70f8cf8b11a02bea13fc/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/tan-z-tan"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64964/profile-images/1473696742" alt="1473696742" /></a> <a class="u-link-unstyled" href="/tan-z-tan">tan-z-tan</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-02-14T23:10:47+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-02-14">Edited at <time datetime="2016-02-14T23:29:26+09:00" itemprop="dateModified">2016-02-14</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/tan-z-tan/items/70f8cf8b11a02bea13fc/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">2</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/tan-z-tan/items/70f8cf8b11a02bea13fc/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(2)</span></a></li><li><a href="/tan-z-tan/items/70f8cf8b11a02bea13fc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-70f8cf8b11a02bea13fc" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div>
+<h2>
+<span id="why" class="fragment"></span><a href="#why"><i class="fa fa-link"></i></a>WHY</h2>
+
+<p>ついカッとなってやった、今は反省している。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/64964/65440df7-e8ea-6ffb-7809-68e9ecb1f15b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64964/65440df7-e8ea-6ffb-7809-68e9ecb1f15b.png" alt="image"></a></p>
+
+<h2>
+<span id="what" class="fragment"></span><a href="#what"><i class="fa fa-link"></i></a>WHAT</h2>
+
+<p>ラズパイを使ってワカサギを釣る方法です。<br>
+ワカサギ釣りとは、氷上に穴を開けて魚を釣るあれのことです</p>
+
+<h3>
+<span id="概要" class="fragment"></span><a href="#%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>概要</h3>
+
+<ul>
+<li>ラズパイにはカメラとモータをつけた</li>
+<li>画像処理で竿の先のアタリを検知できたら、モータを回すようにした</li>
+<li>誘い（ちょいちょいって動かして魚を誘う動き）も自動化した</li>
+<li>アタリはパーティクルフィルタというトラッキングアルゴリズムを使った</li>
+</ul>
+
+<h2>
+<span id="工作的なもの" class="fragment"></span><a href="#%E5%B7%A5%E4%BD%9C%E7%9A%84%E3%81%AA%E3%82%82%E3%81%AE"><i class="fa fa-link"></i></a>工作的なもの</h2>
+
+<p>電子工作はやったことがないので、最低限の準備しかしていません。<br>
+基本的には、ラズパイには以下のものが付いているだけです。</p>
+
+<ul>
+<li>電源：困ったことに氷上には電源がないのでスマフォの充電用バッテリを使います</li>
+<li>カメラ：普通の1000円くらいのWEBカメラ</li>
+<li>Wifiアダプタ
+
+<ul>
+<li>困ったことに氷上にはWifiが飛んでないので</li>
+<li>
+<a href="http://qiita.com/UedaTakeyuki/items/851fc8c19f36b96a0ae6" id="reference-6b3644604c8cf51deebf">ad-hocネットワークを作って</a>macと通信します</li>
+<li>
+<code>SSH -X</code>でカメラの画像を表示してテストとかします</li>
+</ul>
+</li>
+<li>ブレッドボード
+
+<ul>
+<li>ラズパイに付いているGPIO（General Purpose Input/Output）と繋ぎます</li>
+<li>ミニ四駆とかのモーター</li>
+<li>モーターの接続は<a href="http://www.hiramine.com/physicalcomputing/raspberrypi/webiopi_motordriver.html" rel="nofollow noopener" target="_blank">こちら</a> を参考にしました。</li>
+<li>モーターの回転数を制御するギアボックス。トルクとかわからなくても回ればOKの精神で。</li>
+</ul>
+</li>
+<li>釣り糸：釣り糸とギアボックスをそのまま無理やり付けました。３Dプリンタとかはでてきません。</li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64964/1261f720-d10c-89b2-f6e9-5eafd03d7828.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64964/1261f720-d10c-89b2-f6e9-5eafd03d7828.jpeg" alt="no_fish_big.jpg"></a></p>
+
+<h2>
+<span id="モータを回す" class="fragment"></span><a href="#%E3%83%A2%E3%83%BC%E3%82%BF%E3%82%92%E5%9B%9E%E3%81%99"><i class="fa fa-link"></i></a>モータを回す</h2>
+
+<p>GPIOの出力（0、1）を切り替えることで右回転・左回転が可能です。<br>
+pythonからコントロールするために、<code>rpi.gpio</code>をインストールしておきます。<br>
+<code>sudo apt-get install python-rpi.gpio</code></p>
+
+<p>2秒間右回転→2秒間左回転のテストコード。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+import RPi.GPIO as GPIO
+import time
+
+def init_gpio():
+    GPIO.setmode(GPIO.BCM)
+
+    channel_list = [14, 15, 18]
+    GPIO.setup(channel_list, GPIO.OUT)
+
+def stop():
+    GPIO.output(14, False)
+    GPIO.output(15, False)
+    GPIO.output(18, False)
+
+def rotate_right(duration):
+    stop()
+    GPIO.output(14, True)
+    GPIO.output(15, False)
+    GPIO.output(18, True)
+    time.sleep(duration)
+    stop()
+
+def rotate_left(duration):
+    stop()
+    GPIO.output(14, False)
+    GPIO.output(15, True)
+    GPIO.output(18, True)
+    time.sleep(duration)
+    stop()
+
+def cleanup():
+    GPIO.cleanup()
+
+
+init_gpio()
+
+rotate_right(2)
+
+rotate_left(2)
+
+cleanup()
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64964/38580666-57f6-8578-c014-f8bfa1e11288.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64964/38580666-57f6-8578-c014-f8bfa1e11288.jpeg" alt="no_fish_big.jpg"></a></p>
+
+<p>なんとか糸を回すことができそうです。</p>
+
+<h2>
+<span id="アタリを感知する" class="fragment"></span><a href="#%E3%82%A2%E3%82%BF%E3%83%AA%E3%82%92%E6%84%9F%E7%9F%A5%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>アタリを感知する</h2>
+
+<p>カメラだけで竿の先の小さな動きを感知しないといけません。<br>
+今回はパーティクルフィルタを使ってみました。<br>
+パーティクルフィルタはランダムに沢山の粒子を生成して、目的の状態と近い粒子を選択してということを繰り返してトラッキングするアルゴリズムです。<br>
+竿の先だけ検知するのが難しいので今回は、<strong>竿の先に緑の紙をつける</strong>という苦肉の解決策を実行しました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64964/c25af539-a9af-bc41-705b-e118223bf6e9.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64964/c25af539-a9af-bc41-705b-e118223bf6e9.jpeg" alt="sky.jpg"></a></p>
+
+<p>わりと真面目に考えて、以下のアルゴリズムとなりました。</p>
+
+<ul>
+<li>初期モードは誘い（attract）モードで竿を動かす</li>
+<li>竿の揺れが収まったら次に検知（detect）モードに移行</li>
+<li>もし
+
+<ul>
+<li>強い竿の揺れがあったら、釣り上げ（fish）モードで上げて待機モード（wait）に。</li>
+<li>待機モードでは<code>s</code>キーが押されるまでまつ</li>
+<li>一定時間検知がなければ初期のattractモードに移行。これを繰り返す</li>
+</ul>
+</li>
+</ul>
+
+<p>主に氷上で組んだpythonスクリプト。<br>
+<a href="https://github.com/tan-z-tan/raspi_fishing/blob/master/src/RaspiFishing.py" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/tan-z-tan/raspi_fishing/blob/master/src/RaspiFishing.py</a><br>
+<a href="http://qiita.com/tan-z-tan/items/5b6bb15d969997c5ac09" id="reference-5e23d6c54b26a00a2ebf"><code>SSH -X</code>でGUIを飛ばす</a>前提で書いています。</p>
+
+<h3>
+<span id="誘いちょいちょいって動かす" class="fragment"></span><a href="#%E8%AA%98%E3%81%84%E3%81%A1%E3%82%87%E3%81%84%E3%81%A1%E3%82%87%E3%81%84%E3%81%A3%E3%81%A6%E5%8B%95%E3%81%8B%E3%81%99"><i class="fa fa-link"></i></a>誘い（ちょいちょいって動かす）</h3>
+
+<p>何も考えてなくて氷上で実装したからこれだけ。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+motor.rotate_left(0.53)
+motor.rotate_right(0.7)
+</pre></div></div>
+
+<p>0.53と0.7みたいな定数は、手間暇かけた職人の温かい定数です。<br>
+モータの巻き上げと下げで秒数が同じでも微妙に回転角が違うことに起因します。</p>
+
+<h2>
+<span id="氷上でやってみた" class="fragment"></span><a href="#%E6%B0%B7%E4%B8%8A%E3%81%A7%E3%82%84%E3%81%A3%E3%81%A6%E3%81%BF%E3%81%9F"><i class="fa fa-link"></i></a>氷上でやってみた</h2>
+
+<p>なんと釣れてしまいました。<br>
+機械に釣られた可哀想なワカサギの姿。<br>
+でもうれしい。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/64964/d041bc91-59a2-f7be-4fbe-52e67dea085c.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64964/d041bc91-59a2-f7be-4fbe-52e67dea085c.jpeg" alt="IMG_20160213_103856.jpg"></a></p>
+
+<h3>
+<span id="4時間くらいの釣果" class="fragment"></span><a href="#4%E6%99%82%E9%96%93%E3%81%8F%E3%82%89%E3%81%84%E3%81%AE%E9%87%A3%E6%9E%9C"><i class="fa fa-link"></i></a>4時間くらいの釣果</h3>
+
+<p><strong>ラズパイ：2匹</strong><br>
+<strong>人間平均：6.75匹</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/64964/56044d52-0495-d82c-63f8-b04f5717a156.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/64964/56044d52-0495-d82c-63f8-b04f5717a156.png" alt="image"></a></p>
+
+<p><strong>結論：人間がやったほうが釣れる</strong></p>
+
+<p>マジメに書くと、全体的に魚が少なすぎてテストとかがほとんどできなかった。<br>
+ワカサギは100匹とか釣れる時だと、入れて上げるだけの機械的な作業になるので機械化すると成果を発揮する。。。はず。</p>
+
+<p>ラズパイFishingコンテストとか開催したい。</p>
+<div class="hidden"><form class="js-task-list-update" action="/tan-z-tan/items/70f8cf8b11a02bea13fc" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="u4H3bqnJrSpxz9xdp8/4JVakiFydGL7G97JMnA9bNRB+3wkmRRPf3eDhkw9bSEcQedayq7b0ZbJmkyRiJuhQYA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1455460166" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+## WHY
+ついカッとなってやった、今は反省している。
+![image](https://qiita-image-store.s3.amazonaws.com/0/64964/65440df7-e8ea-6ffb-7809-68e9ecb1f15b.png)
+
+
+## WHAT
+ラズパイを使ってワカサギを釣る方法です。
+ワカサギ釣りとは、氷上に穴を開けて魚を釣るあれのことです
+
+### 概要
+
+- ラズパイにはカメラとモータをつけた
+- 画像処理で竿の先のアタリを検知できたら、モータを回すようにした
+- 誘い（ちょいちょいって動かして魚を誘う動き）も自動化した
+- アタリはパーティクルフィルタというトラッキングアルゴリズムを使った
+
+
+## 工作的なもの
+電子工作はやったことがないので、最低限の準備しかしていません。
+基本的には、ラズパイには以下のものが付いているだけです。
+
+- 電源：困ったことに氷上には電源がないのでスマフォの充電用バッテリを使います
+- カメラ：普通の1000円くらいのWEBカメラ
+- Wifiアダプタ
+    - 困ったことに氷上にはWifiが飛んでないので
+    - [ad-hocネットワークを作って](http://qiita.com/UedaTakeyuki/items/851fc8c19f36b96a0ae6)macと通信します
+    - `SSH -X`でカメラの画像を表示してテストとかします
+- ブレッドボード
+    - ラズパイに付いているGPIO（General Purpose Input/Output）と繋ぎます
+    - ミニ四駆とかのモーター
+    - モーターの接続は[こちら](http://www.hiramine.com/physicalcomputing/raspberrypi/webiopi_motordriver.html) を参考にしました。
+    - モーターの回転数を制御するギアボックス。トルクとかわからなくても回ればOKの精神で。
+- 釣り糸：釣り糸とギアボックスをそのまま無理やり付けました。３Dプリンタとかはでてきません。
+
+![no_fish_big.jpg](https://qiita-image-store.s3.amazonaws.com/0/64964/1261f720-d10c-89b2-f6e9-5eafd03d7828.jpeg)
+
+## モータを回す
+GPIOの出力（0、1）を切り替えることで右回転・左回転が可能です。
+pythonからコントロールするために、`rpi.gpio`をインストールしておきます。
+`sudo apt-get install python-rpi.gpio`
+
+2秒間右回転→2秒間左回転のテストコード。
+
+```
+import RPi.GPIO as GPIO
+import time
+
+def init_gpio():
+    GPIO.setmode(GPIO.BCM)
+    
+    channel_list = [14, 15, 18]
+    GPIO.setup(channel_list, GPIO.OUT)
+
+def stop():
+    GPIO.output(14, False)
+    GPIO.output(15, False)
+    GPIO.output(18, False)
+
+def rotate_right(duration):
+    stop()
+    GPIO.output(14, True)
+    GPIO.output(15, False)
+    GPIO.output(18, True)
+    time.sleep(duration)
+    stop()
+
+def rotate_left(duration):
+    stop()
+    GPIO.output(14, False)
+    GPIO.output(15, True)
+    GPIO.output(18, True)
+    time.sleep(duration)
+    stop()
+
+def cleanup():
+    GPIO.cleanup()
+
+
+init_gpio()
+
+rotate_right(2)
+
+rotate_left(2)
+
+cleanup()
+```
+
+![no_fish_big.jpg](https://qiita-image-store.s3.amazonaws.com/0/64964/38580666-57f6-8578-c014-f8bfa1e11288.jpeg)
+
+なんとか糸を回すことができそうです。
+
+## アタリを感知する
+カメラだけで竿の先の小さな動きを感知しないといけません。
+今回はパーティクルフィルタを使ってみました。
+パーティクルフィルタはランダムに沢山の粒子を生成して、目的の状態と近い粒子を選択してということを繰り返してトラッキングするアルゴリズムです。
+竿の先だけ検知するのが難しいので今回は、**竿の先に緑の紙をつける**という苦肉の解決策を実行しました。
+
+![sky.jpg](https://qiita-image-store.s3.amazonaws.com/0/64964/c25af539-a9af-bc41-705b-e118223bf6e9.jpeg)
+
+わりと真面目に考えて、以下のアルゴリズムとなりました。
+
+- 初期モードは誘い（attract）モードで竿を動かす
+- 竿の揺れが収まったら次に検知（detect）モードに移行
+- もし
+    - 強い竿の揺れがあったら、釣り上げ（fish）モードで上げて待機モード（wait）に。
+    - 待機モードでは`s`キーが押されるまでまつ
+    - 一定時間検知がなければ初期のattractモードに移行。これを繰り返す
+
+主に氷上で組んだpythonスクリプト。
+https://github.com/tan-z-tan/raspi_fishing/blob/master/src/RaspiFishing.py
+[`SSH -X`でGUIを飛ばす](http://qiita.com/tan-z-tan/items/5b6bb15d969997c5ac09)前提で書いています。
+
+### 誘い（ちょいちょいって動かす）
+何も考えてなくて氷上で実装したからこれだけ。
+
+```
+motor.rotate_left(0.53)
+motor.rotate_right(0.7)
+```
+
+0.53と0.7みたいな定数は、手間暇かけた職人の温かい定数です。
+モータの巻き上げと下げで秒数が同じでも微妙に回転角が違うことに起因します。
+
+## 氷上でやってみた
+なんと釣れてしまいました。
+機械に釣られた可哀想なワカサギの姿。
+でもうれしい。
+
+![IMG_20160213_103856.jpg](https://qiita-image-store.s3.amazonaws.com/0/64964/d041bc91-59a2-f7be-4fbe-52e67dea085c.jpeg)
+
+
+### 4時間くらいの釣果
+**ラズパイ：2匹**
+**人間平均：6.75匹**
+![image](https://qiita-image-store.s3.amazonaws.com/0/64964/56044d52-0495-d82c-63f8-b04f5717a156.png)
+
+**結論：人間がやったほうが釣れる**
+
+マジメに書くと、全体的に魚が少なすぎてテストとかがほとんどできなかった。
+ワカサギは100匹とか釣れる時だと、入れて上げるだけの機械的な作業になるので機械化すると成果を発揮する。。。はず。
+
+ラズパイFishingコンテストとか開催したい。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Raspberry Piでワカサギを釣ってみる on @Qiita" data-url="http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Raspberry Piでワカサギを釣ってみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/tan-z-tan"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/64964/profile-images/1473696742" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/tan-z-tan">tan-z-tan</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">511</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;tan-z-tan&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-ed88bbee-cb52-43b2-bae2-a635e1375854"></div>
+    <div id="UserFollowButton-react-component-ed88bbee-cb52-43b2-bae2-a635e1375854"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tan-z-tan/items/70f8cf8b11a02bea13fc">Raspberry Piでワカサギを釣ってみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tan-z-tan/items/d5ae2a30d7653a6e7dda">db:migrateすると何が起こるか。ActiveRecordコードリーデイング</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tan-z-tan/items/5b6bb15d969997c5ac09">SSHからRaspberry piでGUIを操作する方法</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tan-z-tan/items/e818e30938ac615b39a5">カーネルが新しくなってCUDAが動かなくなったときのtips</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/wantedly"><img alt="Wantedly, Inc." class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/6600325034f57ff945b9b39ad914a63c46a792d8/original.jpg?1370362971" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#why\&quot;\u003eWHY\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#what\&quot;\u003eWHAT\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A6%82%E8%A6%81\&quot;\u003e概要\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B7%A5%E4%BD%9C%E7%9A%84%E3%81%AA%E3%82%82%E3%81%AE\&quot;\u003e工作的なもの\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%BC%E3%82%BF%E3%82%92%E5%9B%9E%E3%81%99\&quot;\u003eモータを回す\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%82%BF%E3%83%AA%E3%82%92%E6%84%9F%E7%9F%A5%E3%81%99%E3%82%8B\&quot;\u003eアタリを感知する\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%98%E3%81%84%E3%81%A1%E3%82%87%E3%81%84%E3%81%A1%E3%82%87%E3%81%84%E3%81%A3%E3%81%A6%E5%8B%95%E3%81%8B%E3%81%99\&quot;\u003e誘い（ちょいちょいって動かす）\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B0%B7%E4%B8%8A%E3%81%A7%E3%82%84%E3%81%A3%E3%81%A6%E3%81%BF%E3%81%9F\&quot;\u003e氷上でやってみた\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#4%E6%99%82%E9%96%93%E3%81%8F%E3%82%89%E3%81%84%E3%81%AE%E9%87%A3%E6%9E%9C\&quot;\u003e4時間くらいの釣果\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-26063ea5-0402-4730-8be9-965af823fc39"></div>
+    <div id="Toc-react-component-26063ea5-0402-4730-8be9-965af823fc39"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:441,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;70f8cf8b11a02bea13fc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kijibato"><a itemprop="url" href="/kijibato"><img alt="kijibato" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/95528/profile-images/1473706597" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ichiroex"><a itemprop="url" href="/ichiroex"><img alt="ichiroex" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="morika-t"><a itemprop="url" href="/morika-t"><img alt="morika-t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6535/profile-images/1473682957" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="pio2"><a itemprop="url" href="/pio2"><img alt="pio2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81959/profile-images/1473702286" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shoooo"><a itemprop="url" href="/shoooo"><img alt="shoooo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/54591/profile-images/1473693424" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kochory"><a itemprop="url" href="/kochory"><img alt="kochory" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68258/profile-images/1473697785" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="qqq"><a itemprop="url" href="/qqq"><img alt="qqq" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/66315/profile-images/1473697168" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="wordijp"><a itemprop="url" href="/wordijp"><img alt="wordijp" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51728/profile-images/1473692528" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="UedaTakeyuki"><a itemprop="url" href="/UedaTakeyuki"><img alt="UedaTakeyuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46544/profile-images/1489714841" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></div></div><div class="ArticleFooter__user"><a href="/tan-z-tan/items/70f8cf8b11a02bea13fc/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/70f8cf8b11a02bea13fc/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/tan-z-tan/items/70f8cf8b11a02bea13fc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Raspberry Piでワカサギを釣ってみる on @Qiita" data-url="http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Raspberry Piでワカサギを釣ってみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e氷上でのPythonプログラミング、手袋外さなきゃ行けなくて辛そうに見えます。\u003cbr\u003e\n実際にやってみて予想より辛かったこととか予想より辛くなかったこととかあれば教えてください！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-02-15T11:43:31+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:460155,&quot;is_team&quot;:false,&quot;item_id&quot;:369475,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;70f8cf8b11a02bea13fc&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;氷上でのPythonプログラミング、手袋外さなきゃ行けなくて辛そうに見えます。\n実際にやってみて予想より辛かったこととか予想より辛くなかったこととかあれば教えてください！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc#comment-e85f916627e2d9738281&quot;,&quot;user&quot;:{&quot;contribution&quot;:26,&quot;created_at&quot;:&quot;2014-03-23T23:40:17+09:00&quot;,&quot;id&quot;:40183,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/40183/profile-images/1473688353&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;ayokura&quot;},&quot;uuid&quot;:&quot;e85f916627e2d9738281&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e実は運が良くて天気が暖かかったのでテントの中で快適にできましたｗ\u003cbr\u003e\nモノを動かしてみて予想外だったのは、リールの巻き上げと巻き下げを同じ秒数実行しても角度が少しずつずれるってのが一番ですかね。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-02-15T12:50:09+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:460240,&quot;is_team&quot;:false,&quot;item_id&quot;:369475,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;70f8cf8b11a02bea13fc&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;実は運が良くて天気が暖かかったのでテントの中で快適にできましたｗ\nモノを動かしてみて予想外だったのは、リールの巻き上げと巻き下げを同じ秒数実行しても角度が少しずつずれるってのが一番ですかね。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc#comment-dffc7622ba85a7b9608f&quot;,&quot;user&quot;:{&quot;contribution&quot;:511,&quot;created_at&quot;:&quot;2015-01-05T17:56:01+09:00&quot;,&quot;id&quot;:64964,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/64964/profile-images/1473696742&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;tan-z-tan&quot;},&quot;uuid&quot;:&quot;dffc7622ba85a7b9608f&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e是非大会の企画をお願いします！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-02-24T11:19:50+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:469364,&quot;is_team&quot;:false,&quot;item_id&quot;:369475,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;70f8cf8b11a02bea13fc&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;是非大会の企画をお願いします！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc#comment-04b0bb5932687f358d90&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-06-03T11:59:23+09:00&quot;,&quot;id&quot;:81415,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/81415/profile-images/1473702106&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;chiribon&quot;},&quot;uuid&quot;:&quot;04b0bb5932687f358d90&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eはじめまして、釣り大好きエンジニアです。\u003cbr\u003e\n竿先の判定が一番大変そうですね^^;\u003cbr\u003e\nぜひ大会やりましょう^^\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-02-24T13:33:22+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:469537,&quot;is_team&quot;:false,&quot;item_id&quot;:369475,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;70f8cf8b11a02bea13fc&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;はじめまして、釣り大好きエンジニアです。\n竿先の判定が一番大変そうですね^^;\nぜひ大会やりましょう^^\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc#comment-d8162b51973e44dcf314&quot;,&quot;user&quot;:{&quot;contribution&quot;:31,&quot;created_at&quot;:&quot;2016-02-24T13:29:14+09:00&quot;,&quot;id&quot;:114922,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/114922/profile-images/1487836144&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;flatfisher&quot;},&quot;uuid&quot;:&quot;d8162b51973e44dcf314&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:369475,&quot;uuid&quot;:&quot;70f8cf8b11a02bea13fc&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;tan-z-tan&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:64964,&quot;url_name&quot;:&quot;tan-z-tan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/64964/profile-images/1473696742&quot;},{&quot;id&quot;:40183,&quot;url_name&quot;:&quot;ayokura&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/40183/profile-images/1473688353&quot;},{&quot;id&quot;:81415,&quot;url_name&quot;:&quot;chiribon&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/81415/profile-images/1473702106&quot;},{&quot;id&quot;:114922,&quot;url_name&quot;:&quot;flatfisher&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/114922/profile-images/1487836144&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-e90d6b7e-c851-4090-9a22-597a4734ad2b"></div>
+    <div id="CommentListContainer-react-component-e90d6b7e-c851-4090-9a22-597a4734ad2b"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="0/E3ih29KK1u8ECfB3ejcnv/ZvnSDDtwVosKtBYDXJIWr8nC8WdaWv/eD8378BxHVI1cDvng4ATHqmJKP7A54g==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tan-z-tan/items/70f8cf8b11a02bea13fc" /><input type="hidden" name="item_uuid" id="item_uuid" value="70f8cf8b11a02bea13fc" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/tan-z-tan/items/70f8cf8b11a02bea13fc", "id": 369475, "uuid": "70f8cf8b11a02bea13fc" }</script><script class="js-user" type="application/json">{&quot;id&quot;:64964,&quot;url_name&quot;:&quot;tan-z-tan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/64964/profile-images/1473696742&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="lA1C6nl5zWGyOYbuBZfqG1j+F8EIndvUfliHo7XMiX1RU7yilaO/liMXybz5EFUud4wtNiNxAKDvee9dnH/sDQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tan-z-tan/items/70f8cf8b11a02bea13fc" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

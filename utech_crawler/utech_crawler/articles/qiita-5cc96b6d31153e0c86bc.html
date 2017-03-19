@@ -1,0 +1,522 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Chainerを使ってコンピュータにイラストを描かせる - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+概要
+
+
+つい一ヶ月前に提案された深層学習モデルであるDeep Convolutional Generative Adversarial Networks (以下DCGAN)をchainer上で実装した．
+70万枚もの大量のイラストを使ってDCGANにイラストらしさを学習させた．
+得られたモデルを利用して，コンピュータにイラストを描かせてみた．
+結果としては結構上手く行った．本物と見分けがつかないというレベルではないものの，DCGANは正常にイラストらしい画像を生成..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="rezoolab" name="twitter:creator" /><meta content="Chainerを使ってコンピュータにイラストを描かせる - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# 概要
+* つい一ヶ月前に提案された深層学習モデルであるDeep Convolutional Generative Adversarial Networks (以下DCGAN)をchainer上で実装した．
+* 70万枚もの大量のイ..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="ukhiO7T6EyX3rUlRKoWoajTLrQNkbNNewZF7KPrUYBwfEj6Q6mJfrn0/icHUGMSuurOToe9vTQas/mnlU9yL1w==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"rezoolab","type":"items","id":"5cc96b6d31153e0c86bc"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-57435b64-1ba1-4fd1-b27f-bec261bc27b8"></div>
+    <div id="HeaderContainer-react-component-57435b64-1ba1-4fd1-b27f-bec261bc27b8"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Chainer",        "name": "Chainer"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2015/chainer">Chainer Advent Calendar 2015</a> Day 20</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">Chainerを使ってコンピュータにイラストを描かせる</h1><ul class="TagList"><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">349</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:349,&quot;uuid&quot;:&quot;5cc96b6d31153e0c86bc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="nzw0301"><a itemprop="url" href="/nzw0301"><img alt="nzw0301" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72604/profile-images/1473699210" /></a></li><li class="js-hovercard" data-hovercard-target-name="ballforest"><a itemprop="url" href="/ballforest"><img alt="ballforest" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25380/profile-images/1473684319" /></a></li><li class="js-hovercard" data-hovercard-target-name="doorda"><a itemprop="url" href="/doorda"><img alt="doorda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/97858/profile-images/1473707325" /></a></li><li class="js-hovercard" data-hovercard-target-name="knaga1220"><a itemprop="url" href="/knaga1220"><img alt="knaga1220" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98725/profile-images/1473707588" /></a></li><li class="js-hovercard" data-hovercard-target-name="kanetai"><a itemprop="url" href="/kanetai"><img alt="kanetai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102093/profile-images/1473708580" /></a></li><li class="js-hovercard" data-hovercard-target-name="raucha"><a itemprop="url" href="/raucha"><img alt="raucha" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/84845/profile-images/1473703230" /></a></li><li class="js-hovercard" data-hovercard-target-name="sugurunatsuno"><a itemprop="url" href="/sugurunatsuno"><img alt="sugurunatsuno" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104310/profile-images/1484839368" /></a></li><li class="js-hovercard" data-hovercard-target-name="ntddk"><a itemprop="url" href="/ntddk"><img alt="ntddk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22237/profile-images/1473683530" /></a></li><li class="js-hovercard" data-hovercard-target-name="cosmo0920"><a itemprop="url" href="/cosmo0920"><img alt="cosmo0920" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42706/profile-images/1473689258" /></a></li><li class="js-hovercard" data-hovercard-target-name="SuperAlloyZZ"><a itemprop="url" href="/SuperAlloyZZ"><img alt="SuperAlloyZZ" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46744/profile-images/1473690751" /></a></li><li><a href="/rezoolab/items/5cc96b6d31153e0c86bc/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/rezoolab"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/61296/profile-images/1473695495" alt="1473695495" /></a> <a class="u-link-unstyled" href="/rezoolab">rezoolab</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-20T00:01:23+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-20">Edited at <time datetime="2015-12-20T00:32:26+09:00" itemprop="dateModified">2015-12-20</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/rezoolab/items/5cc96b6d31153e0c86bc/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">3</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/rezoolab/items/5cc96b6d31153e0c86bc/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(3)</span></a></li><li><a href="/rezoolab/items/5cc96b6d31153e0c86bc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-5cc96b6d31153e0c86bc" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div>
+<h1>
+<span id="概要" class="fragment"></span><a href="#%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>概要</h1>
+
+<ul>
+<li>つい一ヶ月前に提案された深層学習モデルであるDeep Convolutional Generative Adversarial Networks (以下DCGAN)をchainer上で実装した．</li>
+<li>70万枚もの大量のイラストを使ってDCGANにイラストらしさを学習させた．</li>
+<li>得られたモデルを利用して，コンピュータにイラストを描かせてみた．</li>
+<li>結果としては結構上手く行った．本物と見分けがつかないというレベルではないものの，DCGANは正常にイラストらしい画像を生成できている．</li>
+<li>ネタが盛大に被って本当につらい</li>
+</ul>
+
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<blockquote class="twitter-tweet" lang="ja">
+<p lang="ja">DCGANという画像を生成するニューラルネットをchainerで実装しました。恐るべきことに、今までにない美麗さで二次元イラストも自動生成できます…！<a href="https://t.co/C8P8GbzWN1" rel="nofollow noopener" target="_blank">https://t.co/C8P8GbzWN1</a> <a href="https://t.co/DWwGhF9itw" rel="nofollow noopener" target="_blank">pic.twitter.com/DWwGhF9itw</a></p>— おそるべし抹茶パワー (@mattya1089) <a href="https://twitter.com/mattya1089/status/676730414875054080" rel="nofollow noopener" target="_blank">2015, 12月 15</a>
+</blockquote>
+
+
+
+<blockquote class="twitter-tweet" lang="ja">
+<p lang="ja">げ，ネタ被ってんぞ</p>— Masaki Saito (@rezoolab) <a href="https://twitter.com/rezoolab/status/676732030365888512" rel="nofollow noopener" target="_blank">2015, 12月 15</a>
+</blockquote>
+
+
+
+<blockquote class="twitter-tweet" lang="ja">
+<p lang="ja">chainer AC止めて爆死アドベントカレンダーに執筆したい</p>— Masaki Saito (@rezoolab) <a href="https://twitter.com/rezoolab/status/677047909724983296" rel="nofollow noopener" target="_blank">2015, 12月 16</a>
+</blockquote>
+
+
+
+<p>まずはじめに，ご存知の方も多いと思いますがこのネタはつい4日前に投稿されたTwitterのツイートとネタ的に全く被っています．なんと！！ネタ的に，全く，被っている！！！！</p>
+
+<p>一応言い訳しておくと今回のネタはこの記事を見てからコード拝借して実施した的なものじゃなく，ちゃんと自分でコード書いて実験していました．大体結果出たのが7日前位でああこれで一安心だとワクワク，温めて安心してる最中にこの仕打ちです．ｸﾞｴｴｴｴなんでや・・・1000RTとか・・・しかも<a href="https://www.facebook.com/yann.lecun/posts/10153269667222143" rel="nofollow noopener" target="_blank">LeCun先生がFBに取り上げとる</a>し・・・その後に発表するとか苦痛でしかないでしょ・・・Twitterは流石に想定外だった・・・</p>
+
+<p>深層学習界隈の研究は最近競争がやたら激しいですが，まさか日本人オンリーのネタ枠で盛大に被るとは思っていなかった（だって<a href="http://arxiv.org/abs/1511.06434" rel="nofollow noopener" target="_blank">今回使った手法つい1ヶ月前にarXivにアップされた</a>んですよ？）まあしょうがないです．一番早く成果を発表した者が勝者で他は負け組なのが研の世界であり，敗因は結果が出た瞬間に発表せず，発表当日まで安心して温めておいた自分の側にあります．</p>
+
+<p>これまでは結果見せて面白いとかいう感じの記事にする予定だったのですが，それはもうやられてしまったので今回はもう少し真面目にDCGANについての説明や，ごちゃごちゃパラメータ弄っている上で感じたいくつかの感想（実際には何を生成しているのか？DCGANを使って，究極的には人間が描くようなイラストを描けるのか？結局DCGANは何が凄いのか？なぜ他手法に比べてDCGANが上手くいくのか？など）について書いていくことにします．何かしらの参考になれば幸いです．</p>
+
+<h1>
+<span id="歴史的経緯" class="fragment"></span><a href="#%E6%AD%B4%E5%8F%B2%E7%9A%84%E7%B5%8C%E7%B7%AF"><i class="fa fa-link"></i></a>歴史的経緯</h1>
+
+<p>ご存知の通り，Convolutional Neural Network (CNN)をはじめとする，深層学習を利用した研究がコンピュータビジョンのあらゆる分野(<a href="http://blogs.microsoft.com/next/2015/12/10/microsoft-researchers-win-imagenet-computer-vision-challenge/" rel="nofollow noopener" target="_blank">物体認識</a>，<a href="http://www.cv-foundation.org/openaccess/content_cvpr_2015/ext/2A_044_ext.pdf" rel="nofollow noopener" target="_blank">説明文生成</a>，etc.)でめざましい成果を挙げています．しかしながら，深層学習を利用した研究の多くは教師あり学習を対象としている一方で，教師なし学習に関する研究は教師あり学習のそれと比較してあまり多くありません．今後の深層学習に関する課題の一つとして，この教師なし学習の問題をいかに上手く解けるかが挙げられます (<a href="http://www.pamitc.org/cvpr15/program.php#plenary" rel="nofollow noopener" target="_blank">LeCun談</a>)．</p>
+
+<p>元々，第三次深層学習ブームは<a href="https://www.cs.toronto.edu/%7Ehinton/absps/fastnc.pdf" rel="nofollow noopener" target="_blank">Deep Belief Network</a> (DBN)や<a href="http://www.cs.toronto.edu/%7Efritz/absps/dbm.pdf" rel="nofollow noopener" target="_blank">Deep Boltzmann Machine</a> (DBM)をはじめとする，教師なし学習のための生成モデルをその発端とするのですが，現在では学習が非常に大変ということもあり精力的にはあまり研究されていません．</p>
+
+<p>（個人的な印象としては）近年，活発に研究されている教師なし学習のための深層学習のモデルは大きく2つが挙げられるかと思います．1つは対数尤度の変分下限を最大化する<a href="http://arxiv.org/abs/1312.6114" rel="nofollow noopener" target="_blank">Variational Auto Encoder</a> (VAE)と呼ばれるモデル，もう1つは今回実装した<a href="http://arxiv.org/abs/1406.2661" rel="nofollow noopener" target="_blank">Generative Adversarial Net</a> (GAN)と呼ばれるモデルです．これらのモデルを利用することで，大量の入力画像から，その入力画像の生成過程を表すモデル分布を求められます．一旦高品質な(真のモデル分布に近い)分布を求めることができれば，そのモデル分布を利用して高品質な画像を自動的に生成できると．</p>
+
+<p>興味深いことに，GANに関してはほんの一ヶ月前に大きな進展が見られました．GANのネットワーク構造に工夫を加えた<a href="http://arxiv.org/abs/1511.06434" rel="nofollow noopener" target="_blank">Deep Convolutional Generative Adversarial Nets</a> (DCGAN)が，本物の画像と見分けがつかないレベルの質の画像を生成できたという論文が発表されたのです．比較的単純なネットワーク構造でも質の高い画像を生成できることを示したこの論文は大きなインパクトを学術界/産業界にもたらし，一週間もしない内にいろんなデータセットでこのモデルを試してみたというブログ記事が出てきました．もしDCGANによって本当にどんなデータセットのモデル分布でも高精度に求められるのであれば，これを使って，例えばイラストを描くといった，人間だけが行うある種の創造的な作業も機械学習で行えるようになるかもしれない．ということで，実験を行ってみたというのが今回の動機になります．</p>
+
+<p>ただ，論文中ではDCGANの学習に数万から数百万もの画像を使っていたため，イラストの学習にも同程度のオーダーの画像が必要であると考えられます．しかし幸運なことに，自分の手元には前の研究で使用した約130万枚ものイラストが含まれるデータセットがあります．これを学習に利用することで，DCGANにデータセットの中には入っていないイラストを描いてもらいます．</p>
+
+<h1>
+<span id="dcganの大まかな説明" class="fragment"></span><a href="#dcgan%E3%81%AE%E5%A4%A7%E3%81%BE%E3%81%8B%E3%81%AA%E8%AA%AC%E6%98%8E"><i class="fa fa-link"></i></a>DCGANの大まかな説明</h1>
+
+<p>前述の通り，DCGANはGANのネットワーク構造を改良したモデルであるため，はじめにGANについて簡単に説明します（詳細は<a href="http://arxiv.org/abs/1406.2661" rel="nofollow noopener" target="_blank">元論文</a>を参照してください）．GANはGoodfellowらが2014年に提案した生成モデルであり，Generator, Discriminatorと呼ばれる2つのニューラルネットワークモデル(以下NN)を利用して大量の入力画像だけから，その画像の生成過程を表すモデル分布を生成します．Generatorは一様分布あるいは正規分布に従って適当に生成した乱数のベクトル(隠れ変数とも呼ばれる)から，本物そっくりの画像を生成する関数です．一方，Discriminatorは与えられた入力画像が，本物かGeneratorから生成された偽物かどうかを判別する関数です．</p>
+
+<p>Generatorに本物そっくりの画像を生成してもらうため，著者らはGeneratorと Discriminatorに次のゲームをさせます: GeneratorはDiscriminatorを騙せるような画像を生成できれば勝ち．一方，Discriminatorは与えられた画像がきちんと本物か偽物かを識別できれば勝ち．このゲームの勝率をできるだけ上げるよう両者に競わせると，最終的にGeneratorはできるだけ(Discriminatorを騙す)本物そっくりの画像を生成し，一方でDiscriminatorはわずかな不自然さから偽物を識別します．</p>
+
+<p>DCGANはGANで用いられていたネットワークの構成を変える(例えば，バッチ正規化(<a href="http://arxiv.org/abs/1502.03167" rel="nofollow noopener" target="_blank">Batch Normalization</a>)レイヤを加えたり，Discriminator側の活性関数を<a href="https://web.stanford.edu/%7Eawni/papers/relu_hybrid_icml2013_final.pdf" rel="nofollow noopener" target="_blank">LeakyReLU</a>に変更したりするなど)ことで，より質の高い画像を生成できるよう変更したモデルです（詳細は<a href="http://arxiv.org/abs/1511.06434" rel="nofollow noopener" target="_blank">元論文</a>を参照してください）．今回はDCGANで提案されるネットワーク構成を利用して，イラストを描画するためのネットワークを学習しました．</p>
+
+<h1>
+<span id="実験設定" class="fragment"></span><a href="#%E5%AE%9F%E9%A8%93%E8%A8%AD%E5%AE%9A"><i class="fa fa-link"></i></a>実験設定</h1>
+
+<h2>
+<span id="データセット" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>データセット</h2>
+
+<p>今回は2種類のデータセット(一般的なイラストデータセットと，初音ミク画像だけが格納されているデータセット)を利用しました．一般的なイラストデータセットでは，クローリングで取得した約130万枚のイラストの内，ポルノ画像と4コマ漫画を除いた約70万枚のイラストを使用しました．データセットの画像を元論文と同じ解像度にするため，すべての画像をクロップ&amp;リサイズして64x64pxの正方画像に変形しました．一応定量的評価に利用する目的で，対象のデータセットを分割し，8割を学習用，2割をテスト用に割り当てました．つまり約56万枚の画像を学習に使用しました．ただ結局テスト用データセットは今回使わなかったので，分割した意味は今のところありません．</p>
+
+<p>初音ミクデータセットは一般的なイラストデータセットの多様性を落とす目的で作ったデータセットであり，初音ミクだけが写っているイラスト3万枚を集めました（初音ミクはアジアの中で一番多くファンアートが描かれているキャラクターなので彼女を採用しました）．これに関しては使用した画像枚数が少ないこともあり特にテストデータセットの作成は行っていません．</p>
+
+<h2>
+<span id="ネットワーク構成" class="fragment"></span><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E6%A7%8B%E6%88%90"><i class="fa fa-link"></i></a>ネットワーク構成</h2>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/61296/ff7e7553-3975-4c03-c4d1-6767757b3f28.jpeg" target="_blank" rel="nofollow noopener"><img width="684" alt="architecture.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/61296/ff7e7553-3975-4c03-c4d1-6767757b3f28.jpeg"></a><br>
+(DCGANのネットワーク構成の概要図(元論文から引用))．</p>
+
+<p>実装にはchainerを使用しました．一般的なNNの実装ですと特にchainerを使う利点はさほどないのですが，GANのようなちょっと複雑なネットワークの実装にchainerを使う利点は多いでしょう（スナップショットやリジューム機能など別途実装しなきゃいけないのがめんどいですが）．ネットワーク構成は元のDCGANで使用された構成に準じていますが，今回の実験に合わせて幾つか変えてあります:</p>
+
+<ul>
+<li>論文元の実装であるtheanoで使用されている畳み込み層のパラメータ通りにChainer上で実装するとパラメータの解釈の違いによりエラーが発生する．そのため，今回は5x5のkernel sizeを4x4に変更した．paddingは論文中には明示的に書かれていないものの，今回は1に設定した．</li>
+<li>元論文の畳み込み層で用いられるチャネル数を利用するとあまりにも学習が遅かったので，今回はすべて半分に設定した．</li>
+<li>学習を安定させる目的で，Adamの学習率を2e-4から1e-4に変更した．</li>
+</ul>
+
+<p>面白いことに，このパラメータはおそるべし抹茶パワーさん(抹茶好きな方なのかな？)が実験で用いたパラメータと，Adamの学習率とELU以外はすべて同じでした（特にパクったわけではないです）．<br>
+学習に用いたchainerのモデルコードを後ろに載せます．本当はコードを全部公開する予定でしたがやる気が無くなってしまいました．学習にはGTX Titan (無印)を利用して大体1日といったところです．</p>
+
+<h1>
+<span id="実験結果" class="fragment"></span><a href="#%E5%AE%9F%E9%A8%93%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>実験結果</h1>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/61296/bcb96a38-259d-e877-688f-f492b54b5cdf.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/61296/bcb96a38-259d-e877-688f-f492b54b5cdf.jpeg" alt="variables-iter250000.jpg"></a></p>
+
+<p>はじめに，一般的なイラストデータセットを使った場合におけるDCGANの生成結果を上図に示します．一部生成に失敗しているイラストがあるものの，おおむねイラストらしい画像が生成できていることが分かります．色情報が含まれていない線画は縮小によって情報が潰されているかなり難しい条件というものもあり，生成に成功している画像はありません．一方，一人の女性だけが写っている画像はうまく生成できているように思われます．これは構図が同じイラストがポートレートの場合多数あるため，比較的対応付けやすかったことがあるかもしれません．</p>
+
+<p>微妙なところとしては，遠目で見るとなんとなくそれっぽいのですが，拡大してみると整合性が取れていないイラストが多い点です．これは抹茶さんの顔画像イラストの結果と比較するとあまり良くありません．今回の使用したデータセットは顔だけを切り出したというわけではないので，顔よりも比較的難しいデータセットになっているからと考えられます．</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/61296/7838e32d-1ca9-be96-ddd9-2e400be99ea1.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/61296/7838e32d-1ca9-be96-ddd9-2e400be99ea1.jpeg" alt="variables-iter40000.jpg"></a></p>
+
+<p>次に，初音ミクデータセットを使った場合における同様の生成結果を上図に示します．傾向としては大体同じですが，こちらのほうが全体的な質が高い，すなわち，より自然なイラストを生成できていることが分かります．ただ拡大してみると，どうも緑髪や青髪出しとけばそれっぽく見えるだろとやってる印象があります．</p>
+
+<h1>
+<span id="discussion" class="fragment"></span><a href="#discussion"><i class="fa fa-link"></i></a>Discussion</h1>
+
+<h2>
+<span id="パラメータ調整についての感想" class="fragment"></span><a href="#%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E8%AA%BF%E6%95%B4%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E3%81%AE%E6%84%9F%E6%83%B3"><i class="fa fa-link"></i></a>パラメータ調整についての感想</h2>
+
+<p>結果だけ見ると楽そうに見えますが実際にやると結構大変でした．特に，パラメータのチューニングには苦労しました．普通の教師あり学習のCNNだと調整するパラメータはそんなに多くないのですが，教師なし学習の場合パラメータのチューニングは大分シビアに行わなくてはいけません．これはGAN, VAE, RBM, DBMどれ使っても大体同じかと思います．</p>
+
+<ul>
+<li>Adamのbeta1をデフォルト設定の0.9に変えるとぼやけた画像しか出てこない．CNNを利用した教師あり学習だとモメンタムはあまりセンシティブに効くパラメータでないという印象があったが，これを入れるのと入れないのでは結構な違いがあった． </li>
+<li>LeakyReLUをDiscriminator側に入れている理由は，明示的に論文に書いていないもののGeneratorを更新する際の勾配の情報をより多く伝えるためであると考えられる．LReLUの有無による違いを確認したところ，まああれば確かに綺麗になるかなという感じで劇的に効いてくるという感じではなかった．</li>
+<li>Batch normalization layerの有無は本当に重要である．MNISTレベルのデータセットだと無くてもいけるのだが，今回の実験ではこれを入れるのと入れないのでは著しい違いがあった．</li>
+<li>Discriminatorのパラメータ更新には，実画像のバッチと偽画像のバッチ2つを1つのバッチにまとめて更新する方法と，明示的に損失関数を2つに分けて更新する2通りの方法がある．Batch Normalization layerが無い場合だと最終的に得られる勾配はどっちも変わらないのだが，含めた場合は明確な違いが出てしまう（複雑ですね）．最初前者の方法で更新していたらG, Dどちらも勝率が100%になってしまう奇妙な結果が得られてしまった．最初chainer側のバグかと疑ってしまったのだが，最終的にBNの性質に着目し後者の実装にしたら綺麗に収束した（バグではなかった）．</li>
+<li>Kernel sizeは6x6と4x4の2通り試したが，4x4のほうが比較的綺麗な結果が出た． </li>
+</ul>
+
+<h2>
+<span id="実際には何を生成しているのかdcganを使って究極的には人間が描くようなイラストを描けるのか" class="fragment"></span><a href="#%E5%AE%9F%E9%9A%9B%E3%81%AB%E3%81%AF%E4%BD%95%E3%82%92%E7%94%9F%E6%88%90%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%AE%E3%81%8Bdcgan%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E7%A9%B6%E6%A5%B5%E7%9A%84%E3%81%AB%E3%81%AF%E4%BA%BA%E9%96%93%E3%81%8C%E6%8F%8F%E3%81%8F%E3%82%88%E3%81%86%E3%81%AA%E3%82%A4%E3%83%A9%E3%82%B9%E3%83%88%E3%82%92%E6%8F%8F%E3%81%91%E3%82%8B%E3%81%AE%E3%81%8B"><i class="fa fa-link"></i></a>実際には何を生成しているのか？DCGANを使って，究極的には人間が描くようなイラストを描けるのか？</h2>
+
+<p>隠れ変数の値を少しずつ変えていくと，DCGANが生成する画像は少しずつ変化します．このことから，単純にDCGANはデータセット中の画像を覚えておいて，それをただ表示しているわけではないことが分かります．</p>
+
+<p>ただこれをよく見るに，どうもデータセットに頻出するパーツ(髪の毛や衣装など)を記憶しておいて，その中から似たようなパーツ同士をモーフィングで繋ぎあわせている印象を受けます（それだけでも十分凄いのですが）．直感的には5層程度のNNが人体の三次元構造など，イラストの本質的な情報を画像から無教師学習できるとは思えないので，少なくとも人間が行っているような，創造的な作業は行っていないんじゃないかと．また，多層化でこの問題が本当に解決できるのかは甚だ疑問です．個人的には，きちんと機械にイラストを描いてもらうためには，単純なデータドリブンの方法論を使うのではなくイラストレーターに敬意を払い，その作業を注意深く観察した上で適切なモデルを提案する必要があると考えています．</p>
+
+<h2>
+<span id="結局dcganは何が凄いのかなぜ他手法に比べてdcganが上手くいくのか" class="fragment"></span><a href="#%E7%B5%90%E5%B1%80dcgan%E3%81%AF%E4%BD%95%E3%81%8C%E5%87%84%E3%81%84%E3%81%AE%E3%81%8B%E3%81%AA%E3%81%9C%E4%BB%96%E6%89%8B%E6%B3%95%E3%81%AB%E6%AF%94%E3%81%B9%E3%81%A6dcgan%E3%81%8C%E4%B8%8A%E6%89%8B%E3%81%8F%E3%81%84%E3%81%8F%E3%81%AE%E3%81%8B"><i class="fa fa-link"></i></a>結局DCGANは何が凄いのか？なぜ他手法に比べてDCGANが上手くいくのか？</h2>
+
+<p>一番効いてきているのがBatch NormalizationとAdamでした．これ入れないとそもそもノイズしか出てきません．個人的な印象だと，DCGANの一番の貢献はBNを入れたことだと思います．それ位違いがある．</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/61296/f663bc10-f719-96cd-265c-41471383ffaa.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/61296/f663bc10-f719-96cd-265c-41471383ffaa.png" alt="variables-iter80000.png"></a><br>
+(上図はBNを入れない場合の生成結果．ノイズだらけで使い物にならないことが分かる)</p>
+
+<p>だとすれば，例えばDAEやVAE等の別のモデルでも，上手く行かなかったのは単なるBNの不在である可能性がある．だとすれば，BN入れれば今まで全然できなかった問題に対しても上手くいく可能性があるかと<sup id="fnref1"><a href="#fn1" rel="footnote" title="ちゃんと調べていませんがこれに関しては既にトップ大学の学生が確かめてるか，もう論文が出てるかと思います">1</a></sup></p>
+
+<h2>
+<span id="実装に利用したchainerコードの一部" class="fragment"></span><a href="#%E5%AE%9F%E8%A3%85%E3%81%AB%E5%88%A9%E7%94%A8%E3%81%97%E3%81%9Fchainer%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E4%B8%80%E9%83%A8"><i class="fa fa-link"></i></a>実装に利用したchainerコードの一部</h2>
+
+<p>最後に，実際の実験に利用したchainerコードの一部を載せます．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+
+<span class="kn">import</span> <span class="nn">chainer</span>
+<span class="kn">import</span> <span class="nn">chainer.cuda</span>
+<span class="kn">import</span> <span class="nn">chainer.functions</span> <span class="kn">as</span> <span class="nn">F</span>
+<span class="kn">import</span> <span class="nn">chainer.links</span> <span class="kn">as</span> <span class="nn">L</span>
+<span class="kn">import</span> <span class="nn">chainer.optimizers</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+
+<span class="k">def</span> <span class="nf">init_normal</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">W</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Generator</span><span class="p">(</span><span class="n">chainer</span><span class="o">.</span><span class="n">Chain</span><span class="p">):</span>
+
+    <span class="n">n_hidden</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Generator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">fc5</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">512</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="n">norm5</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="n">conv4</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Deconvolution2D</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">norm4</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
+            <span class="n">conv3</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Deconvolution2D</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">norm3</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+            <span class="n">conv2</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Deconvolution2D</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span>  <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">norm2</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
+            <span class="n">conv1</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Deconvolution2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>   <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">init_normal</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">conv4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc5</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">n_sample</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">train</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm5</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc5</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="p">(</span><span class="n">n_sample</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm4</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv4</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">make_optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chainer</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">generate_hidden_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                <span class="n">low</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_hidden</span><span class="p">)),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Discriminator</span><span class="p">(</span><span class="n">chainer</span><span class="o">.</span><span class="n">Chain</span><span class="p">):</span>
+
+    <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Discriminator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">conv1</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span>   <span class="mi">64</span><span class="p">,</span>  <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">conv2</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span>  <span class="mi">128</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">norm2</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+            <span class="n">conv3</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">norm3</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
+            <span class="n">conv4</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">norm4</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">512</span><span class="p">),</span>
+            <span class="n">fc5</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">512</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">init_normal</span><span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">,</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">conv4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc5</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">train</span>
+        <span class="n">n_sample</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">norm4</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv4</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc5</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">sigmoid_cross_entropy</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">make_optimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chainer</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">beta1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div></div>
+
+<h1>
+<span id="教訓" class="fragment"></span><a href="#%E6%95%99%E8%A8%93"><i class="fa fa-link"></i></a>教訓</h1>
+
+<p>被りそうなネタはAC1日目に登録し速攻で発表を行い逃げ切りたい．</p>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>ちゃんと調べていませんがこれに関しては既にトップ大学の学生が確かめてるか，もう論文が出てるかと思います <a href="#fnref1">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/rezoolab/items/5cc96b6d31153e0c86bc" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="Glk0TZVanDitka8CQ5SuVFhtq3lC0Q9UBwNcLYDIDv6/A2jmy8LQsycDb5K9CcKQ1hWV28nSkQxqbE7gKcDlNQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1450539146" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# 概要
+* つい一ヶ月前に提案された深層学習モデルであるDeep Convolutional Generative Adversarial Networks (以下DCGAN)をchainer上で実装した．
+* 70万枚もの大量のイラストを使ってDCGANにイラストらしさを学習させた．
+* 得られたモデルを利用して，コンピュータにイラストを描かせてみた．
+* 結果としては結構上手く行った．本物と見分けがつかないというレベルではないものの，DCGANは正常にイラストらしい画像を生成できている．
+* ネタが盛大に被って本当につらい
+
+# はじめに
+
+&lt;blockquote class=&quot;twitter-tweet&quot; lang=&quot;ja&quot;&gt;&lt;p lang=&quot;ja&quot; dir=&quot;ltr&quot;&gt;DCGANという画像を生成するニューラルネットをchainerで実装しました。恐るべきことに、今までにない美麗さで二次元イラストも自動生成できます…！&lt;a href=&quot;https://t.co/C8P8GbzWN1&quot;&gt;https://t.co/C8P8GbzWN1&lt;/a&gt; &lt;a href=&quot;https://t.co/DWwGhF9itw&quot;&gt;pic.twitter.com/DWwGhF9itw&lt;/a&gt;&lt;/p&gt;&amp;mdash; おそるべし抹茶パワー (@mattya1089) &lt;a href=&quot;https://twitter.com/mattya1089/status/676730414875054080&quot;&gt;2015, 12月 15&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src=&quot;//platform.twitter.com/widgets.js&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+&lt;blockquote class=&quot;twitter-tweet&quot; lang=&quot;ja&quot;&gt;&lt;p lang=&quot;ja&quot; dir=&quot;ltr&quot;&gt;げ，ネタ被ってんぞ&lt;/p&gt;&amp;mdash; Masaki Saito (@rezoolab) &lt;a href=&quot;https://twitter.com/rezoolab/status/676732030365888512&quot;&gt;2015, 12月 15&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src=&quot;//platform.twitter.com/widgets.js&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+&lt;blockquote class=&quot;twitter-tweet&quot; lang=&quot;ja&quot;&gt;&lt;p lang=&quot;ja&quot; dir=&quot;ltr&quot;&gt;chainer AC止めて爆死アドベントカレンダーに執筆したい&lt;/p&gt;&amp;mdash; Masaki Saito (@rezoolab) &lt;a href=&quot;https://twitter.com/rezoolab/status/677047909724983296&quot;&gt;2015, 12月 16&lt;/a&gt;&lt;/blockquote&gt;
+&lt;script async src=&quot;//platform.twitter.com/widgets.js&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+
+まずはじめに，ご存知の方も多いと思いますがこのネタはつい4日前に投稿されたTwitterのツイートとネタ的に全く被っています．なんと！！ネタ的に，全く，被っている！！！！
+
+一応言い訳しておくと今回のネタはこの記事を見てからコード拝借して実施した的なものじゃなく，ちゃんと自分でコード書いて実験していました．大体結果出たのが7日前位でああこれで一安心だとワクワク，温めて安心してる最中にこの仕打ちです．ｸﾞｴｴｴｴなんでや・・・1000RTとか・・・しかも[LeCun先生がFBに取り上げとる](https://www.facebook.com/yann.lecun/posts/10153269667222143)し・・・その後に発表するとか苦痛でしかないでしょ・・・Twitterは流石に想定外だった・・・
+
+深層学習界隈の研究は最近競争がやたら激しいですが，まさか日本人オンリーのネタ枠で盛大に被るとは思っていなかった（だって[今回使った手法つい1ヶ月前にarXivにアップされた](http://arxiv.org/abs/1511.06434)んですよ？）まあしょうがないです．一番早く成果を発表した者が勝者で他は負け組なのが研の世界であり，敗因は結果が出た瞬間に発表せず，発表当日まで安心して温めておいた自分の側にあります．
+
+これまでは結果見せて面白いとかいう感じの記事にする予定だったのですが，それはもうやられてしまったので今回はもう少し真面目にDCGANについての説明や，ごちゃごちゃパラメータ弄っている上で感じたいくつかの感想（実際には何を生成しているのか？DCGANを使って，究極的には人間が描くようなイラストを描けるのか？結局DCGANは何が凄いのか？なぜ他手法に比べてDCGANが上手くいくのか？など）について書いていくことにします．何かしらの参考になれば幸いです．
+
+# 歴史的経緯
+ご存知の通り，Convolutional Neural Network (CNN)をはじめとする，深層学習を利用した研究がコンピュータビジョンのあらゆる分野([物体認識](http://blogs.microsoft.com/next/2015/12/10/microsoft-researchers-win-imagenet-computer-vision-challenge/)，[説明文生成](http://www.cv-foundation.org/openaccess/content_cvpr_2015/ext/2A_044_ext.pdf)，etc.)でめざましい成果を挙げています．しかしながら，深層学習を利用した研究の多くは教師あり学習を対象としている一方で，教師なし学習に関する研究は教師あり学習のそれと比較してあまり多くありません．今後の深層学習に関する課題の一つとして，この教師なし学習の問題をいかに上手く解けるかが挙げられます ([LeCun談](http://www.pamitc.org/cvpr15/program.php#plenary))．
+
+元々，第三次深層学習ブームは[Deep Belief Network](https://www.cs.toronto.edu/~hinton/absps/fastnc.pdf) (DBN)や[Deep Boltzmann Machine](http://www.cs.toronto.edu/~fritz/absps/dbm.pdf) (DBM)をはじめとする，教師なし学習のための生成モデルをその発端とするのですが，現在では学習が非常に大変ということもあり精力的にはあまり研究されていません．
+
+（個人的な印象としては）近年，活発に研究されている教師なし学習のための深層学習のモデルは大きく2つが挙げられるかと思います．1つは対数尤度の変分下限を最大化する[Variational Auto Encoder](http://arxiv.org/abs/1312.6114) (VAE)と呼ばれるモデル，もう1つは今回実装した[Generative Adversarial Net](http://arxiv.org/abs/1406.2661) (GAN)と呼ばれるモデルです．これらのモデルを利用することで，大量の入力画像から，その入力画像の生成過程を表すモデル分布を求められます．一旦高品質な(真のモデル分布に近い)分布を求めることができれば，そのモデル分布を利用して高品質な画像を自動的に生成できると．
+
+興味深いことに，GANに関してはほんの一ヶ月前に大きな進展が見られました．GANのネットワーク構造に工夫を加えた[Deep Convolutional Generative Adversarial Nets](http://arxiv.org/abs/1511.06434) (DCGAN)が，本物の画像と見分けがつかないレベルの質の画像を生成できたという論文が発表されたのです．比較的単純なネットワーク構造でも質の高い画像を生成できることを示したこの論文は大きなインパクトを学術界/産業界にもたらし，一週間もしない内にいろんなデータセットでこのモデルを試してみたというブログ記事が出てきました．もしDCGANによって本当にどんなデータセットのモデル分布でも高精度に求められるのであれば，これを使って，例えばイラストを描くといった，人間だけが行うある種の創造的な作業も機械学習で行えるようになるかもしれない．ということで，実験を行ってみたというのが今回の動機になります．
+
+ただ，論文中ではDCGANの学習に数万から数百万もの画像を使っていたため，イラストの学習にも同程度のオーダーの画像が必要であると考えられます．しかし幸運なことに，自分の手元には前の研究で使用した約130万枚ものイラストが含まれるデータセットがあります．これを学習に利用することで，DCGANにデータセットの中には入っていないイラストを描いてもらいます．
+
+# DCGANの大まかな説明
+前述の通り，DCGANはGANのネットワーク構造を改良したモデルであるため，はじめにGANについて簡単に説明します（詳細は[元論文](http://arxiv.org/abs/1406.2661)を参照してください）．GANはGoodfellowらが2014年に提案した生成モデルであり，Generator, Discriminatorと呼ばれる2つのニューラルネットワークモデル(以下NN)を利用して大量の入力画像だけから，その画像の生成過程を表すモデル分布を生成します．Generatorは一様分布あるいは正規分布に従って適当に生成した乱数のベクトル(隠れ変数とも呼ばれる)から，本物そっくりの画像を生成する関数です．一方，Discriminatorは与えられた入力画像が，本物かGeneratorから生成された偽物かどうかを判別する関数です．
+
+Generatorに本物そっくりの画像を生成してもらうため，著者らはGeneratorと Discriminatorに次のゲームをさせます: GeneratorはDiscriminatorを騙せるような画像を生成できれば勝ち．一方，Discriminatorは与えられた画像がきちんと本物か偽物かを識別できれば勝ち．このゲームの勝率をできるだけ上げるよう両者に競わせると，最終的にGeneratorはできるだけ(Discriminatorを騙す)本物そっくりの画像を生成し，一方でDiscriminatorはわずかな不自然さから偽物を識別します．
+
+DCGANはGANで用いられていたネットワークの構成を変える(例えば，バッチ正規化([Batch Normalization](http://arxiv.org/abs/1502.03167))レイヤを加えたり，Discriminator側の活性関数を[LeakyReLU](https://web.stanford.edu/~awni/papers/relu_hybrid_icml2013_final.pdf)に変更したりするなど)ことで，より質の高い画像を生成できるよう変更したモデルです（詳細は[元論文](http://arxiv.org/abs/1511.06434)を参照してください）．今回はDCGANで提案されるネットワーク構成を利用して，イラストを描画するためのネットワークを学習しました．
+
+# 実験設定
+## データセット
+今回は2種類のデータセット(一般的なイラストデータセットと，初音ミク画像だけが格納されているデータセット)を利用しました．一般的なイラストデータセットでは，クローリングで取得した約130万枚のイラストの内，ポルノ画像と4コマ漫画を除いた約70万枚のイラストを使用しました．データセットの画像を元論文と同じ解像度にするため，すべての画像をクロップ&amp;リサイズして64x64pxの正方画像に変形しました．一応定量的評価に利用する目的で，対象のデータセットを分割し，8割を学習用，2割をテスト用に割り当てました．つまり約56万枚の画像を学習に使用しました．ただ結局テスト用データセットは今回使わなかったので，分割した意味は今のところありません．
+
+初音ミクデータセットは一般的なイラストデータセットの多様性を落とす目的で作ったデータセットであり，初音ミクだけが写っているイラスト3万枚を集めました（初音ミクはアジアの中で一番多くファンアートが描かれているキャラクターなので彼女を採用しました）．これに関しては使用した画像枚数が少ないこともあり特にテストデータセットの作成は行っていません．
+
+## ネットワーク構成
+&lt;img width=&quot;684&quot; alt=&quot;architecture.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/61296/ff7e7553-3975-4c03-c4d1-6767757b3f28.jpeg&quot;&gt;
+(DCGANのネットワーク構成の概要図(元論文から引用))．
+
+実装にはchainerを使用しました．一般的なNNの実装ですと特にchainerを使う利点はさほどないのですが，GANのようなちょっと複雑なネットワークの実装にchainerを使う利点は多いでしょう（スナップショットやリジューム機能など別途実装しなきゃいけないのがめんどいですが）．ネットワーク構成は元のDCGANで使用された構成に準じていますが，今回の実験に合わせて幾つか変えてあります:
+
+* 論文元の実装であるtheanoで使用されている畳み込み層のパラメータ通りにChainer上で実装するとパラメータの解釈の違いによりエラーが発生する．そのため，今回は5x5のkernel sizeを4x4に変更した．paddingは論文中には明示的に書かれていないものの，今回は1に設定した．
+* 元論文の畳み込み層で用いられるチャネル数を利用するとあまりにも学習が遅かったので，今回はすべて半分に設定した．
+* 学習を安定させる目的で，Adamの学習率を2e-4から1e-4に変更した．
+
+面白いことに，このパラメータはおそるべし抹茶パワーさん(抹茶好きな方なのかな？)が実験で用いたパラメータと，Adamの学習率とELU以外はすべて同じでした（特にパクったわけではないです）．
+学習に用いたchainerのモデルコードを後ろに載せます．本当はコードを全部公開する予定でしたがやる気が無くなってしまいました．学習にはGTX Titan (無印)を利用して大体1日といったところです．
+
+# 実験結果
+![variables-iter250000.jpg](https://qiita-image-store.s3.amazonaws.com/0/61296/bcb96a38-259d-e877-688f-f492b54b5cdf.jpeg)
+
+はじめに，一般的なイラストデータセットを使った場合におけるDCGANの生成結果を上図に示します．一部生成に失敗しているイラストがあるものの，おおむねイラストらしい画像が生成できていることが分かります．色情報が含まれていない線画は縮小によって情報が潰されているかなり難しい条件というものもあり，生成に成功している画像はありません．一方，一人の女性だけが写っている画像はうまく生成できているように思われます．これは構図が同じイラストがポートレートの場合多数あるため，比較的対応付けやすかったことがあるかもしれません．
+
+微妙なところとしては，遠目で見るとなんとなくそれっぽいのですが，拡大してみると整合性が取れていないイラストが多い点です．これは抹茶さんの顔画像イラストの結果と比較するとあまり良くありません．今回の使用したデータセットは顔だけを切り出したというわけではないので，顔よりも比較的難しいデータセットになっているからと考えられます．
+
+![variables-iter40000.jpg](https://qiita-image-store.s3.amazonaws.com/0/61296/7838e32d-1ca9-be96-ddd9-2e400be99ea1.jpeg)
+
+次に，初音ミクデータセットを使った場合における同様の生成結果を上図に示します．傾向としては大体同じですが，こちらのほうが全体的な質が高い，すなわち，より自然なイラストを生成できていることが分かります．ただ拡大してみると，どうも緑髪や青髪出しとけばそれっぽく見えるだろとやってる印象があります．
+
+# Discussion
+## パラメータ調整についての感想
+結果だけ見ると楽そうに見えますが実際にやると結構大変でした．特に，パラメータのチューニングには苦労しました．普通の教師あり学習のCNNだと調整するパラメータはそんなに多くないのですが，教師なし学習の場合パラメータのチューニングは大分シビアに行わなくてはいけません．これはGAN, VAE, RBM, DBMどれ使っても大体同じかと思います．
+
+* Adamのbeta1をデフォルト設定の0.9に変えるとぼやけた画像しか出てこない．CNNを利用した教師あり学習だとモメンタムはあまりセンシティブに効くパラメータでないという印象があったが，これを入れるのと入れないのでは結構な違いがあった． 
+* LeakyReLUをDiscriminator側に入れている理由は，明示的に論文に書いていないもののGeneratorを更新する際の勾配の情報をより多く伝えるためであると考えられる．LReLUの有無による違いを確認したところ，まああれば確かに綺麗になるかなという感じで劇的に効いてくるという感じではなかった．
+* Batch normalization layerの有無は本当に重要である．MNISTレベルのデータセットだと無くてもいけるのだが，今回の実験ではこれを入れるのと入れないのでは著しい違いがあった．
+* Discriminatorのパラメータ更新には，実画像のバッチと偽画像のバッチ2つを1つのバッチにまとめて更新する方法と，明示的に損失関数を2つに分けて更新する2通りの方法がある．Batch Normalization layerが無い場合だと最終的に得られる勾配はどっちも変わらないのだが，含めた場合は明確な違いが出てしまう（複雑ですね）．最初前者の方法で更新していたらG, Dどちらも勝率が100%になってしまう奇妙な結果が得られてしまった．最初chainer側のバグかと疑ってしまったのだが，最終的にBNの性質に着目し後者の実装にしたら綺麗に収束した（バグではなかった）．
+* Kernel sizeは6x6と4x4の2通り試したが，4x4のほうが比較的綺麗な結果が出た． 
+
+## 実際には何を生成しているのか？DCGANを使って，究極的には人間が描くようなイラストを描けるのか？
+
+隠れ変数の値を少しずつ変えていくと，DCGANが生成する画像は少しずつ変化します．このことから，単純にDCGANはデータセット中の画像を覚えておいて，それをただ表示しているわけではないことが分かります．
+
+ただこれをよく見るに，どうもデータセットに頻出するパーツ(髪の毛や衣装など)を記憶しておいて，その中から似たようなパーツ同士をモーフィングで繋ぎあわせている印象を受けます（それだけでも十分凄いのですが）．直感的には5層程度のNNが人体の三次元構造など，イラストの本質的な情報を画像から無教師学習できるとは思えないので，少なくとも人間が行っているような，創造的な作業は行っていないんじゃないかと．また，多層化でこの問題が本当に解決できるのかは甚だ疑問です．個人的には，きちんと機械にイラストを描いてもらうためには，単純なデータドリブンの方法論を使うのではなくイラストレーターに敬意を払い，その作業を注意深く観察した上で適切なモデルを提案する必要があると考えています．
+
+## 結局DCGANは何が凄いのか？なぜ他手法に比べてDCGANが上手くいくのか？
+一番効いてきているのがBatch NormalizationとAdamでした．これ入れないとそもそもノイズしか出てきません．個人的な印象だと，DCGANの一番の貢献はBNを入れたことだと思います．それ位違いがある．
+
+![variables-iter80000.png](https://qiita-image-store.s3.amazonaws.com/0/61296/f663bc10-f719-96cd-265c-41471383ffaa.png)
+(上図はBNを入れない場合の生成結果．ノイズだらけで使い物にならないことが分かる)
+
+だとすれば，例えばDAEやVAE等の別のモデルでも，上手く行かなかったのは単なるBNの不在である可能性がある．だとすれば，BN入れれば今まで全然できなかった問題に対しても上手くいく可能性があるかと[^1]
+
+[^1]: ちゃんと調べていませんがこれに関しては既にトップ大学の学生が確かめてるか，もう論文が出てるかと思います
+
+## 実装に利用したchainerコードの一部
+
+最後に，実際の実験に利用したchainerコードの一部を載せます．
+
+```py
+
+import chainer
+import chainer.cuda
+import chainer.functions as F
+import chainer.links as L
+import chainer.optimizers
+import numpy as np
+
+
+def init_normal(links, sigma):
+    for link in links:
+        shape = link.W.data.shape
+        link.W.data[...] = np.random.normal(0, sigma, shape).astype(np.float32)
+
+
+class Generator(chainer.Chain):
+
+    n_hidden = 100
+    sigma = 0.01
+
+    def __init__(self):
+        super(Generator, self).__init__(
+            fc5=L.Linear(100, 512 * 4 * 4),
+            norm5=L.BatchNormalization(512 * 4 * 4),
+            conv4=L.Deconvolution2D(512, 256, ksize=4, stride=2, pad=1),
+            norm4=L.BatchNormalization(256),
+            conv3=L.Deconvolution2D(256, 128, ksize=4, stride=2, pad=1),
+            norm3=L.BatchNormalization(128),
+            conv2=L.Deconvolution2D(128, 64,  ksize=4, stride=2, pad=1),
+            norm2=L.BatchNormalization(64),
+            conv1=L.Deconvolution2D(64,  3,   ksize=4, stride=2, pad=1))
+        init_normal(
+            [self.conv1, self.conv2, self.conv3,
+             self.conv4, self.fc5], self.sigma)
+
+
+    def __call__(self, z, train=True):
+        n_sample = z.data.shape[0]
+        test = not train
+        h = F.relu(self.norm5(self.fc5(z), test=test))
+        h = F.reshape(h, (n_sample, 512, 4, 4))
+        h = F.relu(self.norm4(self.conv4(h), test=test))
+        h = F.relu(self.norm3(self.conv3(h), test=test))
+        h = F.relu(self.norm2(self.conv2(h), test=test))
+        x = F.tanh(self.conv1(h))
+        return x
+
+    def make_optimizer(self):
+        return chainer.optimizers.Adam(alpha=1e-4, beta1=0.5)
+
+    def generate_hidden_variables(self, n):
+        return np.asarray(
+            np.random.uniform(
+                low=-1.0, high=1.0, size=(n, self.n_hidden)),
+            dtype=np.float32)
+
+
+class Discriminator(chainer.Chain):
+
+    sigma = 0.01
+
+    def __init__(self):
+        super(Discriminator, self).__init__(
+            conv1=L.Convolution2D(3,   64,  ksize=4, stride=2, pad=1),
+            conv2=L.Convolution2D(64,  128, ksize=4, stride=2, pad=1),
+            norm2=L.BatchNormalization(128),
+            conv3=L.Convolution2D(128, 256, ksize=4, stride=2, pad=1),
+            norm3=L.BatchNormalization(256),
+            conv4=L.Convolution2D(256, 512, ksize=4, stride=2, pad=1),
+            norm4=L.BatchNormalization(512),
+            fc5=L.Linear(512 * 4 * 4, 1))
+        init_normal(
+            [self.conv1, self.conv2, self.conv3,
+             self.conv4, self.fc5], self.sigma)
+
+    def __call__(self, x, t, train=True):
+        test = not train
+        n_sample = x.data.shape[0]
+        h = F.leaky_relu(self.conv1(x))
+        h = F.leaky_relu(self.norm2(self.conv2(h), test=test))
+        h = F.leaky_relu(self.norm3(self.conv3(h), test=test))
+        h = F.leaky_relu(self.norm4(self.conv4(h), test=test))
+        y = self.fc5(h)
+        return F.sigmoid_cross_entropy(y, t)
+
+    def make_optimizer(self):
+        return chainer.optimizers.Adam(alpha=1e-4, beta1=0.5)
+```
+
+# 教訓
+被りそうなネタはAC1日目に登録し速攻で発表を行い逃げ切りたい．
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Chainerを使ってコンピュータにイラストを描かせる by @rezoolab on @Qiita" data-url="http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Chainerを使ってコンピュータにイラストを描かせる" href="http://b.hatena.ne.jp/entry/http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/rezoolab"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/61296/profile-images/1473695495" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/rezoolab">rezoolab</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">349</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;rezoolab&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-534a0b12-a918-491e-9437-f4a030b2ab0f"></div>
+    <div id="UserFollowButton-react-component-534a0b12-a918-491e-9437-f4a030b2ab0f"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/rezoolab/items/5cc96b6d31153e0c86bc">Chainerを使ってコンピュータにイラストを描かせる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A6%82%E8%A6%81\&quot;\u003e概要\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%AD%B4%E5%8F%B2%E7%9A%84%E7%B5%8C%E7%B7%AF\&quot;\u003e歴史的経緯\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#dcgan%E3%81%AE%E5%A4%A7%E3%81%BE%E3%81%8B%E3%81%AA%E8%AA%AC%E6%98%8E\&quot;\u003eDCGANの大まかな説明\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%A8%93%E8%A8%AD%E5%AE%9A\&quot;\u003e実験設定\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88\&quot;\u003eデータセット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E6%A7%8B%E6%88%90\&quot;\u003eネットワーク構成\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%A8%93%E7%B5%90%E6%9E%9C\&quot;\u003e実験結果\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#discussion\&quot;\u003eDiscussion\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E8%AA%BF%E6%95%B4%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E3%81%AE%E6%84%9F%E6%83%B3\&quot;\u003eパラメータ調整についての感想\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%9A%9B%E3%81%AB%E3%81%AF%E4%BD%95%E3%82%92%E7%94%9F%E6%88%90%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%AE%E3%81%8Bdcgan%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E7%A9%B6%E6%A5%B5%E7%9A%84%E3%81%AB%E3%81%AF%E4%BA%BA%E9%96%93%E3%81%8C%E6%8F%8F%E3%81%8F%E3%82%88%E3%81%86%E3%81%AA%E3%82%A4%E3%83%A9%E3%82%B9%E3%83%88%E3%82%92%E6%8F%8F%E3%81%91%E3%82%8B%E3%81%AE%E3%81%8B\&quot;\u003e実際には何を生成しているのか？DCGANを使って，究極的には人間が描くようなイラストを描けるのか？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E5%B1%80dcgan%E3%81%AF%E4%BD%95%E3%81%8C%E5%87%84%E3%81%84%E3%81%AE%E3%81%8B%E3%81%AA%E3%81%9C%E4%BB%96%E6%89%8B%E6%B3%95%E3%81%AB%E6%AF%94%E3%81%B9%E3%81%A6dcgan%E3%81%8C%E4%B8%8A%E6%89%8B%E3%81%8F%E3%81%84%E3%81%8F%E3%81%AE%E3%81%8B\&quot;\u003e結局DCGANは何が凄いのか？なぜ他手法に比べてDCGANが上手くいくのか？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A3%85%E3%81%AB%E5%88%A9%E7%94%A8%E3%81%97%E3%81%9Fchainer%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E4%B8%80%E9%83%A8\&quot;\u003e実装に利用したchainerコードの一部\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%95%99%E8%A8%93\&quot;\u003e教訓\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-87ede400-050f-4e15-a812-c80aa4e90a83"></div>
+    <div id="Toc-react-component-87ede400-050f-4e15-a812-c80aa4e90a83"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:349,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;5cc96b6d31153e0c86bc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nzw0301"><a itemprop="url" href="/nzw0301"><img alt="nzw0301" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72604/profile-images/1473699210" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ballforest"><a itemprop="url" href="/ballforest"><img alt="ballforest" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25380/profile-images/1473684319" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="doorda"><a itemprop="url" href="/doorda"><img alt="doorda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/97858/profile-images/1473707325" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="knaga1220"><a itemprop="url" href="/knaga1220"><img alt="knaga1220" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98725/profile-images/1473707588" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kanetai"><a itemprop="url" href="/kanetai"><img alt="kanetai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102093/profile-images/1473708580" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="raucha"><a itemprop="url" href="/raucha"><img alt="raucha" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/84845/profile-images/1473703230" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sugurunatsuno"><a itemprop="url" href="/sugurunatsuno"><img alt="sugurunatsuno" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104310/profile-images/1484839368" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ntddk"><a itemprop="url" href="/ntddk"><img alt="ntddk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22237/profile-images/1473683530" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="cosmo0920"><a itemprop="url" href="/cosmo0920"><img alt="cosmo0920" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42706/profile-images/1473689258" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="SuperAlloyZZ"><a itemprop="url" href="/SuperAlloyZZ"><img alt="SuperAlloyZZ" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46744/profile-images/1473690751" /></a></div></div><div class="ArticleFooter__user"><a href="/rezoolab/items/5cc96b6d31153e0c86bc/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/5cc96b6d31153e0c86bc/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/rezoolab/items/5cc96b6d31153e0c86bc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.20</span> article of <a class="title" href="/advent-calendar/2015/chainer">Chainer Advent Calendar 2015</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 19:</span><span class="itemsShowBody_adventCalendar_title"><img alt="shunter1112" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/57586/profile-images/1473694379" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/shunter1112/items/8d0b1ec0a85a32655b6d">Chainerを使ってウォーリーを探せをしようと思ったけど、結果全然至らずな話</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 21:</span><span class="itemsShowBody_adventCalendar_title"><img alt="GushiSnow" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/GushiSnow/items/249d8a74c53dfb97c0ef">Chainerのexampleのmnistをcythonを使ってどれだけ高速化できるか検証してみた</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 9 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/mattya/items/e5bfe5e04b9d2f0bbd47#_reference-5909b52e92bede447015"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/51673/profile-images/1473692510" />Chainerで顔イラストの自動生成</a><time class="references_datetime js-dateTimeView" datetime="2015-12-24T10:18:25+00:00">about 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/sergeant-wizard/items/052c98c6e712a4a8df6a#_reference-e86eb8874e29fd559594"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" />Batch Normalizationによる収束性能向上</a><time class="references_datetime js-dateTimeView" datetime="2016-03-22T08:55:31+00:00">12 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/buchayaty/items/0929ba64c2f2b0187a24#_reference-718969768a4b4993680f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/121726/profile-images/1473715002" />DCGANを使って生成した画像でVJ映像を作成してみました</a><time class="references_datetime js-dateTimeView" datetime="2016-05-24T10:59:42+00:00">10 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/shngt/items/c84ddb034a2cc4c4632e#_reference-bb40cc6e737b776d97b2"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103085/profile-images/1479473183" />Azure Machine Learningをわかった気になるために細かいことは気にせずに機械学習のことをまとめてみる - ディープラーニングの手前まで</a><time class="references_datetime js-dateTimeView" datetime="2016-05-29T16:25:23+00:00">10 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/HirofumiYashima/items/61197bbfdefd1a8aee64#_reference-b5127be06eb191b7630c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 記事リスト 】DeepLearning で 時間があるときにじっくり読んでみたい面白い事例 備忘録 〜 顔イラスト生成、２枚の画像どうしの（word2vec的な）画像意味の足し算引き算、白黒画像からカラー画像生成などなど</a><time class="references_datetime js-dateTimeView" datetime="2016-08-04T11:07:54+00:00">8 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/shngt/items/b4b541ba92db392a2d99#_reference-83cfa3cef17a50e4a453"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103085/profile-images/1479473183" />文系非エンジニアが機械学習初心者になるまでの過程</a><time class="references_datetime js-dateTimeView" datetime="2016-08-07T15:51:23+00:00">7 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/shngt/items/d6893faa8e43df51191d#_reference-b896c4aa3d48173a9c24"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103085/profile-images/1479473183" />TFLearnでDCGAN</a><time class="references_datetime js-dateTimeView" datetime="2016-09-07T04:55:16+00:00">6 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/HirofumiYashima/items/01089ad30b8a11a75e3f#_reference-f418c8aa8e26208f68d5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 考察 】GAN（Generative Adversarial Network）の 実用途 での 「使いどころ」 を 考える</a><time class="references_datetime js-dateTimeView" datetime="2016-09-07T07:41:10+00:00">6 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/yu4u/items/47053a1f3f20e9561823#_reference-95a838cd7518285bc32a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/139809/profile-images/1473721008" />DCGANで家紋を自動生成する</a><time class="references_datetime js-dateTimeView" datetime="2016-10-01T15:12:37+00:00">6 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/piyo7/items/3f94686d2802c290e60b#_reference-c9a3aa5e63f70791c4cf"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/55208/profile-images/1481447486" />メモリを操作するRNNでソートアルゴリズム（可変長＆順序フラグあり）を機械学習できたよっ！</a><time class="references_datetime js-dateTimeView" datetime="2016-11-13T08:28:10+00:00">4 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/t-ae/items/236457c29ba85a7579d5#_reference-ab5c2bd706dceb42b620"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/121603/profile-images/1473714961" />KerasでDCGAN書く</a><time class="references_datetime js-dateTimeView" datetime="2016-11-19T07:00:50+00:00">4 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/Hi-king/items/8d36d9029ad1203aac55#_reference-e1f2004eb9e7290caaf5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/28934/profile-images/1473685273" />機械学習で美少女化 ~ あるいはNEW GAME! の世界 ~</a><time class="references_datetime js-dateTimeView" datetime="2016-11-30T18:25:25+00:00">4 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/Hiroshiba/items/d5749d8896613e6f0b48#_reference-ea595a11c47932f9445f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103491/profile-images/1473709030" />Girl Friend Factory - 機械学習で彼女を創る -</a><time class="references_datetime js-dateTimeView" datetime="2016-12-09T04:06:35+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/hiroyuki_hon/items/3fc18e1d849450294cb0#_reference-e5bcdb5ff763d5a37368"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/26030/profile-images/1473684475" />クリスマス・イヴに読みたい機械学習系記事</a><time class="references_datetime js-dateTimeView" datetime="2016-12-22T15:01:28+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Chainerを使ってコンピュータにイラストを描かせる by @rezoolab on @Qiita" data-url="http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Chainerを使ってコンピュータにイラストを描かせる" href="http://b.hatena.ne.jp/entry/http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:354509,&quot;uuid&quot;:&quot;5cc96b6d31153e0c86bc&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;rezoolab&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:61296,&quot;url_name&quot;:&quot;rezoolab&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/61296/profile-images/1473695495&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-4383dc45-0c7e-4ce8-bc98-205bb97c60af"></div>
+    <div id="CommentListContainer-react-component-4383dc45-0c7e-4ce8-bc98-205bb97c60af"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="lzKp3NqRB1WMqVSltkxKiJtMbH1MinZ209S6Bn4l81wyaPV3hAlL3gY7lDVI0SZMFTRS38eJ6C6+u6jL1y0Ylw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/rezoolab/items/5cc96b6d31153e0c86bc" /><input type="hidden" name="item_uuid" id="item_uuid" value="5cc96b6d31153e0c86bc" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/rezoolab/items/5cc96b6d31153e0c86bc", "id": 354509, "uuid": "5cc96b6d31153e0c86bc" }</script><script class="js-user" type="application/json">{&quot;id&quot;:61296,&quot;url_name&quot;:&quot;rezoolab&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/61296/profile-images/1473695495&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="EuHheVKJwfb5yfvboIBjPlbenk0gyfOtZ3/NnIOT4tq3u73SDBGNfXNbO0teHQ/62Kag76vKbfUKEN9RKpsJEQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/rezoolab/items/5cc96b6d31153e0c86bc" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

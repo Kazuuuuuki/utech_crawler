@@ -1,0 +1,591 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>初めてのTensorFlow - イントロダクションとしての線形回帰 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="先週(2015/11/9)，Deep LearninのFramework の&quot;TensorFlow&quot;が公開されたが，ドキュメントの説明「MNIST（手書き数字の分類）は機械学習の&quot;Hello World&quot; である．」という箇所に納得がいかない．CourseraのMachine Learning (Stanford)でもそうだったが，機械学習を初歩から学ぶ場合，やはり最初は Linear Regression（線形回帰）と，個人的に考える．
+
+本記事では，最初にLinea..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="TomokIshii" name="twitter:creator" /><meta content="初めてのTensorFlow - イントロダクションとしての線形回帰 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+先週(2015/11/9)，Deep LearninのFramework の&quot;TensorFlow&quot;が公開されたが，ドキュメントの説明「MNIST（手書き数字の分類）は機械学習の&quot;Hello World&quot; である．」という箇所に納得..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="lzud84Y+NpjF9O3Id2uRPhkBhhzmU1IXfEwjlG55Xn4yYcFY2KZ6E09mLViJ9v36l3m4vm1QzE8RIzFZx3G1tQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"TomokIshii","type":"items","id":"f355d8e87d23ee8e0c7a"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-d18c5b10-c264-4cf5-a8b2-6da28269e106"></div>
+    <div id="HeaderContainer-react-component-d18c5b10-c264-4cf5-a8b2-6da28269e106"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">初めてのTensorFlow - イントロダクションとしての線形回帰</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">125</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:125,&quot;uuid&quot;:&quot;f355d8e87d23ee8e0c7a&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="syoamakase"><a itemprop="url" href="/syoamakase"><img alt="syoamakase" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90422/profile-images/1473705084" /></a></li><li class="js-hovercard" data-hovercard-target-name="spiegel-im-spiegel"><a itemprop="url" href="/spiegel-im-spiegel"><img alt="spiegel-im-spiegel" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68318/profile-images/1473697805" /></a></li><li class="js-hovercard" data-hovercard-target-name="fuppi"><a itemprop="url" href="/fuppi"><img alt="fuppi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/69067/profile-images/1473698032" /></a></li><li class="js-hovercard" data-hovercard-target-name="tanny"><a itemprop="url" href="/tanny"><img alt="tanny" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60422/profile-images/1473695224" /></a></li><li class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></li><li class="js-hovercard" data-hovercard-target-name="macchaberrycream"><a itemprop="url" href="/macchaberrycream"><img alt="macchaberrycream" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33391/profile-images/1473686115" /></a></li><li class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></li><li class="js-hovercard" data-hovercard-target-name="shimonda"><a itemprop="url" href="/shimonda"><img alt="shimonda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/97197/profile-images/1473707126" /></a></li><li class="js-hovercard" data-hovercard-target-name="masia02"><a itemprop="url" href="/masia02"><img alt="masia02" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1292/profile-images/1473755498" /></a></li><li><a href="/TomokIshii/items/f355d8e87d23ee8e0c7a/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/TomokIshii"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" alt="1473699746" /></a> <a class="u-link-unstyled" href="/TomokIshii">TomokIshii</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-11-19T12:24:02+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-11-19">Edited at <time datetime="2016-05-06T07:40:35+09:00" itemprop="dateModified">2016-05-06</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/TomokIshii/items/f355d8e87d23ee8e0c7a/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">12</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/TomokIshii/items/f355d8e87d23ee8e0c7a/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(12)</span></a></li><li><a href="/TomokIshii/items/f355d8e87d23ee8e0c7a.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-f355d8e87d23ee8e0c7a" itemprop="articleBody"><p>先週(2015/11/9)，Deep LearninのFramework の"TensorFlow"が公開されたが，ドキュメントの説明「MNIST（手書き数字の分類）は機械学習の"Hello World" である．」という箇所に納得がいかない．CourseraのMachine Learning (Stanford)でもそうだったが，機械学習を初歩から学ぶ場合，やはり最初は Linear Regression（線形回帰）と，個人的に考える．</p>
+
+<p>本記事では，最初にLinear Regression（線形回帰）のコードを調べ，次に Logistic Regression（ロジスティック回帰）のコードを作成して，TensorFlowの雰囲気をつかむことにする．</p>
+
+<h2>
+<span id="linear-regression線形回帰" class="fragment"></span><a href="#linear-regression%E7%B7%9A%E5%BD%A2%E5%9B%9E%E5%B8%B0"><i class="fa fa-link"></i></a>Linear Regression（線形回帰）</h2>
+
+<p>TensorFlowの先駆け（公開が先）である"Theano"について，本家ドキュメントのTutorialのほかに Newmu Theano-Tutorials コードというのがGitHubに公開されている． <br>
+(<a href="https://github.com/Newmu/Theano-Tutorials" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/Newmu/Theano-Tutorials</a>)   </p>
+
+<p>いくつかの短いコードが掲載されており，順を追って"Theano"への理解を深めることができるようになっている．0_multiply.py （かけ算）の次に 1_linear_regression.py （線形回帰のコード）が掲載されているが，このTheano版をベースに，TensorFlow版のコードを作っていく．</p>
+
+<p>まずTheano版のコードである．</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># シンボリック変数定義 "T" は theano.tensor の置き換え</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">scalar</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span>
+<span class="c"># 共有変数の宣言</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">shared</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+<span class="c"># グラフ定義</span>
+<span class="n">cost</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">sqr</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">Y</span><span class="p">))</span>
+<span class="n">gradient</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">wrt</span><span class="o">=</span><span class="n">w</span><span class="p">)</span>
+<span class="n">updates</span> <span class="o">=</span> <span class="p">[[</span><span class="n">w</span><span class="p">,</span> <span class="n">w</span> <span class="o">-</span> <span class="n">gradient</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">]]</span>
+<span class="c"># 関数</span>
+<span class="n">train</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="n">updates</span><span class="p">,</span> <span class="n">allow_input_downcast</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c"># ループ計算による学習</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">trX</span><span class="p">,</span> <span class="n">trY</span><span class="p">):</span>
+        <span class="n">train</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+</pre></div></div>
+
+<p>次にTensorFlow版を詳しく見ていく．</p>
+
+<p>まず，関係モジュールをimportした後，使用するデータを準備する．（Theano版は切片bを持たないテスト用データでしたが，ここでは b (=3.0)を含むようにしています．）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+
+<span class="n">trX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+<span class="n">trY</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">trX</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">trX</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.33</span>
+
+<span class="k">def</span> <span class="nf">lin_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
+
+</pre></div></div>
+
+<p>lin_model() は回帰モデルとして使う関数である．（パラメータに傾きwと切片b を持つ線形関数．）</p>
+
+<p>次に必要な変数を用意する．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">101</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">101</span><span class="p">))</span>
+</pre></div></div>
+
+<p>w, b は，通常の変数．初期値 [0.] とした．<br>
+x, y は，TensorFlow独特の用語(terminology)であるがプレースホルダーで用意する．プレースホルダー（置き場所）なので，これを宣言した時点で実態はなく，この後のプログラム処理で実際の値がアサインされる．</p>
+
+<p>それから重要な，Graphと呼ばれる変数の関係性の記述を行う．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">y_hypo</span> <span class="o">=</span> <span class="n">lin_model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="n">cost</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y_hypo</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span>
+
+</pre></div></div>
+
+<p>cost は，自分のモデルと実データの差異に対応するコスト関数である．"tf.reduce_mean()" は平均を計算する関数である．（別に "mean()"でもいいと思うのだが，TensorFlowでは何故か"reduce_mean()"となっている... Reduction 関数グループに入っているようだ．）</p>
+
+<p>それからパラメータ探索の計算のためのOptimizer指定とそのメソッドを定義する．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+
+</pre></div></div>
+
+<p>ここでは勾配降下法のOptimizerを指定し，引数として学習率(Learning Rate) 0.01を与えている．</p>
+
+<h3>
+<span id="optimizerについて" class="fragment"></span><a href="#optimizer%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6"><i class="fa fa-link"></i></a>Optimizerについて</h3>
+
+<p>さて気になるOptimizerであるが，TensorFlowでは現在，次のものがサポートされている．<br><br>
+<a href="http://www.tensorflow.org/api_docs/python/train.html#optimizers" class="autolink" rel="nofollow noopener" target="_blank">http://www.tensorflow.org/api_docs/python/train.html#optimizers</a></p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">Optimizer name</th>
+<th style="text-align: left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">GradientDescentOptimizer</td>
+<td style="text-align: left">勾配降下法によるオプティマイザー</td>
+</tr>
+<tr>
+<td style="text-align: left">AdagradOptimizer</td>
+<td style="text-align: left">AdaGrad法によるオプティマイザー</td>
+</tr>
+<tr>
+<td style="text-align: left">MomentumOptimizer</td>
+<td style="text-align: left">モメンタム法によるオプティマイザー</td>
+</tr>
+<tr>
+<td style="text-align: left">AdamOptimizer</td>
+<td style="text-align: left">Adam法 （これも有名ですね．）</td>
+</tr>
+<tr>
+<td style="text-align: left">FtrlOptimizer</td>
+<td style="text-align: left">（初めて耳にしました）"Follow the Regularized Leader" アルゴリズム</td>
+</tr>
+<tr>
+<td style="text-align: left">RMSPropOptimizer</td>
+<td style="text-align: left">（初めて耳にしました）学習率の調整を自動化したアルゴリズム</td>
+</tr>
+</tbody>
+</table>
+
+<p>Optimizerにより，設定しなければならないパラメータが異なるが，今回は，基本となる GradientDescentOptimizerを使うこととする．（必要なパラメータ学習率は，上記の通り設定した．）</p>
+
+<h2>
+<span id="linear-regression線形回帰続き" class="fragment"></span><a href="#linear-regression%E7%B7%9A%E5%BD%A2%E5%9B%9E%E5%B8%B0%E7%B6%9A%E3%81%8D"><i class="fa fa-link"></i></a>Linear Regression（線形回帰）（続き）</h2>
+
+<p>さて，ほぼ準備は整ったので，メインの計算部分を示す Session を開始する．但し，Sessionを開始する前に変数(Variables)の初期化を行わなければならない．これは"Theano"では無かった"TensorFlow"にユニークなものである．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Initializing</span>
+<span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">()</span>
+
+</pre></div></div>
+
+<p>「Sessionの開始前にVariablesを初期化する」ことは，結構，失念しがちなルールと思われる．一応，確認しておくと，<br>
+- tf.Variable() の変数は，初期化が<strong>必要</strong>．<br>
+- tf.placeholder() の変数は，初期化<strong>不要</strong>．（あとで実体とアサインされる）<br>
+- tf.constant の変数（定数）は，初期化<strong>不要</strong>．<br>
+とのことである．上のリストでは，initialize_all_variable()を用いて変数を初期化している．</p>
+
+<p>Session 部は，以下の通り．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Train</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1001</span><span class="p">):</span>
+        <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">train_step</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">trX</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">trY</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">"</span><span class="si">%5d</span><span class="s">:(w,b)=(</span><span class="si">%10.4f</span><span class="s">, </span><span class="si">%10.4f</span><span class="s">)"</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+
+</pre></div></div>
+
+<p>Sessoinを動かすためのプログラムの書き方にいくつか種類があるようだが，上記のように"with" 文で囲むことでSessionの区切りが明確になり，かつ"with"を抜けるところで，自動的に開かれたSessionはclose()されるので便利である．</p>
+
+<p>一つTensorFlowにおけるTrainデータの与え方が難しいところである．データの与え方 (Data Feeding)は学習の進め方で処理が変わってくる部分であるが，上のリストの通り，"feed-dict" を使うことになるので覚えておきたい．(ここの部分は，まだ勉強中です...）</p>
+
+<p>以上で，回帰パラメータが算出される．（真値 w=2.0, b=3.0に使づく様子が示される．）</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+    0:(w,b)=(    0.0135,     0.0599)
+  100:(w,b)=(    0.9872,     2.6047)
+  200:(w,b)=(    1.4793,     2.9421)
+  300:(w,b)=(    1.7280,     2.9869)
+  400:(w,b)=(    1.8538,     2.9928)
+  500:(w,b)=(    1.9173,     2.9936)
+  600:(w,b)=(    1.9494,     2.9937)
+  700:(w,b)=(    1.9657,     2.9937)
+  800:(w,b)=(    1.9739,     2.9937)
+  900:(w,b)=(    1.9780,     2.9937)
+ 1000:(w,b)=(    1.9801,     2.9937)
+
+</pre></div></div>
+
+<p>以上まとめて，再度プログラムを掲載する．（約30行のプログラムになりました．）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+
+<span class="n">trX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">101</span><span class="p">)</span>
+<span class="n">trY</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">trX</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">trX</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.33</span>
+
+<span class="k">def</span> <span class="nf">lin_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="n">w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">101</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">101</span><span class="p">))</span>
+<span class="n">y_hypo</span> <span class="o">=</span> <span class="n">lin_model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+<span class="n">cost</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">y_hypo</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+
+<span class="c"># Initializing</span>
+<span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">()</span>
+
+<span class="c"># Train</span>
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1001</span><span class="p">):</span>
+        <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">train_step</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">trX</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">trY</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">"</span><span class="si">%5d</span><span class="s">:(w,b)=(</span><span class="si">%10.4f</span><span class="s">, </span><span class="si">%10.4f</span><span class="s">)"</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">w</span><span class="p">),</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+
+</pre></div></div>
+
+<h3>
+<span id="interactive-session-について" class="fragment"></span><a href="#interactive-session-%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6"><i class="fa fa-link"></i></a>Interactive Session について</h3>
+
+<p>前記のリストは，（短いながらも）バッチ処理としてSessionを実行するプログラムである．これとは別に Interactive Session という，その名の通りインタラクティブに動かすための機能をTensorFlowはサポートしている．<br>
+ <a href="http://tensorflow.org/get_started/basic_usage.html#interactive-usage" class="autolink" rel="nofollow noopener" target="_blank">http://tensorflow.org/get_started/basic_usage.html#interactive-usage</a></p>
+
+<p>これは，IPython と相性がいい，すなわち Jupyter Notebook と相性がいいということなので，早速，試してみた．</p>
+
+<p>（こんな感じです...）<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/74152/9b98d907-ee9d-52d1-96fa-e47625357b74.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/74152/9b98d907-ee9d-52d1-96fa-e47625357b74.png" alt="tensorflow_notebook1.PNG"></a></p>
+
+<p>これからTensorFlowを勉強しようという時には，このような使い方が便利と思われる．<br>
+ （反対に長時間にわたるプログラムを実行するケースでは，この Interactive Session は向きません．）</p>
+
+<h2>
+<span id="logistic-regression-ロジスティック回帰" class="fragment"></span><a href="#logistic-regression-%E3%83%AD%E3%82%B8%E3%82%B9%E3%83%86%E3%82%A3%E3%83%83%E3%82%AF%E5%9B%9E%E5%B8%B0"><i class="fa fa-link"></i></a>Logistic Regression （ロジスティック回帰）</h2>
+
+<p>上記Linear Regressionのコードをベースに，Logistic Regressionのコードを作成した．なお，このコードは2クラス分類のためのもので，多クラス用ではない．（ご承知の通り，MNIST は，多クラス(10クラス）分類を行う問題を行う Softmax 回帰を用いている．）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+ <span class="k">def</span> <span class="nf">lin_model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="n">w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">([</span><span class="mf">0.</span><span class="p">])</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mlen</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">mlen</span><span class="p">))</span>
+
+<span class="n">p_1</span> <span class="o">=</span> <span class="n">lin_model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="n">x_entropy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">sigmoid_cross_entropy_with_logits</span><span class="p">(</span><span class="n">p_1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">'xentropy'</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">x_entropy</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">'xentropy_mean'</span><span class="p">)</span>
+
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+</pre></div></div>
+
+<p>Linear RegressionではMean Square Error(MSE)で定義していたコスト関数を，Logistic Regressionでは cross entropy に置き換えている．上リストの後半部にある "tf.nn.sigmoid_cross_entropy_with_logits()" は，cross entorpyを計算する関数である．（"TensorFlow"は，長い名前の関数が多い...）</p>
+
+<p>変数(Variables)の初期化，Sessionの進め方は前のコードと同様である．</p>
+
+<p>以上，線形回帰，ロジスティック回帰のコードを見てきた．ここまでくれば MLP (Multi Layer Perceptron) のコード（例えば MNIST）にスムーズに取り掛かれるのではないだろうか？</p>
+
+<h2>
+<span id="参考文献-web-site" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE-web-site"><i class="fa fa-link"></i></a>参考文献 (web site)</h2>
+
+<ul>
+<li>TensorFlow web site <a href="http://www.tensorflow.org/" class="autolink" rel="nofollow noopener" target="_blank">http://www.tensorflow.org/</a>
+</li>
+<li>Newmu Theano-Tutorials - GitHub <a href="https://github.com/Newmu/Theano-Tutorials" rel="nofollow noopener" target="_blank">https://github.com/Newmu/Theano-Tutorials</a>
+</li>
+<li>TensorFlowで回帰をやってみる - Qiita<br>
+<a href="http://qiita.com/syoamakase/items/db883d7ebad7a2220233" id="reference-071e5193254b4a45472d">http://qiita.com/syoamakase/items/db883d7ebad7a2220233</a>
+</li>
+<li>Coursera / Machine Learningの教材を２度楽しむ - Qiita<br>
+<a href="http://qiita.com/TomokIshii/items/b22a3681cb17836c8f6e" id="reference-5bd43f54f44ba0c67941">http://qiita.com/TomokIshii/items/b22a3681cb17836c8f6e</a>
+</li>
+</ul>
+
+<p>（注）TenforFlowのドキュメントはまだ版が浅いせいか，頻繁にupdateが行われているようです．リンク切れありましたら，ご容赦ください．</p>
+<div class="hidden"><form class="js-task-list-update" action="/TomokIshii/items/f355d8e87d23ee8e0c7a" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="uC6nBczgyp8pB8Ox2sr6Xd8K2rXicB1v3/vsnuf0K+0ddPuukniGFKOVAyEkV5aZUXLkF2lzgzeylP5TTvzAJg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1462488035" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+先週(2015/11/9)，Deep LearninのFramework の&quot;TensorFlow&quot;が公開されたが，ドキュメントの説明「MNIST（手書き数字の分類）は機械学習の&quot;Hello World&quot; である．」という箇所に納得がいかない．CourseraのMachine Learning (Stanford)でもそうだったが，機械学習を初歩から学ぶ場合，やはり最初は Linear Regression（線形回帰）と，個人的に考える．
+
+本記事では，最初にLinear Regression（線形回帰）のコードを調べ，次に Logistic Regression（ロジスティック回帰）のコードを作成して，TensorFlowの雰囲気をつかむことにする．
+
+## Linear Regression（線形回帰）
+TensorFlowの先駆け（公開が先）である&quot;Theano&quot;について，本家ドキュメントのTutorialのほかに Newmu Theano-Tutorials コードというのがGitHubに公開されている． 
+(https://github.com/Newmu/Theano-Tutorials)   
+
+いくつかの短いコードが掲載されており，順を追って&quot;Theano&quot;への理解を深めることができるようになっている．0_multiply.py （かけ算）の次に 1_linear_regression.py （線形回帰のコード）が掲載されているが，このTheano版をベースに，TensorFlow版のコードを作っていく．
+ 
+まずTheano版のコードである．
+
+```python
+# シンボリック変数定義 &quot;T&quot; は theano.tensor の置き換え
+X = T.scalar()
+Y = T.scalar()
+def model(X, w):
+    return X * w
+# 共有変数の宣言
+w = theano.shared(np.asarray(0., dtype=theano.config.floatX))
+y = model(X, w)
+# グラフ定義
+cost = T.mean(T.sqr(y - Y))
+gradient = T.grad(cost=cost, wrt=w)
+updates = [[w, w - gradient * 0.01]]
+# 関数
+train = theano.function(inputs=[X, Y], outputs=cost, updates=updates, allow_input_downcast=True)
+# ループ計算による学習
+for i in range(100):
+    for x, y in zip(trX, trY):
+        train(x, y)
+
+```
+
+次にTensorFlow版を詳しく見ていく．
+
+まず，関係モジュールをimportした後，使用するデータを準備する．（Theano版は切片bを持たないテスト用データでしたが，ここでは b (=3.0)を含むようにしています．）
+
+```py
+import numpy as np
+import tensorflow as tf
+
+trX = np.linspace(-1, 1, 101)
+trY = 2 * trX + 3 + np.random.randn(*trX.shape) * 0.33
+
+def lin_model(X, w, b):
+    return X * w + b
+
+```
+
+lin_model() は回帰モデルとして使う関数である．（パラメータに傾きwと切片b を持つ線形関数．）
+
+次に必要な変数を用意する．
+
+```py
+w = tf.Variable([0.])
+b = tf.Variable([0.])
+
+x = tf.placeholder(tf.float32, shape=(101))
+y = tf.placeholder(tf.float32, shape=(101))
+```
+
+w, b は，通常の変数．初期値 [0.] とした．
+x, y は，TensorFlow独特の用語(terminology)であるがプレースホルダーで用意する．プレースホルダー（置き場所）なので，これを宣言した時点で実態はなく，この後のプログラム処理で実際の値がアサインされる．
+
+それから重要な，Graphと呼ばれる変数の関係性の記述を行う．
+
+```py
+y_hypo = lin_model(x, w, b)
+cost = tf.reduce_mean(tf.square(y_hypo - y))
+
+```
+
+cost は，自分のモデルと実データの差異に対応するコスト関数である．&quot;tf.reduce_mean()&quot; は平均を計算する関数である．（別に &quot;mean()&quot;でもいいと思うのだが，TensorFlowでは何故か&quot;reduce_mean()&quot;となっている... Reduction 関数グループに入っているようだ．）
+
+それからパラメータ探索の計算のためのOptimizer指定とそのメソッドを定義する．
+
+```py
+train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cost)
+
+```
+
+ここでは勾配降下法のOptimizerを指定し，引数として学習率(Learning Rate) 0.01を与えている．
+
+### Optimizerについて
+さて気になるOptimizerであるが，TensorFlowでは現在，次のものがサポートされている．  
+http://www.tensorflow.org/api_docs/python/train.html#optimizers
+
+|   Optimizer name  |  Description   |
+|:-------------------|:---------------|
+| GradientDescentOptimizer | 勾配降下法によるオプティマイザー
+| AdagradOptimizer |  AdaGrad法によるオプティマイザー |
+| MomentumOptimizer | モメンタム法によるオプティマイザー  |
+| AdamOptimizer | Adam法 （これも有名ですね．）|
+| FtrlOptimizer |（初めて耳にしました）&quot;Follow the Regularized Leader&quot; アルゴリズム  |
+| RMSPropOptimizer | （初めて耳にしました）学習率の調整を自動化したアルゴリズム  |
+
+Optimizerにより，設定しなければならないパラメータが異なるが，今回は，基本となる GradientDescentOptimizerを使うこととする．（必要なパラメータ学習率は，上記の通り設定した．）
+
+## Linear Regression（線形回帰）（続き）
+
+さて，ほぼ準備は整ったので，メインの計算部分を示す Session を開始する．但し，Sessionを開始する前に変数(Variables)の初期化を行わなければならない．これは&quot;Theano&quot;では無かった&quot;TensorFlow&quot;にユニークなものである．
+
+```py
+# Initializing
+init = tf.initialize_all_variables()
+
+```
+
+「Sessionの開始前にVariablesを初期化する」ことは，結構，失念しがちなルールと思われる．一応，確認しておくと，
+- tf.Variable() の変数は，初期化が**必要**．
+- tf.placeholder() の変数は，初期化**不要**．（あとで実体とアサインされる）
+- tf.constant の変数（定数）は，初期化**不要**．
+とのことである．上のリストでは，initialize_all_variable()を用いて変数を初期化している．
+
+Session 部は，以下の通り．
+
+```py
+# Train
+with tf.Session() as sess:
+    sess.run(init)
+
+    for i in range(1001):
+        sess.run(train_step, feed_dict={x: trX, y: trY})
+        if i % 100 == 0:
+            print &quot;%5d:(w,b)=(%10.4f, %10.4f)&quot; % (i, sess.run(w), sess.run(b))
+
+```
+
+Sessoinを動かすためのプログラムの書き方にいくつか種類があるようだが，上記のように&quot;with&quot; 文で囲むことでSessionの区切りが明確になり，かつ&quot;with&quot;を抜けるところで，自動的に開かれたSessionはclose()されるので便利である．
+
+一つTensorFlowにおけるTrainデータの与え方が難しいところである．データの与え方 (Data Feeding)は学習の進め方で処理が変わってくる部分であるが，上のリストの通り，&quot;feed-dict&quot; を使うことになるので覚えておきたい．(ここの部分は，まだ勉強中です...）
+
+以上で，回帰パラメータが算出される．（真値 w=2.0, b=3.0に使づく様子が示される．）
+
+
+```text
+    0:(w,b)=(    0.0135,     0.0599)
+  100:(w,b)=(    0.9872,     2.6047)
+  200:(w,b)=(    1.4793,     2.9421)
+  300:(w,b)=(    1.7280,     2.9869)
+  400:(w,b)=(    1.8538,     2.9928)
+  500:(w,b)=(    1.9173,     2.9936)
+  600:(w,b)=(    1.9494,     2.9937)
+  700:(w,b)=(    1.9657,     2.9937)
+  800:(w,b)=(    1.9739,     2.9937)
+  900:(w,b)=(    1.9780,     2.9937)
+ 1000:(w,b)=(    1.9801,     2.9937)
+
+ ```
+ 
+ 以上まとめて，再度プログラムを掲載する．（約30行のプログラムになりました．）
+ 
+ ```py
+import numpy as np
+import tensorflow as tf
+
+trX = np.linspace(-1, 1, 101)
+trY = 2 * trX + 3 + np.random.randn(*trX.shape) * 0.33
+
+def lin_model(X, w, b):
+    return X * w + b
+
+w = tf.Variable([0.])
+b = tf.Variable([0.])
+
+x = tf.placeholder(tf.float32, shape=(101))
+y = tf.placeholder(tf.float32, shape=(101))
+y_hypo = lin_model(x, w, b)
+
+cost = tf.reduce_mean(tf.square(y_hypo - y))
+train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cost)
+
+# Initializing
+init = tf.initialize_all_variables()
+
+# Train
+with tf.Session() as sess:
+    sess.run(init)
+
+    for i in range(1001):
+        sess.run(train_step, feed_dict={x: trX, y: trY})
+        if i % 100 == 0:
+            print &quot;%5d:(w,b)=(%10.4f, %10.4f)&quot; % (i, sess.run(w), sess.run(b))
+ 
+ ```
+ 
+
+### Interactive Session について
+
+ 前記のリストは，（短いながらも）バッチ処理としてSessionを実行するプログラムである．これとは別に Interactive Session という，その名の通りインタラクティブに動かすための機能をTensorFlowはサポートしている．
+ http://tensorflow.org/get_started/basic_usage.html#interactive-usage
+ 
+ これは，IPython と相性がいい，すなわち Jupyter Notebook と相性がいいということなので，早速，試してみた．
+ 
+ （こんな感じです...）
+![tensorflow_notebook1.PNG](https://qiita-image-store.s3.amazonaws.com/0/74152/9b98d907-ee9d-52d1-96fa-e47625357b74.png)
+ 
+ これからTensorFlowを勉強しようという時には，このような使い方が便利と思われる．
+ （反対に長時間にわたるプログラムを実行するケースでは，この Interactive Session は向きません．）
+ 
+## Logistic Regression （ロジスティック回帰）
+ 上記Linear Regressionのコードをベースに，Logistic Regressionのコードを作成した．なお，このコードは2クラス分類のためのもので，多クラス用ではない．（ご承知の通り，MNIST は，多クラス(10クラス）分類を行う問題を行う Softmax 回帰を用いている．）
+ 
+ ```py
+ def lin_model(X, w, b):
+    return X * w + b
+
+w = tf.Variable([0.])
+b = tf.Variable([0.])
+
+x = tf.placeholder(tf.float32, shape=(mlen))
+y = tf.placeholder(tf.float32, shape=(mlen))
+
+p_1 = lin_model(x, w, b)
+x_entropy = tf.nn.sigmoid_cross_entropy_with_logits(p_1, y, name=&#39;xentropy&#39;)
+loss = tf.reduce_mean(x_entropy, name=&#39;xentropy_mean&#39;)
+
+train_step = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
+
+```
+
+Linear RegressionではMean Square Error(MSE)で定義していたコスト関数を，Logistic Regressionでは cross entropy に置き換えている．上リストの後半部にある &quot;tf.nn.sigmoid_cross_entropy_with_logits()&quot; は，cross entorpyを計算する関数である．（&quot;TensorFlow&quot;は，長い名前の関数が多い...）
+
+変数(Variables)の初期化，Sessionの進め方は前のコードと同様である．
+
+以上，線形回帰，ロジスティック回帰のコードを見てきた．ここまでくれば MLP (Multi Layer Perceptron) のコード（例えば MNIST）にスムーズに取り掛かれるのではないだろうか？
+ 
+## 参考文献 (web site)
+- TensorFlow web site http://www.tensorflow.org/
+- Newmu Theano-Tutorials - GitHub [https://github.com/Newmu/Theano-Tutorials](https://github.com/Newmu/Theano-Tutorials)
+- TensorFlowで回帰をやってみる - Qiita  
+ [http://qiita.com/syoamakase/items/db883d7ebad7a2220233](http://qiita.com/syoamakase/items/db883d7ebad7a2220233)
+- Coursera / Machine Learningの教材を２度楽しむ - Qiita  
+ [http://qiita.com/TomokIshii/items/b22a3681cb17836c8f6e](http://qiita.com/TomokIshii/items/b22a3681cb17836c8f6e)
+
+ （注）TenforFlowのドキュメントはまだ版が浅いせいか，頻繁にupdateが行われているようです．リンク切れありましたら，ご容赦ください．
+ 
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="初めてのTensorFlow - イントロダクションとしての線形回帰 by @TomokIshii on @Qiita" data-url="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="初めてのTensorFlow - イントロダクションとしての線形回帰" href="http://b.hatena.ne.jp/entry/http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/TomokIshii"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/TomokIshii">TomokIshii</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1011</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;TomokIshii&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-6fefce3a-fb09-4ff5-879b-3f89bbc0e88b"></div>
+    <div id="UserFollowButton-react-component-6fefce3a-fb09-4ff5-879b-3f89bbc0e88b"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/92a266b805d7eee02b1d">落ちこぼれないためのTensorFlow Tutorialコード</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/f355d8e87d23ee8e0c7a">初めてのTensorFlow - イントロダクションとしての線形回帰</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/01c2171f4def1a128fd3">基本的なRecurrent Neural Networkモデルを実装してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/26b7414bdb3cd3052786">TensorFlowでAutoencoderを実装してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/ff14771ac0e77632969a">pandasで様々な日付フォーマットを取り扱う</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#linear-regression%E7%B7%9A%E5%BD%A2%E5%9B%9E%E5%B8%B0\&quot;\u003eLinear Regression（線形回帰）\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#optimizer%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6\&quot;\u003eOptimizerについて\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#linear-regression%E7%B7%9A%E5%BD%A2%E5%9B%9E%E5%B8%B0%E7%B6%9A%E3%81%8D\&quot;\u003eLinear Regression（線形回帰）（続き）\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#interactive-session-%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6\&quot;\u003eInteractive Session について\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#logistic-regression-%E3%83%AD%E3%82%B8%E3%82%B9%E3%83%86%E3%82%A3%E3%83%83%E3%82%AF%E5%9B%9E%E5%B8%B0\&quot;\u003eLogistic Regression （ロジスティック回帰）\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE-web-site\&quot;\u003e参考文献 (web site)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-2a9b210d-2223-4a3a-bccd-3b12c30061c9"></div>
+    <div id="Toc-react-component-2a9b210d-2223-4a3a-bccd-3b12c30061c9"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:125,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;f355d8e87d23ee8e0c7a&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="syoamakase"><a itemprop="url" href="/syoamakase"><img alt="syoamakase" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90422/profile-images/1473705084" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="spiegel-im-spiegel"><a itemprop="url" href="/spiegel-im-spiegel"><img alt="spiegel-im-spiegel" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68318/profile-images/1473697805" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fuppi"><a itemprop="url" href="/fuppi"><img alt="fuppi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/69067/profile-images/1473698032" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tanny"><a itemprop="url" href="/tanny"><img alt="tanny" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60422/profile-images/1473695224" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="macchaberrycream"><a itemprop="url" href="/macchaberrycream"><img alt="macchaberrycream" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33391/profile-images/1473686115" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shimonda"><a itemprop="url" href="/shimonda"><img alt="shimonda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/97197/profile-images/1473707126" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="masia02"><a itemprop="url" href="/masia02"><img alt="masia02" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1292/profile-images/1473755498" /></a></div></div><div class="ArticleFooter__user"><a href="/TomokIshii/items/f355d8e87d23ee8e0c7a/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/f355d8e87d23ee8e0c7a/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/TomokIshii/items/f355d8e87d23ee8e0c7a.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/TomokIshii/items/92a266b805d7eee02b1d#_reference-4d8bab9067665fe47bc8"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" />落ちこぼれないためのTensorFlow Tutorialコード</a><time class="references_datetime js-dateTimeView" datetime="2015-11-23T09:31:06+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/junichiro/items/8886f3976fc20f73335f#_reference-7158296295a68adc0456"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/121876/profile-images/1473715053" />多分もっともわかりやすいTensorFlow 入門 (Introduction)</a><time class="references_datetime js-dateTimeView" datetime="2017-01-11T06:24:17+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/junichiro/items/6f0de9688e12535f93e8#_reference-cc81c748a77161e914bd"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/121876/profile-images/1473715053" />TensorFlow 入門 〜 MNIST for beginner のプチ応用 〜</a><time class="references_datetime js-dateTimeView" datetime="2017-01-12T05:03:54+00:00">2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="初めてのTensorFlow - イントロダクションとしての線形回帰 by @TomokIshii on @Qiita" data-url="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="初めてのTensorFlow - イントロダクションとしての線形回帰" href="http://b.hatena.ne.jp/entry/http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eロジスティック回帰の場合、trXとtrYはどのようにすべきかご教示いただけないでしょうか？\u003cbr\u003e\n線形回帰と同じでは上手くいかないようでした。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-08-27T23:07:31+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:622416,&quot;is_team&quot;:false,&quot;item_id&quot;:343922,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;f355d8e87d23ee8e0c7a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ロジスティック回帰の場合、trXとtrYはどのようにすべきかご教示いただけないでしょうか？\n線形回帰と同じでは上手くいかないようでした。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a#comment-aaab3194a7d8b483f2e0&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2016-08-27T22:50:06+09:00&quot;,&quot;id&quot;:138723,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/138723/profile-images/1473720700&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;beerman&quot;},&quot;uuid&quot;:&quot;aaab3194a7d8b483f2e0&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003ebeermanさん，\u003c/p\u003e\n\n\u003cp\u003e書いた記事を改めて読み返すと，ロジスティック回帰の方はだいぶ省略して分かりにくくなっていたようです．\u003cbr\u003e\nとりあえず，引用したコードがありましたので，Gist（下リンク）を参照ください．\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;https://gist.github.com/tomokishii/21cce5100452b58fcbaae079a79844c6\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://gist.github.com/tomokishii/21cce5100452b58fcbaae079a79844c6\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003e使っているデータセットは\&quot;Beetle\&quot;というものです．\u003cbr\u003e\n\u003ca href=\&quot;http://www.openbugs.net/Examples/Beetles.html\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttp://www.openbugs.net/Examples/Beetles.html\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003eまたGistに，より有名な\&quot;IRIS\&quot;データセットを扱ったコードもありましたので，合わせて参照ください．\u003cbr\u003e\n\u003ca href=\&quot;https://gist.github.com/tomokishii/bc110ef7b5939491753151695e22e139#file-iris_lr-py\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://gist.github.com/tomokishii/bc110ef7b5939491753151695e22e139#file-iris_lr-py\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-08-28T01:13:18+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:622431,&quot;is_team&quot;:false,&quot;item_id&quot;:343922,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;f355d8e87d23ee8e0c7a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;beermanさん，\n\n書いた記事を改めて読み返すと，ロジスティック回帰の方はだいぶ省略して分かりにくくなっていたようです．\nとりあえず，引用したコードがありましたので，Gist（下リンク）を参照ください．\n\nhttps://gist.github.com/tomokishii/21cce5100452b58fcbaae079a79844c6\n\n使っているデータセットは\&quot;Beetle\&quot;というものです．\nhttp://www.openbugs.net/Examples/Beetles.html\n\nまたGistに，より有名な\&quot;IRIS\&quot;データセットを扱ったコードもありましたので，合わせて参照ください．\nhttps://gist.github.com/tomokishii/bc110ef7b5939491753151695e22e139#file-iris_lr-py\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a#comment-ee72260188ed4fef0c01&quot;,&quot;user&quot;:{&quot;contribution&quot;:1011,&quot;created_at&quot;:&quot;2015-04-02T11:53:20+09:00&quot;,&quot;id&quot;:74152,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;TomokIshii&quot;},&quot;uuid&quot;:&quot;ee72260188ed4fef0c01&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eありがとうございます。trYは0か1のデータなのでは？ と思っていたので、上記のコードで納得できました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-08-28T08:45:41+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:622446,&quot;is_team&quot;:false,&quot;item_id&quot;:343922,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;f355d8e87d23ee8e0c7a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ありがとうございます。trYは0か1のデータなのでは？ と思っていたので、上記のコードで納得できました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a#comment-cf739da90f6b7829e4dc&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2016-08-27T22:50:06+09:00&quot;,&quot;id&quot;:138723,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/138723/profile-images/1473720700&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;beerman&quot;},&quot;uuid&quot;:&quot;cf739da90f6b7829e4dc&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:343922,&quot;uuid&quot;:&quot;f355d8e87d23ee8e0c7a&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;TomokIshii&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:74152,&quot;url_name&quot;:&quot;TomokIshii&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746&quot;},{&quot;id&quot;:138723,&quot;url_name&quot;:&quot;beerman&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/138723/profile-images/1473720700&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-9690950d-d8e5-483a-867f-cf8a5622811b"></div>
+    <div id="CommentListContainer-react-component-9690950d-d8e5-483a-867f-cf8a5622811b"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="9Rirp+VbVRTUoeueNaFqPL9CxCOzBKKwp8u0D/aSp4ZQQvcMu8MZn14zKw7LPAb4MTr6gTgHPOjKpKbCX5pMTQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/TomokIshii/items/f355d8e87d23ee8e0c7a" /><input type="hidden" name="item_uuid" id="item_uuid" value="f355d8e87d23ee8e0c7a" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a", "id": 343922, "uuid": "f355d8e87d23ee8e0c7a" }</script><script class="js-user" type="application/json">{&quot;id&quot;:74152,&quot;url_name&quot;:&quot;TomokIshii&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="uWVSRmn9XN3w9MSTrhR0U4HLhZhcTpYNvWoi7ug1vfocPw7tN2UQVnpmBANQiRiXD7O7OtdNCFXQBTAjQT1WMQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/TomokIshii/items/f355d8e87d23ee8e0c7a" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

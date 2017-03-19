@@ -1,0 +1,1134 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>統計の素人だけどPythonで機械学習モデルを実装したい、そんな人のための第一歩 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+はじめに
+
+
+『統計にそんなに詳しくないけど、機械学習とかのモデルを自分で実装してみたい！』
+ってことよくありますよね？
+
+『そんなこと全くないわー（#^ω^）』って思った人も素直になってください。
+絶対に一度は思ったことがあるはずです。
+
+とくにPythonでロジスティック回帰を実装したいと思ったことがある人は多いと思います。
+多いはずです。
+
+ここでは、統計の知識をヌルくと説明しつつPythonで実際に動くLogistic回帰モデルを実装します。
+統計に詳しくな..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="hik0107" name="twitter:creator" /><meta content="統計の素人だけどPythonで機械学習モデルを実装したい、そんな人のための第一歩 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# **はじめに**
+**『統計にそんなに詳しくないけど、機械学習とかのモデルを自分で実装してみたい！』**
+ってことよくありますよね？
+
+『そんなこと全くないわー（#^ω^）』って思った人も素直になってください。
+絶対に一度は思った..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="pA5e4yxiKuwBcdFMZWJE62bXco/IobsswakZOugSFPRc62AvuqSrCwolotoUWgP8H25vpO+R99ggnNI02P5rWA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"hik0107","type":"items","id":"9b6e1e989f4eaefdc31d"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-f0610021-5d13-44be-9d31-a149abf947eb"></div>
+    <div id="HeaderContainer-react-component-f0610021-5d13-44be-9d31-a149abf947eb"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">統計の素人だけどPythonで機械学習モデルを実装したい、そんな人のための第一歩</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="50"><a class="u-link-unstyled TagList__label" href="/tags/%E7%B5%B1%E8%A8%88"><img alt="統計" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/420f41dcf06bace11478bd94bf25771d4c7d4251/medium.jpg?1394635094" /><span>統計</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="15"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%AD%E3%82%B8%E3%82%B9%E3%83%86%E3%82%A3%E3%83%83%E3%82%AF%E5%9B%9E%E5%B8%B0"><img alt="ロジスティック回帰" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>ロジスティック回帰</span></a></li><li class="TagList__item" data-count="5"><a class="u-link-unstyled TagList__label" href="/tags/%E5%AE%9F%E8%A3%85"><img alt="実装" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>実装</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">106</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:106,&quot;uuid&quot;:&quot;9b6e1e989f4eaefdc31d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="yutorin"><a itemprop="url" href="/yutorin"><img alt="yutorin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102597/profile-images/1473708751" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></li><li class="js-hovercard" data-hovercard-target-name="inuscript"><a itemprop="url" href="/inuscript"><img alt="inuscript" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7307/profile-images/1473684148" /></a></li><li class="js-hovercard" data-hovercard-target-name="7258"><a itemprop="url" href="/7258"><img alt="7258" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98583/profile-images/1473707541" /></a></li><li class="js-hovercard" data-hovercard-target-name="akira108"><a itemprop="url" href="/akira108"><img alt="akira108" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8012/profile-images/1473680838" /></a></li><li class="js-hovercard" data-hovercard-target-name="nishiuke"><a itemprop="url" href="/nishiuke"><img alt="nishiuke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72313/profile-images/1488232747" /></a></li><li class="js-hovercard" data-hovercard-target-name="sharow"><a itemprop="url" href="/sharow"><img alt="sharow" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11641/profile-images/1473682092" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="Ryuichirou"><a itemprop="url" href="/Ryuichirou"><img alt="Ryuichirou" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/41266/profile-images/1473688734" /></a></li><li class="js-hovercard" data-hovercard-target-name="metheglin"><a itemprop="url" href="/metheglin"><img alt="metheglin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/36978/profile-images/1473687266" /></a></li><li><a href="/hik0107/items/9b6e1e989f4eaefdc31d/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/hik0107"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68432/profile-images/1473697846" alt="1473697846" /></a> <a class="u-link-unstyled" href="/hik0107">hik0107</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-06T17:26:21+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-06">Edited at <time datetime="2016-12-10T09:25:07+09:00" itemprop="dateModified">2016-12-10</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/hik0107/items/9b6e1e989f4eaefdc31d/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">14</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/hik0107/items/9b6e1e989f4eaefdc31d/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(14)</span></a></li><li><a href="/hik0107/items/9b6e1e989f4eaefdc31d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-9b6e1e989f4eaefdc31d" itemprop="articleBody">
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a><strong>はじめに</strong>
+</h1>
+
+<p><strong>『統計にそんなに詳しくないけど、機械学習とかのモデルを自分で実装してみたい！』</strong><br>
+ってことよくありますよね？</p>
+
+<p>『そんなこと全くないわー（#^ω^）』って思った人も素直になってください。<br>
+絶対に一度は思ったことがあるはずです。</p>
+
+<p>とくに<strong>Pythonでロジスティック回帰を実装したい</strong>と思ったことがある人は多いと思います。<br>
+<strong>多いはず</strong>です。</p>
+
+<p>ここでは、統計の知識をヌルくと説明しつつPythonで実際に動くLogistic回帰モデルを実装します。<br>
+統計に詳しくない方でも無理なく出来るよう、統計の説明➔実装 を1ステップづつ進められるようにしました。</p>
+
+<p>なんでかんで、統計モデルとか機械学習も自分で実装しながら覚えると効率がよかったりします。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/68432/625677b3-42cb-1104-889e-99f024fdc9f5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/625677b3-42cb-1104-889e-99f024fdc9f5.png" alt="image"></a></p>
+
+<h1>
+<span id="この記事の対象読者" class="fragment"></span><a href="#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%AE%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85"><i class="fa fa-link"></i></a><strong>この記事の対象読者</strong>
+</h1>
+
+<p>基本的にはデータサイエンスに多少興味ある方向けです。</p>
+
+<ul>
+<li>ロジスティック回帰って聞いたことあるけど、よくわからん</li>
+<li>上司がロジスティック回帰でクラシファイしろとうるさい</li>
+<li>統計は詳しくないけど、実装しながらなら学べる気がする</li>
+<li>最低限の知識はあるけど、どうやって動いてるのか知りたい</li>
+<li>ロジスティック回帰ならもちろん使ったことあるよ？パッケージで一発じゃん。
+じ、自前実装はしたこと無いけど/// な、なんか文句あんの？</li>
+</ul>
+
+<h1>
+<span id="あわせて読みたい" class="fragment"></span><a href="#%E3%81%82%E3%82%8F%E3%81%9B%E3%81%A6%E8%AA%AD%E3%81%BF%E3%81%9F%E3%81%84"><i class="fa fa-link"></i></a><strong>あわせて読みたい</strong>
+</h1>
+
+<p>データサイエンティストに興味があるならまずこの辺りを見ておきな、って文献・動画のまとめ<br>
+<a href="http://qiita.com/hik0107/items/ef5e044d2f47940ba712" class="autolink" id="reference-93fd838a3b20cf3d0723">http://qiita.com/hik0107/items/ef5e044d2f47940ba712</a></p>
+
+<p>そろそろデータサイエンティストの定義とスキルセットについて本気で考えてみる<br>
+<a href="http://qiita.com/hik0107/items/f9bf14a7575d5c885a16" class="autolink" id="reference-f8a16d86ff4a060ce1db">http://qiita.com/hik0107/items/f9bf14a7575d5c885a16</a></p>
+
+<h1>
+<span id="準備" class="fragment"></span><a href="#%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a><strong>準備</strong>
+</h1>
+
+<p>次の設定をしておいてください。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span>  <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s">'ggplot'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>あとこちらの記事でロジスティック回帰の概要だけ勉強するとより良いかも<br>
+（なんとなく雰囲気がわかれば大丈夫です。）<br>
+<a href="http://gihyo.jp/dev/serial/01/machine-learning/0018" class="autolink" rel="nofollow noopener" target="_blank">http://gihyo.jp/dev/serial/01/machine-learning/0018</a></p>
+
+<h1>
+<span id="実装" class="fragment"></span><a href="#%E5%AE%9F%E8%A3%85"><i class="fa fa-link"></i></a><strong>実装</strong>
+</h1>
+
+<h2>
+<span id="データを生成する" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E7%94%9F%E6%88%90%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a><strong>データを生成する</strong>
+</h2>
+
+<p>今回は簡単のために要素2つと、2値の分類だけを持つデータを作ります。<br>
+$x,y$ が要素、$c=[1,0]$の2値分類とします。<br>
+この組み合わせを$N点$生成してPandas Data Frameに格納する関数を作りましょう。</p>
+
+<p>$ obs_i = (x_i, y_i, c_i) $ ただし $i = 1,2,3 ....N$   </p>
+
+<p>$x_i, y_i$は numpyのモジュール "np.random" で簡単に作ることが出来ます。</p>
+
+<p>$c$に関しては、ある分離線を人為的に定義し、その分離線のどちら側にいるかで割り振ることにします。<br>
+仮に分離線を $ 5x + 3 y = 1 $ としましょう。<br>
+つまり、 $g(x,y) = 5x_i + 3y_i -1$ として、 $g(x, y) &gt;0 ⇛ c=1$ 、$g(x, y) &lt; 0 ⇛ c=0$ となるようにします。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">make_data.py</span></div>
+<div class="highlight"><pre>
+
+<span class="k">def</span> <span class="nf">make_data</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">draw_plot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">is_confused</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">confuse_bin</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="sd">'''N個のデータセットを生成する関数</span>
+<span class="sd">    データをわざと複雑にするための機能 is_confusedを実装する</span>
+<span class="sd">    '''</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c"># シードを固定して、乱数が毎回同じ出力になるようにする</span>
+
+    <span class="n">feature</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'x'</span><span class="p">,</span> <span class="s">'y'</span><span class="p">])</span>
+
+    <span class="c"># 2値分類の付与：人為的な分離線の上下どちらに居るかで機械的に判定</span>
+    <span class="n">df</span><span class="p">[</span><span class="s">'c'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span> <span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">row</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">row</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c"># 撹乱:データを少し複雑にするための操作</span>
+    <span class="k">if</span> <span class="n">is_confused</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">get_model_confused</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">%</span> <span class="n">confuse_bin</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">c</span> 
+            <span class="k">return</span> <span class="n">c</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s">'c'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_model_confused</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c"># 可視化：どんな感じのデータになったか可視化するモジュール</span>
+    <span class="c"># c = df.c つまり2値の0と1で色を分けて表示するようにしてある</span>
+    <span class="k">if</span> <span class="n">draw_plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span><span class="mf">0.1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span><span class="mf">0.1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+</div>
+
+<p>この関数の出力を見てみましょう</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">make_data.py</span></div>
+<div class="highlight"><pre>
+<span class="n">df</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">Out</span><span class="p">[</span><span class="mi">24</span><span class="p">]:</span>
+        <span class="n">x</span>           <span class="n">y</span>       <span class="n">c</span>
+<span class="mi">0</span>   <span class="mf">1.624345</span>    <span class="o">-</span><span class="mf">0.611756</span>   <span class="mi">1</span>
+<span class="mi">1</span>   <span class="o">-</span><span class="mf">0.528172</span>   <span class="o">-</span><span class="mf">1.072969</span>   <span class="mi">0</span>
+<span class="mi">2</span>   <span class="mf">0.865408</span>    <span class="o">-</span><span class="mf">2.301539</span>   <span class="mi">0</span>
+<span class="mi">3</span>   <span class="mf">1.744812</span>    <span class="o">-</span><span class="mf">0.761207</span>   <span class="mi">1</span>
+<span class="mi">4</span>   <span class="mf">0.319039</span>    <span class="o">-</span><span class="mf">0.249370</span>   <span class="mi">0</span>
+</pre></div>
+</div>
+
+<p>ある線を堺にc=1とc=0分かれているのがわかると思います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/68432/e15404a0-5a19-c9d7-8ef9-18ef2b5ff5dd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/e15404a0-5a19-c9d7-8ef9-18ef2b5ff5dd.png" alt="image"></a></p>
+
+<p>ここが上記で定義した $ 5x + 3 y = 1 $の線になっています。<br>
+これから実装するLogistic回帰モデルがこの分離線を予測することができれば成功です。</p>
+
+<p>なお、今回はこのデータ生成関数に少しおまけを付けました。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">make_data.py</span></div>
+<div class="highlight"><pre>
+<span class="n">df_data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">is_confused</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">confuse_bin</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>このように引数を指定すると、白点の領域に黒点を紛れ込ませることが出来ます。<br>
+紛れ込む量はconfuse_binが小さくなるほど大きくなるように設定してあります。<br>
+これがどのような意味を持つかは後ほど（もうわかってる方もいると思いますが）</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/68432/749fd723-db0d-ab4d-09c8-cefbc99321f2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/749fd723-db0d-ab4d-09c8-cefbc99321f2.png" alt="image"></a></p>
+
+<h2>
+<span id="確率値を計算する" class="fragment"></span><a href="#%E7%A2%BA%E7%8E%87%E5%80%A4%E3%82%92%E8%A8%88%E7%AE%97%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a><strong>確率値を計算する</strong>
+</h2>
+
+<p><strong>ロジスティック回帰の冥利は、『c=1と考えてよいかどうかの可能性の高さ』を $ 0 ≦ p ≦1$ の確率値として出力する</strong>ことで、各データが<strong>どの程度の確からしさで $[1, 0]$ の2値いずれに分類されるか</strong>を明らかに出来る点にあります。</p>
+
+<p>なので、次はこの確率値pの計算を実装します。これは理論的な側面を横に置けば簡単です。<br>
+まず結論のコードから見てしまいましょう。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">make_data.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">z</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">get_prob</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">):</span>
+    <span class="sd">'''特徴量と重み係数ベクトルを与えると、確率p(c=1 | x,y)を返す関数</span>
+<span class="sd">    '''</span>
+    <span class="n">feature_vector</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inner</span><span class="p">(</span><span class="n">feature_vector</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>以上です。すごく簡単ですよね？<br>
+少しだけ補足します。（理論面に興味がある方はググれば大量に情報はあります。）</p>
+
+<blockquote>
+<p>ある観測点が $c=1$ に分類される確率 $p(c=1 | x )$ は次のように記述されます。</p>
+
+<p>$ p =  \frac{1}{1 + exp(-f)}$  ただし $ f = ∑ w_iφ(x_i) $  </p>
+</blockquote>
+
+<p>今回で言うと、 $ f = w_1x + w_2y + w_3$ です。<br>
+ここで $w_1,w_2,w_3$は <strong>重み</strong> と呼ばれるパラメータを指します。</p>
+
+<p>要は、x-y軸のグラフ上でいうところの、線の傾きとか切片を指しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/68432/48de5dd0-3116-8d10-d4f3-0004bb51e60c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/48de5dd0-3116-8d10-d4f3-0004bb51e60c.png" alt="image"></a></p>
+
+<p>この図で、赤の線は <strong>c=1とc=0(黒と白)を上手く分離してない感が凄い</strong>ですよね。<br>
+これは$w_1,w_2,w_3$といった各重みが、このデータの分類をおこなうためのモデルとして間違っているからです。</p>
+
+<p>この赤い線じゃ嫌なので、青い線みたく<strong>c=1とc=0(黒と白)を上手く分離できてるっぽい</strong>重みを探すというのが、『ロジスティック回帰のモデルを作る』ということに相当します。</p>
+
+<p>うーん、簡単そう。</p>
+
+<h2>
+<span id="じゃあ一番いい重みを探そうぜ" class="fragment"></span><a href="#%E3%81%98%E3%82%83%E3%81%82%E4%B8%80%E7%95%AA%E3%81%84%E3%81%84%E9%87%8D%E3%81%BF%E3%82%92%E6%8E%A2%E3%81%9D%E3%81%86%E3%81%9C"><i class="fa fa-link"></i></a><strong>じゃあ一番いい"重み"を探そうぜ</strong>
+</h2>
+
+<p>ここから少しやっつけで行きます。<strong>みんな大好き最尤推定</strong>です。<br>
+尤度(ゆーど)は重みベクトル $w$ をパラメータとして、次のように記述できる</p>
+
+<blockquote>
+<p>$ E(w) = ∑- log(L_i) $     </p>
+
+<p>ただし、$c_i= [1 , 0]$を正解として持つある観測点の尤度 $L_i$は次のように定義される。上述のように $p_i$は$w$の関数となっている。</p>
+
+<p>$L_i = c_i log (p_i) +(1-c_i) log(1-p_i) $</p>
+</blockquote>
+
+<p>なんだか難しそうなことを言っていますが、そんなに難しくありません。<br>
+このように考えてみましょう。</p>
+
+<blockquote>
+<p>3つの点があり、この点の分類値は$(c_1, c_2, c_3) =(1,1,0)$ が正解だったとします。<br>
+黒黒白 ですね。</p>
+</blockquote>
+
+<p>さて、ここにロジスティック回帰で作った2つの予測モデルがあったとしましょう。<br>
+それぞれのモデルは、この3つの点が1（黒）である確率を次のように予想しました。<br>
+<strong>どちらが良いモデル</strong>でしょうか？</p>
+
+<blockquote>
+<p>$M_1 : (p_1,p_2,p_3) = (0.8, 0.6, 0.2)$<br>
+ $M_2 : (p_1,p_2,p_3) = (0.9, 0.1, 0.1)$</p>
+</blockquote>
+
+<p>直感的には、<br>
+①各点(1~3)の予測がどの程度あたっているかを考え<br>
+②その3つの合算を考えれば<br>
+全体として、<strong>どの程度よい良い予測</strong>かということが言えそうな気がしますね。</p>
+
+<p>統計的には次のように考えます。例えば$M_1$の例では</p>
+
+<blockquote>
+<p>$p_1$は $正解：c=1$に対して、<strong>0.8</strong>と予測しているので、0.8ポイント<br>
+$p_2$は $正解：c=1$に対して、<strong>0.6</strong>と予測しているので、0.6ポイント<br>
+$p_3$は $正解：c=0$に対して、<strong>0.2</strong>と予測しているので、(1.0-0.2)=0.8ポイント</p>
+
+<p>合計の得点は 0.8, 0.6, 0.8を <strong>掛けあわせたもの</strong> とする。<br>
+※ $p_3$は0.2ポイントではないことに注意</p>
+</blockquote>
+
+<p>このやり方で、$M_1$と$M_2$の得点を比べれば『どちらがいいモデルかが比較できる』というやり方です。</p>
+
+<p>実際にはN点のデータで予測する場合は$p_1, p_2 ...p_N$の予測の掛け合わせになります。<br>
+また、モデルは2個ではなく無数に考えられる可能性の中から一番良い物を探します。</p>
+
+<p>おそらくこの点で疑問はたくさんあると思います。<br>
+詳しくは『最尤推定  さいゆーすいてー 』でググって下さい</p>
+
+<blockquote>
+<p>Q. なんで得点を<strong>掛け合わせ</strong>るんだよ<br>
+A. 確率だからです</p>
+
+<p>Q. 上の式で出てきた$log$は何なんだ？<br>
+A. $log$は掛け算を足し算に変換できるなど、利点があります。</p>
+
+<p>Q. 勝手に$log$とかしたら式の意味が変わるじゃねーか。あとマイナスは何だよ<br>
+A. $log$ を取った値の最大化は元の値の最大化と一致するんです <br>
+A. 最大化問題を最小化問題に置き換えています &gt; マイナス</p>
+
+<p>Q. どうやって<strong>無数に考えられる可能性から一番いいもの</strong>を探すんだ？<br>
+A. 次の章で扱いますが、あまり詳細に説明していません。</p>
+</blockquote>
+
+<h2>
+<span id="重みを探してくれ最尤推定" class="fragment"></span><a href="#%E9%87%8D%E3%81%BF%E3%82%92%E6%8E%A2%E3%81%97%E3%81%A6%E3%81%8F%E3%82%8C%E6%9C%80%E5%B0%A4%E6%8E%A8%E5%AE%9A"><i class="fa fa-link"></i></a><strong>重みを探してくれ：最尤推定</strong>
+</h2>
+
+<p>まず、最適化したい尤度を実装します。<br>
+再掲ですが、あるモデル（= ある重み $w_1,w_2,w_3$）の尤度は下記のように定式化されるので、それをコード化しているだけです。</p>
+
+<blockquote>
+<p>$ E(w) = ∑- log(L_i) $<br><br>
+ただし、$L_i = c_i log (p_i) +(1-c_i) log(1-p_i) $</p>
+</blockquote>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">estimate_param.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">define_likelihood</span><span class="p">(</span><span class="n">weight_vector</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">'''dfのデータセット分をなめていき、対数尤度の和を定義する関数</span>
+<span class="sd">    この関数をOptimizerに喰わせてパラメータの最尤推定を行う    </span>
+<span class="sd">    '''</span>
+    <span class="n">likelihood</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">df_data</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">df_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">df_data</span><span class="o">.</span><span class="n">c</span><span class="p">):</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">get_prob</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">)</span>
+
+        <span class="n">i_likelihood</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prob</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span><span class="o">==</span><span class="mi">1</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.0</span><span class="o">-</span><span class="n">prob</span><span class="p">)</span>
+        <span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span> <span class="o">-</span> <span class="n">i_likelihood</span>
+
+    <span class="k">return</span> <span class="n">likelihood</span>
+</pre></div>
+</div>
+
+<p>そして上記コードで定義した尤度が一番いい感じになるような重み$w_1,w_2,w_3$を探します。<br>
+ここは自前実装は避け、scipy.optimizeという、関数の最小化解などを探すためのパッケージに任せます。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">estimate_param.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">estimate_weight</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">initial_param</span><span class="p">):</span>
+    <span class="sd">'''学習用のデータとパラメータの初期値を受け取って、</span>
+<span class="sd">    最尤推定の結果の最適パラメータを返す関数</span>
+<span class="sd">    '''</span>        
+    <span class="n">parameter</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">define_likelihood</span><span class="p">,</span>
+                                  <span class="n">initial_param</span><span class="p">,</span> <span class="c">#適当に重みの組み合わせの初期値を与える</span>
+                                  <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">df_data</span><span class="p">),</span>
+                                  <span class="n">method</span><span class="o">=</span><span class="s">'Nelder-Mead'</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parameter</span><span class="o">.</span><span class="n">x</span>
+</pre></div>
+</div>
+
+<p>ここで行ったような、</p>
+
+<blockquote>
+<ol>
+<li>分類の結果を要素（$x$とか$y$とか）x その重み $w_1,w_2,w_3$ で表現</li>
+<li>尤度を重みの関数として表現</li>
+<li>尤度を最適化するような重みの組み合わせを探す</li>
+</ol>
+</blockquote>
+
+<p>という流れは統計モデルや機械学習の世界だと非常によく出てきます。<br>
+是非覚えておいて損はないと思います。</p>
+
+<p>では実装した関数を実行して、最適な重みを見つけてみましょう。</p>
+
+<p>まず適当に重みの初期値を定義します。これは完全に適当です。<br>
+※最適化の問題によっては初期値の値によって結果が変わることがありますが、ここでは適当で大丈夫です。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">optimize.py</span></div>
+<div class="highlight"><pre>
+<span class="n">weight_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">weight_vector</span>
+
+<span class="n">Out</span><span class="p">[</span><span class="mi">26</span><span class="p">]:</span>
+<span class="n">array</span><span class="p">([</span> <span class="mf">0.91726016</span><span class="p">,</span>  <span class="mf">0.15073966</span><span class="p">,</span>  <span class="mf">0.24376398</span><span class="p">])</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">optimize.py</span></div>
+<div class="highlight"><pre>
+<span class="c">#データを作成するして、プロットする</span>
+<span class="n">df_data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c">#適当な初期値の重みを設定して、分離面を描画してみる</span>
+<span class="n">weight_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">draw_split_line</span><span class="p">(</span><span class="n">weight_vector</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>ここでは、分離面を描画するために次のような関数を作っておきました。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">draw_split_line.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">draw_split_line</span><span class="p">(</span><span class="n">weight_vector</span><span class="p">):</span>
+    <span class="sd">'''分離線を描画する関数</span>
+<span class="sd">    '''</span>
+    <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">weight_vector</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span><span class="o">/-</span><span class="n">b</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>    
+</pre></div>
+</div>
+
+<p>結果はこんな感じです。適当に引いたので当然的外れですね。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/68432/d5add7ea-89bb-bb7b-f60d-56e6d02649c3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/d5add7ea-89bb-bb7b-f60d-56e6d02649c3.png" alt="image"></a></p>
+
+<p>では、白と黒を上手いこと分けるように、いい感じの重みを見つけましょう。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">optimize.py</span></div>
+<div class="highlight"><pre>
+<span class="n">weight_vector</span> <span class="o">=</span> <span class="n">estimate_weight</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">)</span> <span class="c">#最尤推定の実行</span>
+<span class="n">weight_vector</span>
+
+<span class="n">Out</span><span class="p">[</span><span class="mi">30</span><span class="p">]:</span>
+<span class="n">array</span><span class="p">([</span> <span class="mf">10013.66435446</span><span class="p">,</span>   <span class="mf">6084.79071201</span><span class="p">,</span>  <span class="o">-</span><span class="mf">2011.60925704</span><span class="p">])</span>
+</pre></div>
+</div>
+
+<p>最適な重みが発見されました。<br>
+ここで、今回定義した分離面が$ 5x + 3 y = 1 $ であったことを思い出してください。<br>
+重み $(w_1,w_2,w_3)$ が $(5:3:-1)$ に近い関係になっているのがわかるでしょうか？</p>
+
+<p>draw_split_line()で線を引いてやると下図のようになります。<br>
+溢れでる<strong>上手いこといってる感</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/68432/335feb58-5e9c-8bf8-b747-631326ad7ea3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/335feb58-5e9c-8bf8-b747-631326ad7ea3.png" alt="image"></a></p>
+
+<h2>
+<span id="c1-の-確率pはどうなった" class="fragment"></span><a href="#c1-%E3%81%AE-%E7%A2%BA%E7%8E%87p%E3%81%AF%E3%81%A9%E3%81%86%E3%81%AA%E3%81%A3%E3%81%9F"><i class="fa fa-link"></i></a><strong>c=1 の 確率pはどうなった</strong>
+</h2>
+
+<p>あと一息です。<br>
+とりあえず次のような関数を実装します。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">predict.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">validate_prediction</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">):</span>
+
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">weight_vector</span>
+    <span class="n">df_data</span><span class="p">[</span><span class="s">'pred'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span> <span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">row</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">row</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df_data</span><span class="p">[</span><span class="s">'p'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span> <span class="p">:</span>  <span class="n">sigmoid</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">row</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">row</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">c</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_data</span>
+</pre></div>
+</div>
+
+<p><strong>"pred"</strong>はP=0.5以上になった点をc=1と予測した時の予測値<br>
+<strong>"p"</strong>はc=1である確率の予測値です。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">df_pred</span> <span class="o">=</span> <span class="n">validate_prediction</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">)</span>
+<span class="n">df_pred</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">Out</span><span class="p">[</span><span class="mi">33</span><span class="p">]:</span>
+        <span class="n">x</span>           <span class="n">y</span>      <span class="n">c</span>    <span class="n">pred</span>      <span class="n">p</span>
+<span class="mi">0</span>   <span class="mf">1.624345</span>    <span class="o">-</span><span class="mf">0.611756</span>   <span class="mi">1</span>   <span class="mi">1</span>   <span class="mf">1.000000e+00</span>
+<span class="mi">1</span>   <span class="o">-</span><span class="mf">0.528172</span>   <span class="o">-</span><span class="mf">1.072969</span>   <span class="mi">0</span>   <span class="mi">0</span>   <span class="mf">0.000000e+00</span>
+<span class="mi">2</span>   <span class="mf">0.865408</span>    <span class="o">-</span><span class="mf">2.301539</span>   <span class="mi">0</span>   <span class="mi">0</span>   <span class="mf">0.000000e+00</span>
+<span class="mi">3</span>   <span class="mf">1.744812</span>    <span class="o">-</span><span class="mf">0.761207</span>   <span class="mi">1</span>   <span class="mi">1</span>   <span class="mf">1.000000e+00</span>
+<span class="mi">4</span>   <span class="mf">0.319039</span>    <span class="o">-</span><span class="mf">0.249370</span>   <span class="mi">0</span>   <span class="mi">0</span>   <span class="mf">7.043082e-146</span>
+<span class="mi">5</span>   <span class="mf">1.462108</span>    <span class="o">-</span><span class="mf">2.060141</span>   <span class="mi">1</span>   <span class="mi">1</span>   <span class="mf">1.000000e+00</span>
+<span class="mi">6</span>   <span class="o">-</span><span class="mf">0.322417</span>   <span class="o">-</span><span class="mf">0.384054</span>   <span class="mi">0</span>   <span class="mi">0</span>   <span class="mf">0.000000e+00</span>
+<span class="mi">7</span>   <span class="mf">1.133769</span>    <span class="o">-</span><span class="mf">1.099891</span>   <span class="mi">1</span>   <span class="mi">1</span>   <span class="mf">1.000000e+00</span>
+<span class="mi">8</span>   <span class="o">-</span><span class="mf">0.172428</span>   <span class="o">-</span><span class="mf">0.877858</span>   <span class="mi">0</span>   <span class="mi">0</span>   <span class="mf">0.000000e+00</span>
+<span class="mi">9</span>   <span class="mf">0.042214</span>    <span class="mf">0.582815</span>    <span class="mi">1</span>   <span class="mi">1</span>   <span class="mf">1.000000e+00</span>
+</pre></div></div>
+
+<p>実際のcの値とpredの値が一致しているので、予測が成功というところでしょうか。<br>
+気になる方は1000データ全て確認してみてください。</p>
+
+<p>また、確率値pが求められています。<br>
+単純に1,0いずれかの答えを吐くのでなく、この$p$を得ることが出来るのがロジスティック回帰の特性です。<br>
+pがどんな感じになっているか見てみましょう。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">show_p.py</span></div>
+<div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">draw_prob</span><span class="p">(</span><span class="n">df_data</span><span class="p">):</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">validate_prediction</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df_data</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">df_data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">df_data</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s">'Blues'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="n">df_data</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span><span class="mf">0.1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="n">df_data</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span><span class="mf">0.1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">'plot colored by probability'</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>こんな感じで$p$を可視化する関数を適当に作りました。</p>
+
+<p>せっかくなのでここまで作った関数を使って、全体の流れを通しで実行します。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">run_predict.py</span></div>
+<div class="highlight"><pre>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="c">#2つの図を並べて表示する準備</span>
+
+<span class="c">#データを作成するして、プロットする</span>
+<span class="n">df_data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c">#適当な初期値の重みを設定して、分離面を描画してみる</span>
+<span class="n">weight_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">draw_split_line</span><span class="p">(</span><span class="n">weight_vector</span><span class="p">)</span>
+
+<span class="c">#最尤推定で重みを推定し、分離面を描画してみる</span>
+<span class="n">weight_vector</span> <span class="o">=</span> <span class="n">estimate_weight</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">)</span>
+<span class="n">draw_split_line</span><span class="p">(</span><span class="n">weight_vector</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">'plot with split line before/after optimization'</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="c">#pの可視化</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">draw_prob</span><span class="p">(</span><span class="n">df_data</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>分離面を堺に、c=1である確率p(右図の青さの度合い)がくっきり分かれているのがわかります。<br>
+これはデータ自体が、分離面の上下で c= 1 or 0 がはっきり別れたようなデータだったからです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/68432/2098dd3b-2d61-74a3-cb0d-d5b0c611ae52.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/2098dd3b-2d61-74a3-cb0d-d5b0c611ae52.png" alt="image"></a></p>
+
+<p>言葉通り、<strong>白黒はっきり</strong>　というやつです。<br>
+実際のデータでは、こんなにキレイにcの値が別れることはないでしょう。</p>
+
+<h1>
+<span id="もう少し複雑なデータでやってみる" class="fragment"></span><a href="#%E3%82%82%E3%81%86%E5%B0%91%E3%81%97%E8%A4%87%E9%9B%91%E3%81%AA%E3%83%87%E3%83%BC%E3%82%BF%E3%81%A7%E3%82%84%E3%81%A3%E3%81%A6%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a><strong>もう少し複雑なデータでやってみる</strong>
+</h1>
+
+<p>そこで、もう少し複雑性の高いデータでやってみます。<br>
+上記のデータを思いだして下さい。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/68432/749fd723-db0d-ab4d-09c8-cefbc99321f2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/749fd723-db0d-ab4d-09c8-cefbc99321f2.png" alt="image"></a></p>
+
+<p>現実はこんな感じに同じ領域に居るデータでもc=1だったりc=0だったりするのが普通です。<br>
+この場合どうなるでしょうか？</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">run_predict.py</span></div>
+<div class="highlight"><pre>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c">#データを作成するして、プロットする(ここだけさっきと違う)</span>
+<span class="n">df_data</span> <span class="o">=</span> <span class="n">make_data</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="n">is_confused</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">confuse_bin</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c">#適当な初期値の重みを設定して、分離面を描画してみる</span>
+<span class="n">weight_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">draw_split_line</span><span class="p">(</span><span class="n">weight_vector</span><span class="p">)</span>
+
+<span class="c">#最尤推定で重みを推定し、分離面を描画してみる</span>
+<span class="n">weight_vector</span> <span class="o">=</span> <span class="n">estimate_weight</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">weight_vector</span><span class="p">)</span>
+<span class="n">draw_split_line</span><span class="p">(</span><span class="n">weight_vector</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">'plot with split line before/after optimization'</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">draw_prob</span><span class="p">(</span><span class="n">df_data</span><span class="p">)</span>
+<span class="c">#draw_split_line(weight_vector)</span>
+</pre></div>
+</div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/68432/625677b3-42cb-1104-889e-99f024fdc9f5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/68432/625677b3-42cb-1104-889e-99f024fdc9f5.png" alt="image"></a></p>
+
+<p>だいぶ結果が変わりました。<br>
+左図では、分離面の位置が少し白のカタマリ群の方に寄り、右図では分離面付近の色がモヤッとしています。</p>
+
+<p>これは、 <strong>データが先程より白黒はっきりしたものでないので、モデルも白黒はっきりできない</strong>ということです。</p>
+
+<p>この青さが◯◯以上の時にc=1を判断する（例えば0.6以上など）、ロジスティック回帰の考え方です。</p>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a><strong>まとめ</strong>
+</h1>
+
+<ul>
+<li>ロジスティック回帰をPythonで自前実装しました</li>
+<li>ロジスティック回帰の理論についてなんとなく学びました</li>
+<li>機械学習の分類モデルが自分で作れそうという自信がつきました</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/hik0107/items/9b6e1e989f4eaefdc31d" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="EB6z2WzXFCbn6R8lgXhrOAUUQyF83r+cPnTwek0xGmXo+40V+hGVwey9bLPwQCwvfK1eClvu82jfQTt0fd1lyQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1481329507" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# **はじめに**
+**『統計にそんなに詳しくないけど、機械学習とかのモデルを自分で実装してみたい！』**
+ってことよくありますよね？
+
+『そんなこと全くないわー（#^ω^）』って思った人も素直になってください。
+絶対に一度は思ったことがあるはずです。
+
+とくに**Pythonでロジスティック回帰を実装したい**と思ったことがある人は多いと思います。
+**多いはず**です。
+
+ここでは、統計の知識をヌルくと説明しつつPythonで実際に動くLogistic回帰モデルを実装します。
+統計に詳しくない方でも無理なく出来るよう、統計の説明➔実装 を1ステップづつ進められるようにしました。
+
+なんでかんで、統計モデルとか機械学習も自分で実装しながら覚えると効率がよかったりします。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/625677b3-42cb-1104-889e-99f024fdc9f5.png)
+
+# **この記事の対象読者**
+
+基本的にはデータサイエンスに多少興味ある方向けです。
+
+- ロジスティック回帰って聞いたことあるけど、よくわからん
+- 上司がロジスティック回帰でクラシファイしろとうるさい
+- 統計は詳しくないけど、実装しながらなら学べる気がする
+- 最低限の知識はあるけど、どうやって動いてるのか知りたい
+- ロジスティック回帰ならもちろん使ったことあるよ？パッケージで一発じゃん。
+  じ、自前実装はしたこと無いけど/// な、なんか文句あんの？
+
+# **あわせて読みたい**
+データサイエンティストに興味があるならまずこの辺りを見ておきな、って文献・動画のまとめ
+http://qiita.com/hik0107/items/ef5e044d2f47940ba712
+
+そろそろデータサイエンティストの定義とスキルセットについて本気で考えてみる
+http://qiita.com/hik0107/items/f9bf14a7575d5c885a16
+
+
+# **準備**
+
+次の設定をしておいてください。
+
+```py
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot  as plt
+from scipy import optimize
+
+plt.style.use(&#39;ggplot&#39;)
+```
+
+あとこちらの記事でロジスティック回帰の概要だけ勉強するとより良いかも
+（なんとなく雰囲気がわかれば大丈夫です。）
+http://gihyo.jp/dev/serial/01/machine-learning/0018
+
+# **実装**
+
+## **データを生成する**
+
+今回は簡単のために要素2つと、2値の分類だけを持つデータを作ります。
+$x,y$ が要素、$c=[1,0]$の2値分類とします。
+この組み合わせを$N点$生成してPandas Data Frameに格納する関数を作りましょう。
+
+$ obs_i = (x_i, y_i, c_i) $ ただし $i = 1,2,3 ....N$   
+
+$x_i, y_i$は numpyのモジュール &quot;np.random&quot; で簡単に作ることが出来ます。
+
+$c$に関しては、ある分離線を人為的に定義し、その分離線のどちら側にいるかで割り振ることにします。
+仮に分離線を $ 5x + 3 y = 1 $ としましょう。
+つまり、 $g(x,y) = 5x_i + 3y_i -1$ として、 $g(x, y) &gt;0 ⇛ c=1$ 、$g(x, y) &lt; 0 ⇛ c=0$ となるようにします。
+
+```py:make_data.py
+
+def make_data(N, draw_plot=True, is_confused=False, confuse_bin=50):
+    &#39;&#39;&#39;N個のデータセットを生成する関数
+    データをわざと複雑にするための機能 is_confusedを実装する
+    &#39;&#39;&#39;
+    np.random.seed(1) # シードを固定して、乱数が毎回同じ出力になるようにする
+    
+    feature = np.random.randn(N, 2)
+    df = pd.DataFrame(feature, columns=[&#39;x&#39;, &#39;y&#39;])
+
+    # 2値分類の付与：人為的な分離線の上下どちらに居るかで機械的に判定
+    df[&#39;c&#39;] = df.apply(lambda row : 1 if (5*row.x + 3*row.y - 1)&gt;0 else 0,  axis=1)
+
+    # 撹乱:データを少し複雑にするための操作
+    if is_confused:
+        def get_model_confused(data):
+            c = 1 if (data.name % confuse_bin) == 0 else data.c 
+            return c
+
+        df[&#39;c&#39;] = df.apply(get_model_confused, axis=1)
+    
+    # 可視化：どんな感じのデータになったか可視化するモジュール
+    # c = df.c つまり2値の0と1で色を分けて表示するようにしてある
+    if draw_plot:
+        plt.scatter(x=df.x, y=df.y, c=df.c, alpha=0.6)
+        plt.xlim([df.x.min() -0.1, df.x.max() +0.1])
+        plt.ylim([df.y.min() -0.1, df.y.max() +0.1])
+        
+    return df
+```
+
+この関数の出力を見てみましょう
+
+```py:make_data.py
+df = make_data(1000)
+df.head(5)
+
+Out[24]:
+        x           y       c
+0	1.624345	-0.611756	1
+1	-0.528172	-1.072969	0
+2	0.865408	-2.301539	0
+3	1.744812	-0.761207	1
+4	0.319039	-0.249370	0
+```
+
+ある線を堺にc=1とc=0分かれているのがわかると思います。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/e15404a0-5a19-c9d7-8ef9-18ef2b5ff5dd.png)
+
+ここが上記で定義した $ 5x + 3 y = 1 $の線になっています。
+これから実装するLogistic回帰モデルがこの分離線を予測することができれば成功です。
+   
+なお、今回はこのデータ生成関数に少しおまけを付けました。
+
+```py:make_data.py
+df_data = make_data(1000, is_confused=True, confuse_bin=10)
+```
+
+このように引数を指定すると、白点の領域に黒点を紛れ込ませることが出来ます。
+紛れ込む量はconfuse_binが小さくなるほど大きくなるように設定してあります。
+これがどのような意味を持つかは後ほど（もうわかってる方もいると思いますが）
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/749fd723-db0d-ab4d-09c8-cefbc99321f2.png)
+
+
+## **確率値を計算する**
+
+**ロジスティック回帰の冥利は、『c=1と考えてよいかどうかの可能性の高さ』を $ 0 ≦ p ≦1$ の確率値として出力する**ことで、各データが**どの程度の確からしさで $[1, 0]$ の2値いずれに分類されるか**を明らかに出来る点にあります。
+
+なので、次はこの確率値pの計算を実装します。これは理論的な側面を横に置けば簡単です。
+まず結論のコードから見てしまいましょう。
+
+```py:make_data.py
+def sigmoid(z):
+    return 1.0 / (1 + np.exp(-z))
+
+
+def get_prob(x, y, weight_vector):
+    &#39;&#39;&#39;特徴量と重み係数ベクトルを与えると、確率p(c=1 | x,y)を返す関数
+    &#39;&#39;&#39;
+    feature_vector =  np.array([x, y, 1])
+    z = np.inner(feature_vector, weight_vector)
+    
+    return sigmoid(z)
+```
+
+以上です。すごく簡単ですよね？
+少しだけ補足します。（理論面に興味がある方はググれば大量に情報はあります。）
+
+&gt;ある観測点が $c=1$ に分類される確率 $p(c=1 | x )$ は次のように記述されます。
+&gt;   
+&gt;$ p =  \frac{1}{1 + exp(-f)}$  ただし $ f = ∑ w_iφ(x_i) $  
+
+今回で言うと、 $ f = w_1x + w_2y + w_3$ です。
+ここで $w_1,w_2,w_3$は **重み** と呼ばれるパラメータを指します。
+   
+要は、x-y軸のグラフ上でいうところの、線の傾きとか切片を指しています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/48de5dd0-3116-8d10-d4f3-0004bb51e60c.png)
+
+この図で、赤の線は **c=1とc=0(黒と白)を上手く分離してない感が凄い**ですよね。
+これは$w_1,w_2,w_3$といった各重みが、このデータの分類をおこなうためのモデルとして間違っているからです。
+
+この赤い線じゃ嫌なので、青い線みたく**c=1とc=0(黒と白)を上手く分離できてるっぽい**重みを探すというのが、『ロジスティック回帰のモデルを作る』ということに相当します。
+
+うーん、簡単そう。
+
+## **じゃあ一番いい&quot;重み&quot;を探そうぜ**
+
+ここから少しやっつけで行きます。**みんな大好き最尤推定**です。
+尤度(ゆーど)は重みベクトル $w$ をパラメータとして、次のように記述できる
+    
+&gt;$ E(w) = ∑- log(L_i) $     
+&gt;    
+&gt;ただし、$c_i= [1 , 0]$を正解として持つある観測点の尤度 $L_i$は次のように定義される。上述のように $p_i$は$w$の関数となっている。
+    
+&gt;$L_i = c_i log (p_i) +(1-c_i) log(1-p_i) $
+
+なんだか難しそうなことを言っていますが、そんなに難しくありません。
+このように考えてみましょう。
+
+&gt;3つの点があり、この点の分類値は$(c_1, c_2, c_3) =(1,1,0)$ が正解だったとします。
+&gt;黒黒白 ですね。
+
+さて、ここにロジスティック回帰で作った2つの予測モデルがあったとしましょう。
+それぞれのモデルは、この3つの点が1（黒）である確率を次のように予想しました。
+**どちらが良いモデル**でしょうか？
+
+&gt;  $M_1 : (p_1,p_2,p_3) = (0.8, 0.6, 0.2)$
+&gt;  $M_2 : (p_1,p_2,p_3) = (0.9, 0.1, 0.1)$
+
+直感的には、
+①各点(1~3)の予測がどの程度あたっているかを考え
+②その3つの合算を考えれば
+全体として、**どの程度よい良い予測**かということが言えそうな気がしますね。
+
+統計的には次のように考えます。例えば$M_1$の例では
+
+&gt; $p_1$は $正解：c=1$に対して、**0.8**と予測しているので、0.8ポイント
+&gt; $p_2$は $正解：c=1$に対して、**0.6**と予測しているので、0.6ポイント
+&gt; $p_3$は $正解：c=0$に対して、**0.2**と予測しているので、(1.0-0.2)=0.8ポイント
+
+&gt;合計の得点は 0.8, 0.6, 0.8を **掛けあわせたもの** とする。
+&gt; ※ $p_3$は0.2ポイントではないことに注意
+
+このやり方で、$M_1$と$M_2$の得点を比べれば『どちらがいいモデルかが比較できる』というやり方です。
+
+実際にはN点のデータで予測する場合は$p_1, p_2 ...p_N$の予測の掛け合わせになります。
+また、モデルは2個ではなく無数に考えられる可能性の中から一番良い物を探します。
+
+おそらくこの点で疑問はたくさんあると思います。
+詳しくは『最尤推定  さいゆーすいてー 』でググって下さい
+
+&gt;Q. なんで得点を**掛け合わせ**るんだよ
+&gt;A. 確率だからです
+
+&gt;Q. 上の式で出てきた$log$は何なんだ？
+&gt;A. $log$は掛け算を足し算に変換できるなど、利点があります。
+
+&gt;Q. 勝手に$log$とかしたら式の意味が変わるじゃねーか。あとマイナスは何だよ
+&gt;A. $log$ を取った値の最大化は元の値の最大化と一致するんです 
+&gt;A. 最大化問題を最小化問題に置き換えています &gt; マイナス
+
+&gt;Q. どうやって**無数に考えられる可能性から一番いいもの**を探すんだ？
+&gt;A. 次の章で扱いますが、あまり詳細に説明していません。
+
+
+## **重みを探してくれ：最尤推定**
+
+まず、最適化したい尤度を実装します。
+再掲ですが、あるモデル（= ある重み $w_1,w_2,w_3$）の尤度は下記のように定式化されるので、それをコード化しているだけです。
+
+&gt;$ E(w) = ∑- log(L_i) $     
+&gt;ただし、$L_i = c_i log (p_i) +(1-c_i) log(1-p_i) $
+
+```py:estimate_param.py
+def define_likelihood(weight_vector, *args):
+    &#39;&#39;&#39;dfのデータセット分をなめていき、対数尤度の和を定義する関数
+    この関数をOptimizerに喰わせてパラメータの最尤推定を行う    
+    &#39;&#39;&#39;
+    likelihood = 0
+    df_data = args[0]
+    
+    for x, y, c in zip(df_data.x, df_data.y, df_data.c):
+        prob = get_prob(x, y, weight_vector)
+
+        i_likelihood = np.log(prob) if c==1 else np.log(1.0-prob)
+        likelihood = likelihood - i_likelihood
+        
+    return likelihood
+```
+
+そして上記コードで定義した尤度が一番いい感じになるような重み$w_1,w_2,w_3$を探します。
+ここは自前実装は避け、scipy.optimizeという、関数の最小化解などを探すためのパッケージに任せます。
+
+```py:estimate_param.py
+def estimate_weight(df_data, initial_param):
+    &#39;&#39;&#39;学習用のデータとパラメータの初期値を受け取って、
+    最尤推定の結果の最適パラメータを返す関数
+    &#39;&#39;&#39;        
+    parameter = optimize.minimize(define_likelihood,
+                                  initial_param, #適当に重みの組み合わせの初期値を与える
+                                  args=(df_data),
+                                  method=&#39;Nelder-Mead&#39;)
+    
+    return parameter.x
+```
+
+ここで行ったような、
+&gt;1. 分類の結果を要素（$x$とか$y$とか）x その重み $w_1,w_2,w_3$ で表現
+&gt;2. 尤度を重みの関数として表現
+&gt;3. 尤度を最適化するような重みの組み合わせを探す
+   
+という流れは統計モデルや機械学習の世界だと非常によく出てきます。
+是非覚えておいて損はないと思います。
+
+では実装した関数を実行して、最適な重みを見つけてみましょう。
+
+まず適当に重みの初期値を定義します。これは完全に適当です。
+※最適化の問題によっては初期値の値によって結果が変わることがありますが、ここでは適当で大丈夫です。
+
+```py:optimize.py
+weight_vector = np.random.rand(3)
+weight_vector
+
+Out[26]:
+array([ 0.91726016,  0.15073966,  0.24376398])
+```
+
+```py:optimize.py
+#データを作成するして、プロットする
+df_data = make_data(1000)
+
+#適当な初期値の重みを設定して、分離面を描画してみる
+weight_vector = np.random.rand(3)
+draw_split_line(weight_vector)
+```
+
+ここでは、分離面を描画するために次のような関数を作っておきました。
+
+```py:draw_split_line.py
+def draw_split_line(weight_vector):
+    &#39;&#39;&#39;分離線を描画する関数
+    &#39;&#39;&#39;
+    a,b,c = weight_vector
+    x = np.array(range(-10,10,1))
+    y = (a * x + c)/-b
+    plt.plot(x,y, alpha=0.3)    
+```
+
+結果はこんな感じです。適当に引いたので当然的外れですね。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/d5add7ea-89bb-bb7b-f60d-56e6d02649c3.png)
+
+では、白と黒を上手いこと分けるように、いい感じの重みを見つけましょう。
+
+```py:optimize.py
+weight_vector = estimate_weight(df_data, weight_vector) #最尤推定の実行
+weight_vector
+
+Out[30]:
+array([ 10013.66435446,   6084.79071201,  -2011.60925704])
+```
+
+最適な重みが発見されました。
+ここで、今回定義した分離面が$ 5x + 3 y = 1 $ であったことを思い出してください。
+重み $(w_1,w_2,w_3)$ が $(5:3:-1)$ に近い関係になっているのがわかるでしょうか？
+
+draw_split_line()で線を引いてやると下図のようになります。
+溢れでる**上手いこといってる感**
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/335feb58-5e9c-8bf8-b747-631326ad7ea3.png)
+
+
+## **c=1 の 確率pはどうなった**
+あと一息です。
+とりあえず次のような関数を実装します。
+
+```py:predict.py
+def validate_prediction(df_data, weight_vector):
+    
+    a, b, c = weight_vector
+    df_data[&#39;pred&#39;] = df_data.apply(lambda row : 1 if (a*row.x + b*row.y + c) &gt;0 else 0, axis=1)
+    df_data[&#39;p&#39;] = df_data.apply(lambda row :  sigmoid(a*row.x + b*row.y + c), axis=1)
+        
+    return df_data
+```
+
+**&quot;pred&quot;**はP=0.5以上になった点をc=1と予測した時の予測値
+**&quot;p&quot;**はc=1である確率の予測値です。
+
+```py
+df_pred = validate_prediction(df_data, weight_vector)
+df_pred.head(10)
+
+Out[33]:
+        x	        y	   c	pred	  p
+0	1.624345	-0.611756	1	1	1.000000e+00
+1	-0.528172	-1.072969	0	0	0.000000e+00
+2	0.865408	-2.301539	0	0	0.000000e+00
+3	1.744812	-0.761207	1	1	1.000000e+00
+4	0.319039	-0.249370	0	0	7.043082e-146
+5	1.462108	-2.060141	1	1	1.000000e+00
+6	-0.322417	-0.384054	0	0	0.000000e+00
+7	1.133769	-1.099891	1	1	1.000000e+00
+8	-0.172428	-0.877858	0	0	0.000000e+00
+9	0.042214	0.582815	1	1	1.000000e+00
+```
+
+実際のcの値とpredの値が一致しているので、予測が成功というところでしょうか。
+気になる方は1000データ全て確認してみてください。
+
+また、確率値pが求められています。
+単純に1,0いずれかの答えを吐くのでなく、この$p$を得ることが出来るのがロジスティック回帰の特性です。
+pがどんな感じになっているか見てみましょう。
+
+```py:show_p.py
+def draw_prob(df_data):
+
+    df = validate_prediction(df_data, weight_vector)
+    plt.scatter(df_data.x, df_data.y, c=df_data.p, cmap=&#39;Blues&#39;, alpha=0.6)
+    plt.xlim([df_data.x.min() -0.1, df.x.max() +0.1])
+    plt.ylim([df_data.y.min() -0.1, df.y.max() +0.1])
+    plt.colorbar()
+    
+    plt.title(&#39;plot colored by probability&#39;, size=16)
+```
+
+こんな感じで$p$を可視化する関数を適当に作りました。
+
+せっかくなのでここまで作った関数を使って、全体の流れを通しで実行します。
+
+```py:run_predict.py
+plt.figure(figsize=(16, 4))
+plt.subplot(1,2,1) #2つの図を並べて表示する準備
+
+#データを作成するして、プロットする
+df_data = make_data(1000)
+
+#適当な初期値の重みを設定して、分離面を描画してみる
+weight_vector = np.random.rand(3)
+draw_split_line(weight_vector)
+
+#最尤推定で重みを推定し、分離面を描画してみる
+weight_vector = estimate_weight(df_data, weight_vector)
+draw_split_line(weight_vector)
+plt.title(&#39;plot with split line before/after optimization&#39;, size=16)
+
+#pの可視化
+plt.subplot(1,2,2)
+draw_prob(df_data)
+```
+
+分離面を堺に、c=1である確率p(右図の青さの度合い)がくっきり分かれているのがわかります。
+これはデータ自体が、分離面の上下で c= 1 or 0 がはっきり別れたようなデータだったからです。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/2098dd3b-2d61-74a3-cb0d-d5b0c611ae52.png)
+
+言葉通り、**白黒はっきり**　というやつです。
+実際のデータでは、こんなにキレイにcの値が別れることはないでしょう。
+
+# **もう少し複雑なデータでやってみる**
+
+そこで、もう少し複雑性の高いデータでやってみます。
+上記のデータを思いだして下さい。
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/749fd723-db0d-ab4d-09c8-cefbc99321f2.png)
+
+現実はこんな感じに同じ領域に居るデータでもc=1だったりc=0だったりするのが普通です。
+この場合どうなるでしょうか？
+
+```py:run_predict.py
+plt.figure(figsize=(16, 4))
+plt.subplot(1,2,1)
+
+#データを作成するして、プロットする(ここだけさっきと違う)
+df_data = make_data(1000,is_confused=True, confuse_bin=10)
+
+#適当な初期値の重みを設定して、分離面を描画してみる
+weight_vector = np.random.rand(3)
+draw_split_line(weight_vector)
+
+#最尤推定で重みを推定し、分離面を描画してみる
+weight_vector = estimate_weight(df_data, weight_vector)
+draw_split_line(weight_vector)
+
+plt.title(&#39;plot with split line before/after optimization&#39;, size=16)
+
+plt.subplot(1,2,2)
+draw_prob(df_data)
+#draw_split_line(weight_vector)
+```
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/68432/625677b3-42cb-1104-889e-99f024fdc9f5.png)
+
+だいぶ結果が変わりました。
+左図では、分離面の位置が少し白のカタマリ群の方に寄り、右図では分離面付近の色がモヤッとしています。
+
+これは、 **データが先程より白黒はっきりしたものでないので、モデルも白黒はっきりできない**ということです。
+
+この青さが◯◯以上の時にc=1を判断する（例えば0.6以上など）、ロジスティック回帰の考え方です。
+
+# **まとめ**
+- ロジスティック回帰をPythonで自前実装しました
+- ロジスティック回帰の理論についてなんとなく学びました
+- 機械学習の分類モデルが自分で作れそうという自信がつきました
+
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="統計の素人だけどPythonで機械学習モデルを実装したい、そんな人のための第一歩 by @hik0107 on @Qiita" data-url="http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="統計の素人だけどPythonで機械学習モデルを実装したい、そんな人のための第一歩" href="http://b.hatena.ne.jp/entry/http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/hik0107"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/68432/profile-images/1473697846" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/hik0107">hik0107</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">4612</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;hik0107&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-59bc500d-7aa2-4064-9c81-86423ca91dd4"></div>
+    <div id="UserFollowButton-react-component-59bc500d-7aa2-4064-9c81-86423ca91dd4"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hik0107/items/19dd2f6a4ab61ec21905">Pythonでデータ分析するのに必要なツールのまとめ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hik0107/items/3dc541158fceb3156ee0">pythonで美しいグラフ描画 -seabornを使えばデータ分析と可視化が捗る その1</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hik0107/items/ef5e044d2f47940ba712">データサイエンティストに興味があるならまずこの辺りを見ておきな、って文献・動画のまとめ（随時追加）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hik0107/items/d991cc44c2d1778bb82e">Python Pandasでのデータ操作の初歩まとめ − 前半：データ作成＆操作編</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hik0107/items/de5785f680096df93efa">PythonでPandasのPlot機能を使えばデータ加工からグラフ作成までマジでシームレス</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/mercari"><img alt="Mercari" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/8c6472bbd70a374a7031c4853dbb5dd47ae42a66/original.jpg?1481263719" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003e\u003cstrong\u003eはじめに\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%AE%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85\&quot;\u003e\u003cstrong\u003eこの記事の対象読者\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%82%E3%82%8F%E3%81%9B%E3%81%A6%E8%AA%AD%E3%81%BF%E3%81%9F%E3%81%84\&quot;\u003e\u003cstrong\u003eあわせて読みたい\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%BA%96%E5%82%99\&quot;\u003e\u003cstrong\u003e準備\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A3%85\&quot;\u003e\u003cstrong\u003e実装\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E7%94%9F%E6%88%90%E3%81%99%E3%82%8B\&quot;\u003e\u003cstrong\u003eデータを生成する\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A2%BA%E7%8E%87%E5%80%A4%E3%82%92%E8%A8%88%E7%AE%97%E3%81%99%E3%82%8B\&quot;\u003e\u003cstrong\u003e確率値を計算する\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%98%E3%82%83%E3%81%82%E4%B8%80%E7%95%AA%E3%81%84%E3%81%84%E9%87%8D%E3%81%BF%E3%82%92%E6%8E%A2%E3%81%9D%E3%81%86%E3%81%9C\&quot;\u003e\u003cstrong\u003eじゃあ一番いい\&quot;重み\&quot;を探そうぜ\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%87%8D%E3%81%BF%E3%82%92%E6%8E%A2%E3%81%97%E3%81%A6%E3%81%8F%E3%82%8C%E6%9C%80%E5%B0%A4%E6%8E%A8%E5%AE%9A\&quot;\u003e\u003cstrong\u003e重みを探してくれ：最尤推定\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#c1-%E3%81%AE-%E7%A2%BA%E7%8E%87p%E3%81%AF%E3%81%A9%E3%81%86%E3%81%AA%E3%81%A3%E3%81%9F\&quot;\u003e\u003cstrong\u003ec=1 の 確率pはどうなった\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%82%E3%81%86%E5%B0%91%E3%81%97%E8%A4%87%E9%9B%91%E3%81%AA%E3%83%87%E3%83%BC%E3%82%BF%E3%81%A7%E3%82%84%E3%81%A3%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003e\u003cstrong\u003eもう少し複雑なデータでやってみる\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003e\u003cstrong\u003eまとめ\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-e0c8da0d-cac9-42a9-9866-765f2f51d5f4"></div>
+    <div id="Toc-react-component-e0c8da0d-cac9-42a9-9866-765f2f51d5f4"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:106,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;9b6e1e989f4eaefdc31d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yutorin"><a itemprop="url" href="/yutorin"><img alt="yutorin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102597/profile-images/1473708751" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="inuscript"><a itemprop="url" href="/inuscript"><img alt="inuscript" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7307/profile-images/1473684148" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="7258"><a itemprop="url" href="/7258"><img alt="7258" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98583/profile-images/1473707541" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="akira108"><a itemprop="url" href="/akira108"><img alt="akira108" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8012/profile-images/1473680838" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nishiuke"><a itemprop="url" href="/nishiuke"><img alt="nishiuke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72313/profile-images/1488232747" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sharow"><a itemprop="url" href="/sharow"><img alt="sharow" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11641/profile-images/1473682092" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Ryuichirou"><a itemprop="url" href="/Ryuichirou"><img alt="Ryuichirou" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/41266/profile-images/1473688734" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="metheglin"><a itemprop="url" href="/metheglin"><img alt="metheglin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/36978/profile-images/1473687266" /></a></div></div><div class="ArticleFooter__user"><a href="/hik0107/items/9b6e1e989f4eaefdc31d/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/9b6e1e989f4eaefdc31d/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/hik0107/items/9b6e1e989f4eaefdc31d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/a9220a7d54e62d013be0#_reference-3a6f00cfb7f51f628ed2"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 備忘録 】Python sklearnモジュール で、ロジスティック回帰 分類</a><time class="references_datetime js-dateTimeView" datetime="2016-03-11T07:33:27+00:00">about 1 year ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="統計の素人だけどPythonで機械学習モデルを実装したい、そんな人のための第一歩 by @hik0107 on @Qiita" data-url="http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="統計の素人だけどPythonで機械学習モデルを実装したい、そんな人のための第一歩" href="http://b.hatena.ne.jp/entry/http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e初学者でもわかりやすかったです！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-03-08T18:37:27+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:755590,&quot;is_team&quot;:false,&quot;item_id&quot;:349094,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9b6e1e989f4eaefdc31d&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;初学者でもわかりやすかったです！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d#comment-2cfcea11976a91c0eae2&quot;,&quot;user&quot;:{&quot;contribution&quot;:45,&quot;created_at&quot;:&quot;2015-09-10T11:53:24+09:00&quot;,&quot;id&quot;:92915,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/92915/profile-images/1473705781&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;moriaki3193&quot;},&quot;uuid&quot;:&quot;2cfcea11976a91c0eae2&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:349094,&quot;uuid&quot;:&quot;9b6e1e989f4eaefdc31d&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;hik0107&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:68432,&quot;url_name&quot;:&quot;hik0107&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/68432/profile-images/1473697846&quot;},{&quot;id&quot;:92915,&quot;url_name&quot;:&quot;moriaki3193&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/92915/profile-images/1473705781&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-f6ad0e0d-0c52-477d-9100-2826c2f2db76"></div>
+    <div id="CommentListContainer-react-component-f6ad0e0d-0c52-477d-9100-2826c2f2db76"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="24CNJ5KIX1vUPw1GTuPcyNXa9/smds0sfYuZDDrtGCMjZbPrBE7evN9rftA/25vfrGPq0AFGgdicvlICCgFnjw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/hik0107/items/9b6e1e989f4eaefdc31d" /><input type="hidden" name="item_uuid" id="item_uuid" value="9b6e1e989f4eaefdc31d" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/hik0107/items/9b6e1e989f4eaefdc31d", "id": 349094, "uuid": "9b6e1e989f4eaefdc31d" }</script><script class="js-user" type="application/json">{&quot;id&quot;:68432,&quot;url_name&quot;:&quot;hik0107&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/68432/profile-images/1473697846&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="PCIhOLnyI5EL/d4pu5Kyw5SPipw8njJt6L7wzw/IAWfExx/0LzSidgCprb/KqvXU7TaXtxuufpkJizvBPyR+yw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/hik0107/items/9b6e1e989f4eaefdc31d" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

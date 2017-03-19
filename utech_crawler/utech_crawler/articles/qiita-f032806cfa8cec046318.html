@@ -1,0 +1,777 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>異常検知と変化検知のまとめ　数式なし - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="この記事は、「Machine Learning Advent Calendar 2015」の17日目の記事になります。
+
+「異常検知と変化検知」の本は良書だったので買うのに迷っている人のためにまとめてみました。
+間違いがあれば、ご指摘頂けると幸いです。
+
+
+
+数式を見て厳密に理解したい方は書籍購入をおススメします。
+またコードに直すときはアルゴリズムが必要です。
+本書籍ではアルゴリズムも記述してくれいてるのでおススメできます。
+本記事ではアルゴリズムには言及しません。
+..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="SnowGushiGit" name="twitter:creator" /><meta content="異常検知と変化検知のまとめ　数式なし - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/GushiSnow/items/f032806cfa8cec046318" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="この記事は、「Machine Learning Advent Calendar 2015」の17日目の記事になります。
+
+「異常検知と変化検知」の本は良書だったので買うのに迷っている人のためにまとめてみました。
+間違いがあれば、ご指摘..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="5zYwTKwbqwmVVE5JQfaGQLdpo/urLk3UnkfZHu3+TjQYyWCXHdDPIvWIaP2uuBH0dJvRJW079Oz/bJWOMG0iVA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"GushiSnow","type":"items","id":"f032806cfa8cec046318"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-d86a9747-dc45-4b1e-b579-b1d819793282"></div>
+    <div id="HeaderContainer-react-component-d86a9747-dc45-4b1e-b579-b1d819793282"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5",        "name": "異常検知"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2015/machinelearning">Machine Learning Advent Calendar 2015</a> Day 17</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">異常検知と変化検知のまとめ　数式なし</h1><ul class="TagList"><li class="TagList__item" data-count="9"><a class="u-link-unstyled TagList__label" href="/tags/%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><img alt="異常検知" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>異常検知</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">160</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:160,&quot;uuid&quot;:&quot;f032806cfa8cec046318&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="bighope"><a itemprop="url" href="/bighope"><img alt="bighope" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83472/profile-images/1473702787" /></a></li><li class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></li><li class="js-hovercard" data-hovercard-target-name="ayaniimi213"><a itemprop="url" href="/ayaniimi213"><img alt="ayaniimi213" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31830/profile-images/1473685778" /></a></li><li class="js-hovercard" data-hovercard-target-name="knoguchi"><a itemprop="url" href="/knoguchi"><img alt="knoguchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13775/profile-images/1473683016" /></a></li><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></li><li class="js-hovercard" data-hovercard-target-name="canard0328"><a itemprop="url" href="/canard0328"><img alt="canard0328" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52533/profile-images/1473692763" /></a></li><li class="js-hovercard" data-hovercard-target-name="siero5335"><a itemprop="url" href="/siero5335"><img alt="siero5335" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86556/profile-images/1473703785" /></a></li><li class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></li><li class="js-hovercard" data-hovercard-target-name="hiraiva"><a itemprop="url" href="/hiraiva"><img alt="hiraiva" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12369/profile-images/1473682385" /></a></li><li><a href="/GushiSnow/items/f032806cfa8cec046318/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/GushiSnow"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" alt="1473757289" /></a> <a class="u-link-unstyled" href="/GushiSnow">GushiSnow</a> </div><div class="ArticleAsideHeader__date"><span>posted at <time datetime="2015-12-17T00:00:49+09:00" itemprop="datePublished">2015-12-17</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/GushiSnow/items/f032806cfa8cec046318.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-f032806cfa8cec046318" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>この記事は、「Machine Learning Advent Calendar 2015」の17日目の記事になります。</p>
+
+<p>「異常検知と変化検知」の本は良書だったので買うのに迷っている人のためにまとめてみました。<br>
+間違いがあれば、ご指摘頂けると幸いです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/4e26e283-65f1-bbf0-bc2a-0899412d12e8.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/4e26e283-65f1-bbf0-bc2a-0899412d12e8.jpeg" alt="hyousi.jpg"></a></p>
+
+<p>数式を見て厳密に理解したい方は書籍購入をおススメします。<br>
+またコードに直すときはアルゴリズムが必要です。<br>
+本書籍ではアルゴリズムも記述してくれいてるのでおススメできます。<br>
+本記事ではアルゴリズムには言及しません。</p>
+
+<p><a href="http://www.amazon.co.jp/dp/4061529080?_encoding=UTF8&amp;isInIframe=0&amp;n=465392&amp;ref_=dp_proddesc_0&amp;s=books&amp;showDetailProductDesc=1#product-description_feature_div" class="autolink" rel="nofollow noopener" target="_blank">http://www.amazon.co.jp/dp/4061529080?_encoding=UTF8&amp;isInIframe=0&amp;n=465392&amp;ref_=dp_proddesc_0&amp;s=books&amp;showDetailProductDesc=1#product-description_feature_div</a></p>
+
+<h1>
+<span id="この記事で得られるもの" class="fragment"></span><a href="#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%A7%E5%BE%97%E3%82%89%E3%82%8C%E3%82%8B%E3%82%82%E3%81%AE"><i class="fa fa-link"></i></a>この記事で得られるもの</h1>
+
+<p>１：異常検知における手法の種類<br>
+２：異常検知における手法をどのシーンで使用するか<br>
+３：異常検知における機械学習をどのように応用するか</p>
+
+<p>以上です。</p>
+
+<h1>
+<span id="本記事の見方" class="fragment"></span><a href="#%E6%9C%AC%E8%A8%98%E4%BA%8B%E3%81%AE%E8%A6%8B%E6%96%B9"><i class="fa fa-link"></i></a>本記事の見方</h1>
+
+<p>利用シーンと簡単な手法を記述したので、利用シーン</p>
+
+<h2>
+<span id="異常検知の基本的な所だけ抑えたい" class="fragment"></span><a href="#%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5%E3%81%AE%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E6%89%80%E3%81%A0%E3%81%91%E6%8A%91%E3%81%88%E3%81%9F%E3%81%84"><i class="fa fa-link"></i></a>異常検知の基本的な所だけ抑えたい</h2>
+
+<p>異常検知と変化検知の基本的な考え方<br>
+ホテリング法による異常検知<br>
+単純ベイズ法による異常検知</p>
+
+<h2>
+<span id="シーンに応じた異常検知の手法を把握したい" class="fragment"></span><a href="#%E3%82%B7%E3%83%BC%E3%83%B3%E3%81%AB%E5%BF%9C%E3%81%98%E3%81%9F%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5%E3%81%AE%E6%89%8B%E6%B3%95%E3%82%92%E6%8A%8A%E6%8F%A1%E3%81%97%E3%81%9F%E3%81%84"><i class="fa fa-link"></i></a>シーンに応じた異常検知の手法を把握したい</h2>
+
+<p>近傍法による異常検知<br>
+混合分布モデルによつ逐次更新型異常検知<br>
+サポートべクトルデータ記述法による異常検知<br>
+方向データの異常検知<br>
+ガウス過程回帰による異常検知<br>
+部分空間法による異常検知<br>
+疎構造学習による異常検知</p>
+
+<h1>
+<span id="最新の最適化手法まで抑えたい" class="fragment"></span><a href="#%E6%9C%80%E6%96%B0%E3%81%AE%E6%9C%80%E9%81%A9%E5%8C%96%E6%89%8B%E6%B3%95%E3%81%BE%E3%81%A7%E6%8A%91%E3%81%88%E3%81%9F%E3%81%84"><i class="fa fa-link"></i></a>最新の最適化手法まで抑えたい</h1>
+
+<p>密度比推定による異常検知<br>
+密度比推定による変化検知</p>
+
+<p>全体像</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/2a8aa2a1-eab0-5189-b9f2-4d2460a518be.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/2a8aa2a1-eab0-5189-b9f2-4d2460a518be.jpeg" alt="異常検知と変化検知.jpg"></a></p>
+
+<p>上側の基礎を基に応用範囲について説明していきます。</p>
+
+<h1>
+<span id="異常検知と変化検知の基本的な考え方" class="fragment"></span><a href="#%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5%E3%81%A8%E5%A4%89%E5%8C%96%E6%A4%9C%E7%9F%A5%E3%81%AE%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E8%80%83%E3%81%88%E6%96%B9"><i class="fa fa-link"></i></a>異常検知と変化検知の基本的な考え方</h1>
+
+<p>異常検知は異常な値を観測した瞬間に異常を検知して欲しいものですが、そのためには正常なデータが何かを把握する必要があります。<br>
+正常なデータがどのように表れるかを把握すれば、異常なデータはそれとは異なるようなデータであれば異常と判断できます。<br>
+では正常なデータはどのように判断すれば良いでしょう。</p>
+
+<p>ここで使う考え方が確率分布です。確率分布を把握するとすべてのデータを把握しなくても正常なデータが取りうるだろう値を予測できる点が良い点です。</p>
+
+<p>確率分布の良さはデータをもっとも良く表す確率分布を推定することが出来れば、データの推定は容易になります。<br>
+全てのデータに対して推定する必要がなく、確率分布の推定さえできれば良いということが利点です。</p>
+
+<h2>
+<span id="確率分布の推定精度を測る指標" class="fragment"></span><a href="#%E7%A2%BA%E7%8E%87%E5%88%86%E5%B8%83%E3%81%AE%E6%8E%A8%E5%AE%9A%E7%B2%BE%E5%BA%A6%E3%82%92%E6%B8%AC%E3%82%8B%E6%8C%87%E6%A8%99"><i class="fa fa-link"></i></a>確率分布の推定精度を測る指標</h2>
+
+<p>正常標本精度：正常のデータ当てれた精度</p>
+
+<p>異常標本精度：異常なデータを当てれた精度</p>
+
+<p>上記のバランスを取った値がF値といわれる値です。</p>
+
+<p>F値：正常標本精度と異常標本精度の調和平均<br>
+（ROC曲線で調査することもある）</p>
+
+<p>下記の例だと極端ですが、データが正規分布に従うと仮定して、異常値が検出された場合に把握できることが分かると思います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/d65c1048-b40b-60d8-c960-c4af290cc038.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/d65c1048-b40b-60d8-c960-c4af290cc038.jpeg" alt="スライド2.JPG"></a></p>
+
+<h1>
+<span id="ホテリング法による異常検知" class="fragment"></span><a href="#%E3%83%9B%E3%83%86%E3%83%AA%E3%83%B3%E3%82%B0%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>ホテリング法による異常検知</h1>
+
+<h2>
+<span id="利用シーン" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>データが多変量正規分布に従う時（ランダムなデータなど）の異常度検出の方法。<br>
+この多変量正規分布を最尤推定し、（平均と分散を推定する）得られたデータとのマハラノビス距離を計算することで一定の距離以上離れたものは異常と判断する手法。</p>
+
+<h2>
+<span id="理由" class="fragment"></span><a href="#%E7%90%86%E7%94%B1"><i class="fa fa-link"></i></a>理由：</h2>
+
+<p>マハラノビス距離はデータのばらつきに左右されない距離なので、ばらつきの多いデータの異常度を測るときに有効。<br>
+ただしマハラノビス距離はカイ2乗分布に従うため、カイ2乗分布に当てはめて問題を解く必要がある。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/20a6390d-3181-e3fb-4ddd-99c91f118080.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/20a6390d-3181-e3fb-4ddd-99c91f118080.jpeg" alt="スライド3.JPG"></a></p>
+
+<h1>
+<span id="単純ベイズ法による異常検知" class="fragment"></span><a href="#%E5%8D%98%E7%B4%94%E3%83%99%E3%82%A4%E3%82%BA%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>単純ベイズ法による異常検知</h1>
+
+<h2>
+<span id="利用シーン-1" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-1"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>変数が多い場合に変数切り分けて問題を解く手法がナイーブベイズです。</p>
+
+<p>例えば迷惑メールフィルタの場合</p>
+
+<p>迷惑メールになる要素が</p>
+
+<p>1:リンクが多い<br>
+2:文章が異常に長い<br>
+3:画像が貼ってある<br>
+4:文章に適切でない単語が含まれる。（単語の数文だけ0と1で表される次元）<br>
+：</p>
+
+<h2>
+<span id="理由-1" class="fragment"></span><a href="#%E7%90%86%E7%94%B1-1"><i class="fa fa-link"></i></a>理由</h2>
+
+<p>次元数が多い場合に各次元が独立だと仮定し、ベイズの決定則を使用すれば1次元の問題に変換して最尤推定が可能になる。</p>
+
+<p>独立と仮定すると共分散の非対角成分が0とおいたものを扱えるので単純な平均と分散を計算する問題にラベルなしデータでも扱える。</p>
+
+<h2>
+<span id="多項分布" class="fragment"></span><a href="#%E5%A4%9A%E9%A0%85%E5%88%86%E5%B8%83"><i class="fa fa-link"></i></a>多項分布</h2>
+
+<h3>
+<span id="利用シーン-2" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-2"><i class="fa fa-link"></i></a>利用シーン</h3>
+
+<p>想定する分布が正規分布ではない場合</p>
+
+<p>・各商品の閲覧回数<br>
+・各ジャンルの本の貸出回数</p>
+
+<p>頻度専用の分布として多項分布で問題を解く場合も同様に独立として考えることができます。<br>
+ただし一度も表れないケースも考慮に入れる必要があるためスムージングと呼ばれる処理が行われています。</p>
+
+<p>多項分布を推定するときに事前知識を考慮する事前分布のパラメータを使用する。この時の事前分布はディリクレ分布でベイズの定理を用いて事後確率を推定する。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/e1caa2fa-ff51-d9e9-8965-657619cfbba7.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/e1caa2fa-ff51-d9e9-8965-657619cfbba7.jpeg" alt="スライド4.JPG"></a></p>
+
+<h1>
+<span id="近傍法による異常検知" class="fragment"></span><a href="#%E8%BF%91%E5%82%8D%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>近傍法による異常検知</h1>
+
+<h2>
+<span id="利用シーン-3" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-3"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>ホテリングの手法が有効なのはデータが一定値の周りに集中しているような状況のみです。<br>
+そのような制約がない手法として、近傍法があります。</p>
+
+<p>下図のように近傍を取る点を与えてその半径εが大きい点を取るようなデータは異常度を疑う手法。</p>
+
+<h2>
+<span id="手法" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>kの初期値に依存するため、半径εの設定はユークリッド距離で設定されています。<br>
+距離が適切でない場合は局所はずれ値度という手法が用いられます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/f6a41192-eba9-80da-592c-8506d149e2b0.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/f6a41192-eba9-80da-592c-8506d149e2b0.jpeg" alt="スライド5.JPG"></a></p>
+
+<h2>
+<span id="マージン最大化近傍法" class="fragment"></span><a href="#%E3%83%9E%E3%83%BC%E3%82%B8%E3%83%B3%E6%9C%80%E5%A4%A7%E5%8C%96%E8%BF%91%E5%82%8D%E6%B3%95"><i class="fa fa-link"></i></a>マージン最大化近傍法</h2>
+
+<h3>
+<span id="利用シーン-4" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-4"><i class="fa fa-link"></i></a>利用シーン</h3>
+
+<p>ユークリッド距離の変わりに行列Aを半正定値行列と見立てて、データから学習することでより性能が向上できます。<br>
+分類したいグループとそうでないグループのマージンを最大化する手法をとるともっとも識別能力が上がるのでこの手法が使用されます。</p>
+
+<h2>
+<span id="手法-1" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-1"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>最適化の手法には劣勾配と固有値計算が組み合わされて使用されます。</p>
+
+<p>劣勾配とは通常の微分では計算できないような角の部分だけ正の項を入力して後は外す手法です。</p>
+
+<p>固有値計算は変換する行列を固有値分解して負の固有値を0で置き換えることです。</p>
+
+<p>確率モデルでも、データの近傍にしかデータが発生しないという定理の元に成り立ちます。</p>
+
+<h1>
+<span id="混合分布モデルによつ逐次更新型異常検知" class="fragment"></span><a href="#%E6%B7%B7%E5%90%88%E5%88%86%E5%B8%83%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AB%E3%82%88%E3%81%A4%E9%80%90%E6%AC%A1%E6%9B%B4%E6%96%B0%E5%9E%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>混合分布モデルによつ逐次更新型異常検知</h1>
+
+<h2>
+<span id="利用シーン-5" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-5"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>実データはいろんな状態を含んだモデルが多く存在します。例えば発汗量と消費カロリーの関係性では運動時と平常時では観測される値が異なることが直観的もわかると思います。<br>
+混合分布モデルによる逐次更新型異常検知は直観を異なる複数のモードを持つ系の列にしたものであります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/10496/5b241e7a-2e55-4685-5d5f-19f7244545ec.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/10496/5b241e7a-2e55-4685-5d5f-19f7244545ec.jpeg" alt="スライド6.JPG"></a></p>
+
+<h2>
+<span id="手法-2" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-2"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>EM法を用いて最適化（解析的に求まらないため）</p>
+
+<p><a href="http://www.slideshare.net/takao-y/20131113-em" class="autolink" rel="nofollow noopener" target="_blank">http://www.slideshare.net/takao-y/20131113-em</a></p>
+
+<p>最適化の手法には逐次更新とバッチ更新があります（逐次更新の場合は忘却率を用意して、過去の値を引きづりすぎないようにします）</p>
+
+<h1>
+<span id="サポートべクトルデータ記述法による異常検知" class="fragment"></span><a href="#%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%81%B9%E3%82%AF%E3%83%88%E3%83%AB%E3%83%87%E3%83%BC%E3%82%BF%E8%A8%98%E8%BF%B0%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>サポートべクトルデータ記述法による異常検知</h1>
+
+<h2>
+<span id="利用シーン-6" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-6"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>異常と正常を分けているベクトルは少数でそれはサポートベクトルと呼ばれる。<br>
+カーネルトリックを用いて、複雑な最適化問題を簡単な問題にしたい場合に使用する。</p>
+
+<h2>
+<span id="手法-3" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-3"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>双対問題で問題を解きやすい形に置き換えて、カーネルトリックにより別の次元で単純な分類できる問題に置き換えて、サポートベクトルと呼ばれる識別面のみをよく表すベクトルで異常度を検知する手法です。<br>
+注意点として、カーネルトリックによる別空間への写像は特殊なテクニックでパラメータに依存するので確認してから使用が必要です。</p>
+
+<h1>
+<span id="方向データの異常検知" class="fragment"></span><a href="#%E6%96%B9%E5%90%91%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>方向データの異常検知</h1>
+
+<h2>
+<span id="利用シーン-7" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-7"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>長さが揃っているデータで方向が異なるもの扱う分布を使用します。（大量の文書における各文書の単語の頻度ベクトルを規格化した場合など）</p>
+
+<h2>
+<span id="手法-4" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-4"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>フォンミーゼス・フィッシャー分布（平均方向と集中度のパラメータを持つ）<br>
+方向データに対して有効な分布<br>
+異常度のカイ2乗分布により異常と検知する。</p>
+
+<h1>
+<span id="ガウス過程回帰による異常検知" class="fragment"></span><a href="#%E3%82%AC%E3%82%A6%E3%82%B9%E9%81%8E%E7%A8%8B%E5%9B%9E%E5%B8%B0%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>ガウス過程回帰による異常検知</h1>
+
+<h2>
+<span id="利用シーン-8" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-8"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>入力と出力を観測して応答異常検知が可能なためシーンで使用します。</p>
+
+<h2>
+<span id="手法-5" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-5"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>観測モデルと滑らかさを制御するモデルの２つで構成されます。</p>
+
+<p>観測モデル<br>
+＊正規分布を考慮して、ノイズを含んだ予測を行います。<br>
+滑らかさを制御するモデル<br>
+＊正規分布で分散がデータの類似度を表します。</p>
+
+<p>予測までのステップ</p>
+
+<p>１：データの分布を求めます<br>
+２：データの分布と事前分布から事後分布を求めます<br>
+３：予測分布を求めます</p>
+
+<p>予測分布はリッジ回帰にカーネルトリックを適用したものです</p>
+
+<h1>
+<span id="部分空間法による異常検知" class="fragment"></span><a href="#%E9%83%A8%E5%88%86%E7%A9%BA%E9%96%93%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>部分空間法による異常検知</h1>
+
+<h2>
+<span id="利用シーン-9" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-9"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>変化が起こるが正常時のモデルと異常時のモデルが明らかに異なる場合のケースです。</p>
+
+<h2>
+<span id="手法-6" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-6"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>正常状態の正規分布と異常状態の正規分布の比率で異常を検知します。<br>
+局所的な値で異常を検知せずに累積統計量を用いて、境界の値を超えているかどうかを検知します。<br>
+集約窓を使用して統計量を算出し、異常がないかどうかを検出します。</p>
+
+<h2>
+<span id="特異スペクトル変換" class="fragment"></span><a href="#%E7%89%B9%E7%95%B0%E3%82%B9%E3%83%9A%E3%82%AF%E3%83%88%E3%83%AB%E5%A4%89%E6%8F%9B"><i class="fa fa-link"></i></a>特異スペクトル変換</h2>
+
+<h3>
+<span id="利用シーン-10" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-10"><i class="fa fa-link"></i></a>利用シーン</h3>
+
+<p>フォンゼス・フィッシャー分布を使用することで方向データを扱えるので、ノイズに強くなる利点があるため、部分空間でも特にノイズが多い場合に使用します。</p>
+
+<h3>
+<span id="手法-7" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-7"><i class="fa fa-link"></i></a>手法</h3>
+
+<p>フォンゼス・フィッシャー分布を使用して、部分空間同士の距離を評価することで変化度を計算する手法です。<br>
+特異値分解を行うことによってノイズ除去と同等の効果を発揮させます。</p>
+
+<p>固有値分解をスペクトル分解と呼ぶ所に由来します。</p>
+
+<p>計算量が多いのでランチョス法で計算量の改善は行います。</p>
+
+<h1>
+<span id="疎構造学習による異常検知" class="fragment"></span><a href="#%E7%96%8E%E6%A7%8B%E9%80%A0%E5%AD%A6%E7%BF%92%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>疎構造学習による異常検知</h1>
+
+<h2>
+<span id="利用シーン-11" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-11"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>多変量の変数で表される観測業務で使用</p>
+
+<p>各変数間の関係性に着目して、その変数の寄与度合を予測します。</p>
+
+<p>直接相関と間接相関を区別して、行わないと相関関係のないものも相関関係があると勘違いしてしまいます。</p>
+
+<p>例として”教会と殺人のパラドックス”があります。<br>
+教会の数と殺人の数に正の相関が見られたことです。<br>
+これは都市の人工という変数を介して相関が出た例ですが、明らかに適切でないことが予想できます。</p>
+
+<h2>
+<span id="手法-8" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-8"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>1：多変量正規分布を用いて、各変数間の関係性を表す。これによってすべての変数のペアを考える必要がなくなり、期待値と共分散のみでデータを表すことで可能になります。<br>
+2：この多変量正規分布の精度行列を求めれば、変数間の相関関係が求まります。<br>
+3：今回、求めたい行列の前提としてノイズに強い疎な行列を前提にします。<br>
+4：その場合は疎な事前分布をもつラプラス分布を事前分布として、最大事後確率推定により、精度行列を推定する方がよいです。<br>
+5：行列の最適化の場合はブロック座標降下法を使用して、変数を一塊として最適化を行います。</p>
+
+<h3>
+<span id="異常度計算時" class="fragment"></span><a href="#%E7%95%B0%E5%B8%B8%E5%BA%A6%E8%A8%88%E7%AE%97%E6%99%82"><i class="fa fa-link"></i></a>異常度計算時</h3>
+
+<p>あるデータが得られたときにそのデータと他のデータの条件付き確率を計算し、全体に対しての各値の異常度を計算</p>
+
+<p>正常なデータと異常値を含むデータのカルバック・ライブラー・ダイバージェンス距離を計算します。</p>
+
+<p>計算が少々ややこしいので密度比推定の手法が重宝されます。</p>
+
+<h1>
+<span id="密度比推定による異常検知" class="fragment"></span><a href="#%E5%AF%86%E5%BA%A6%E6%AF%94%E6%8E%A8%E5%AE%9A%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>密度比推定による異常検知</h1>
+
+<p>この手法が強力な点はノイズに左右されづらく、応用範囲が広い点です。概念としては直接値を推定せずに密度比を推定するので理解しづらい点がありますが、理解できるとその強力さに脱帽します。</p>
+
+<h2>
+<span id="利用シーン-12" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-12"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>正常なデータをもとに異常なデータを含むであろうデータの中から異常データを検出する時<br>
+個々のデータを見ずにデータ全体を見るため、個々のデータのノイズが載らずに精度が高くなる可能性があります。</p>
+
+<h2>
+<span id="手法-9" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-9"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>カルバック・ライブラー密度比推定手法</p>
+
+<p>１：密度比を表す基本モデルとして線形モデルを仮定<br>
+２：線形モデルに使用するパラメータは密度比ともとの確率分布の情報理論的距離（カルバック・ライブラーダイバージェンス）が近くなるように推定</p>
+
+<p>最小化手法：最小2乗密度比推定法</p>
+
+<h1>
+<span id="密度比推定による変化検知" class="fragment"></span><a href="#%E5%AF%86%E5%BA%A6%E6%AF%94%E6%8E%A8%E5%AE%9A%E3%81%AB%E3%82%88%E3%82%8B%E5%A4%89%E5%8C%96%E6%A4%9C%E7%9F%A5"><i class="fa fa-link"></i></a>密度比推定による変化検知</h1>
+
+<h2>
+<span id="利用シーン-13" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-13"><i class="fa fa-link"></i></a>利用シーン</h2>
+
+<p>カルバック・ライブラーダイバージェンスではノイズの影響を受けやすい。特に構造学習においては個々の値のノイズが全体に影響してしまう。<br>
+センサデータなどのノイズが不可避なデータに対して、分布変化検知問題を解くには別の尺度が必要です。</p>
+
+<h2>
+<span id="手法-10" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95-10"><i class="fa fa-link"></i></a>手法</h2>
+
+<p>ピアソン・ダイバージェンス：対数関数を含まないため、カルバック・ライブラーダイバージェンスよりも異常値にロバスト（変化に強い）<br>
+相対ピアソン・ダイバージェンス：異常値に関する感度とロバスト性をコントロールする関数があるため、用途によって調整可能です。</p>
+
+<p>構造変化検知でも、一つ一つの値を導出するとノイズがのり、精緻な推定が難しいため、正確なデータの精度行列と異常値を含むデータの精度行列の差を取って、カルバック・ライブラーダイバージェンスを用いて、密度比を直接推定します。</p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<p>統計処理ソフトウェアRについてのTips<br>
+<a href="http://minato.sip21c.org/swtips/R.html" class="autolink" rel="nofollow noopener" target="_blank">http://minato.sip21c.org/swtips/R.html</a></p>
+
+<p>多項分布<br>
+<a href="http://www.weblio.jp/content/%E5%A4%9A%E9%A0%85%E5%88%86%E5%B8%83" class="autolink" rel="nofollow noopener" target="_blank">http://www.weblio.jp/content/%E5%A4%9A%E9%A0%85%E5%88%86%E5%B8%83</a></p>
+
+<p>「異常検知と変化検知」<br>
+<a href="http://www.amazon.co.jp/dp/4061529080?_encoding=UTF8&amp;isInIframe=0&amp;n=465392&amp;ref_=dp_proddesc_0&amp;s=books&amp;showDetailProductDesc=1#product-description_feature_div" class="autolink" rel="nofollow noopener" target="_blank">http://www.amazon.co.jp/dp/4061529080?_encoding=UTF8&amp;isInIframe=0&amp;n=465392&amp;ref_=dp_proddesc_0&amp;s=books&amp;showDetailProductDesc=1#product-description_feature_div</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/GushiSnow/items/f032806cfa8cec046318" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="uiK8QdCJsUQ/bSOs8anL2zDOnDy8RckqeKxKIrNgG81F3eyaYULVb1+xBRge51xv8zzu4npQcBIZhwaybvN3rQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1450278049" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+この記事は、「Machine Learning Advent Calendar 2015」の17日目の記事になります。
+
+「異常検知と変化検知」の本は良書だったので買うのに迷っている人のためにまとめてみました。
+間違いがあれば、ご指摘頂けると幸いです。
+
+![hyousi.jpg](https://qiita-image-store.s3.amazonaws.com/0/10496/4e26e283-65f1-bbf0-bc2a-0899412d12e8.jpeg)
+
+数式を見て厳密に理解したい方は書籍購入をおススメします。
+またコードに直すときはアルゴリズムが必要です。
+本書籍ではアルゴリズムも記述してくれいてるのでおススメできます。
+本記事ではアルゴリズムには言及しません。
+
+http://www.amazon.co.jp/dp/4061529080?_encoding=UTF8&amp;isInIframe=0&amp;n=465392&amp;ref_=dp_proddesc_0&amp;s=books&amp;showDetailProductDesc=1#product-description_feature_div
+
+#この記事で得られるもの
+
+１：異常検知における手法の種類
+２：異常検知における手法をどのシーンで使用するか
+３：異常検知における機械学習をどのように応用するか
+
+以上です。
+
+#本記事の見方
+
+利用シーンと簡単な手法を記述したので、利用シーン
+
+##異常検知の基本的な所だけ抑えたい
+
+異常検知と変化検知の基本的な考え方
+ホテリング法による異常検知
+単純ベイズ法による異常検知
+
+##シーンに応じた異常検知の手法を把握したい
+
+近傍法による異常検知
+混合分布モデルによつ逐次更新型異常検知
+サポートべクトルデータ記述法による異常検知
+方向データの異常検知
+ガウス過程回帰による異常検知
+部分空間法による異常検知
+疎構造学習による異常検知
+
+#最新の最適化手法まで抑えたい
+
+密度比推定による異常検知
+密度比推定による変化検知
+
+全体像
+
+![異常検知と変化検知.jpg](https://qiita-image-store.s3.amazonaws.com/0/10496/2a8aa2a1-eab0-5189-b9f2-4d2460a518be.jpeg)
+
+上側の基礎を基に応用範囲について説明していきます。
+
+#異常検知と変化検知の基本的な考え方
+
+異常検知は異常な値を観測した瞬間に異常を検知して欲しいものですが、そのためには正常なデータが何かを把握する必要があります。
+正常なデータがどのように表れるかを把握すれば、異常なデータはそれとは異なるようなデータであれば異常と判断できます。
+では正常なデータはどのように判断すれば良いでしょう。
+
+ここで使う考え方が確率分布です。確率分布を把握するとすべてのデータを把握しなくても正常なデータが取りうるだろう値を予測できる点が良い点です。
+
+確率分布の良さはデータをもっとも良く表す確率分布を推定することが出来れば、データの推定は容易になります。
+全てのデータに対して推定する必要がなく、確率分布の推定さえできれば良いということが利点です。
+
+##確率分布の推定精度を測る指標
+
+正常標本精度：正常のデータ当てれた精度
+
+異常標本精度：異常なデータを当てれた精度
+
+上記のバランスを取った値がF値といわれる値です。
+
+F値：正常標本精度と異常標本精度の調和平均
+（ROC曲線で調査することもある）
+
+下記の例だと極端ですが、データが正規分布に従うと仮定して、異常値が検出された場合に把握できることが分かると思います。
+
+![スライド2.JPG](https://qiita-image-store.s3.amazonaws.com/0/10496/d65c1048-b40b-60d8-c960-c4af290cc038.jpeg)
+
+#ホテリング法による異常検知
+
+##利用シーン
+
+データが多変量正規分布に従う時（ランダムなデータなど）の異常度検出の方法。
+この多変量正規分布を最尤推定し、（平均と分散を推定する）得られたデータとのマハラノビス距離を計算することで一定の距離以上離れたものは異常と判断する手法。
+
+##理由：
+マハラノビス距離はデータのばらつきに左右されない距離なので、ばらつきの多いデータの異常度を測るときに有効。
+ただしマハラノビス距離はカイ2乗分布に従うため、カイ2乗分布に当てはめて問題を解く必要がある。
+
+![スライド3.JPG](https://qiita-image-store.s3.amazonaws.com/0/10496/20a6390d-3181-e3fb-4ddd-99c91f118080.jpeg)
+
+
+#単純ベイズ法による異常検知
+
+##利用シーン
+
+変数が多い場合に変数切り分けて問題を解く手法がナイーブベイズです。
+
+例えば迷惑メールフィルタの場合
+
+迷惑メールになる要素が
+
+1:リンクが多い
+2:文章が異常に長い
+3:画像が貼ってある
+4:文章に適切でない単語が含まれる。（単語の数文だけ0と1で表される次元）
+：
+
+##理由
+次元数が多い場合に各次元が独立だと仮定し、ベイズの決定則を使用すれば1次元の問題に変換して最尤推定が可能になる。
+
+独立と仮定すると共分散の非対角成分が0とおいたものを扱えるので単純な平均と分散を計算する問題にラベルなしデータでも扱える。
+
+##多項分布
+
+###利用シーン
+想定する分布が正規分布ではない場合
+
+・各商品の閲覧回数
+・各ジャンルの本の貸出回数
+
+頻度専用の分布として多項分布で問題を解く場合も同様に独立として考えることができます。
+ただし一度も表れないケースも考慮に入れる必要があるためスムージングと呼ばれる処理が行われています。
+
+多項分布を推定するときに事前知識を考慮する事前分布のパラメータを使用する。この時の事前分布はディリクレ分布でベイズの定理を用いて事後確率を推定する。
+
+![スライド4.JPG](https://qiita-image-store.s3.amazonaws.com/0/10496/e1caa2fa-ff51-d9e9-8965-657619cfbba7.jpeg)
+
+
+#近傍法による異常検知
+
+##利用シーン
+ホテリングの手法が有効なのはデータが一定値の周りに集中しているような状況のみです。
+そのような制約がない手法として、近傍法があります。
+
+下図のように近傍を取る点を与えてその半径εが大きい点を取るようなデータは異常度を疑う手法。
+
+##手法
+kの初期値に依存するため、半径εの設定はユークリッド距離で設定されています。
+距離が適切でない場合は局所はずれ値度という手法が用いられます。
+
+
+![スライド5.JPG](https://qiita-image-store.s3.amazonaws.com/0/10496/f6a41192-eba9-80da-592c-8506d149e2b0.jpeg)
+
+##マージン最大化近傍法
+
+###利用シーン
+ユークリッド距離の変わりに行列Aを半正定値行列と見立てて、データから学習することでより性能が向上できます。
+分類したいグループとそうでないグループのマージンを最大化する手法をとるともっとも識別能力が上がるのでこの手法が使用されます。
+
+##手法
+最適化の手法には劣勾配と固有値計算が組み合わされて使用されます。
+
+劣勾配とは通常の微分では計算できないような角の部分だけ正の項を入力して後は外す手法です。
+
+固有値計算は変換する行列を固有値分解して負の固有値を0で置き換えることです。
+
+確率モデルでも、データの近傍にしかデータが発生しないという定理の元に成り立ちます。
+
+#混合分布モデルによつ逐次更新型異常検知
+
+##利用シーン
+実データはいろんな状態を含んだモデルが多く存在します。例えば発汗量と消費カロリーの関係性では運動時と平常時では観測される値が異なることが直観的もわかると思います。
+混合分布モデルによる逐次更新型異常検知は直観を異なる複数のモードを持つ系の列にしたものであります。
+
+![スライド6.JPG](https://qiita-image-store.s3.amazonaws.com/0/10496/5b241e7a-2e55-4685-5d5f-19f7244545ec.jpeg)
+
+
+##手法
+EM法を用いて最適化（解析的に求まらないため）
+
+http://www.slideshare.net/takao-y/20131113-em
+
+最適化の手法には逐次更新とバッチ更新があります（逐次更新の場合は忘却率を用意して、過去の値を引きづりすぎないようにします）
+
+#サポートべクトルデータ記述法による異常検知
+
+##利用シーン
+
+異常と正常を分けているベクトルは少数でそれはサポートベクトルと呼ばれる。
+カーネルトリックを用いて、複雑な最適化問題を簡単な問題にしたい場合に使用する。
+
+##手法
+
+双対問題で問題を解きやすい形に置き換えて、カーネルトリックにより別の次元で単純な分類できる問題に置き換えて、サポートベクトルと呼ばれる識別面のみをよく表すベクトルで異常度を検知する手法です。
+注意点として、カーネルトリックによる別空間への写像は特殊なテクニックでパラメータに依存するので確認してから使用が必要です。
+
+#方向データの異常検知
+
+##利用シーン
+長さが揃っているデータで方向が異なるもの扱う分布を使用します。（大量の文書における各文書の単語の頻度ベクトルを規格化した場合など）
+
+##手法
+フォンミーゼス・フィッシャー分布（平均方向と集中度のパラメータを持つ）
+方向データに対して有効な分布
+異常度のカイ2乗分布により異常と検知する。
+
+#ガウス過程回帰による異常検知
+
+##利用シーン
+入力と出力を観測して応答異常検知が可能なためシーンで使用します。
+
+##手法
+観測モデルと滑らかさを制御するモデルの２つで構成されます。
+
+観測モデル
+＊正規分布を考慮して、ノイズを含んだ予測を行います。
+滑らかさを制御するモデル
+＊正規分布で分散がデータの類似度を表します。
+
+予測までのステップ
+
+１：データの分布を求めます
+２：データの分布と事前分布から事後分布を求めます
+３：予測分布を求めます
+
+予測分布はリッジ回帰にカーネルトリックを適用したものです
+
+#部分空間法による異常検知
+
+##利用シーン
+変化が起こるが正常時のモデルと異常時のモデルが明らかに異なる場合のケースです。
+
+##手法
+正常状態の正規分布と異常状態の正規分布の比率で異常を検知します。
+局所的な値で異常を検知せずに累積統計量を用いて、境界の値を超えているかどうかを検知します。
+集約窓を使用して統計量を算出し、異常がないかどうかを検出します。
+
+##特異スペクトル変換
+
+###利用シーン
+フォンゼス・フィッシャー分布を使用することで方向データを扱えるので、ノイズに強くなる利点があるため、部分空間でも特にノイズが多い場合に使用します。
+
+###手法
+フォンゼス・フィッシャー分布を使用して、部分空間同士の距離を評価することで変化度を計算する手法です。
+特異値分解を行うことによってノイズ除去と同等の効果を発揮させます。
+
+固有値分解をスペクトル分解と呼ぶ所に由来します。
+
+計算量が多いのでランチョス法で計算量の改善は行います。
+
+#疎構造学習による異常検知
+
+##利用シーン
+
+多変量の変数で表される観測業務で使用
+
+各変数間の関係性に着目して、その変数の寄与度合を予測します。
+
+直接相関と間接相関を区別して、行わないと相関関係のないものも相関関係があると勘違いしてしまいます。
+
+例として”教会と殺人のパラドックス”があります。
+教会の数と殺人の数に正の相関が見られたことです。
+これは都市の人工という変数を介して相関が出た例ですが、明らかに適切でないことが予想できます。
+
+##手法
+
+1：多変量正規分布を用いて、各変数間の関係性を表す。これによってすべての変数のペアを考える必要がなくなり、期待値と共分散のみでデータを表すことで可能になります。
+2：この多変量正規分布の精度行列を求めれば、変数間の相関関係が求まります。
+3：今回、求めたい行列の前提としてノイズに強い疎な行列を前提にします。
+4：その場合は疎な事前分布をもつラプラス分布を事前分布として、最大事後確率推定により、精度行列を推定する方がよいです。
+5：行列の最適化の場合はブロック座標降下法を使用して、変数を一塊として最適化を行います。
+
+###異常度計算時
+
+あるデータが得られたときにそのデータと他のデータの条件付き確率を計算し、全体に対しての各値の異常度を計算
+
+正常なデータと異常値を含むデータのカルバック・ライブラー・ダイバージェンス距離を計算します。
+
+計算が少々ややこしいので密度比推定の手法が重宝されます。
+
+#密度比推定による異常検知
+
+この手法が強力な点はノイズに左右されづらく、応用範囲が広い点です。概念としては直接値を推定せずに密度比を推定するので理解しづらい点がありますが、理解できるとその強力さに脱帽します。
+
+##利用シーン
+正常なデータをもとに異常なデータを含むであろうデータの中から異常データを検出する時
+個々のデータを見ずにデータ全体を見るため、個々のデータのノイズが載らずに精度が高くなる可能性があります。
+
+##手法
+カルバック・ライブラー密度比推定手法
+
+１：密度比を表す基本モデルとして線形モデルを仮定
+２：線形モデルに使用するパラメータは密度比ともとの確率分布の情報理論的距離（カルバック・ライブラーダイバージェンス）が近くなるように推定
+
+最小化手法：最小2乗密度比推定法
+
+#密度比推定による変化検知
+
+##利用シーン
+カルバック・ライブラーダイバージェンスではノイズの影響を受けやすい。特に構造学習においては個々の値のノイズが全体に影響してしまう。
+センサデータなどのノイズが不可避なデータに対して、分布変化検知問題を解くには別の尺度が必要です。
+
+##手法
+
+ピアソン・ダイバージェンス：対数関数を含まないため、カルバック・ライブラーダイバージェンスよりも異常値にロバスト（変化に強い）
+相対ピアソン・ダイバージェンス：異常値に関する感度とロバスト性をコントロールする関数があるため、用途によって調整可能です。
+
+構造変化検知でも、一つ一つの値を導出するとノイズがのり、精緻な推定が難しいため、正確なデータの精度行列と異常値を含むデータの精度行列の差を取って、カルバック・ライブラーダイバージェンスを用いて、密度比を直接推定します。
+
+
+#参考
+
+統計処理ソフトウェアRについてのTips
+http://minato.sip21c.org/swtips/R.html
+
+多項分布
+http://www.weblio.jp/content/%E5%A4%9A%E9%A0%85%E5%88%86%E5%B8%83
+
+「異常検知と変化検知」
+http://www.amazon.co.jp/dp/4061529080?_encoding=UTF8&amp;isInIframe=0&amp;n=465392&amp;ref_=dp_proddesc_0&amp;s=books&amp;showDetailProductDesc=1#product-description_feature_div
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="異常検知と変化検知のまとめ　数式なし by @SnowGushiGit on @Qiita" data-url="http://qiita.com/GushiSnow/items/f032806cfa8cec046318" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="異常検知と変化検知のまとめ　数式なし" href="http://b.hatena.ne.jp/entry/http://qiita.com/GushiSnow/items/f032806cfa8cec046318" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/GushiSnow/items/f032806cfa8cec046318" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/GushiSnow/items/f032806cfa8cec046318" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/GushiSnow"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/GushiSnow">GushiSnow</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1583</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;GushiSnow&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-4e7d3408-968a-44d0-8c48-fe6f2b17da00"></div>
+    <div id="UserFollowButton-react-component-4e7d3408-968a-44d0-8c48-fe6f2b17da00"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/79ca7deeb976f50126d7">Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/f032806cfa8cec046318">異常検知と変化検知のまとめ　数式なし</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/8156d440540b0a11dfe6">数式をなるべく使わずにトピックモデルの解説にチャレンジ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/d7c5a09b38d3ca650abd">単純なキーワードマッチングを超えたWikiPediaの知識を利用した自然言語処理を行いたい方へ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/GushiSnow/items/1b855f94bd43001e85e3">結婚式で余興を頼まれた時の画像処理をPythonでやってみる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%A7%E5%BE%97%E3%82%89%E3%82%8C%E3%82%8B%E3%82%82%E3%81%AE\&quot;\u003eこの記事で得られるもの\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9C%AC%E8%A8%98%E4%BA%8B%E3%81%AE%E8%A6%8B%E6%96%B9\&quot;\u003e本記事の見方\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5%E3%81%AE%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E6%89%80%E3%81%A0%E3%81%91%E6%8A%91%E3%81%88%E3%81%9F%E3%81%84\&quot;\u003e異常検知の基本的な所だけ抑えたい\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B7%E3%83%BC%E3%83%B3%E3%81%AB%E5%BF%9C%E3%81%98%E3%81%9F%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5%E3%81%AE%E6%89%8B%E6%B3%95%E3%82%92%E6%8A%8A%E6%8F%A1%E3%81%97%E3%81%9F%E3%81%84\&quot;\u003eシーンに応じた異常検知の手法を把握したい\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9C%80%E6%96%B0%E3%81%AE%E6%9C%80%E9%81%A9%E5%8C%96%E6%89%8B%E6%B3%95%E3%81%BE%E3%81%A7%E6%8A%91%E3%81%88%E3%81%9F%E3%81%84\&quot;\u003e最新の最適化手法まで抑えたい\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5%E3%81%A8%E5%A4%89%E5%8C%96%E6%A4%9C%E7%9F%A5%E3%81%AE%E5%9F%BA%E6%9C%AC%E7%9A%84%E3%81%AA%E8%80%83%E3%81%88%E6%96%B9\&quot;\u003e異常検知と変化検知の基本的な考え方\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%A2%BA%E7%8E%87%E5%88%86%E5%B8%83%E3%81%AE%E6%8E%A8%E5%AE%9A%E7%B2%BE%E5%BA%A6%E3%82%92%E6%B8%AC%E3%82%8B%E6%8C%87%E6%A8%99\&quot;\u003e確率分布の推定精度を測る指標\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9B%E3%83%86%E3%83%AA%E3%83%B3%E3%82%B0%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003eホテリング法による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%90%86%E7%94%B1\&quot;\u003e理由：\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8D%98%E7%B4%94%E3%83%99%E3%82%A4%E3%82%BA%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003e単純ベイズ法による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-1\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%90%86%E7%94%B1-1\&quot;\u003e理由\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%A4%9A%E9%A0%85%E5%88%86%E5%B8%83\&quot;\u003e多項分布\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-2\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%BF%91%E5%82%8D%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003e近傍法による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-3\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9E%E3%83%BC%E3%82%B8%E3%83%B3%E6%9C%80%E5%A4%A7%E5%8C%96%E8%BF%91%E5%82%8D%E6%B3%95\&quot;\u003eマージン最大化近傍法\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-4\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-1\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B7%B7%E5%90%88%E5%88%86%E5%B8%83%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AB%E3%82%88%E3%81%A4%E9%80%90%E6%AC%A1%E6%9B%B4%E6%96%B0%E5%9E%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003e混合分布モデルによつ逐次更新型異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-5\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-2\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%81%B9%E3%82%AF%E3%83%88%E3%83%AB%E3%83%87%E3%83%BC%E3%82%BF%E8%A8%98%E8%BF%B0%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003eサポートべクトルデータ記述法による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-6\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-3\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%B9%E5%90%91%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003e方向データの異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-7\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-4\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AC%E3%82%A6%E3%82%B9%E9%81%8E%E7%A8%8B%E5%9B%9E%E5%B8%B0%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003eガウス過程回帰による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-8\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-5\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%83%A8%E5%88%86%E7%A9%BA%E9%96%93%E6%B3%95%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003e部分空間法による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-9\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-6\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%89%B9%E7%95%B0%E3%82%B9%E3%83%9A%E3%82%AF%E3%83%88%E3%83%AB%E5%A4%89%E6%8F%9B\&quot;\u003e特異スペクトル変換\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-10\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-7\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%8E%E6%A7%8B%E9%80%A0%E5%AD%A6%E7%BF%92%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003e疎構造学習による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-11\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-8\&quot;\u003e手法\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%95%B0%E5%B8%B8%E5%BA%A6%E8%A8%88%E7%AE%97%E6%99%82\&quot;\u003e異常度計算時\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AF%86%E5%BA%A6%E6%AF%94%E6%8E%A8%E5%AE%9A%E3%81%AB%E3%82%88%E3%82%8B%E7%95%B0%E5%B8%B8%E6%A4%9C%E7%9F%A5\&quot;\u003e密度比推定による異常検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-12\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-9\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AF%86%E5%BA%A6%E6%AF%94%E6%8E%A8%E5%AE%9A%E3%81%AB%E3%82%88%E3%82%8B%E5%A4%89%E5%8C%96%E6%A4%9C%E7%9F%A5\&quot;\u003e密度比推定による変化検知\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%82%B7%E3%83%BC%E3%83%B3-13\&quot;\u003e利用シーン\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95-10\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-097f8a44-b878-4b5b-b70f-1a3509b51636"></div>
+    <div id="Toc-react-component-097f8a44-b878-4b5b-b70f-1a3509b51636"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:160,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;f032806cfa8cec046318&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="bighope"><a itemprop="url" href="/bighope"><img alt="bighope" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83472/profile-images/1473702787" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ayaniimi213"><a itemprop="url" href="/ayaniimi213"><img alt="ayaniimi213" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31830/profile-images/1473685778" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="knoguchi"><a itemprop="url" href="/knoguchi"><img alt="knoguchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13775/profile-images/1473683016" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="canard0328"><a itemprop="url" href="/canard0328"><img alt="canard0328" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52533/profile-images/1473692763" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="siero5335"><a itemprop="url" href="/siero5335"><img alt="siero5335" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86556/profile-images/1473703785" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiraiva"><a itemprop="url" href="/hiraiva"><img alt="hiraiva" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12369/profile-images/1473682385" /></a></div></div><div class="ArticleFooter__user"><a href="/GushiSnow/items/f032806cfa8cec046318/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/f032806cfa8cec046318/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/GushiSnow/items/f032806cfa8cec046318.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.17</span> article of <a class="title" href="/advent-calendar/2015/machinelearning">Machine Learning Advent Calendar 2015</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 16:</span><span class="itemsShowBody_adventCalendar_title"> <a class="itemsShowBody_adventCalendar_link" href="/advent-calendar/2015/machinelearning#day-16">Prev</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 18:</span><span class="itemsShowBody_adventCalendar_title"><img alt="icoxfog417" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/icoxfog417/items/74a7ea1a2d5dc0b02187">トピックモデルを利用した対話アプリケーションの作成</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/deaikei/items/af728ab0d43ca97bc1f6#_reference-aa8a06ecab201ea8d1b3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/132984/profile-images/1473718815" />ターニングポイントを探せ！ 【change finderで時系列の変化点抽出】</a><time class="references_datetime js-dateTimeView" datetime="2016-11-09T10:02:33+00:00">4 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="異常検知と変化検知のまとめ　数式なし by @SnowGushiGit on @Qiita" data-url="http://qiita.com/GushiSnow/items/f032806cfa8cec046318" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="異常検知と変化検知のまとめ　数式なし" href="http://b.hatena.ne.jp/entry/http://qiita.com/GushiSnow/items/f032806cfa8cec046318" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/GushiSnow/items/f032806cfa8cec046318" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/GushiSnow/items/f032806cfa8cec046318" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:353404,&quot;uuid&quot;:&quot;f032806cfa8cec046318&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;GushiSnow&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:10496,&quot;url_name&quot;:&quot;GushiSnow&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-917ca6dc-17c4-4ffe-9daf-969b0db236be"></div>
+    <div id="CommentListContainer-react-component-917ca6dc-17c4-4ffe-9daf-969b0db236be"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="xaCy7lSC2JhqeUEvdN5OfzbYmyi+ShmKlp/DobwV7D06X+I15Um8swqlZ5ubkNnL9Srp9nhfoLL3tI8xYYaAXQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/GushiSnow/items/f032806cfa8cec046318" /><input type="hidden" name="item_uuid" id="item_uuid" value="f032806cfa8cec046318" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/GushiSnow/items/f032806cfa8cec046318", "id": 353404, "uuid": "f032806cfa8cec046318" }</script><script class="js-user" type="application/json">{&quot;id&quot;:10496,&quot;url_name&quot;:&quot;GushiSnow&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="5r+5qxXSMarZMUWMLaVJXK6sy6NV+43n9QV3DCRK50YZQOlwpBlVgbntYzjC697obV65fZPuNN+ULjuc+dmLJg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/GushiSnow/items/f032806cfa8cec046318" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-74817818-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

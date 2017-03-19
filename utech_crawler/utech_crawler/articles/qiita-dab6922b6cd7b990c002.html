@@ -1,0 +1,779 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>TensorFlowチュートリアル - 画像認識（翻訳） - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="TensorFlow のチュートリアル（Image Recognition）
+https://www.tensorflow.org/versions/master/tutorials/image_recognition
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+
+
+我々の脳は視覚を簡単に作るように思えます。人は、ライオンとジャガーを見分け、サインを読み取り、人間の顔を認識することに努力を必要としません。しかし、実際には、これらはコンピュータで解決す..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="KojiOhki" name="twitter:creator" /><meta content="TensorFlowチュートリアル - 画像認識（翻訳） - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="TensorFlow のチュートリアル（Image Recognition）
+https://www.tensorflow.org/versions/master/tutorials/image_recognition
+の翻訳です。
+..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="N9VYr2e1q/CgmY4eqErYp6yBoHJUZcrY9ei20gi3T9DIKgh01n7P28BFqKpHBE8Tb3PSrJJwc+CUw/pC1SQjsA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"KojiOhki","type":"items","id":"dab6922b6cd7b990c002"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-34757488-cd07-4cfb-b3ca-6d208986376a"></div>
+    <div id="HeaderContainer-react-component-34757488-cd07-4cfb-b3ca-6d208986376a"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">TensorFlowチュートリアル - 画像認識（翻訳）</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">119</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:119,&quot;uuid&quot;:&quot;dab6922b6cd7b990c002&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></li><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="yutorin"><a itemprop="url" href="/yutorin"><img alt="yutorin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102597/profile-images/1473708751" /></a></li><li class="js-hovercard" data-hovercard-target-name="minewebstaff"><a itemprop="url" href="/minewebstaff"><img alt="minewebstaff" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46049/profile-images/1473690517" /></a></li><li class="js-hovercard" data-hovercard-target-name="kmiyachi1024"><a itemprop="url" href="/kmiyachi1024"><img alt="kmiyachi1024" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15046/profile-images/1473683626" /></a></li><li class="js-hovercard" data-hovercard-target-name="knaga1220"><a itemprop="url" href="/knaga1220"><img alt="knaga1220" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98725/profile-images/1473707588" /></a></li><li class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></li><li class="js-hovercard" data-hovercard-target-name="murataR"><a itemprop="url" href="/murataR"><img alt="murataR" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106926/profile-images/1473710084" /></a></li><li class="js-hovercard" data-hovercard-target-name="windhorn"><a itemprop="url" href="/windhorn"><img alt="windhorn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42363/profile-images/1473689129" /></a></li><li class="js-hovercard" data-hovercard-target-name="izktmys"><a itemprop="url" href="/izktmys"><img alt="izktmys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102327/profile-images/1473708664" /></a></li><li><a href="/KojiOhki/items/dab6922b6cd7b990c002/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/KojiOhki"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" alt="1473684259" /></a> <a class="u-link-unstyled" href="/KojiOhki">KojiOhki</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-24T10:50:32+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-24">Edited at <time datetime="2017-01-05T10:39:41+09:00" itemprop="dateModified">2017-01-05</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/KojiOhki/items/dab6922b6cd7b990c002/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">2</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/KojiOhki/items/dab6922b6cd7b990c002/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(2)</span></a></li><li><a href="/KojiOhki/items/dab6922b6cd7b990c002.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-dab6922b6cd7b990c002" itemprop="articleBody"><p>TensorFlow のチュートリアル（Image Recognition）<br>
+<a href="https://www.tensorflow.org/versions/master/tutorials/image_recognition" class="autolink" rel="nofollow noopener" target="_blank">https://www.tensorflow.org/versions/master/tutorials/image_recognition</a><br>
+の翻訳です。<br>
+翻訳の誤りなどあればご指摘お待ちしております。</p>
+
+<hr>
+
+<p>我々の脳は視覚を簡単に作るように思えます。人は、ライオンとジャガーを見分け、サインを読み取り、人間の顔を認識することに努力を必要としません。しかし、実際には、これらはコンピュータで解決することが難しい問題です：それが簡単に思えるのは、ただ、我々の脳が、画像を理解することに非常に優れているからです。</p>
+
+<p>ここ数年、機械学習の分野では、これらの困難な問題に対処することに驚異的な進歩を遂げています。特に、深い<a href="http://colah.github.io/posts/2014-07-Conv-Nets-Modular/" rel="nofollow noopener" target="_blank">畳み込みニューラルネットワーク</a>と呼ばれる種類のモデルが、難しい視覚認識タスクにおいて、そこそこのパフォーマンス、ある領域においては人と同等かそれ以上、を達成できることが判明しました。</p>
+
+<p>研究者は、彼らの成果を <a href="http://www.image-net.org/" rel="nofollow noopener" target="_blank">ImageNet</a>（コンピュータ・ビジョンのための学術ベンチマーク）で検証することにより、コンピュータ・ビジョンにおいて着実な進展を示しました。<a href="http://static.googleusercontent.com/media/research.google.com/en//archive/unsupervised_icml2012.pdf" rel="nofollow noopener" target="_blank">QuocNet</a>、<a href="http://www.cs.toronto.edu/%7Efritz/absps/imagenet.pdf" rel="nofollow noopener" target="_blank">AlexNet</a>、 <a href="http://arxiv.org/abs/1409.4842" rel="nofollow noopener" target="_blank">Inception (GoogLeNet)</a>、<a href="http://arxiv.org/abs/1502.03167" rel="nofollow noopener" target="_blank">BN-Inception-v2</a> など、次々に現れるモデルは、改善を示し続け、各段階で最先端の結果を達成しています。Google 内外の研究者は、これらのモデルを記述した論文を発表してきましたが、これらの結果を再現することはまだ難しいです。弊社は、弊社の最新モデルである <a href="http://arxiv.org/abs/1512.00567" rel="nofollow noopener" target="_blank">Inception-v3</a> で画像認識を実行するコードを公開することにより、次のステップに移りつつあります。</p>
+
+<p>Inception-v3 は、<a href="http://image-net.org/" rel="nofollow noopener" target="_blank">ImageNet</a> 大規模視覚認識チャレンジのために、2012年から、データを使用して訓練されています。 これは、コンピュータ・ビジョンにおける標準的なタスクで、モデルが画像全体を、「シマウマ」、「ダルメシアン」、「食器洗い機」のように、<a href="http://image-net.org/challenges/LSVRC/2014/browse-synsets" rel="nofollow noopener" target="_blank">1000クラス</a>に分類することを試みます。例えば、<a href="http://www.cs.toronto.edu/%7Efritz/absps/imagenet.pdf" rel="nofollow noopener" target="_blank">AlexNet</a> が一部の画像を分類した結果は以下のとおりです：</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/AlexClassification.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/AlexClassification.png" alt="図"></a></p>
+
+<p>モデルを比較するために、モデルが予測したトップ5の中に正しい答えがなかった頻度（「トップ5エラー率」と呼ぶ）を調べます。<a href="http://www.cs.toronto.edu/%7Efritz/absps/imagenet.pdf" rel="nofollow noopener" target="_blank">AlexNet</a> は2012検証データセットに対し15.3％のトップ5エラー率を達成し、<a href="http://arxiv.org/abs/1502.03167" rel="nofollow noopener" target="_blank">BN-Inception-v2</a> は6.66%を達成、<a href="http://arxiv.org/abs/1512.00567" rel="nofollow noopener" target="_blank">Inception-v3</a> は3.46％に達しました。</p>
+
+<blockquote>
+<p>人は ImageNet チャレンジをどの程度うまくできるのでしょうか？自身のパフォーマンスの測定を試みた Andrej Karpathy による<a href="http://karpathy.github.io/2014/09/02/what-i-learned-from-competing-against-a-convnet-on-imagenet/" rel="nofollow noopener" target="_blank">ブログ記事</a>があります。彼は5.1％のトップ5エラー率でした。</p>
+</blockquote>
+
+<p>このチュートリアルでは、<a href="http://arxiv.org/abs/1512.00567" rel="nofollow noopener" target="_blank">Inception-v3</a> を使用する方法をお教えします。Python や C++ で画像を<a href="http://image-net.org/challenges/LSVRC/2014/browse-synsets" rel="nofollow noopener" target="_blank">1000クラス</a>に分類する方法を学びます。また、このモデルから、他のビジョン・タスクに再利用可能な、より高いレベルの特徴を抽出する方法を説明します。</p>
+
+<p>私たちは、コミュニティがこのモデルですることを想像し、興奮しています。</p>
+
+<h2>
+<span id="python-api-での使用法" class="fragment"></span><a href="#python-api-%E3%81%A7%E3%81%AE%E4%BD%BF%E7%94%A8%E6%B3%95"><i class="fa fa-link"></i></a>Python API での使用法</h2>
+
+<p>classify_image.py プログラムを初めて実行すると、tensorflow.org から訓練済みモデルがダウンロードされます。ハードディスクに約200Mの使用可能な空き領域が必要です。</p>
+
+<p>以下の手順では、PIP パッケージから TensorFlow をインストールし、ターミナルが TensorFlow のルートディレクトリにあることを前提とします。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">cd tensorflow/models/image/imagenet</span>
+<span class="go">python classify_image.py</span>
+</pre></div></div>
+
+<p>上記のコマンドは、与えられたパンダの画像を分類します。</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/cropped_panda.jpg" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/cropped_panda.jpg" alt="図"></a></p>
+
+<p>モデルが正しく実行された場合、スクリプトは次のような出力を生成します。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca (score = 0.88493)</span>
+<span class="go">indri, indris, Indri indri, Indri brevicaudatus (score = 0.00878)</span>
+<span class="go">lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens (score = 0.00317)</span>
+<span class="go">custard apple (score = 0.00149)</span>
+<span class="go">earthstar (score = 0.00127)</span>
+</pre></div></div>
+
+<p>--image_file 引数を編集することで、他のJPEG画像を与えることができます。</p>
+
+<blockquote>
+<p>別のディレクトリにモデル・データをダウンロードする場合、--model_dir に使用するディレクトリを指定する必要があります。</p>
+</blockquote>
+
+<h2>
+<span id="c-api-での使用法" class="fragment"></span><a href="#c-api-%E3%81%A7%E3%81%AE%E4%BD%BF%E7%94%A8%E6%B3%95"><i class="fa fa-link"></i></a>C++ API での使用法</h2>
+
+<p>同じ <a href="http://arxiv.org/abs/1512.00567" rel="nofollow noopener" target="_blank">Inception-v3</a> モデルを、本番環境のために C++ で実行することができます。（TensorFlow リポジトリのルートディレクトリから実行することにより）このようなモデルを定義する GraphDef を含むアーカイブをダウンロードできます：</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">wget https://storage.googleapis.com/download.tensorflow.org/models/inception_dec_2015.zip -O tensorflow/examples/label_image/data/inception_dec_2015.zip</span>
+
+<span class="go">unzip tensorflow/examples/label_image/data/inception_dec_2015.zip -d tensorflow/examples/label_image/data/</span>
+</pre></div></div>
+
+<p>次に、グラフをロードして実行するコードを含む、C++ のバイナリをコンパイルする必要があります。TensorFlow をご使用中のプラットフォームの<a href="http://www.tensorflow.org/versions/master/get_started/os_setup.html#source" rel="nofollow noopener" target="_blank">ソースからインストール</a>している場合は、シェルの端末から以下のコマンドを実行して、サンプルをビルドできるはずです：</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">bazel build tensorflow/examples/label_image/...</span>
+</pre></div></div>
+
+<p>バイナリ実行ファイルが作成され、以下のように実行できるはずです。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">bazel-bin/tensorflow/examples/label_image/label_image</span>
+</pre></div></div>
+
+<p>フレームワークに含まれるデフォルト・サンプル画像が使用され、以下のように出力されるはずです：</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">I tensorflow/examples/label_image/main.cc:200] military uniform (866): 0.647296</span>
+<span class="go">I tensorflow/examples/label_image/main.cc:200] suit (794): 0.0477196</span>
+<span class="go">I tensorflow/examples/label_image/main.cc:200] academic gown (896): 0.0232411</span>
+<span class="go">I tensorflow/examples/label_image/main.cc:200] bow tie (817): 0.0157356</span>
+<span class="go">I tensorflow/examples/label_image/main.cc:200] bolo tie (940): 0.0145024</span>
+</pre></div></div>
+
+<p>ここでは、デフォルトの<a href="https://en.wikipedia.org/wiki/Grace_Hopper" rel="nofollow noopener" target="_blank">グレース・ホッパー提督</a>の画像を使用し、彼女が軍服を着ていることをネットワークが0.6の高得点で正しく識別できていることが確認できます。</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/grace_hopper.jpg" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/grace_hopper.jpg" alt="図"></a></p>
+
+<p>次に、--image= 引数を与えることにより、独自の画像で試してみます、例えば</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">bazel-bin/tensorflow/examples/label_image/label_image --image=my_image.png</span>
+</pre></div></div>
+
+<p><a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/label_image/main.cc" rel="nofollow noopener" target="_blank">tensorflow/examples/label_image/main.cc</a> ファイルの中身を見れば、それがどのように動作するかを知ることができます。このコードが、TensorFlow を独自のアプリケーションに統合する助けになるように、main 関数を介して、詳細に見ていきます：</p>
+
+<p>コマンドライン・フラグは、ファイルのロード元および入力画像のプロパティを制御します。モデルは、正方形の 299x299 RGB 画像を入力とするので、それらを input_width と input_height フラグに設定します。また、ピクセル値を 0〜255 の整数からグラフが動作する浮動小数点値にスケーリングする必要があります。input_mean と input_std フラグでスケーリングを制御します：最初に各ピクセル値から input_mean を引き、そして input_std で割ります。</p>
+
+<p>これらの値は、多少マジック的に思われるかもしれませんが、元のモデル作成者が訓練の入力画像として使用したものに基づき、定義しています。あなた自身が訓練してきたグラフを使用する場合は、訓練プロセス中に使用したものに合わせて値を調整する必要があります。</p>
+
+<p><a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/label_image/main.cc#L88" rel="nofollow noopener" target="_blank">ReadTensorFromImageFile()</a> 関数内で、それらを画像に適用する方法を確認できます。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+<span class="c1">// Given an image file name, read in the data, try to decode it as an image,</span>
+<span class="c1">// resize it to the requested size, and then scale the values as desired.</span>
+<span class="n">Status</span> <span class="nf">ReadTensorFromImageFile</span><span class="p">(</span><span class="n">string</span> <span class="n">file_name</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">input_height</span><span class="p">,</span>
+                               <span class="k">const</span> <span class="kt">int</span> <span class="n">input_width</span><span class="p">,</span> <span class="k">const</span> <span class="kt">float</span> <span class="n">input_mean</span><span class="p">,</span>
+                               <span class="k">const</span> <span class="kt">float</span> <span class="n">input_std</span><span class="p">,</span>
+                               <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Tensor</span><span class="o">&gt;*</span> <span class="n">out_tensors</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">GraphDefBuilder</span> <span class="n">b</span><span class="p">;</span>
+</pre></div></div>
+
+<p>GraphDefBuilder を生成することから始めます。これは実行またはロードするモデルを指定するために使用するオブジェクトです。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="n">string</span> <span class="n">input_name</span> <span class="o">=</span> <span class="s">"file_reader"</span><span class="p">;</span>
+  <span class="n">string</span> <span class="n">output_name</span> <span class="o">=</span> <span class="s">"normalized"</span><span class="p">;</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">Node</span><span class="o">*</span> <span class="n">file_reader</span> <span class="o">=</span>
+      <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">ReadFile</span><span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Const</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">()),</span>
+                                <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">().</span><span class="n">WithName</span><span class="p">(</span><span class="n">input_name</span><span class="p">));</span>
+</pre></div></div>
+
+<p>そして、小さなモデルのノードを生成します。このノードは、メイン・モデルが入力として期待する結果を得るために、ロード、サイズ変更、ピクセル値のスケーリングをします。作成する最初のノードは、ロードしたい画像のファイル名を持つテンソルを保持しているだけの、Const 操作です。それはその後、 ReadFile 操作の第1入力として渡されます。すべての操作作成関数の最後の引数として、b.opts() を渡していることに気づいたでしょうか？この引数は、GraphDefBuilder に保持されるモデル定義に、ノードが追加されることを保証します。また、b.opts() の後に WithName() の呼び出しを行うことで、ReadFile 操作に名前を付けます。これは、ノードに名前を付けます。ノードに名前を付けなかった場合、自動的に名前が割り当てられますので、厳密には必須ではありませんが、名前を付けておくことでデバッグが少し楽になります。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="c1">// Now try to figure out what kind of file it is and decode it.</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">wanted_channels</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">Node</span><span class="o">*</span> <span class="n">image_reader</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">StringPiece</span><span class="p">(</span><span class="n">file_name</span><span class="p">).</span><span class="n">ends_with</span><span class="p">(</span><span class="s">".png"</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">image_reader</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">DecodePng</span><span class="p">(</span>
+        <span class="n">file_reader</span><span class="p">,</span>
+        <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">().</span><span class="n">WithAttr</span><span class="p">(</span><span class="s">"channels"</span><span class="p">,</span> <span class="n">wanted_channels</span><span class="p">).</span><span class="n">WithName</span><span class="p">(</span><span class="s">"png_reader"</span><span class="p">));</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// Assume if it's not a PNG then it must be a JPEG.</span>
+    <span class="n">image_reader</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">DecodeJpeg</span><span class="p">(</span>
+        <span class="n">file_reader</span><span class="p">,</span>
+        <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">().</span><span class="n">WithAttr</span><span class="p">(</span><span class="s">"channels"</span><span class="p">,</span> <span class="n">wanted_channels</span><span class="p">).</span><span class="n">WithName</span><span class="p">(</span><span class="s">"jpeg_reader"</span><span class="p">));</span>
+  <span class="p">}</span>
+  <span class="c1">// Now cast the image data to float so we can do normal math on it.</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">Node</span><span class="o">*</span> <span class="n">float_caster</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Cast</span><span class="p">(</span>
+      <span class="n">image_reader</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">DT_FLOAT</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">().</span><span class="n">WithName</span><span class="p">(</span><span class="s">"float_caster"</span><span class="p">));</span>
+  <span class="c1">// The convention for image ops in TensorFlow is that all images are expected</span>
+  <span class="c1">// to be in batches, so that they're four-dimensional arrays with indices of</span>
+  <span class="c1">// [batch, height, width, channel]. Because we only have a single image, we</span>
+  <span class="c1">// have to add a batch dimension of 1 to the start with ExpandDims().</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">Node</span><span class="o">*</span> <span class="n">dims_expander</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">ExpandDims</span><span class="p">(</span>
+      <span class="n">float_caster</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Const</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">()),</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">());</span>
+  <span class="c1">// Bilinearly resize the image to fit the required dimensions.</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">Node</span><span class="o">*</span> <span class="n">resized</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">ResizeBilinear</span><span class="p">(</span>
+      <span class="n">dims_expander</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Const</span><span class="p">({</span><span class="n">input_height</span><span class="p">,</span> <span class="n">input_width</span><span class="p">},</span>
+                                            <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">().</span><span class="n">WithName</span><span class="p">(</span><span class="s">"size"</span><span class="p">)),</span>
+      <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">());</span>
+  <span class="c1">// Subtract the mean and divide by the scale.</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Div</span><span class="p">(</span>
+      <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Sub</span><span class="p">(</span>
+          <span class="n">resized</span><span class="p">,</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Const</span><span class="p">({</span><span class="n">input_mean</span><span class="p">},</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">()),</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">()),</span>
+      <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Const</span><span class="p">({</span><span class="n">input_std</span><span class="p">},</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">()),</span>
+      <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">().</span><span class="n">WithName</span><span class="p">(</span><span class="n">output_name</span><span class="p">));</span>
+</pre></div></div>
+
+<p>ノードの追加を続けます。これらのノードは、ファイル・データを画像に復号化し、整数を浮動小数点数にキャストし、それをサイズ変更し、最後にピクセル値の減算と除算操作を実行します。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="c1">// This runs the GraphDef network definition that we've just constructed, and</span>
+  <span class="c1">// returns the results in the output tensor.</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">GraphDef</span> <span class="n">graph</span><span class="p">;</span>
+  <span class="n">TF_RETURN_IF_ERROR</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">ToGraphDef</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">));</span>
+</pre></div></div>
+
+<p>前段の終わりで、b 変数に格納されたモデル定義が得られます。ToGraphDef() 関数によりこれを完全なグラフ定義に変換します。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Session</span><span class="o">&gt;</span> <span class="n">session</span><span class="p">(</span>
+      <span class="n">tensorflow</span><span class="o">::</span><span class="n">NewSession</span><span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">SessionOptions</span><span class="p">()));</span>
+  <span class="n">TF_RETURN_IF_ERROR</span><span class="p">(</span><span class="n">session</span><span class="o">-&gt;</span><span class="n">Create</span><span class="p">(</span><span class="n">graph</span><span class="p">));</span>
+  <span class="n">TF_RETURN_IF_ERROR</span><span class="p">(</span><span class="n">session</span><span class="o">-&gt;</span><span class="n">Run</span><span class="p">({},</span> <span class="p">{</span><span class="n">output_name</span><span class="p">},</span> <span class="p">{},</span> <span class="n">out_tensors</span><span class="p">));</span>
+  <span class="k">return</span> <span class="n">Status</span><span class="o">::</span><span class="n">OK</span><span class="p">();</span>
+</pre></div></div>
+
+<p>その後、<a href="http://www.tensorflow.org/versions/master/api_docs/cc/ClassSession.html#class-tensorflow-session" rel="nofollow noopener" target="_blank">Session</a> オブジェクト（グラフを実際に実行するためのインターフェース）を生成し、どのノードから出力を得たいか、どこに出力データを置くべきかを指定して、実行します。</p>
+
+<p>これは Tensor オブジェクトのベクトルを返します。これはこの場合単に我々が昔から知っている単一のオブジェクトです。この文脈では、Tensor を多次元配列として考えることができます。それは高さ 299 ピクセル、幅 299 ピクセル、3チャンネルの画像を、浮動小数点値として保持します。あなたの製品が独自の画像処理フレームワークを使用している場合、同じ変換を適用する限り、メイン・グラフに画像をフィードする前に、代わりにそれを使用できるはずです。</p>
+
+<p>これは、C++ で動的に小さな TensorFlow グラフを作成する簡単な例ですが、事前訓練済みの Inception モデルを使うために、ファイルからはるかに大きな定義をロードします。LoadGraph() 関数でその方法を確認することができます。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+<span class="c1">// Reads a model graph definition from disk, and creates a session object you</span>
+<span class="c1">// can use to run it.</span>
+<span class="n">Status</span> <span class="nf">LoadGraph</span><span class="p">(</span><span class="n">string</span> <span class="n">graph_file_name</span><span class="p">,</span>
+                 <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Session</span><span class="o">&gt;*</span> <span class="n">session</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">GraphDef</span> <span class="n">graph_def</span><span class="p">;</span>
+  <span class="n">Status</span> <span class="n">load_graph_status</span> <span class="o">=</span>
+      <span class="n">ReadBinaryProto</span><span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Env</span><span class="o">::</span><span class="n">Default</span><span class="p">(),</span> <span class="n">graph_file_name</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">graph_def</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">load_graph_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">errors</span><span class="o">::</span><span class="n">NotFound</span><span class="p">(</span><span class="s">"Failed to load compute graph at '"</span><span class="p">,</span>
+                                        <span class="n">graph_file_name</span><span class="p">,</span> <span class="s">"'"</span><span class="p">);</span>
+  <span class="p">}</span>
+</pre></div></div>
+
+<p>画像ロードのコードを見ると、用語の多くは、おなじみに思われるはずです。GraphDef オブジェクトを生成するために GraphDefBuilder を使用するのではなく、GraphDef を直接含む protobuf ファイルをロードします。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="n">session</span><span class="o">-&gt;</span><span class="n">reset</span><span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">NewSession</span><span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">SessionOptions</span><span class="p">()));</span>
+  <span class="n">Status</span> <span class="n">session_create_status</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">session</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Create</span><span class="p">(</span><span class="n">graph_def</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">session_create_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">session_create_status</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">Status</span><span class="o">::</span><span class="n">OK</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div></div>
+
+<p>その後、その GraphDef から Session オブジェクトを生成し、後で実行できるように、呼び出し元にそれを渡します。</p>
+
+<p>GetTopLabels() 関数は大部分画像ロードに似ていますが、メイン・グラフの実行結果を取り、それを最高スコアのラベルのソート済みリストに変換します。画像ローダーのように、GraphDefBuilder を生成し、それに二つのノードを追加し、短いグラフを実行して出力テンソルのペアを取得します。出力テンソルのペアは、ソート済みスコアと、最高結果のインデックス位置を表します。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+<span class="c1">// Analyzes the output of the Inception graph to retrieve the highest scores and</span>
+<span class="c1">// their positions in the tensor, which correspond to categories.</span>
+<span class="n">Status</span> <span class="nf">GetTopLabels</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Tensor</span><span class="o">&gt;&amp;</span> <span class="n">outputs</span><span class="p">,</span> <span class="kt">int</span> <span class="n">how_many_labels</span><span class="p">,</span>
+                    <span class="n">Tensor</span><span class="o">*</span> <span class="n">indices</span><span class="p">,</span> <span class="n">Tensor</span><span class="o">*</span> <span class="n">scores</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">GraphDefBuilder</span> <span class="n">b</span><span class="p">;</span>
+  <span class="n">string</span> <span class="n">output_name</span> <span class="o">=</span> <span class="s">"top_k"</span><span class="p">;</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">TopK</span><span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">ops</span><span class="o">::</span><span class="n">Const</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">()),</span>
+                        <span class="n">how_many_labels</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">opts</span><span class="p">().</span><span class="n">WithName</span><span class="p">(</span><span class="n">output_name</span><span class="p">));</span>
+  <span class="c1">// This runs the GraphDef network definition that we've just constructed, and</span>
+  <span class="c1">// returns the results in the output tensors.</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">GraphDef</span> <span class="n">graph</span><span class="p">;</span>
+  <span class="n">TF_RETURN_IF_ERROR</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">ToGraphDef</span><span class="p">(</span><span class="o">&amp;</span><span class="n">graph</span><span class="p">));</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Session</span><span class="o">&gt;</span> <span class="n">session</span><span class="p">(</span>
+      <span class="n">tensorflow</span><span class="o">::</span><span class="n">NewSession</span><span class="p">(</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">SessionOptions</span><span class="p">()));</span>
+  <span class="n">TF_RETURN_IF_ERROR</span><span class="p">(</span><span class="n">session</span><span class="o">-&gt;</span><span class="n">Create</span><span class="p">(</span><span class="n">graph</span><span class="p">));</span>
+  <span class="c1">// The TopK node returns two outputs, the scores and their original indices,</span>
+  <span class="c1">// so we have to append :0 and :1 to specify them both.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Tensor</span><span class="o">&gt;</span> <span class="n">out_tensors</span><span class="p">;</span>
+  <span class="n">TF_RETURN_IF_ERROR</span><span class="p">(</span><span class="n">session</span><span class="o">-&gt;</span><span class="n">Run</span><span class="p">({},</span> <span class="p">{</span><span class="n">output_name</span> <span class="o">+</span> <span class="s">":0"</span><span class="p">,</span> <span class="n">output_name</span> <span class="o">+</span> <span class="s">":1"</span><span class="p">},</span>
+                                  <span class="p">{},</span> <span class="o">&amp;</span><span class="n">out_tensors</span><span class="p">));</span>
+  <span class="o">*</span><span class="n">scores</span> <span class="o">=</span> <span class="n">out_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+  <span class="o">*</span><span class="n">indices</span> <span class="o">=</span> <span class="n">out_tensors</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+  <span class="k">return</span> <span class="n">Status</span><span class="o">::</span><span class="n">OK</span><span class="p">();</span>
+</pre></div></div>
+
+<p>PrintTopLabels() 関数は、これらのソート結果をとり、見やすい方法で出力します。CheckTopLabel() 関数は非常によく似ていますが、デバッグのために、単にトップラベルが期待したものであることを確認します。</p>
+
+<p>最後に、<a href="https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/label_image/main.cc#L252" rel="nofollow noopener" target="_blank">main()</a> は、これらの呼び出しすべてを結びつけます。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+  <span class="c1">// We need to call this to set up global state for TensorFlow.</span>
+  <span class="n">tensorflow</span><span class="o">::</span><span class="n">port</span><span class="o">::</span><span class="n">InitMain</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">argv</span><span class="p">);</span>
+  <span class="n">Status</span> <span class="n">s</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">ParseCommandLineFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">s</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Error parsing command line flags: "</span> <span class="o">&lt;&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">ToString</span><span class="p">();</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// First we load and initialize the model.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">tensorflow</span><span class="o">::</span><span class="n">Session</span><span class="o">&gt;</span> <span class="n">session</span><span class="p">;</span>
+  <span class="n">string</span> <span class="n">graph_path</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">JoinPath</span><span class="p">(</span><span class="n">FLAGS_root_dir</span><span class="p">,</span> <span class="n">FLAGS_graph</span><span class="p">);</span>
+  <span class="n">Status</span> <span class="n">load_graph_status</span> <span class="o">=</span> <span class="n">LoadGraph</span><span class="p">(</span><span class="n">graph_path</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">session</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">load_graph_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">load_graph_status</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></div></div>
+
+<p>メイン・グラフをロードします。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="c1">// Get the image from disk as a float array of numbers, resized and normalized</span>
+  <span class="c1">// to the specifications the main graph expects.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Tensor</span><span class="o">&gt;</span> <span class="n">resized_tensors</span><span class="p">;</span>
+  <span class="n">string</span> <span class="n">image_path</span> <span class="o">=</span> <span class="n">tensorflow</span><span class="o">::</span><span class="n">io</span><span class="o">::</span><span class="n">JoinPath</span><span class="p">(</span><span class="n">FLAGS_root_dir</span><span class="p">,</span> <span class="n">FLAGS_image</span><span class="p">);</span>
+  <span class="n">Status</span> <span class="n">read_tensor_status</span> <span class="o">=</span> <span class="n">ReadTensorFromImageFile</span><span class="p">(</span>
+      <span class="n">image_path</span><span class="p">,</span> <span class="n">FLAGS_input_height</span><span class="p">,</span> <span class="n">FLAGS_input_width</span><span class="p">,</span> <span class="n">FLAGS_input_mean</span><span class="p">,</span>
+      <span class="n">FLAGS_input_std</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">resized_tensors</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">read_tensor_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">read_tensor_status</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">const</span> <span class="n">Tensor</span><span class="o">&amp;</span> <span class="n">resized_tensor</span> <span class="o">=</span> <span class="n">resized_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</pre></div></div>
+
+<p>ロード、サイズ変更、および入力画像の加工をします。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="c1">// Actually run the image through the model.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Tensor</span><span class="o">&gt;</span> <span class="n">outputs</span><span class="p">;</span>
+  <span class="n">Status</span> <span class="n">run_status</span> <span class="o">=</span> <span class="n">session</span><span class="o">-&gt;</span><span class="n">Run</span><span class="p">({{</span><span class="n">FLAGS_input_layer</span><span class="p">,</span> <span class="n">resized_tensor</span><span class="p">}},</span>
+                                   <span class="p">{</span><span class="n">FLAGS_output_layer</span><span class="p">},</span> <span class="p">{},</span> <span class="o">&amp;</span><span class="n">outputs</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">run_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Running model failed: "</span> <span class="o">&lt;&lt;</span> <span class="n">run_status</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></div></div>
+
+<p>ここでは、入力として画像を用いて、ロードされたグラフを実行します。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="c1">// This is for automated testing to make sure we get the expected result with</span>
+  <span class="c1">// the default settings. We know that label 866 (military uniform) should be</span>
+  <span class="c1">// the top label for the Admiral Hopper image.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">FLAGS_self_test</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">expected_matches</span><span class="p">;</span>
+    <span class="n">Status</span> <span class="n">check_status</span> <span class="o">=</span> <span class="n">CheckTopLabel</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="mi">866</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">expected_matches</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">check_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Running check failed: "</span> <span class="o">&lt;&lt;</span> <span class="n">check_status</span><span class="p">;</span>
+      <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">expected_matches</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Self-test failed!"</span><span class="p">;</span>
+      <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</pre></div></div>
+
+<p>テスト目的で、ここで期待する出力が得られていることを確認するためにチェックできます。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="c1">// Do something interesting with the results we've generated.</span>
+  <span class="n">Status</span> <span class="n">print_status</span> <span class="o">=</span> <span class="n">PrintTopLabels</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">FLAGS_labels</span><span class="p">);</span>
+</pre></div></div>
+
+<p>最後に、見つかったラベルを出力します。</p>
+
+<div class="code-frame" data-lang="cpp"><div class="highlight"><pre>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">print_status</span><span class="p">.</span><span class="n">ok</span><span class="p">())</span> <span class="p">{</span>
+    <span class="n">LOG</span><span class="p">(</span><span class="n">ERROR</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"Running print failed: "</span> <span class="o">&lt;&lt;</span> <span class="n">print_status</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></div></div>
+
+<p>ここでのエラー処理では、TensorFlow の Status オブジェクトを使用しています。このオブジェクトは ok() チェッカーにより、エラーが発生したかどうかを知り、エラーメッセージを出力することができるので、非常に便利です。</p>
+
+<p>このケースではオブジェクト認識をデモしていますが、様々な領域で、あなた自身が見つけ、訓練した他のモデルでも、非常によく似たコードを使用することができるはずです。この小さな例により、あなた自身の製品に TensorFlow を使用する方法について、いくつかのアイデアが得られることを願っています。</p>
+
+<blockquote>
+<p>演習：転移学習とは、あるタスクをうまく解決する方法を知っていれば、関連する問題の解決に、その理解の一部を転移できるはずであるという、考えです。転移学習を実行する一つの方法は、ネットワークの最後の分類の層を除去し、<a href="http://arxiv.org/abs/1310.1531" rel="nofollow noopener" target="_blank">CNN の最後から二番目の層</a>、この場合は2048次元のベクトル、を抽出することです。<a href="#C++%20API%20%E3%81%A7%E3%81%AE%E4%BD%BF%E7%94%A8%E6%B3%95">C++ API の例</a>において、--output_layer= pool_3 を設定し、出力テンソルの取り扱いを変更することで、これを指定することができます。画像の集合でこの特徴を抽出してみて、ImageNet に無い新しいカテゴリを予測できることを確認してください。</p>
+</blockquote>
+
+<h2>
+<span id="詳細を学ぶためのリソース" class="fragment"></span><a href="#%E8%A9%B3%E7%B4%B0%E3%82%92%E5%AD%A6%E3%81%B6%E3%81%9F%E3%82%81%E3%81%AE%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9"><i class="fa fa-link"></i></a>詳細を学ぶためのリソース</h2>
+
+<p>ニューラルネットワークを一般に学ぶためには、Michael Nielsen の<a href="http://neuralnetworksanddeeplearning.com/chap1.html" rel="nofollow noopener" target="_blank">無料オンライン本</a>は優れたリソースです。特に、畳み込みニューラルネットワークでは、Chris Olah のいくつかの<a href="http://colah.github.io/posts/2014-07-Conv-Nets-Modular/" rel="nofollow noopener" target="_blank">素晴らしいブログ記事</a>があり、Michael Nielsen の本はそれらをカバーする<a href="http://neuralnetworksanddeeplearning.com/chap6.html" rel="nofollow noopener" target="_blank">偉大な章</a>があります。</p>
+
+<p>畳み込みニューラルネットワークの実装の詳細を知るためには、TensorFlow の<a href="http://www.tensorflow.org/tutorials/deep_cnn/index.html" rel="nofollow noopener" target="_blank">深い畳み込みネットワークのチュートリアル</a>に跳ぶか、または少し緩やかに<a href="http://www.tensorflow.org/tutorials/mnist/beginners/index.html" rel="nofollow noopener" target="_blank"> ML 初心者</a>や<a href="http://www.tensorflow.org/tutorials/mnist/pros/index.html" rel="nofollow noopener" target="_blank"> ML 熟練者</a>の MNIST スターター・チュートリアルで開始することができます。最後に、この分野の研究の最新情報を得たい場合は、このチュートリアルが参照している論文の、最近の研究結果を読んでください。</p>
+<div class="hidden"><form class="js-task-list-update" action="/KojiOhki/items/dab6922b6cd7b990c002" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="wPziqpoAtFU/+iP+vmUE2ZA1oi11V5dy3AK0geJEhzc/A7JxK8vQfl8mBUpRK5NtU8fQ87NCLkq9KfgRP9frVw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1483580381" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+TensorFlow のチュートリアル（Image Recognition）
+https://www.tensorflow.org/versions/master/tutorials/image_recognition
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+---
+
+我々の脳は視覚を簡単に作るように思えます。人は、ライオンとジャガーを見分け、サインを読み取り、人間の顔を認識することに努力を必要としません。しかし、実際には、これらはコンピュータで解決することが難しい問題です：それが簡単に思えるのは、ただ、我々の脳が、画像を理解することに非常に優れているからです。
+
+ここ数年、機械学習の分野では、これらの困難な問題に対処することに驚異的な進歩を遂げています。特に、深い[畳み込みニューラルネットワーク](http://colah.github.io/posts/2014-07-Conv-Nets-Modular/)と呼ばれる種類のモデルが、難しい視覚認識タスクにおいて、そこそこのパフォーマンス、ある領域においては人と同等かそれ以上、を達成できることが判明しました。
+
+研究者は、彼らの成果を [ImageNet](http://www.image-net.org/)（コンピュータ・ビジョンのための学術ベンチマーク）で検証することにより、コンピュータ・ビジョンにおいて着実な進展を示しました。[QuocNet](http://static.googleusercontent.com/media/research.google.com/en//archive/unsupervised_icml2012.pdf)、[AlexNet](http://www.cs.toronto.edu/%7Efritz/absps/imagenet.pdf)、 [Inception (GoogLeNet)](http://arxiv.org/abs/1409.4842)、[BN-Inception-v2](http://arxiv.org/abs/1502.03167) など、次々に現れるモデルは、改善を示し続け、各段階で最先端の結果を達成しています。Google 内外の研究者は、これらのモデルを記述した論文を発表してきましたが、これらの結果を再現することはまだ難しいです。弊社は、弊社の最新モデルである [Inception-v3](http://arxiv.org/abs/1512.00567) で画像認識を実行するコードを公開することにより、次のステップに移りつつあります。
+
+Inception-v3 は、[ImageNet](http://image-net.org/) 大規模視覚認識チャレンジのために、2012年から、データを使用して訓練されています。 これは、コンピュータ・ビジョンにおける標準的なタスクで、モデルが画像全体を、「シマウマ」、「ダルメシアン」、「食器洗い機」のように、[1000クラス](http://image-net.org/challenges/LSVRC/2014/browse-synsets)に分類することを試みます。例えば、[AlexNet](http://www.cs.toronto.edu/%7Efritz/absps/imagenet.pdf) が一部の画像を分類した結果は以下のとおりです：
+
+![図](https://www.tensorflow.org/versions/master/images/AlexClassification.png)
+
+モデルを比較するために、モデルが予測したトップ5の中に正しい答えがなかった頻度（「トップ5エラー率」と呼ぶ）を調べます。[AlexNet](http://www.cs.toronto.edu/%7Efritz/absps/imagenet.pdf) は2012検証データセットに対し15.3％のトップ5エラー率を達成し、[BN-Inception-v2](http://arxiv.org/abs/1502.03167) は6.66%を達成、[Inception-v3](http://arxiv.org/abs/1512.00567) は3.46％に達しました。
+
+&gt; 人は ImageNet チャレンジをどの程度うまくできるのでしょうか？自身のパフォーマンスの測定を試みた Andrej Karpathy による[ブログ記事](http://karpathy.github.io/2014/09/02/what-i-learned-from-competing-against-a-convnet-on-imagenet/)があります。彼は5.1％のトップ5エラー率でした。
+
+このチュートリアルでは、[Inception-v3](http://arxiv.org/abs/1512.00567) を使用する方法をお教えします。Python や C++ で画像を[1000クラス](http://image-net.org/challenges/LSVRC/2014/browse-synsets)に分類する方法を学びます。また、このモデルから、他のビジョン・タスクに再利用可能な、より高いレベルの特徴を抽出する方法を説明します。
+
+私たちは、コミュニティがこのモデルですることを想像し、興奮しています。
+
+##Python API での使用法
+
+classify_image.py プログラムを初めて実行すると、tensorflow.org から訓練済みモデルがダウンロードされます。ハードディスクに約200Mの使用可能な空き領域が必要です。
+
+以下の手順では、PIP パッケージから TensorFlow をインストールし、ターミナルが TensorFlow のルートディレクトリにあることを前提とします。
+
+```shell-session
+cd tensorflow/models/image/imagenet
+python classify_image.py
+```
+
+上記のコマンドは、与えられたパンダの画像を分類します。
+
+![図](https://www.tensorflow.org/versions/master/images/cropped_panda.jpg)
+
+モデルが正しく実行された場合、スクリプトは次のような出力を生成します。
+
+```shell-session
+giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca (score = 0.88493)
+indri, indris, Indri indri, Indri brevicaudatus (score = 0.00878)
+lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens (score = 0.00317)
+custard apple (score = 0.00149)
+earthstar (score = 0.00127)
+```
+
+--image_file 引数を編集することで、他のJPEG画像を与えることができます。
+
+&gt; 別のディレクトリにモデル・データをダウンロードする場合、--model_dir に使用するディレクトリを指定する必要があります。
+
+##C++ API での使用法
+
+同じ [Inception-v3](http://arxiv.org/abs/1512.00567) モデルを、本番環境のために C++ で実行することができます。（TensorFlow リポジトリのルートディレクトリから実行することにより）このようなモデルを定義する GraphDef を含むアーカイブをダウンロードできます：
+
+```shell-session
+wget https://storage.googleapis.com/download.tensorflow.org/models/inception_dec_2015.zip -O tensorflow/examples/label_image/data/inception_dec_2015.zip
+
+unzip tensorflow/examples/label_image/data/inception_dec_2015.zip -d tensorflow/examples/label_image/data/
+```
+
+次に、グラフをロードして実行するコードを含む、C++ のバイナリをコンパイルする必要があります。TensorFlow をご使用中のプラットフォームの[ソースからインストール](http://www.tensorflow.org/versions/master/get_started/os_setup.html#source)している場合は、シェルの端末から以下のコマンドを実行して、サンプルをビルドできるはずです：
+
+```shell-session
+bazel build tensorflow/examples/label_image/...
+```
+
+バイナリ実行ファイルが作成され、以下のように実行できるはずです。
+
+```shell-session
+bazel-bin/tensorflow/examples/label_image/label_image
+```
+
+フレームワークに含まれるデフォルト・サンプル画像が使用され、以下のように出力されるはずです：
+
+```shell-session
+I tensorflow/examples/label_image/main.cc:200] military uniform (866): 0.647296
+I tensorflow/examples/label_image/main.cc:200] suit (794): 0.0477196
+I tensorflow/examples/label_image/main.cc:200] academic gown (896): 0.0232411
+I tensorflow/examples/label_image/main.cc:200] bow tie (817): 0.0157356
+I tensorflow/examples/label_image/main.cc:200] bolo tie (940): 0.0145024
+```
+
+ここでは、デフォルトの[グレース・ホッパー提督](https://en.wikipedia.org/wiki/Grace_Hopper)の画像を使用し、彼女が軍服を着ていることをネットワークが0.6の高得点で正しく識別できていることが確認できます。
+
+![図](https://www.tensorflow.org/versions/master/images/grace_hopper.jpg)
+
+次に、--image= 引数を与えることにより、独自の画像で試してみます、例えば
+
+```shell-session
+bazel-bin/tensorflow/examples/label_image/label_image --image=my_image.png
+```
+
+[tensorflow/examples/label_image/main.cc](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/label_image/main.cc) ファイルの中身を見れば、それがどのように動作するかを知ることができます。このコードが、TensorFlow を独自のアプリケーションに統合する助けになるように、main 関数を介して、詳細に見ていきます：
+
+コマンドライン・フラグは、ファイルのロード元および入力画像のプロパティを制御します。モデルは、正方形の 299x299 RGB 画像を入力とするので、それらを input_width と input_height フラグに設定します。また、ピクセル値を 0〜255 の整数からグラフが動作する浮動小数点値にスケーリングする必要があります。input_mean と input_std フラグでスケーリングを制御します：最初に各ピクセル値から input_mean を引き、そして input_std で割ります。
+
+これらの値は、多少マジック的に思われるかもしれませんが、元のモデル作成者が訓練の入力画像として使用したものに基づき、定義しています。あなた自身が訓練してきたグラフを使用する場合は、訓練プロセス中に使用したものに合わせて値を調整する必要があります。
+
+[ReadTensorFromImageFile()](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/label_image/main.cc#L88) 関数内で、それらを画像に適用する方法を確認できます。
+
+```cpp
+// Given an image file name, read in the data, try to decode it as an image,
+// resize it to the requested size, and then scale the values as desired.
+Status ReadTensorFromImageFile(string file_name, const int input_height,
+                               const int input_width, const float input_mean,
+                               const float input_std,
+                               std::vector&lt;Tensor&gt;* out_tensors) {
+  tensorflow::GraphDefBuilder b;
+```
+
+GraphDefBuilder を生成することから始めます。これは実行またはロードするモデルを指定するために使用するオブジェクトです。
+
+```cpp
+  string input_name = &quot;file_reader&quot;;
+  string output_name = &quot;normalized&quot;;
+  tensorflow::Node* file_reader =
+      tensorflow::ops::ReadFile(tensorflow::ops::Const(file_name, b.opts()),
+                                b.opts().WithName(input_name));
+```
+
+そして、小さなモデルのノードを生成します。このノードは、メイン・モデルが入力として期待する結果を得るために、ロード、サイズ変更、ピクセル値のスケーリングをします。作成する最初のノードは、ロードしたい画像のファイル名を持つテンソルを保持しているだけの、Const 操作です。それはその後、 ReadFile 操作の第1入力として渡されます。すべての操作作成関数の最後の引数として、b.opts() を渡していることに気づいたでしょうか？この引数は、GraphDefBuilder に保持されるモデル定義に、ノードが追加されることを保証します。また、b.opts() の後に WithName() の呼び出しを行うことで、ReadFile 操作に名前を付けます。これは、ノードに名前を付けます。ノードに名前を付けなかった場合、自動的に名前が割り当てられますので、厳密には必須ではありませんが、名前を付けておくことでデバッグが少し楽になります。
+
+```cpp
+  // Now try to figure out what kind of file it is and decode it.
+  const int wanted_channels = 3;
+  tensorflow::Node* image_reader;
+  if (tensorflow::StringPiece(file_name).ends_with(&quot;.png&quot;)) {
+    image_reader = tensorflow::ops::DecodePng(
+        file_reader,
+        b.opts().WithAttr(&quot;channels&quot;, wanted_channels).WithName(&quot;png_reader&quot;));
+  } else {
+    // Assume if it&#39;s not a PNG then it must be a JPEG.
+    image_reader = tensorflow::ops::DecodeJpeg(
+        file_reader,
+        b.opts().WithAttr(&quot;channels&quot;, wanted_channels).WithName(&quot;jpeg_reader&quot;));
+  }
+  // Now cast the image data to float so we can do normal math on it.
+  tensorflow::Node* float_caster = tensorflow::ops::Cast(
+      image_reader, tensorflow::DT_FLOAT, b.opts().WithName(&quot;float_caster&quot;));
+  // The convention for image ops in TensorFlow is that all images are expected
+  // to be in batches, so that they&#39;re four-dimensional arrays with indices of
+  // [batch, height, width, channel]. Because we only have a single image, we
+  // have to add a batch dimension of 1 to the start with ExpandDims().
+  tensorflow::Node* dims_expander = tensorflow::ops::ExpandDims(
+      float_caster, tensorflow::ops::Const(0, b.opts()), b.opts());
+  // Bilinearly resize the image to fit the required dimensions.
+  tensorflow::Node* resized = tensorflow::ops::ResizeBilinear(
+      dims_expander, tensorflow::ops::Const({input_height, input_width},
+                                            b.opts().WithName(&quot;size&quot;)),
+      b.opts());
+  // Subtract the mean and divide by the scale.
+  tensorflow::ops::Div(
+      tensorflow::ops::Sub(
+          resized, tensorflow::ops::Const({input_mean}, b.opts()), b.opts()),
+      tensorflow::ops::Const({input_std}, b.opts()),
+      b.opts().WithName(output_name));
+```
+
+ノードの追加を続けます。これらのノードは、ファイル・データを画像に復号化し、整数を浮動小数点数にキャストし、それをサイズ変更し、最後にピクセル値の減算と除算操作を実行します。
+
+```cpp
+  // This runs the GraphDef network definition that we&#39;ve just constructed, and
+  // returns the results in the output tensor.
+  tensorflow::GraphDef graph;
+  TF_RETURN_IF_ERROR(b.ToGraphDef(&amp;graph));
+```
+
+前段の終わりで、b 変数に格納されたモデル定義が得られます。ToGraphDef() 関数によりこれを完全なグラフ定義に変換します。
+
+```cpp
+  std::unique_ptr&lt;tensorflow::Session&gt; session(
+      tensorflow::NewSession(tensorflow::SessionOptions()));
+  TF_RETURN_IF_ERROR(session-&gt;Create(graph));
+  TF_RETURN_IF_ERROR(session-&gt;Run({}, {output_name}, {}, out_tensors));
+  return Status::OK();
+```
+
+その後、[Session](http://www.tensorflow.org/versions/master/api_docs/cc/ClassSession.html#class-tensorflow-session) オブジェクト（グラフを実際に実行するためのインターフェース）を生成し、どのノードから出力を得たいか、どこに出力データを置くべきかを指定して、実行します。
+
+これは Tensor オブジェクトのベクトルを返します。これはこの場合単に我々が昔から知っている単一のオブジェクトです。この文脈では、Tensor を多次元配列として考えることができます。それは高さ 299 ピクセル、幅 299 ピクセル、3チャンネルの画像を、浮動小数点値として保持します。あなたの製品が独自の画像処理フレームワークを使用している場合、同じ変換を適用する限り、メイン・グラフに画像をフィードする前に、代わりにそれを使用できるはずです。
+
+これは、C++ で動的に小さな TensorFlow グラフを作成する簡単な例ですが、事前訓練済みの Inception モデルを使うために、ファイルからはるかに大きな定義をロードします。LoadGraph() 関数でその方法を確認することができます。
+
+```cpp
+// Reads a model graph definition from disk, and creates a session object you
+// can use to run it.
+Status LoadGraph(string graph_file_name,
+                 std::unique_ptr&lt;tensorflow::Session&gt;* session) {
+  tensorflow::GraphDef graph_def;
+  Status load_graph_status =
+      ReadBinaryProto(tensorflow::Env::Default(), graph_file_name, &amp;graph_def);
+  if (!load_graph_status.ok()) {
+    return tensorflow::errors::NotFound(&quot;Failed to load compute graph at &#39;&quot;,
+                                        graph_file_name, &quot;&#39;&quot;);
+  }
+```
+
+画像ロードのコードを見ると、用語の多くは、おなじみに思われるはずです。GraphDef オブジェクトを生成するために GraphDefBuilder を使用するのではなく、GraphDef を直接含む protobuf ファイルをロードします。
+
+```cpp
+  session-&gt;reset(tensorflow::NewSession(tensorflow::SessionOptions()));
+  Status session_create_status = (*session)-&gt;Create(graph_def);
+  if (!session_create_status.ok()) {
+    return session_create_status;
+  }
+  return Status::OK();
+}
+```
+
+その後、その GraphDef から Session オブジェクトを生成し、後で実行できるように、呼び出し元にそれを渡します。
+
+GetTopLabels() 関数は大部分画像ロードに似ていますが、メイン・グラフの実行結果を取り、それを最高スコアのラベルのソート済みリストに変換します。画像ローダーのように、GraphDefBuilder を生成し、それに二つのノードを追加し、短いグラフを実行して出力テンソルのペアを取得します。出力テンソルのペアは、ソート済みスコアと、最高結果のインデックス位置を表します。
+
+```cpp
+// Analyzes the output of the Inception graph to retrieve the highest scores and
+// their positions in the tensor, which correspond to categories.
+Status GetTopLabels(const std::vector&lt;Tensor&gt;&amp; outputs, int how_many_labels,
+                    Tensor* indices, Tensor* scores) {
+  tensorflow::GraphDefBuilder b;
+  string output_name = &quot;top_k&quot;;
+  tensorflow::ops::TopK(tensorflow::ops::Const(outputs[0], b.opts()),
+                        how_many_labels, b.opts().WithName(output_name));
+  // This runs the GraphDef network definition that we&#39;ve just constructed, and
+  // returns the results in the output tensors.
+  tensorflow::GraphDef graph;
+  TF_RETURN_IF_ERROR(b.ToGraphDef(&amp;graph));
+  std::unique_ptr&lt;tensorflow::Session&gt; session(
+      tensorflow::NewSession(tensorflow::SessionOptions()));
+  TF_RETURN_IF_ERROR(session-&gt;Create(graph));
+  // The TopK node returns two outputs, the scores and their original indices,
+  // so we have to append :0 and :1 to specify them both.
+  std::vector&lt;Tensor&gt; out_tensors;
+  TF_RETURN_IF_ERROR(session-&gt;Run({}, {output_name + &quot;:0&quot;, output_name + &quot;:1&quot;},
+                                  {}, &amp;out_tensors));
+  *scores = out_tensors[0];
+  *indices = out_tensors[1];
+  return Status::OK();
+```
+
+PrintTopLabels() 関数は、これらのソート結果をとり、見やすい方法で出力します。CheckTopLabel() 関数は非常によく似ていますが、デバッグのために、単にトップラベルが期待したものであることを確認します。
+
+最後に、[main()](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/examples/label_image/main.cc#L252) は、これらの呼び出しすべてを結びつけます。
+
+```cpp
+int main(int argc, char* argv[]) {
+  // We need to call this to set up global state for TensorFlow.
+  tensorflow::port::InitMain(argv[0], &amp;argc, &amp;argv);
+  Status s = tensorflow::ParseCommandLineFlags(&amp;argc, argv);
+  if (!s.ok()) {
+    LOG(ERROR) &lt;&lt; &quot;Error parsing command line flags: &quot; &lt;&lt; s.ToString();
+    return -1;
+  }
+
+  // First we load and initialize the model.
+  std::unique_ptr&lt;tensorflow::Session&gt; session;
+  string graph_path = tensorflow::io::JoinPath(FLAGS_root_dir, FLAGS_graph);
+  Status load_graph_status = LoadGraph(graph_path, &amp;session);
+  if (!load_graph_status.ok()) {
+    LOG(ERROR) &lt;&lt; load_graph_status;
+    return -1;
+  }
+```
+
+メイン・グラフをロードします。
+
+```cpp
+  // Get the image from disk as a float array of numbers, resized and normalized
+  // to the specifications the main graph expects.
+  std::vector&lt;Tensor&gt; resized_tensors;
+  string image_path = tensorflow::io::JoinPath(FLAGS_root_dir, FLAGS_image);
+  Status read_tensor_status = ReadTensorFromImageFile(
+      image_path, FLAGS_input_height, FLAGS_input_width, FLAGS_input_mean,
+      FLAGS_input_std, &amp;resized_tensors);
+  if (!read_tensor_status.ok()) {
+    LOG(ERROR) &lt;&lt; read_tensor_status;
+    return -1;
+  }
+  const Tensor&amp; resized_tensor = resized_tensors[0];
+```
+
+ロード、サイズ変更、および入力画像の加工をします。
+
+```cpp
+  // Actually run the image through the model.
+  std::vector&lt;Tensor&gt; outputs;
+  Status run_status = session-&gt;Run({{FLAGS_input_layer, resized_tensor}},
+                                   {FLAGS_output_layer}, {}, &amp;outputs);
+  if (!run_status.ok()) {
+    LOG(ERROR) &lt;&lt; &quot;Running model failed: &quot; &lt;&lt; run_status;
+    return -1;
+  }
+```
+
+ここでは、入力として画像を用いて、ロードされたグラフを実行します。
+
+```cpp
+  // This is for automated testing to make sure we get the expected result with
+  // the default settings. We know that label 866 (military uniform) should be
+  // the top label for the Admiral Hopper image.
+  if (FLAGS_self_test) {
+    bool expected_matches;
+    Status check_status = CheckTopLabel(outputs, 866, &amp;expected_matches);
+    if (!check_status.ok()) {
+      LOG(ERROR) &lt;&lt; &quot;Running check failed: &quot; &lt;&lt; check_status;
+      return -1;
+    }
+    if (!expected_matches) {
+      LOG(ERROR) &lt;&lt; &quot;Self-test failed!&quot;;
+      return -1;
+    }
+  }
+```
+
+テスト目的で、ここで期待する出力が得られていることを確認するためにチェックできます。
+
+```cpp
+  // Do something interesting with the results we&#39;ve generated.
+  Status print_status = PrintTopLabels(outputs, FLAGS_labels);
+```
+
+最後に、見つかったラベルを出力します。
+
+```cpp
+  if (!print_status.ok()) {
+    LOG(ERROR) &lt;&lt; &quot;Running print failed: &quot; &lt;&lt; print_status;
+    return -1;
+  }
+```
+
+ここでのエラー処理では、TensorFlow の Status オブジェクトを使用しています。このオブジェクトは ok() チェッカーにより、エラーが発生したかどうかを知り、エラーメッセージを出力することができるので、非常に便利です。
+
+このケースではオブジェクト認識をデモしていますが、様々な領域で、あなた自身が見つけ、訓練した他のモデルでも、非常によく似たコードを使用することができるはずです。この小さな例により、あなた自身の製品に TensorFlow を使用する方法について、いくつかのアイデアが得られることを願っています。
+
+&gt; 演習：転移学習とは、あるタスクをうまく解決する方法を知っていれば、関連する問題の解決に、その理解の一部を転移できるはずであるという、考えです。転移学習を実行する一つの方法は、ネットワークの最後の分類の層を除去し、[CNN の最後から二番目の層](http://arxiv.org/abs/1310.1531)、この場合は2048次元のベクトル、を抽出することです。[C++ API の例](#C++ API での使用法)において、--output_layer= pool_3 を設定し、出力テンソルの取り扱いを変更することで、これを指定することができます。画像の集合でこの特徴を抽出してみて、ImageNet に無い新しいカテゴリを予測できることを確認してください。
+
+##詳細を学ぶためのリソース
+
+ニューラルネットワークを一般に学ぶためには、Michael Nielsen の[無料オンライン本](http://neuralnetworksanddeeplearning.com/chap1.html)は優れたリソースです。特に、畳み込みニューラルネットワークでは、Chris Olah のいくつかの[素晴らしいブログ記事](http://colah.github.io/posts/2014-07-Conv-Nets-Modular/)があり、Michael Nielsen の本はそれらをカバーする[偉大な章](http://neuralnetworksanddeeplearning.com/chap6.html)があります。
+
+畳み込みニューラルネットワークの実装の詳細を知るためには、TensorFlow の[深い畳み込みネットワークのチュートリアル](http://www.tensorflow.org/tutorials/deep_cnn/index.html)に跳ぶか、または少し緩やかに[ ML 初心者](http://www.tensorflow.org/tutorials/mnist/beginners/index.html)や[ ML 熟練者](http://www.tensorflow.org/tutorials/mnist/pros/index.html)の MNIST スターター・チュートリアルで開始することができます。最後に、この分野の研究の最新情報を得たい場合は、このチュートリアルが参照している論文の、最近の研究結果を読んでください。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowチュートリアル - 画像認識（翻訳） by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowチュートリアル - 画像認識（翻訳）" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/KojiOhki"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/KojiOhki">KojiOhki</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1874</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;KojiOhki&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-d9be7d54-57ed-41be-b12d-57f12622140a"></div>
+    <div id="UserFollowButton-react-component-d9be7d54-57ed-41be-b12d-57f12622140a"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/89cd7b69a8a6239d67ca">LSTMネットワークの概要</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/af2241027b00f892d2bd">ニューラルネットワーク、多様体、トポロジー</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/ff6ae04d6cf02f1b6edf">TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/64a2ee54214b01a411c7">TensorFlowチュートリアル - 熟練者のためのディープMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/dab6922b6cd7b990c002">TensorFlowチュートリアル - 画像認識（翻訳）</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#python-api-%E3%81%A7%E3%81%AE%E4%BD%BF%E7%94%A8%E6%B3%95\&quot;\u003ePython API での使用法\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#c-api-%E3%81%A7%E3%81%AE%E4%BD%BF%E7%94%A8%E6%B3%95\&quot;\u003eC++ API での使用法\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A9%B3%E7%B4%B0%E3%82%92%E5%AD%A6%E3%81%B6%E3%81%9F%E3%82%81%E3%81%AE%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9\&quot;\u003e詳細を学ぶためのリソース\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-ad67c9c0-4400-438a-9092-34ecd04c3054"></div>
+    <div id="Toc-react-component-ad67c9c0-4400-438a-9092-34ecd04c3054"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:119,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;dab6922b6cd7b990c002&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yutorin"><a itemprop="url" href="/yutorin"><img alt="yutorin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102597/profile-images/1473708751" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="minewebstaff"><a itemprop="url" href="/minewebstaff"><img alt="minewebstaff" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46049/profile-images/1473690517" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kmiyachi1024"><a itemprop="url" href="/kmiyachi1024"><img alt="kmiyachi1024" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15046/profile-images/1473683626" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="knaga1220"><a itemprop="url" href="/knaga1220"><img alt="knaga1220" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98725/profile-images/1473707588" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="murataR"><a itemprop="url" href="/murataR"><img alt="murataR" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106926/profile-images/1473710084" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="windhorn"><a itemprop="url" href="/windhorn"><img alt="windhorn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42363/profile-images/1473689129" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="izktmys"><a itemprop="url" href="/izktmys"><img alt="izktmys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102327/profile-images/1473708664" /></a></div></div><div class="ArticleFooter__user"><a href="/KojiOhki/items/dab6922b6cd7b990c002/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/dab6922b6cd7b990c002/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/KojiOhki/items/dab6922b6cd7b990c002.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/khayate/items/bb7c61f447b4c579ddd1#_reference-b04bf34c8f25bb40b26f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/131124/profile-images/1473718156" />[Tensorflowを使って画像を分類したい ](2)画像を分類しよう</a><time class="references_datetime js-dateTimeView" datetime="2016-08-27T12:19:58+00:00">7 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowチュートリアル - 画像認識（翻訳） by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowチュートリアル - 画像認識（翻訳）" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:356256,&quot;uuid&quot;:&quot;dab6922b6cd7b990c002&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;KojiOhki&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-4da7a2bf-d30d-447b-9e7a-d8ff11674867"></div>
+    <div id="CommentListContainer-react-component-4da7a2bf-d30d-447b-9e7a-d8ff11674867"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="dz567s9Bg0JhaTPkZLojuNhAP74+9S83GiVjGC99kduIwSo1fornaQG1FVCL9LQMG7JNYPjglg97Di+I8u79uw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/dab6922b6cd7b990c002" /><input type="hidden" name="item_uuid" id="item_uuid" value="dab6922b6cd7b990c002" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/KojiOhki/items/dab6922b6cd7b990c002", "id": 356256, "uuid": "dab6922b6cd7b990c002" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="m3V5DZ8qMHQ1m9w4zLzmyJS1NXZSy+N2QGKvtk8cK69kiinWLuFUX1VH+owj8nF8V0dHqJTeWk4hSeMmko9Hzw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/dab6922b6cd7b990c002" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

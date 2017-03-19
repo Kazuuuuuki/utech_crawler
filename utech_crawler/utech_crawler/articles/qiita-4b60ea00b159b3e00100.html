@@ -1,0 +1,489 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>TensorFlowによるももクロメンバー顔認識（前編） - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="二番煎じ感が半端ないですが、やっちゃったものは仕方ないので書きます。
+
+機械学習やディープラーニングについては全く初心者のソフトウェアエンジニアが、畳込みニューラルネットワークを用いて「ももいろクローバーZ」のメンバーの顔識別を行うアプリを作った話です。
+
+
+作ったもの
+
+ec2上で稼働してます。ただしt2.microなので重いです。
+
+ももクロ画像分類器
+http://momomind.kenmaz.net
+
+コード
+https://github.com/kenmaz..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="kenmaz" name="twitter:creator" /><meta content="TensorFlowによるももクロメンバー顔認識（前編） - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="[二番煎じ感](http://d.hatena.ne.jp/sugyan/20160112/1452558576)が半端ないですが、やっちゃったものは仕方ないので書きます。
+
+機械学習やディープラーニングについては全く初心者のソフトウ..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="yhOuiJr9HmS4mwT9P1Hgrx9H5leawg0hQ4jaaUuZ+uxvSfIjxGVS7zIJxG3BzIxrkT/Y9RHBk3ku58ik4pERJw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"kenmaz","type":"items","id":"4b60ea00b159b3e00100"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-2c926ff0-d600-487e-9dc5-604a11abf93e"></div>
+    <div id="HeaderContainer-react-component-2c926ff0-d600-487e-9dc5-604a11abf93e"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/TensorFlow",        "name": "TensorFlow"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">TensorFlowによるももクロメンバー顔認識（前編）</h1><ul class="TagList"><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">152</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:152,&quot;uuid&quot;:&quot;4b60ea00b159b3e00100&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="tsota"><a itemprop="url" href="/tsota"><img alt="tsota" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/103795/profile-images/1473709113" /></a></li><li class="js-hovercard" data-hovercard-target-name="take-ni"><a itemprop="url" href="/take-ni"><img alt="take-ni" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100104/profile-images/1473707991" /></a></li><li class="js-hovercard" data-hovercard-target-name="LowSE01"><a itemprop="url" href="/LowSE01"><img alt="LowSE01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102123/profile-images/1473708593" /></a></li><li class="js-hovercard" data-hovercard-target-name="n-satoru"><a itemprop="url" href="/n-satoru"><img alt="n-satoru" class="thumb thumb--xs" src="https://gravatar.com/avatar/593e340db1d459e9dd04739cc60fa4b9?d=https%3A%2F%2Fidenticons.github.com%2F2b51106c2defe13f918d8e68173d6fc2.png&amp;r=x" /></a></li><li class="js-hovercard" data-hovercard-target-name="smizy"><a itemprop="url" href="/smizy"><img alt="smizy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50763/profile-images/1473692216" /></a></li><li class="js-hovercard" data-hovercard-target-name="boobright"><a itemprop="url" href="/boobright"><img alt="boobright" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14618/profile-images/1473683424" /></a></li><li class="js-hovercard" data-hovercard-target-name="yoshi6jp@github"><a itemprop="url" href="/yoshi6jp@github"><img alt="yoshi6jp@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7187/profile-images/1473684112" /></a></li><li class="js-hovercard" data-hovercard-target-name="FredericChang"><a itemprop="url" href="/FredericChang"><img alt="FredericChang" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81269/profile-images/1473702060" /></a></li><li class="js-hovercard" data-hovercard-target-name="masaki_iwahara"><a itemprop="url" href="/masaki_iwahara"><img alt="masaki_iwahara" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/13767a27b4bb60df7d108b6fc26931c2?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="izktmys"><a itemprop="url" href="/izktmys"><img alt="izktmys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102327/profile-images/1473708664" /></a></li><li><a href="/kenmaz/items/4b60ea00b159b3e00100/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/kenmaz"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020" alt="1473681020" /></a> <a class="u-link-unstyled" href="/kenmaz">kenmaz</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-05-23T02:44:09+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-05-23">Edited at <time datetime="2016-05-24T03:34:07+09:00" itemprop="dateModified">2016-05-24</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/kenmaz/items/4b60ea00b159b3e00100/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">11</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/kenmaz/items/4b60ea00b159b3e00100/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(11)</span></a></li><li><a href="/kenmaz/items/4b60ea00b159b3e00100.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-4b60ea00b159b3e00100" itemprop="articleBody"><p><a href="http://d.hatena.ne.jp/sugyan/20160112/1452558576" rel="nofollow noopener" target="_blank">二番煎じ感</a>が半端ないですが、やっちゃったものは仕方ないので書きます。</p>
+
+<p>機械学習やディープラーニングについては全く初心者のソフトウェアエンジニアが、畳込みニューラルネットワークを用いて「ももいろクローバーZ」のメンバーの顔識別を行うアプリを作った話です。</p>
+
+<h1>
+<span id="作ったもの" class="fragment"></span><a href="#%E4%BD%9C%E3%81%A3%E3%81%9F%E3%82%82%E3%81%AE"><i class="fa fa-link"></i></a>作ったもの</h1>
+
+<p>ec2上で稼働してます。ただしt2.microなので重いです。</p>
+
+<p>ももクロ画像分類器<br>
+<a href="http://momomind.kenmaz.net" class="autolink" rel="nofollow noopener" target="_blank">http://momomind.kenmaz.net</a></p>
+
+<p>コード<br>
+<a href="https://github.com/kenmaz/momo_mind" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/kenmaz/momo_mind</a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8399/469401df-3e50-de83-d386-48d38f92da5f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8399/469401df-3e50-de83-d386-48d38f92da5f.png" alt="スクリーンショット 2016-05-23 3.02.48.png"></a></p>
+
+<h1>
+<span id="背景" class="fragment"></span><a href="#%E8%83%8C%E6%99%AF"><i class="fa fa-link"></i></a>背景</h1>
+
+<p>私（<a href="https://twitter.com/kenmaz" rel="nofollow noopener" target="_blank">@kenmaz</a>)は、仕事ではここ数年はiOSアプリ(objc/swift)ばっかり書いています。その前はJava/Ruby/PHPでWebアプリ、サーバーアプリ、開発ツール等を書いていたりもしました。ということで機械学習や人工知能に関する知識はほぼゼロでした。</p>
+
+<h1>
+<span id="自分語り参考図書" class="fragment"></span><a href="#%E8%87%AA%E5%88%86%E8%AA%9E%E3%82%8A%E5%8F%82%E8%80%83%E5%9B%B3%E6%9B%B8"><i class="fa fa-link"></i></a>自分語り＆参考図書</h1>
+
+<p>そんな私がなぜ、題記のようなアプリを作ろうと思ったか、そのあたりを幾つかの本の紹介とともに書いていきます。</p>
+
+<h2>
+<span id="人工知能は人間を超えるか" class="fragment"></span><a href="#%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD%E3%81%AF%E4%BA%BA%E9%96%93%E3%82%92%E8%B6%85%E3%81%88%E3%82%8B%E3%81%8B"><i class="fa fa-link"></i></a>「人工知能は人間を超えるか」</h2>
+
+<p>昨年末に話題になった「人工知能は人間を超えるか」という本がありますが、これが大変おもしろかったので、実際に深層学習を学んで試してみたくなりました。</p>
+
+<blockquote>
+<p><a href="https://www.amazon.co.jp/%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD%E3%81%AF%E4%BA%BA%E9%96%93%E3%82%92%E8%B6%85%E3%81%88%E3%82%8B%E3%81%8B-%E8%A7%92%E5%B7%9D%EF%BC%A5%EF%BC%B0%EF%BC%B5%EF%BC%A2%E9%81%B8%E6%9B%B8-%E6%9D%BE%E5%B0%BE-%E8%B1%8A-ebook/dp/B00UAAK07S" class="autolink" rel="nofollow noopener" target="_blank">https://www.amazon.co.jp/人工知能は人間を超えるか-角川ＥＰＵＢ選書-松尾-豊-ebook/dp/B00UAAK07S</a></p>
+</blockquote>
+
+<p>シンギュラリティとか怖い！とかおもったけど、SFってことでいいんですよね？</p>
+
+<h2>
+<span id="itエンジニアのための機械学習理論入門" class="fragment"></span><a href="#it%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E7%90%86%E8%AB%96%E5%85%A5%E9%96%80"><i class="fa fa-link"></i></a>「ITエンジニアのための機械学習理論入門」</h2>
+
+<p>まずは「ITエンジニアのための機械学習理論入門」を読みました。こちらも本屋には平積みされてて人気の本ぽいです。</p>
+
+<blockquote>
+<p><a href="http://gihyo.jp/book/2015/978-4-7741-7698-7" class="autolink" rel="nofollow noopener" target="_blank">http://gihyo.jp/book/2015/978-4-7741-7698-7</a></p>
+</blockquote>
+
+<p>機械学習の基礎から、最小二乗法、最尤推定法など関連する数学や統計についての解説までカバーしています。深層学習についてはそこまで言及されていませんが、パーセプトロン、ロジスティクス回帰による分類アルゴリズム、ベイズ推定あたりの話題は、機械学習を学んでいる感じがあって、手応えがありました。</p>
+
+<h2>
+<span id="機械学習-はじめよう" class="fragment"></span><a href="#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92-%E3%81%AF%E3%81%98%E3%82%81%E3%82%88%E3%81%86"><i class="fa fa-link"></i></a>「機械学習 はじめよう」</h2>
+
+<p>こちらはweb連載です。↑と同じ作者による連載かな？こちらも合わせて読みました。</p>
+
+<blockquote>
+<p><a href="http://gihyo.jp/dev/serial/01/machine-learning" class="autolink" rel="nofollow noopener" target="_blank">http://gihyo.jp/dev/serial/01/machine-learning</a></p>
+</blockquote>
+
+<h2>
+<span id="物理のための数学" class="fragment"></span><a href="#%E7%89%A9%E7%90%86%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE%E6%95%B0%E5%AD%A6"><i class="fa fa-link"></i></a>「物理のための数学」</h2>
+
+<p>で、ここで微分・積分ねえ、はいはい・・やったはずですけどねえ、、という状態になってしまったので、ちょっと寄り道して学習院大学の田崎晴明氏が無償で公開している<br>
+「物理のための数学」というドキュメントを読むことにしました。高校／大学１年レベルの数学の教科書としていいぞ、とどこかでオススメされていたものです。</p>
+
+<blockquote>
+<p><a href="http://www.gakushuin.ac.jp/~881791/mathbook/" class="autolink" rel="nofollow noopener" target="_blank">http://www.gakushuin.ac.jp/~881791/mathbook/</a></p>
+</blockquote>
+
+<p>正月に帰省した際に印刷して読んでました。今考えると、まあ別に読まなくても問題なかったかな。。</p>
+
+<h2>
+<span id="深層学習-機械学習プロフェッショナルシリーズ" class="fragment"></span><a href="#%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92-%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%97%E3%83%AD%E3%83%95%E3%82%A7%E3%83%83%E3%82%B7%E3%83%A7%E3%83%8A%E3%83%AB%E3%82%B7%E3%83%AA%E3%83%BC%E3%82%BA"><i class="fa fa-link"></i></a>「深層学習 (機械学習プロフェッショナルシリーズ)」</h2>
+
+<p>数学はもういいかな、と思い再度上記「機械学習理論入門」を読みなおしましたが、そろそろディープラーニングってやつをかじりたいな、と思い手にとったのが「深層学習 (機械学習プロフェッショナルシリーズ) 」でした。</p>
+
+<blockquote>
+<p><a href="http://www.amazon.co.jp/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92-%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%97%E3%83%AD%E3%83%95%E3%82%A7%E3%83%83%E3%82%B7%E3%83%A7%E3%83%8A%E3%83%AB%E3%82%B7%E3%83%AA%E3%83%BC%E3%82%BA-%E5%B2%A1%E8%B0%B7-%E8%B2%B4%E4%B9%8B/dp/4061529021" class="autolink" rel="nofollow noopener" target="_blank">http://www.amazon.co.jp/深層学習-機械学習プロフェッショナルシリーズ-岡谷-貴之/dp/4061529021</a></p>
+</blockquote>
+
+<p>タイトルどおり、こってり深層学習について学べます。ニューラルネットワーク、バックプロパゲーション、自己符号化、畳込みニューラルネット、再帰型ニューラルネット、などなど。。。自分は専門化ではありませんが、深層学習関連の重要なトピックが網羅されているような気がします。さらに一周目ではよくわからなかった箇所も、実際にコードを書いた後に読み直すと「あ〜、このよくわからなかった数式、さっき書いたあのコードの部分と関連してくるわけか〜」みたいな現象がよく起きるので、学んでる感があって良いです。</p>
+
+<p>一番衝撃的だったのは「なぜ隠れ層を追加することで精度が向上するのか、研究者の間でも実はよくわかってないところがある」的な記述で、ロマンを感じました。</p>
+
+<p>さて、<br>
+このあたりで、もう本を読むのはいいや、なんか書きたいぜ、と思い、ちょうどそのころ話題になってたTensorFlowを使って何か作りたいなと考え始めました。</p>
+
+<p>こっからがようやく本題です（前置き長い）。</p>
+
+<h1>
+<span id="何を作るか" class="fragment"></span><a href="#%E4%BD%95%E3%82%92%E4%BD%9C%E3%82%8B%E3%81%8B"><i class="fa fa-link"></i></a>何を作るか</h1>
+
+<p>タイトルを見ただけでわかるかと思いますが、今回作ったものはすぎゃーん氏によるブログ記事の内容とほとんど同じものです。</p>
+
+<blockquote>
+<p>TensorFlowによるディープラーニングで、アイドルの顔を識別する<br>
+&lt;<a href="http://d.hatena.ne.jp/sugyan/20160112/1452558576" class="autolink" rel="nofollow noopener" target="_blank">http://d.hatena.ne.jp/sugyan/20160112/1452558576</a></p>
+</blockquote>
+
+<p>さすがにまったく同じものを作るのはアレなので、同じような機能のものだとしても、せめて分析対象はももクロじゃなくて別のものにすべきかな・・と思ったんですが、重度のモノノフエンジニアの自分としては、すぎゃーん氏がやってることが楽しそうで仕方なかったので、結局同じネタですすめることにしました。二番煎じですいません。</p>
+
+<h1>
+<span id="プログラム概要" class="fragment"></span><a href="#%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>プログラム概要</h1>
+
+<p>４つのコンポーネントからなっています。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+crawler
+  webからももクロの画像を集めてくるRubyスクリプト
+
+face_detect
+  crawlerが集めてきた画像から顔部分を切り取るPythonスクリプト
+
+deeplearning
+  顔画像を訓練／テストデータとして学習を行うTensorFlow+Pythonスクリプト
+
+web
+  学習結果のモデルを使って顔認識機能をwebアプリとして提供するpythonスクリプト
+</pre></div></div>
+
+<p>Pythonはよくわからないので、当初はRubyで大部分を書こう！と思ってましたが、openCV（そして当然TensorFlowも）を扱うにはどう考えてもPythonのほうが有利だな、と思ったので途中からPythonをメイン言語として切替えました。crawlerだけRubyでほかは全部Pythonなのはそのせいです。素直にPython使いましょう。</p>
+
+<h2>
+<span id="crawler" class="fragment"></span><a href="#crawler"><i class="fa fa-link"></i></a>crawler</h2>
+
+<p><a href="https://github.com/kenmaz/momo_mind/blob/master/crawler/url_fetch.rb" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/kenmaz/momo_mind/blob/master/crawler/url_fetch.rb</a><br>
+まずは<code>url_fetch.rb</code>で、ももクロメンバーの名前等をキーワードとしてbing画像検索を行い、画像URLを取得します。特になんてことは無いです。反省点としては、bing画像検索の検索結果は、ちょっと昔のももクロの画像しかヒットせず、最新の画像がなかなか集められないのが難点でした。メンバーのアメブロあたりから画像を引っ張ってきたほうがいいかなー、と途中で思いましたが、とりあえず現状はbing経由のみです。</p>
+
+<p><a href="https://github.com/kenmaz/momo_mind/blob/master/crawler/download.rb" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/kenmaz/momo_mind/blob/master/crawler/download.rb</a><br>
+url一覧が取得できたら、<code>download.rb</code>でガンガン画像をダウンロードします。夜実行して朝起きたら沢山溜まってました。</p>
+
+<p>たまに同じURLが存在して画像が重複してしまうので、画像バイナリのハッシュ値を保存時のファイル名にするなどして、なるべく重複が発生しないように注意したりもしました。</p>
+
+<p>以上、なんの変哲もないクローラーでした。</p>
+
+<h2>
+<span id="face_detect" class="fragment"></span><a href="#face_detect"><i class="fa fa-link"></i></a>face_detect</h2>
+
+<p>次は収集した画像から、学習用データとして、顔っぽい部分を抜き出します。<br>
+<a href="https://github.com/kenmaz/momo_mind/blob/master/face_detect/detect.py" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/kenmaz/momo_mind/blob/master/face_detect/detect.py</a></p>
+
+<p><code>detect.py</code>では openCVが標準で提供している <code>haarcascades</code>というモデルを使って画像から顔部分だけを検出して、画像として切り取っていきます。ただしこのモデルを使って顔検出をしようとすると以下の様な問題が発生します。</p>
+
+<ul>
+<li>顔がちょっとでも傾いていると顔として検出されない</li>
+<li>顔じゃない画像が、顔として誤認識されてしまう</li>
+</ul>
+
+<p>こちらの問題については、またしてもすぎゃーん氏によるブログポストを大いに参考にさせてもらいました。</p>
+
+<blockquote>
+<p>Heroku + OpenCVで簡易顔検出API<br>
+<a href="http://d.hatena.ne.jp/sugyan/20151203/1449137219" class="autolink" rel="nofollow noopener" target="_blank">http://d.hatena.ne.jp/sugyan/20151203/1449137219</a></p>
+</blockquote>
+
+<p>だいたい上記と同じですが、処理の内容は以下のとおり。</p>
+
+<ul>
+<li>画像自体を5度ずつ回転させて顔を検出 =&gt; 顔の傾きの問題を解決</li>
+<li>同じ画像を回転させるだけなので、ひとつの顔に対して重複して顔が検出される =&gt; それぞれの顔画像に対して、目の位置の検出、口の位置の検出を追加で行い、一番それっぽい画像をピックアップする</li>
+</ul>
+
+<p>目と口の検出に関しては、以下のとおり評価をしています。<br>
+- 画像の左上と右上にそれぞれ１つずつ目が存在する<br>
+- 左右の目の水平位置がほぼ同じ<br>
+- 画像の中央下部に１つ口が存在する</p>
+
+<p>-50度から50度まで5度刻みで画像を回転させつつ、上記処理を繰り返すためだいぶ重い処理になります。</p>
+
+<p>このスクリプトは学習データの生成だけではなく、最終的にwebアプリとして公開する際に、ユーザからアップロードされた画像から、顔検出する際にも使います。このまま処理を流用するのはさすがに重すぎなので、webアプリとして使うときは、-5度、0度、5度、の角度だけを使うようにしました。なので顔の検出に失敗することも多々有りますが貧乏やむなし。</p>
+
+<p>回転した画像同士で、同一の顔を重複してしまう問題については、各顔の座標を回転移動すれば重複した顔画像をグルーピングできます。高校の時やりましたねー。</p>
+
+<blockquote>
+<p>回転移動の１次変換<br>
+<a href="http://www.geisya.or.jp/~mwm48961/kou2/linear_image3.html" class="autolink" rel="nofollow noopener" target="_blank">http://www.geisya.or.jp/~mwm48961/kou2/linear_image3.html</a></p>
+</blockquote>
+
+<h2>
+<span id="人力による訓練テストデータの準備" class="fragment"></span><a href="#%E4%BA%BA%E5%8A%9B%E3%81%AB%E3%82%88%E3%82%8B%E8%A8%93%E7%B7%B4%E3%83%86%E3%82%B9%E3%83%88%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>人力による訓練・テストデータの準備</h2>
+
+<p>これでようやくももクロメンバーの顔画像が大量に集まりましたが、これらを学習用データとして使えるようにするには、それぞれの顔がももクロの誰の顔なのかを学習データとして提供して上げる必要があります。今からまさにその分類を自動で行うプログラムを作ろうとしてるわけですが、卵と鶏問題ってことで、まず人間様が最初の学習用データを作ってやる必要があります。</p>
+
+<p>すぎゃーん氏は学習データ作成のためのwebツールを作っていたようですが、私はめんどくさかったのでとりあえずMacのFinderで画像をばーっと並べて、cmd+クリックで画像を複数選択→フォルダ作成、みたいな感じので作業で済ますことにしました。</p>
+
+<p>フォルダ構成はこんな感じ。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+/out
+  /train
+    /reni
+      ..150枚ほどの画像..
+    /kanako
+      ..150枚ほどの画像..
+    /shiori
+      ..150枚ほどの画像..
+    /arin
+      ..150枚ほどの画像..
+    /momoka
+      ..150枚ほどの画像..
+  test
+    /reni
+      ..150枚ほどの画像..
+    /kanako
+      ..150枚ほどの画像..
+    /shiori
+      ..150枚ほどの画像..
+    /arin
+      ..150枚ほどの画像..
+    /momoka
+      ..150枚ほどの画像..
+</pre></div></div>
+
+<p>訓練とテストの画像はどれくらいの配分がいいか迷いましたが、それぞれ150枚くらい用意しました。最初は訓練データを充実させたほうがいいっしょ！ってことで、訓練：テスト = 7:3 くらいの配分にしてみましたが、そうすると感覚的にテストデータの選び方次第ではテストデータが偏ってしまうことがあったためです。</p>
+
+<p>計1,500枚の画像をがんばって人力分類したわけですが、これがももクロメンバーの顔画像でほんとに良かった、とおもいます。嫁さんはSMAPのメンバーとかでやってみたら？と言ってましたが、1500枚のおじさんの顔画像をがんばって分類する作業とか、ほんといやですよね。ほんとももクロで良かった。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8399/5598a2d7-55ea-d5c5-9015-bfcbd36618cc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8399/5598a2d7-55ea-d5c5-9015-bfcbd36618cc.png" alt="スクリーンショット 2016-05-23 2.42.41.png"></a><br>
+<em>kanakoフォルダの様子</em></p>
+
+<h1>
+<span id="前編おわり" class="fragment"></span><a href="#%E5%89%8D%E7%B7%A8%E3%81%8A%E3%82%8F%E3%82%8A"><i class="fa fa-link"></i></a>前編おわり</h1>
+
+<p>前編はここまで。誰も望んでいないかもしれませんが、後編もきっと書きます。<br>
+<em>技術に関係ないことばっかり書いちゃったので、検閲が厳しいと噂のQiita運営にBANされないか不安である</em></p>
+
+<p>続きはこちら<br>
+中編： <a href="http://qiita.com/kenmaz/items/ef0a1308582fe0fc5ea1#_reference-6ae9a51ee7a7a346d3c1" class="autolink" id="reference-ae3c1aa98c6f14415a6d">http://qiita.com/kenmaz/items/ef0a1308582fe0fc5ea1#_reference-6ae9a51ee7a7a346d3c1</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/kenmaz/items/4b60ea00b159b3e00100" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="g3l2kDdJZQhYMphhrhgf3KxKevxjhLiPn1ZMxEPDliImIyo7adEpg9KgWPFQhXMYIjJEXuiHJtfyOV4J6st96Q==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1464028447" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+[二番煎じ感](http://d.hatena.ne.jp/sugyan/20160112/1452558576)が半端ないですが、やっちゃったものは仕方ないので書きます。
+
+機械学習やディープラーニングについては全く初心者のソフトウェアエンジニアが、畳込みニューラルネットワークを用いて「ももいろクローバーZ」のメンバーの顔識別を行うアプリを作った話です。
+
+# 作ったもの
+ec2上で稼働してます。ただしt2.microなので重いです。
+
+ももクロ画像分類器
+http://momomind.kenmaz.net
+
+コード
+https://github.com/kenmaz/momo_mind
+
+![スクリーンショット 2016-05-23 3.02.48.png](https://qiita-image-store.s3.amazonaws.com/0/8399/469401df-3e50-de83-d386-48d38f92da5f.png)
+
+# 背景
+私（[@kenmaz](https://twitter.com/kenmaz))は、仕事ではここ数年はiOSアプリ(objc/swift)ばっかり書いています。その前はJava/Ruby/PHPでWebアプリ、サーバーアプリ、開発ツール等を書いていたりもしました。ということで機械学習や人工知能に関する知識はほぼゼロでした。
+
+# 自分語り＆参考図書
+そんな私がなぜ、題記のようなアプリを作ろうと思ったか、そのあたりを幾つかの本の紹介とともに書いていきます。
+
+## 「人工知能は人間を超えるか」
+昨年末に話題になった「人工知能は人間を超えるか」という本がありますが、これが大変おもしろかったので、実際に深層学習を学んで試してみたくなりました。
+&gt;https://www.amazon.co.jp/人工知能は人間を超えるか-角川ＥＰＵＢ選書-松尾-豊-ebook/dp/B00UAAK07S
+
+シンギュラリティとか怖い！とかおもったけど、SFってことでいいんですよね？
+
+## 「ITエンジニアのための機械学習理論入門」
+まずは「ITエンジニアのための機械学習理論入門」を読みました。こちらも本屋には平積みされてて人気の本ぽいです。
+&gt;http://gihyo.jp/book/2015/978-4-7741-7698-7
+
+機械学習の基礎から、最小二乗法、最尤推定法など関連する数学や統計についての解説までカバーしています。深層学習についてはそこまで言及されていませんが、パーセプトロン、ロジスティクス回帰による分類アルゴリズム、ベイズ推定あたりの話題は、機械学習を学んでいる感じがあって、手応えがありました。
+
+## 「機械学習 はじめよう」
+こちらはweb連載です。↑と同じ作者による連載かな？こちらも合わせて読みました。
+&gt;http://gihyo.jp/dev/serial/01/machine-learning
+
+## 「物理のための数学」
+で、ここで微分・積分ねえ、はいはい・・やったはずですけどねえ、、という状態になってしまったので、ちょっと寄り道して学習院大学の田崎晴明氏が無償で公開している
+「物理のための数学」というドキュメントを読むことにしました。高校／大学１年レベルの数学の教科書としていいぞ、とどこかでオススメされていたものです。
+&gt;http://www.gakushuin.ac.jp/~881791/mathbook/
+
+正月に帰省した際に印刷して読んでました。今考えると、まあ別に読まなくても問題なかったかな。。
+
+## 「深層学習 (機械学習プロフェッショナルシリーズ)」
+数学はもういいかな、と思い再度上記「機械学習理論入門」を読みなおしましたが、そろそろディープラーニングってやつをかじりたいな、と思い手にとったのが「深層学習 (機械学習プロフェッショナルシリーズ) 」でした。
+&gt;http://www.amazon.co.jp/深層学習-機械学習プロフェッショナルシリーズ-岡谷-貴之/dp/4061529021
+
+タイトルどおり、こってり深層学習について学べます。ニューラルネットワーク、バックプロパゲーション、自己符号化、畳込みニューラルネット、再帰型ニューラルネット、などなど。。。自分は専門化ではありませんが、深層学習関連の重要なトピックが網羅されているような気がします。さらに一周目ではよくわからなかった箇所も、実際にコードを書いた後に読み直すと「あ〜、このよくわからなかった数式、さっき書いたあのコードの部分と関連してくるわけか〜」みたいな現象がよく起きるので、学んでる感があって良いです。
+
+一番衝撃的だったのは「なぜ隠れ層を追加することで精度が向上するのか、研究者の間でも実はよくわかってないところがある」的な記述で、ロマンを感じました。
+
+さて、
+このあたりで、もう本を読むのはいいや、なんか書きたいぜ、と思い、ちょうどそのころ話題になってたTensorFlowを使って何か作りたいなと考え始めました。
+
+こっからがようやく本題です（前置き長い）。
+
+# 何を作るか
+
+タイトルを見ただけでわかるかと思いますが、今回作ったものはすぎゃーん氏によるブログ記事の内容とほとんど同じものです。
+&gt;TensorFlowによるディープラーニングで、アイドルの顔を識別する
+&lt;http://d.hatena.ne.jp/sugyan/20160112/1452558576
+
+さすがにまったく同じものを作るのはアレなので、同じような機能のものだとしても、せめて分析対象はももクロじゃなくて別のものにすべきかな・・と思ったんですが、重度のモノノフエンジニアの自分としては、すぎゃーん氏がやってることが楽しそうで仕方なかったので、結局同じネタですすめることにしました。二番煎じですいません。
+
+# プログラム概要
+４つのコンポーネントからなっています。
+
+```
+crawler
+  webからももクロの画像を集めてくるRubyスクリプト
+
+face_detect
+  crawlerが集めてきた画像から顔部分を切り取るPythonスクリプト
+
+deeplearning
+  顔画像を訓練／テストデータとして学習を行うTensorFlow+Pythonスクリプト
+
+web
+  学習結果のモデルを使って顔認識機能をwebアプリとして提供するpythonスクリプト
+```
+
+Pythonはよくわからないので、当初はRubyで大部分を書こう！と思ってましたが、openCV（そして当然TensorFlowも）を扱うにはどう考えてもPythonのほうが有利だな、と思ったので途中からPythonをメイン言語として切替えました。crawlerだけRubyでほかは全部Pythonなのはそのせいです。素直にPython使いましょう。
+
+## crawler
+
+https://github.com/kenmaz/momo_mind/blob/master/crawler/url_fetch.rb
+まずは`url_fetch.rb`で、ももクロメンバーの名前等をキーワードとしてbing画像検索を行い、画像URLを取得します。特になんてことは無いです。反省点としては、bing画像検索の検索結果は、ちょっと昔のももクロの画像しかヒットせず、最新の画像がなかなか集められないのが難点でした。メンバーのアメブロあたりから画像を引っ張ってきたほうがいいかなー、と途中で思いましたが、とりあえず現状はbing経由のみです。
+
+https://github.com/kenmaz/momo_mind/blob/master/crawler/download.rb
+url一覧が取得できたら、`download.rb`でガンガン画像をダウンロードします。夜実行して朝起きたら沢山溜まってました。
+
+たまに同じURLが存在して画像が重複してしまうので、画像バイナリのハッシュ値を保存時のファイル名にするなどして、なるべく重複が発生しないように注意したりもしました。
+
+以上、なんの変哲もないクローラーでした。
+
+## face_detect
+次は収集した画像から、学習用データとして、顔っぽい部分を抜き出します。
+https://github.com/kenmaz/momo_mind/blob/master/face_detect/detect.py
+
+`detect.py`では openCVが標準で提供している `haarcascades`というモデルを使って画像から顔部分だけを検出して、画像として切り取っていきます。ただしこのモデルを使って顔検出をしようとすると以下の様な問題が発生します。
+
+- 顔がちょっとでも傾いていると顔として検出されない
+- 顔じゃない画像が、顔として誤認識されてしまう
+
+こちらの問題については、またしてもすぎゃーん氏によるブログポストを大いに参考にさせてもらいました。
+&gt;Heroku + OpenCVで簡易顔検出API
+&gt;http://d.hatena.ne.jp/sugyan/20151203/1449137219
+
+だいたい上記と同じですが、処理の内容は以下のとおり。
+
+- 画像自体を5度ずつ回転させて顔を検出 =&gt; 顔の傾きの問題を解決
+- 同じ画像を回転させるだけなので、ひとつの顔に対して重複して顔が検出される =&gt; それぞれの顔画像に対して、目の位置の検出、口の位置の検出を追加で行い、一番それっぽい画像をピックアップする
+
+目と口の検出に関しては、以下のとおり評価をしています。
+- 画像の左上と右上にそれぞれ１つずつ目が存在する
+- 左右の目の水平位置がほぼ同じ
+- 画像の中央下部に１つ口が存在する
+
+-50度から50度まで5度刻みで画像を回転させつつ、上記処理を繰り返すためだいぶ重い処理になります。
+
+このスクリプトは学習データの生成だけではなく、最終的にwebアプリとして公開する際に、ユーザからアップロードされた画像から、顔検出する際にも使います。このまま処理を流用するのはさすがに重すぎなので、webアプリとして使うときは、-5度、0度、5度、の角度だけを使うようにしました。なので顔の検出に失敗することも多々有りますが貧乏やむなし。
+
+回転した画像同士で、同一の顔を重複してしまう問題については、各顔の座標を回転移動すれば重複した顔画像をグルーピングできます。高校の時やりましたねー。
+
+&gt;回転移動の１次変換
+&gt;http://www.geisya.or.jp/~mwm48961/kou2/linear_image3.html
+
+## 人力による訓練・テストデータの準備
+これでようやくももクロメンバーの顔画像が大量に集まりましたが、これらを学習用データとして使えるようにするには、それぞれの顔がももクロの誰の顔なのかを学習データとして提供して上げる必要があります。今からまさにその分類を自動で行うプログラムを作ろうとしてるわけですが、卵と鶏問題ってことで、まず人間様が最初の学習用データを作ってやる必要があります。
+
+すぎゃーん氏は学習データ作成のためのwebツールを作っていたようですが、私はめんどくさかったのでとりあえずMacのFinderで画像をばーっと並べて、cmd+クリックで画像を複数選択→フォルダ作成、みたいな感じので作業で済ますことにしました。
+
+フォルダ構成はこんな感じ。
+
+```
+/out
+  /train
+    /reni
+      ..150枚ほどの画像..
+    /kanako
+      ..150枚ほどの画像..
+    /shiori
+      ..150枚ほどの画像..
+    /arin
+      ..150枚ほどの画像..
+    /momoka
+      ..150枚ほどの画像..
+  test
+    /reni
+      ..150枚ほどの画像..
+    /kanako
+      ..150枚ほどの画像..
+    /shiori
+      ..150枚ほどの画像..
+    /arin
+      ..150枚ほどの画像..
+    /momoka
+      ..150枚ほどの画像..
+```
+訓練とテストの画像はどれくらいの配分がいいか迷いましたが、それぞれ150枚くらい用意しました。最初は訓練データを充実させたほうがいいっしょ！ってことで、訓練：テスト = 7:3 くらいの配分にしてみましたが、そうすると感覚的にテストデータの選び方次第ではテストデータが偏ってしまうことがあったためです。
+
+計1,500枚の画像をがんばって人力分類したわけですが、これがももクロメンバーの顔画像でほんとに良かった、とおもいます。嫁さんはSMAPのメンバーとかでやってみたら？と言ってましたが、1500枚のおじさんの顔画像をがんばって分類する作業とか、ほんといやですよね。ほんとももクロで良かった。
+
+![スクリーンショット 2016-05-23 2.42.41.png](https://qiita-image-store.s3.amazonaws.com/0/8399/5598a2d7-55ea-d5c5-9015-bfcbd36618cc.png)
+*kanakoフォルダの様子*
+
+# 前編おわり
+前編はここまで。誰も望んでいないかもしれませんが、後編もきっと書きます。
+*技術に関係ないことばっかり書いちゃったので、検閲が厳しいと噂のQiita運営にBANされないか不安である*
+
+続きはこちら
+中編： http://qiita.com/kenmaz/items/ef0a1308582fe0fc5ea1#_reference-6ae9a51ee7a7a346d3c1
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowによるももクロメンバー顔認識（前編） by @kenmaz on @Qiita" data-url="http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowによるももクロメンバー顔認識（前編）" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/kenmaz"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/kenmaz">kenmaz</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">907</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;kenmaz&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-a44e22c3-2c55-45bf-9e11-80b76d6df942"></div>
+    <div id="UserFollowButton-react-component-a44e22c3-2c55-45bf-9e11-80b76d6df942"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmaz/items/4b60ea00b159b3e00100">TensorFlowによるももクロメンバー顔認識（前編）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmaz/items/343245f2bdb2c3b29e63">iOS9のSFSafariViewControllerを使ってアプリ初回起動時のブラウザリダイレクトを卒業しよう</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmaz/items/65cc4a7ca3ef2eae253b">1分で作るiOS9の広告ブロッカー</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmaz/items/1704152ef38c35bfe9fe">iPhone6Plusと初回起動時の画面向きについて</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmaz/items/5e749f37e7095e0d54f2">Storyboardで消耗しないためのTips</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%9C%E3%81%A3%E3%81%9F%E3%82%82%E3%81%AE\&quot;\u003e作ったもの\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%83%8C%E6%99%AF\&quot;\u003e背景\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%87%AA%E5%88%86%E8%AA%9E%E3%82%8A%E5%8F%82%E8%80%83%E5%9B%B3%E6%9B%B8\&quot;\u003e自分語り＆参考図書\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD%E3%81%AF%E4%BA%BA%E9%96%93%E3%82%92%E8%B6%85%E3%81%88%E3%82%8B%E3%81%8B\&quot;\u003e「人工知能は人間を超えるか」\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#it%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E7%90%86%E8%AB%96%E5%85%A5%E9%96%80\&quot;\u003e「ITエンジニアのための機械学習理論入門」\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92-%E3%81%AF%E3%81%98%E3%82%81%E3%82%88%E3%81%86\&quot;\u003e「機械学習 はじめよう」\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%89%A9%E7%90%86%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE%E6%95%B0%E5%AD%A6\&quot;\u003e「物理のための数学」\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92-%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%97%E3%83%AD%E3%83%95%E3%82%A7%E3%83%83%E3%82%B7%E3%83%A7%E3%83%8A%E3%83%AB%E3%82%B7%E3%83%AA%E3%83%BC%E3%82%BA\&quot;\u003e「深層学習 (機械学習プロフェッショナルシリーズ)」\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%95%E3%82%92%E4%BD%9C%E3%82%8B%E3%81%8B\&quot;\u003e何を作るか\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0%E6%A6%82%E8%A6%81\&quot;\u003eプログラム概要\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#crawler\&quot;\u003ecrawler\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#face_detect\&quot;\u003eface_detect\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BA%BA%E5%8A%9B%E3%81%AB%E3%82%88%E3%82%8B%E8%A8%93%E7%B7%B4%E3%83%86%E3%82%B9%E3%83%88%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E6%BA%96%E5%82%99\&quot;\u003e人力による訓練・テストデータの準備\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%89%8D%E7%B7%A8%E3%81%8A%E3%82%8F%E3%82%8A\&quot;\u003e前編おわり\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-c0a2de17-1e1d-4a29-ae8c-38677dcdd732"></div>
+    <div id="Toc-react-component-c0a2de17-1e1d-4a29-ae8c-38677dcdd732"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:152,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;4b60ea00b159b3e00100&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tsota"><a itemprop="url" href="/tsota"><img alt="tsota" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/103795/profile-images/1473709113" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="take-ni"><a itemprop="url" href="/take-ni"><img alt="take-ni" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100104/profile-images/1473707991" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="LowSE01"><a itemprop="url" href="/LowSE01"><img alt="LowSE01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102123/profile-images/1473708593" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="n-satoru"><a itemprop="url" href="/n-satoru"><img alt="n-satoru" class="thumb thumb--xs" src="https://gravatar.com/avatar/593e340db1d459e9dd04739cc60fa4b9?d=https%3A%2F%2Fidenticons.github.com%2F2b51106c2defe13f918d8e68173d6fc2.png&amp;r=x" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="smizy"><a itemprop="url" href="/smizy"><img alt="smizy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50763/profile-images/1473692216" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="boobright"><a itemprop="url" href="/boobright"><img alt="boobright" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14618/profile-images/1473683424" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yoshi6jp@github"><a itemprop="url" href="/yoshi6jp@github"><img alt="yoshi6jp@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7187/profile-images/1473684112" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="FredericChang"><a itemprop="url" href="/FredericChang"><img alt="FredericChang" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81269/profile-images/1473702060" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="masaki_iwahara"><a itemprop="url" href="/masaki_iwahara"><img alt="masaki_iwahara" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/13767a27b4bb60df7d108b6fc26931c2?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="izktmys"><a itemprop="url" href="/izktmys"><img alt="izktmys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102327/profile-images/1473708664" /></a></div></div><div class="ArticleFooter__user"><a href="/kenmaz/items/4b60ea00b159b3e00100/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/4b60ea00b159b3e00100/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/kenmaz/items/4b60ea00b159b3e00100.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmaz/items/ef0a1308582fe0fc5ea1#_reference-6ae9a51ee7a7a346d3c1"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020" />TensorFlowによるももクロメンバー顔認識（中編）</a><time class="references_datetime js-dateTimeView" datetime="2016-05-23T18:32:31+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmaz/items/8a9c382af3f8397710e9#_reference-f62e358c88a57dd0a15b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020" />TensorFlowによるももクロメンバー顔認識（後編）</a><time class="references_datetime js-dateTimeView" datetime="2016-05-24T17:55:51+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/oggata/items/22e4512821a3ce2590d0#_reference-dead409392100b3d8e45"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43766/profile-images/1473689641" />DeepLearningを勉強するために、VirtualBox上のUbuntuで、日本発(Chainer)とGoogle発(TensorFlow)のフレームワークを動かすまで</a><time class="references_datetime js-dateTimeView" datetime="2016-12-08T08:41:37+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmaz/items/097b6e3ff4f3e0f6251c#_reference-b907d3671117fa678be9"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020" />Tensorflowで個人サービスにアップロードされた不適切なイラスト画像を検出する【前編】</a><time class="references_datetime js-dateTimeView" datetime="2016-12-13T06:40:28+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/keonheon/items/82f4731afb4c99a09791#_reference-8a94b42de72e60bd3bad"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99969/profile-images/1473763154" />TensorFlow iOS カメラサンプルで自作した画像分類器を動かす</a><time class="references_datetime js-dateTimeView" datetime="2017-02-21T09:46:08+00:00">26 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowによるももクロメンバー顔認識（前編） by @kenmaz on @Qiita" data-url="http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowによるももクロメンバー顔認識（前編）" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmaz/items/4b60ea00b159b3e00100" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eクロールは、全く知見がなかったもので、大変興味深く拝見しました。\u003cbr\u003e\n自分でもやってみようと思います。\u003cbr\u003e\nurl_fetch.rbは、取得したURLは、別途csvにする部分の実装が必要ですか？？？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-05-26T08:49:04+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:547421,&quot;is_team&quot;:false,&quot;item_id&quot;:394480,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;4b60ea00b159b3e00100&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;クロールは、全く知見がなかったもので、大変興味深く拝見しました。\n自分でもやってみようと思います。\nurl_fetch.rbは、取得したURLは、別途csvにする部分の実装が必要ですか？？？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmaz/items/4b60ea00b159b3e00100#comment-8f03e25f5fc9e6182a0c&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-12-01T08:34:21+09:00&quot;,&quot;id&quot;:103267,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/103267/profile-images/1473708960&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;k501&quot;},&quot;uuid&quot;:&quot;8f03e25f5fc9e6182a0c&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cblockquote\u003e\n\u003cp\u003ek501さん\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e\u003ca href=\&quot;http://qiita.com/sadapon2008/items/38628ae8266495b3d3a3\&quot; class=\&quot;autolink\&quot; id=\&quot;reference-2a40a48cb851f45162bd\&quot;\u003ehttp://qiita.com/sadapon2008/items/38628ae8266495b3d3a3\u003c/a\u003e\u003cbr\u003e\nあたりの手順でapikeyを取得し、\u003ccode\u003eurl_fetch.rb\u003c/code\u003eの\u003ccode\u003eAPIKEY\u003c/code\u003eを書き換えた上で\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nruby url_fetch.rb \u0026gt; result.csv\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eとかで\u003ccode\u003eresult.csv\u003c/code\u003eに出力されます。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-05-26T16:57:10+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:548103,&quot;is_team&quot;:false,&quot;item_id&quot;:394480,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;4b60ea00b159b3e00100&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;\u003ek501さん\n\nhttp://qiita.com/sadapon2008/items/38628ae8266495b3d3a3\nあたりの手順でapikeyを取得し、`url_fetch.rb`の`APIKEY`を書き換えた上で\n\n```\nruby url_fetch.rb \u003e result.csv\n```\nとかで`result.csv`に出力されます。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmaz/items/4b60ea00b159b3e00100#comment-91de85a6898f18121cd8&quot;,&quot;user&quot;:{&quot;contribution&quot;:907,&quot;created_at&quot;:&quot;2012-08-14T16:57:12+09:00&quot;,&quot;id&quot;:8399,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmaz&quot;},&quot;uuid&quot;:&quot;91de85a6898f18121cd8&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eなるほどですね！！ありがとうございます。\u003cbr\u003e\n無事、取得できました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-05-26T22:06:01+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:548467,&quot;is_team&quot;:false,&quot;item_id&quot;:394480,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;4b60ea00b159b3e00100&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;なるほどですね！！ありがとうございます。\n無事、取得できました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmaz/items/4b60ea00b159b3e00100#comment-1727789ff26f210c0e0a&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-12-01T08:34:21+09:00&quot;,&quot;id&quot;:103267,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/103267/profile-images/1473708960&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;k501&quot;},&quot;uuid&quot;:&quot;1727789ff26f210c0e0a&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:394480,&quot;uuid&quot;:&quot;4b60ea00b159b3e00100&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;kenmaz&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:8399,&quot;url_name&quot;:&quot;kenmaz&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020&quot;},{&quot;id&quot;:103267,&quot;url_name&quot;:&quot;k501&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/103267/profile-images/1473708960&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-c64c6cff-fd28-47f4-9065-9d74d236e91c"></div>
+    <div id="CommentListContainer-react-component-c64c6cff-fd28-47f4-9065-9d74d236e91c"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="4UPq7yAahJzIC30Q92qn+cXflUVWhOYWU5ZQq1eFS6lEGbZEfoLIF0KZvYAJ98s9S6er592HeE4++UJm/o2gYg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmaz/items/4b60ea00b159b3e00100" /><input type="hidden" name="item_uuid" id="item_uuid" value="4b60ea00b159b3e00100" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/kenmaz/items/4b60ea00b159b3e00100", "id": 394480, "uuid": "4b60ea00b159b3e00100" }</script><script class="js-user" type="application/json">{&quot;id&quot;:8399,&quot;url_name&quot;:&quot;kenmaz&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/8399/profile-images/1473681020&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="Tf1TgkCXW4Vri4UkeZLyr/VY+YgtKKwFDKdZ89U2HXjopw8pHg8XDuEZRbSHD55reyDHKqYrMl1hyEs+fD72sw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmaz/items/4b60ea00b159b3e00100" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-184225-11', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

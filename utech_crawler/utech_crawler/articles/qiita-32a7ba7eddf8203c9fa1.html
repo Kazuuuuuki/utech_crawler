@@ -1,0 +1,1156 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="米googleの研究者が開発した「 Word2Vec 」という技術をベースに、「単語」だけではなく「文書」にも意味を持たせてベクトルとして捉えて利用できる技術「 Doc2Vec 」をいじってみました。
+
+
+Word2Vecのおさらい
+
+過去Qiitaに投稿したので、そのリンクを張っておきます。
+http://qiita.com/okappy/items/e16639178ba85edfee72
+
+
+Doc2Vecとは？
+
+Word2VecはWord(単語)をベクトルとし..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="okappy" name="twitter:creator" /><meta content="Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+米googleの研究者が開発した「 __Word2Vec__ 」という技術をベースに、「単語」だけではなく「文書」にも意味を持たせてベクトルとして捉えて利用できる技術「 __Doc2Vec__ 」をいじってみました。
+
+## Wor..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="SXqouEN0BAldP3fzxg++1zTodmJ0mi+mqtNETm9uAyVX8hFWFr5LayIIfbNlrnJJSn9XAdYkwTk6tACd73wCGA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"okappy","type":"items","id":"32a7ba7eddf8203c9fa1"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-d5f04182-0a0f-4424-aafa-93955e5fd601"></div>
+    <div id="HeaderContainer-react-component-d5f04182-0a0f-4424-aafa-93955e5fd601"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="9"><a class="u-link-unstyled TagList__label" href="/tags/doc2vec"><img alt="doc2vec" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>doc2vec</span></a></li><li class="TagList__item" data-count="26"><a class="u-link-unstyled TagList__label" href="/tags/gensim"><img alt="gensim" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/4f3a1e98e20e6a8178d36e39351a1e378db90429/medium.jpg?1466552766" /><span>gensim</span></a></li><li class="TagList__item" data-count="69"><a class="u-link-unstyled TagList__label" href="/tags/word2vec"><img alt="word2vec" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>word2vec</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">241</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:241,&quot;uuid&quot;:&quot;32a7ba7eddf8203c9fa1&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="chrysocome"><a itemprop="url" href="/chrysocome"><img alt="chrysocome" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/41477/profile-images/1485746108" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></li><li class="js-hovercard" data-hovercard-target-name="bonk"><a itemprop="url" href="/bonk"><img alt="bonk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18421/profile-images/1473682428" /></a></li><li class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></li><li class="js-hovercard" data-hovercard-target-name="ysakamoto"><a itemprop="url" href="/ysakamoto"><img alt="ysakamoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/40840/profile-images/1473688576" /></a></li><li class="js-hovercard" data-hovercard-target-name="clazybone"><a itemprop="url" href="/clazybone"><img alt="clazybone" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21917/profile-images/1473758808" /></a></li><li class="js-hovercard" data-hovercard-target-name="rneuo"><a itemprop="url" href="/rneuo"><img alt="rneuo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51849/profile-images/1473692560" /></a></li><li class="js-hovercard" data-hovercard-target-name="HorLie_michisan"><a itemprop="url" href="/HorLie_michisan"><img alt="HorLie_michisan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73103/profile-images/1473761969" /></a></li><li class="js-hovercard" data-hovercard-target-name="myau999"><a itemprop="url" href="/myau999"><img alt="myau999" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80939/profile-images/1473701951" /></a></li><li><a href="/okappy/items/32a7ba7eddf8203c9fa1/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/okappy"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1418/profile-images/1480224071" alt="1480224071" /></a> <a class="u-link-unstyled" href="/okappy">okappy</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-05-12T12:17:48+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-05-12">Edited at <time datetime="2015-05-14T15:57:31+09:00" itemprop="dateModified">2015-05-14</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/okappy/items/32a7ba7eddf8203c9fa1/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/okappy/items/32a7ba7eddf8203c9fa1/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/okappy/items/32a7ba7eddf8203c9fa1.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-32a7ba7eddf8203c9fa1" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>米googleの研究者が開発した「 <strong>Word2Vec</strong> 」という技術をベースに、「単語」だけではなく「文書」にも意味を持たせてベクトルとして捉えて利用できる技術「 <strong>Doc2Vec</strong> 」をいじってみました。</p>
+
+<h2>
+<span id="word2vecのおさらい" class="fragment"></span><a href="#word2vec%E3%81%AE%E3%81%8A%E3%81%95%E3%82%89%E3%81%84"><i class="fa fa-link"></i></a>Word2Vecのおさらい</h2>
+
+<p>過去Qiitaに投稿したので、そのリンクを張っておきます。<br>
+<a href="http://qiita.com/okappy/items/e16639178ba85edfee72" class="autolink" id="reference-68895e548581c83e5a51">http://qiita.com/okappy/items/e16639178ba85edfee72</a></p>
+
+<h2>
+<span id="doc2vecとは" class="fragment"></span><a href="#doc2vec%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>Doc2Vecとは？</h2>
+
+<p>Word2VecはWord(単語)をベクトルとして捉えるが、Doc2Vec(Paragraph2Vec)はDocument(文書)をWordの集合として見てベクトルを割り当てることで、文書間の類似度やベクトル計算などを実現することができる。</p>
+
+<p>例えば、ニュース記事同士の類似度、レジュメ同士の類似度、本同士の類似度、もちろん人のプロフィールと本の類似度なども算出することができ、テキストで表されて者同士であれば、全てが対象となる。</p>
+
+<h2>
+<span id="技術的には" class="fragment"></span><a href="#%E6%8A%80%E8%A1%93%E7%9A%84%E3%81%AB%E3%81%AF"><i class="fa fa-link"></i></a>技術的には</h2>
+
+<ul>
+<li>python
+
+<ul>
+<li>Scipy</li>
+<li>gensim </li>
+</ul>
+</li>
+</ul>
+
+<p>あたりを使います。</p>
+
+<h2>
+<span id="gensimとは" class="fragment"></span><a href="#gensim%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>gensimとは？</h2>
+
+<p>Pythonから扱える自然言語処理ライブラリで、<br>
+機能としては、以下のようなものが挙げられる。</p>
+
+<ul>
+<li>潜在意味解析（LSA/LSI/SVD）</li>
+<li>潜在ディリクレ配分法（LDA）</li>
+<li>TF-IDF</li>
+<li>Random Projection（RP）</li>
+<li>階層的ディリクレ過程（HDP）</li>
+<li>深層学習を用いたword2vec</li>
+<li>分散コンピューティング</li>
+<li>Dynamic Topic Model（DTM）</li>
+<li>Dynamic Influence Models（DIM）</li>
+</ul>
+
+<p>gensimの公式ページ<br>
+<a href="http://radimrehurek.com/gensim/" class="autolink" rel="nofollow noopener" target="_blank">http://radimrehurek.com/gensim/</a></p>
+
+<h2>
+<span id="実際に文書間の類似度を出してみる" class="fragment"></span><a href="#%E5%AE%9F%E9%9A%9B%E3%81%AB%E6%96%87%E6%9B%B8%E9%96%93%E3%81%AE%E9%A1%9E%E4%BC%BC%E5%BA%A6%E3%82%92%E5%87%BA%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a>実際に文書間の類似度を出してみる</h2>
+
+<p>今回は、facebookのデータを利用して、あるユーザーが過去facebookに投稿したテキストやシェアしたリンクのタイトルなどを一つの文書と見立てて、その文書同士(要するにユーザー同士)の類似度を出してみる。</p>
+
+<h2>
+<span id="実装準備" class="fragment"></span><a href="#%E5%AE%9F%E8%A3%85%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>実装(準備)</h2>
+
+<h3>
+<span id="-scipyをインストール" class="fragment"></span><a href="#-scipy%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB"><i class="fa fa-link"></i></a>■ Scipyをインストール</h3>
+
+<div class="code-frame" data-lang="console"><div class="highlight"><pre>
+<span class="go">pip install scipy</span>
+</pre></div></div>
+
+<h3>
+<span id="-gensimのインストール" class="fragment"></span><a href="#-gensim%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB"><i class="fa fa-link"></i></a>■ gensimのインストール</h3>
+
+<div class="code-frame" data-lang="console"><div class="highlight"><pre>
+<span class="go">pip install gensim</span>
+</pre></div></div>
+
+<h3>
+<span id="-doc2vecpyをカスタマイズ" class="fragment"></span><a href="#-doc2vecpy%E3%82%92%E3%82%AB%E3%82%B9%E3%82%BF%E3%83%9E%E3%82%A4%E3%82%BA"><i class="fa fa-link"></i></a>■ doc2vec.pyをカスタマイズ</h3>
+
+<p><strong>変更点①</strong><br>
+デフォルトのdoc2vec.pyだと、レスポンスのときのlabelがカスタマイズできなかったので、<br>
+設定したlabelで結果を呼び出せるように変更してみました。</p>
+
+<p><strong>変更点②</strong><br>
+doc2vec.pyのデフォルトでは、文書の似ているものは？って叩くと、文書も単語も出力されてしまうので、文書の似ている文書だけを出力するメソッドも作成しました。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">doc2vec.py</span></div>
+<div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Copyright (C) 2013 Radim Rehurek &lt;me@radimrehurek.com&gt;</span>
+<span class="c"># Licensed under the GNU LGPL v2.1 - http://www.gnu.org/licenses/lgpl.html</span>
+
+
+<span class="sd">"""</span>
+<span class="sd">Deep learning via the distributed memory and distributed bag of words models from</span>
+<span class="sd">[1]_, using either hierarchical softmax or negative sampling [2]_ [3]_.</span>
+
+<span class="sd">**Make sure you have a C compiler before installing gensim, to use optimized (compiled)</span>
+<span class="sd">doc2vec training** (70x speedup [blog]_).</span>
+
+<span class="sd">Initialize a model with e.g.::</span>
+
+<span class="sd">&gt;&gt;&gt; model = Doc2Vec(sentences, size=100, window=8, min_count=5, workers=4)</span>
+
+<span class="sd">Persist a model to disk with::</span>
+
+<span class="sd">&gt;&gt;&gt; model.save(fname)</span>
+<span class="sd">&gt;&gt;&gt; model = Doc2Vec.load(fname)  # you can continue training with the loaded model!</span>
+
+<span class="sd">The model can also be instantiated from an existing file on disk in the word2vec C format::</span>
+
+<span class="sd">  &gt;&gt;&gt; model = Doc2Vec.load_word2vec_format('/tmp/vectors.txt', binary=False)  # C text format</span>
+<span class="sd">  &gt;&gt;&gt; model = Doc2Vec.load_word2vec_format('/tmp/vectors.bin', binary=True)  # C binary format</span>
+
+<span class="sd">.. [1] Quoc Le and Tomas Mikolov. Distributed Representations of Sentences and Documents. http://arxiv.org/pdf/1405.4053v2.pdf</span>
+<span class="sd">.. [2] Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean. Efficient Estimation of Word Representations in Vector Space. In Proceedings of Workshop at ICLR, 2013.</span>
+<span class="sd">.. [3] Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg Corrado, and Jeffrey Dean. Distributed Representations of Words and Phrases and their Compositionality.</span>
+<span class="sd">       In Proceedings of NIPS, 2013.</span>
+<span class="sd">.. [blog] Optimizing word2vec in gensim, http://radimrehurek.com/2013/09/word2vec-in-python-part-two-optimizing/</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">Queue</span> <span class="kn">import</span> <span class="n">Queue</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">random</span><span class="p">,</span> <span class="nb">sum</span> <span class="k">as</span> <span class="n">np_sum</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">gensim</span> <span class="kn">import</span> <span class="n">utils</span>  <span class="c"># utility fnc for pickling, common scipy operations etc</span>
+<span class="kn">from</span> <span class="nn">gensim.models.word2vec</span> <span class="kn">import</span> <span class="n">Word2Vec</span><span class="p">,</span> <span class="n">Vocab</span><span class="p">,</span> <span class="n">train_cbow_pair</span><span class="p">,</span> <span class="n">train_sg_pair</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">gensim.models.doc2vec_inner</span> <span class="kn">import</span> <span class="n">train_sentence_dbow</span><span class="p">,</span> <span class="n">train_sentence_dm</span><span class="p">,</span> <span class="n">FAST_VERSION</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="c"># failed... fall back to plain numpy (20-80x slower training than the above)</span>
+    <span class="n">FAST_VERSION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">train_sentence_dbow</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">lbls</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">work</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">train_words</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">train_lbls</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Update distributed bag of words model by training on a single sentence.</span>
+
+<span class="sd">        The sentence is a list of Vocab objects (or None, where the corresponding</span>
+<span class="sd">        word is not in the vocabulary. Called internally from `Doc2Vec.train()`.</span>
+
+<span class="sd">        This is the non-optimized, Python version. If you have cython installed, gensim</span>
+<span class="sd">        will use the optimized version from doc2vec_inner instead.</span>
+
+<span class="sd">        """</span>
+        <span class="n">neg_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">negative</span><span class="p">:</span>
+            <span class="c"># precompute negative labels</span>
+            <span class="n">neg_labels</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">negative</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">neg_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">lbls</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c"># OOV word in the input sentence =&gt; skip</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">continue</span>  <span class="c"># OOV word in the input sentence =&gt; skip</span>
+                <span class="n">train_sg_pair</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">neg_labels</span><span class="p">,</span> <span class="n">train_words</span><span class="p">,</span> <span class="n">train_lbls</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span> <span class="k">if</span> <span class="n">word</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">train_sentence_dm</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">lbls</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">work</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">neu1</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">train_words</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">train_lbls</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Update distributed memory model by training on a single sentence.</span>
+
+<span class="sd">        The sentence is a list of Vocab objects (or None, where the corresponding</span>
+<span class="sd">        word is not in the vocabulary. Called internally from `Doc2Vec.train()`.</span>
+
+<span class="sd">        This is the non-optimized, Python version. If you have a C compiler, gensim</span>
+<span class="sd">        will use the optimized version from doc2vec_inner instead.</span>
+
+<span class="sd">        """</span>
+        <span class="n">lbl_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">lbl</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">lbls</span> <span class="k">if</span> <span class="n">lbl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">]</span>
+        <span class="n">lbl_sum</span> <span class="o">=</span> <span class="n">np_sum</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">syn0</span><span class="p">[</span><span class="n">lbl_indices</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">lbl_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lbl_indices</span><span class="p">)</span>
+        <span class="n">neg_labels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">negative</span><span class="p">:</span>
+            <span class="c"># precompute negative labels</span>
+            <span class="n">neg_labels</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">negative</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">neg_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
+
+        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">word</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c"># OOV word in the input sentence =&gt; skip</span>
+            <span class="n">reduced_window</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>  <span class="c"># `b` in the original doc2vec code</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pos</span> <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">window</span> <span class="o">+</span> <span class="n">reduced_window</span><span class="p">)</span>
+            <span class="n">window_pos</span> <span class="o">=</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">pos</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">window</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">reduced_window</span><span class="p">],</span> <span class="n">start</span><span class="p">)</span>
+            <span class="n">word2_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">word2</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">word2</span> <span class="ow">in</span> <span class="n">window_pos</span> <span class="k">if</span> <span class="p">(</span><span class="n">word2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">pos2</span> <span class="o">!=</span> <span class="n">pos</span><span class="p">)]</span>
+            <span class="n">l1</span> <span class="o">=</span> <span class="n">np_sum</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">syn0</span><span class="p">[</span><span class="n">word2_indices</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">lbl_sum</span>  <span class="c"># 1 x layer1_size</span>
+            <span class="k">if</span> <span class="n">word2_indices</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">cbow_mean</span><span class="p">:</span>
+                <span class="n">l1</span> <span class="o">/=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">word2_indices</span><span class="p">)</span> <span class="o">+</span> <span class="n">lbl_len</span><span class="p">)</span>
+            <span class="n">neu1e</span> <span class="o">=</span> <span class="n">train_cbow_pair</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">word2_indices</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">neg_labels</span><span class="p">,</span> <span class="n">train_words</span><span class="p">,</span> <span class="n">train_words</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">train_lbls</span><span class="p">:</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">syn0</span><span class="p">[</span><span class="n">lbl_indices</span><span class="p">]</span> <span class="o">+=</span> <span class="n">neu1e</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">([</span><span class="n">word</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span> <span class="k">if</span> <span class="n">word</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">])</span>
+
+
+<span class="k">class</span> <span class="nc">LabeledSentence</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    A single labeled sentence = text item.</span>
+<span class="sd">    Replaces "sentence as a list of words" from Word2Vec.</span>
+
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        `words` is a list of tokens (unicode strings), `labels` a</span>
+<span class="sd">        list of text labels associated with this text.</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">words</span> <span class="o">=</span> <span class="n">words</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">'</span><span class="si">%s</span><span class="s">(</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">)'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">words</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Doc2Vec</span><span class="p">(</span><span class="n">Word2Vec</span><span class="p">):</span>
+    <span class="sd">"""Class for training, using and evaluating neural networks described in http://arxiv.org/pdf/1405.4053v2.pdf"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">sample</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_alpha</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">dm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">hs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">dm_mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">train_words</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">train_lbls</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Initialize the model from an iterable of `sentences`. Each sentence is a</span>
+<span class="sd">        LabeledSentence object that will be used for training.</span>
+
+<span class="sd">        The `sentences` iterable can be simply a list of LabeledSentence elements, but for larger corpora,</span>
+<span class="sd">        consider an iterable that streams the sentences directly from disk/network.</span>
+
+<span class="sd">        If you don't supply `sentences`, the model is left uninitialized -- use if</span>
+<span class="sd">        you plan to initialize it in some other way.</span>
+
+<span class="sd">        `dm` defines the training algorithm. By default (`dm=1`), distributed memory is used.</span>
+<span class="sd">        Otherwise, `dbow` is employed.</span>
+
+<span class="sd">        `size` is the dimensionality of the feature vectors.</span>
+
+<span class="sd">        `window` is the maximum distance between the current and predicted word within a sentence.</span>
+
+<span class="sd">        `alpha` is the initial learning rate (will linearly drop to zero as training progresses).</span>
+
+<span class="sd">        `seed` = for the random number generator.</span>
+
+<span class="sd">        `min_count` = ignore all words with total frequency lower than this.</span>
+
+<span class="sd">        `sample` = threshold for configuring which higher-frequency words are randomly downsampled;</span>
+<span class="sd">                default is 0 (off), useful value is 1e-5.</span>
+
+<span class="sd">        `workers` = use this many worker threads to train the model (=faster training with multicore machines).</span>
+
+<span class="sd">        `hs` = if 1 (default), hierarchical sampling will be used for model training (else set to 0).</span>
+
+<span class="sd">        `negative` = if &gt; 0, negative sampling will be used, the int for negative</span>
+<span class="sd">        specifies how many "noise words" should be drawn (usually between 5-20).</span>
+
+<span class="sd">        `dm_mean` = if 0 (default), use the sum of the context word vectors. If 1, use the mean.</span>
+<span class="sd">        Only applies when dm is used.</span>
+
+<span class="sd">        """</span>
+        <span class="n">Word2Vec</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="n">min_count</span><span class="p">,</span>
+                          <span class="n">sample</span><span class="o">=</span><span class="n">sample</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">,</span> <span class="n">min_alpha</span><span class="o">=</span><span class="n">min_alpha</span><span class="p">,</span>
+                          <span class="n">sg</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">dm</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">hs</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="n">negative</span><span class="p">,</span> <span class="n">cbow_mean</span><span class="o">=</span><span class="n">dm_mean</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_words</span> <span class="o">=</span> <span class="n">train_words</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_lbls</span> <span class="o">=</span> <span class="n">train_lbls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sentences</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_vocab</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_labels</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_vocab_from</span><span class="p">(</span><span class="n">sentences</span><span class="p">):</span>
+        <span class="n">sentence_no</span><span class="p">,</span> <span class="n">vocab</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="n">total_words</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">sentence_no</span><span class="p">,</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentences</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">sentence_no</span> <span class="o">%</span> <span class="mi">10000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">"PROGRESS: at item #</span><span class="si">%i</span><span class="s">, processed </span><span class="si">%i</span><span class="s"> words and </span><span class="si">%i</span><span class="s"> word types"</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="n">sentence_no</span><span class="p">,</span> <span class="n">total_words</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vocab</span><span class="p">)))</span>
+            <span class="n">sentence_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">words</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">labels</span><span class="p">:</span>
+                <span class="n">total_words</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">vocab</span><span class="p">:</span>
+                    <span class="n">vocab</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="n">sentence_length</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">vocab</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">sentence_length</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">words</span><span class="p">:</span>
+                <span class="n">total_words</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">vocab</span><span class="p">:</span>
+                    <span class="n">vocab</span><span class="p">[</span><span class="n">word</span><span class="p">]</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">vocab</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">"collected </span><span class="si">%i</span><span class="s"> word types from a corpus of </span><span class="si">%i</span><span class="s"> words and </span><span class="si">%i</span><span class="s"> items"</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vocab</span><span class="p">),</span> <span class="n">total_words</span><span class="p">,</span> <span class="n">sentence_no</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">vocab</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_sentences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="c"># avoid calling random_sample() where prob &gt;= 1, to speed things up a little:</span>
+            <span class="n">sampled</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">words</span>
+                       <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">word</span><span class="p">]</span><span class="o">.</span><span class="n">sample_probability</span> <span class="o">&gt;=</span> <span class="mf">1.0</span> <span class="ow">or</span>
+                                                  <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">word</span><span class="p">]</span><span class="o">.</span><span class="n">sample_probability</span> <span class="o">&gt;=</span> <span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">())]</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">sampled</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">labels</span> <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_get_job_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">work</span><span class="p">,</span> <span class="n">job</span><span class="p">,</span> <span class="n">neu1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">train_sentence_dbow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">lbls</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">work</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_words</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_lbls</span><span class="p">)</span> <span class="k">for</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">lbls</span> <span class="ow">in</span> <span class="n">job</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">train_sentence_dm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">lbls</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">work</span><span class="p">,</span> <span class="n">neu1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_words</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_lbls</span><span class="p">)</span> <span class="k">for</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">lbls</span> <span class="ow">in</span> <span class="n">job</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">"Doc2Vec(vocab=</span><span class="si">%s</span><span class="s">, size=</span><span class="si">%s</span><span class="s">, alpha=</span><span class="si">%s</span><span class="s">)"</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index2word</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer1_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s">'ignore'</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'ignore'</span><span class="p">,</span> <span class="p">[</span><span class="s">'syn0norm'</span><span class="p">])</span>  <span class="c"># don't bother storing the cached normalized vectors</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Doc2Vec</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">build_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentences</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_labels_from</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_labels_from</span><span class="p">(</span><span class="n">sentences</span><span class="p">):</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sentence</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">labels</span>
+
+    <span class="k">def</span> <span class="nf">most_similar_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="p">[],</span> <span class="n">negative</span><span class="o">=</span><span class="p">[],</span> <span class="n">topn</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Find the top-N most similar labels.</span>
+<span class="sd">        """</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="n">positive</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="n">negative</span><span class="p">,</span> <span class="n">topn</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[:</span><span class="n">topn</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">most_similar_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="p">[],</span> <span class="n">negative</span><span class="o">=</span><span class="p">[],</span> <span class="n">topn</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Find the top-N most similar words.</span>
+<span class="sd">        """</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="n">positive</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="n">negative</span><span class="p">,</span> <span class="n">topn</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[:</span><span class="n">topn</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">most_similar_vocab</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="p">[],</span> <span class="n">negative</span><span class="o">=</span><span class="p">[],</span> <span class="n">vocab</span><span class="o">=</span><span class="p">[],</span> <span class="n">topn</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cosmul</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Find the top-N most similar words in vocab list.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">cosmul</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most_similar_cosmul</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="n">positive</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="n">negative</span><span class="p">,</span> <span class="n">topn</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="n">positive</span><span class="p">,</span> <span class="n">negative</span><span class="o">=</span><span class="n">negative</span><span class="p">,</span> <span class="n">topn</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocab</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">result</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">vocab</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[:</span><span class="n">topn</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">LabeledBrownCorpus</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""Iterate over sentences from the Brown corpus (part of NLTK data), yielding</span>
+<span class="sd">    each sentence out as a LabeledSentence object."""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dirname</span> <span class="o">=</span> <span class="n">dirname</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">):</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dirname</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">item_no</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">smart_open</span><span class="p">(</span><span class="n">fname</span><span class="p">)):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_unicode</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="c"># each file line is a single sentence in the Brown corpus</span>
+                <span class="c"># each token is WORD/POS_TAG</span>
+                <span class="n">token_tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="c"># ignore words with non-alphabetic tags like ",", "!" etc (punctuation, weird stuff)</span>
+                <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="s">"</span><span class="si">%s</span><span class="s">/</span><span class="si">%s</span><span class="s">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">tag</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">token</span><span class="p">,</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">token_tags</span> <span class="k">if</span> <span class="n">tag</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">isalpha</span><span class="p">()]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">words</span><span class="p">:</span>  <span class="c"># don't bother sending out empty sentences</span>
+                    <span class="k">continue</span>
+                <span class="k">yield</span> <span class="n">LabeledSentence</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="p">[</span><span class="s">'</span><span class="si">%s</span><span class="s">_SENT_</span><span class="si">%s</span><span class="s">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">item_no</span><span class="p">)])</span>
+
+
+<span class="k">class</span> <span class="nc">LabeledLineSentence</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""Simple format: one sentence = one line = one LabeledSentence object.</span>
+
+<span class="sd">    Words are expected to be already preprocessed and separated by whitespace,</span>
+<span class="sd">    labels are constructed automatically from the sentence line number."""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        `source` can be either a string (filename) or a file object.</span>
+
+<span class="sd">        Example::</span>
+
+<span class="sd">            sentences = LineSentence('myfile.txt')</span>
+
+<span class="sd">        Or for compressed files::</span>
+
+<span class="sd">            sentences = LineSentence('compressed_text.txt.bz2')</span>
+<span class="sd">            sentences = LineSentence('compressed_text.txt.gz')</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""Iterate through the lines in the source."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># Assume it is a file-like object and try treating it as such</span>
+            <span class="c"># Things that don't have seek will trigger an exception</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item_no</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">LabeledSentence</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">to_unicode</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="p">[</span><span class="s">'SENT_</span><span class="si">%s</span><span class="s">'</span> <span class="o">%</span> <span class="n">item_no</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="c"># If it didn't work like a file, use it as a string filename</span>
+            <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">smart_open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">item_no</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fin</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">LabeledSentence</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">to_unicode</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="p">[</span><span class="s">'SENT_</span><span class="si">%s</span><span class="s">'</span> <span class="o">%</span> <span class="n">item_no</span><span class="p">])</span>
+
+<span class="k">class</span> <span class="nc">LabeledListSentence</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">"""one sentence = list of words</span>
+
+<span class="sd">    labels are constructed automatically from the sentence line number."""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words_list</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        words_list like:</span>
+
+<span class="sd">            words_list = [</span>
+<span class="sd">                ['human', 'interface', 'computer'],</span>
+<span class="sd">                ['survey', 'user', 'computer', 'system', 'response', 'time'],</span>
+<span class="sd">                ['eps', 'user', 'interface', 'system'],</span>
+<span class="sd">            ]</span>
+<span class="sd">            sentence = LabeledListSentence(words_list)</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">words_list</span> <span class="o">=</span> <span class="n">words_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">words</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words_list</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">LabeledSentence</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="p">[</span><span class="s">'SENT_</span><span class="si">%s</span><span class="s">'</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+
+</pre></div>
+</div>
+
+<h3>
+<span id="-wikipediaのデータからコーパスを作成する" class="fragment"></span><a href="#-wikipedia%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%82%92%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>■ wikipediaのデータからコーパスを作成する。</h3>
+
+<p>※ここは省いても動きます。</p>
+
+<div class="code-frame" data-lang="console"><div class="highlight"><pre>
+<span class="go">wget http://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-  articles.xml.bz2</span>
+<span class="gp">#</span>ダウンロードに10分くらいかかるかも
+<span class="go">python path/to/wikicorpus.py path/to/jawiki-latest-pages-articles.xml.bz2 path/to/jawiki</span>
+<span class="gp">#</span>8時間くらいかかるかも
+</pre></div></div>
+
+<h2>
+<span id="実装実践" class="fragment"></span><a href="#%E5%AE%9F%E8%A3%85%E5%AE%9F%E8%B7%B5"><i class="fa fa-link"></i></a>実装(実践)</h2>
+
+<p>実際のデータを読み込ませて、類似度やベクトル計算をしてみる。<br>
+今回は、ドキュメント(docs)とそのタイトル(titles)を読み込ませて、docsをベクトル化して類似度やベクトル計算をしてみました。</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">main.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">gensim</span>
+<span class="kn">import</span> <span class="nn">mysql.connector</span>
+
+<span class="c">#定義</span>
+<span class="n">previous_title</span> <span class="o">=</span> <span class="s">""</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">titles</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c">#MySQLに接続</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">'user'</span><span class="p">:</span> <span class="s">"USERNAME"</span><span class="p">,</span>
+  <span class="s">'password'</span><span class="p">:</span> <span class="s">'PASSWORD'</span><span class="p">,</span>
+  <span class="s">'host'</span><span class="p">:</span> <span class="s">'HOST'</span><span class="p">,</span>
+  <span class="s">'database'</span><span class="p">:</span> <span class="s">'DATABASE'</span><span class="p">,</span>
+  <span class="s">'port'</span><span class="p">:</span> <span class="s">'PORT'</span>
+<span class="p">}</span>
+<span class="n">connect</span> <span class="o">=</span> <span class="n">mysql</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+<span class="c">#Queryを実行する</span>
+<span class="n">cur</span><span class="o">=</span><span class="n">connect</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">buffered</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">QUERY</span> <span class="o">=</span> <span class="s">"select d.title,d.body from docs as d order by doc.id"</span> <span class="c">#ここはカスタマイズしてください</span>
+<span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">QUERY</span><span class="p">)</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+<span class="c">#Queryの出力結果をforで回してsentencesとlabelsを作成</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+  <span class="k">if</span> <span class="n">previous_title</span> <span class="o">!=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="n">previous_title</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">titles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">docs</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+    <span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+  <span class="n">docs</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">connect</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="sd">"""</span>
+<span class="sd">上で作っているデータは要するにこういうデータです。</span>
+<span class="sd">docs = [</span>
+<span class="sd">    ['human', 'interface', 'computer'], #0</span>
+<span class="sd">    ['survey', 'user', 'computer', 'system', 'response', 'time'], #1</span>
+<span class="sd">    ['eps', 'user', 'interface', 'system'], #2</span>
+<span class="sd">    ['system', 'human', 'system', 'eps'], #3</span>
+<span class="sd">    ['user', 'response', 'time'], #4</span>
+<span class="sd">    ['trees'], #5</span>
+<span class="sd">    ['graph', 'trees'], #6</span>
+<span class="sd">    ['graph', 'minors', 'trees'], #7</span>
+<span class="sd">    ['graph', 'minors', 'survey'] #8</span>
+<span class="sd">]</span>
+
+<span class="sd">titles = [</span>
+<span class="sd">    "doc1",</span>
+<span class="sd">    "doc2",</span>
+<span class="sd">    "doc3",</span>
+<span class="sd">    "doc4",</span>
+<span class="sd">    "doc5",</span>
+<span class="sd">    "doc6",</span>
+<span class="sd">    "doc7",</span>
+<span class="sd">    "doc8",</span>
+<span class="sd">    "doc9"</span>
+<span class="sd">]</span>
+<span class="sd">"""</span>
+
+<span class="n">labeledSentences</span> <span class="o">=</span> <span class="n">gensim</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">doc2vec</span><span class="o">.</span><span class="n">LabeledListSentence</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span><span class="n">titles</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">gensim</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">doc2vec</span><span class="o">.</span><span class="n">Doc2Vec</span><span class="p">(</span><span class="n">labeledSentences</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c"># ある文書に似ている文書を表示</span>
+<span class="k">print</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar_labels</span><span class="p">(</span><span class="s">'SENT_doc1'</span><span class="p">)</span>
+
+<span class="c"># ある文書に似ている単語を表示</span>
+<span class="k">print</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar_words</span><span class="p">(</span><span class="s">'SENT_doc1'</span><span class="p">)</span>
+
+<span class="c"># 複数の文書を加算減算した上で、似ているユーザーを表示</span>
+<span class="k">print</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar_labels</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'SENT_doc1'</span><span class="p">,</span> <span class="s">'SENT_doc2'</span><span class="p">],</span> <span class="n">negative</span><span class="o">=</span><span class="p">[</span><span class="s">'SENT_doc3'</span><span class="p">],</span> <span class="n">topn</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="c"># 複数の文書を加算減算した上で、似ている単語を表示</span>
+<span class="k">print</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar_words</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'SENT_doc1'</span><span class="p">,</span> <span class="s">'SENT_doc2'</span><span class="p">],</span> <span class="n">negative</span><span class="o">=</span><span class="p">[</span><span class="s">'SENT_doc3'</span><span class="p">],</span> <span class="n">topn</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/okappy/items/32a7ba7eddf8203c9fa1" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="GLZJbWF4WRSgjRmzJ1d5bgM8q83mhQNNnfEs2CEJSEAGPvCDNLIWdt+6E/OE9rXwfauKrkQ77dINlmgLoRtJfQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1431586651" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+米googleの研究者が開発した「 __Word2Vec__ 」という技術をベースに、「単語」だけではなく「文書」にも意味を持たせてベクトルとして捉えて利用できる技術「 __Doc2Vec__ 」をいじってみました。
+
+## Word2Vecのおさらい
+過去Qiitaに投稿したので、そのリンクを張っておきます。
+http://qiita.com/okappy/items/e16639178ba85edfee72
+
+## Doc2Vecとは？
+Word2VecはWord(単語)をベクトルとして捉えるが、Doc2Vec(Paragraph2Vec)はDocument(文書)をWordの集合として見てベクトルを割り当てることで、文書間の類似度やベクトル計算などを実現することができる。
+
+例えば、ニュース記事同士の類似度、レジュメ同士の類似度、本同士の類似度、もちろん人のプロフィールと本の類似度なども算出することができ、テキストで表されて者同士であれば、全てが対象となる。
+
+## 技術的には
+- python
+  - Scipy
+  - gensim 
+
+あたりを使います。
+
+## gensimとは？
+Pythonから扱える自然言語処理ライブラリで、
+機能としては、以下のようなものが挙げられる。
+
+- 潜在意味解析（LSA/LSI/SVD）
+- 潜在ディリクレ配分法（LDA）
+- TF-IDF
+- Random Projection（RP）
+- 階層的ディリクレ過程（HDP）
+- 深層学習を用いたword2vec
+- 分散コンピューティング
+- Dynamic Topic Model（DTM）
+- Dynamic Influence Models（DIM）
+
+gensimの公式ページ
+http://radimrehurek.com/gensim/
+
+
+## 実際に文書間の類似度を出してみる
+今回は、facebookのデータを利用して、あるユーザーが過去facebookに投稿したテキストやシェアしたリンクのタイトルなどを一つの文書と見立てて、その文書同士(要するにユーザー同士)の類似度を出してみる。
+
+## 実装(準備)
+
+### ■ Scipyをインストール
+
+```console
+pip install scipy
+```
+  
+
+### ■ gensimのインストール
+
+```console
+pip install gensim
+```
+### ■ doc2vec.pyをカスタマイズ
+__変更点①__
+デフォルトのdoc2vec.pyだと、レスポンスのときのlabelがカスタマイズできなかったので、
+設定したlabelで結果を呼び出せるように変更してみました。
+
+__変更点②__
+doc2vec.pyのデフォルトでは、文書の似ているものは？って叩くと、文書も単語も出力されてしまうので、文書の似ている文書だけを出力するメソッドも作成しました。
+
+```doc2vec.py
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2013 Radim Rehurek &lt;me@radimrehurek.com&gt;
+# Licensed under the GNU LGPL v2.1 - http://www.gnu.org/licenses/lgpl.html
+
+
+&quot;&quot;&quot;
+Deep learning via the distributed memory and distributed bag of words models from
+[1]_, using either hierarchical softmax or negative sampling [2]_ [3]_.
+
+**Make sure you have a C compiler before installing gensim, to use optimized (compiled)
+doc2vec training** (70x speedup [blog]_).
+
+Initialize a model with e.g.::
+
+&gt;&gt;&gt; model = Doc2Vec(sentences, size=100, window=8, min_count=5, workers=4)
+
+Persist a model to disk with::
+
+&gt;&gt;&gt; model.save(fname)
+&gt;&gt;&gt; model = Doc2Vec.load(fname)  # you can continue training with the loaded model!
+
+The model can also be instantiated from an existing file on disk in the word2vec C format::
+
+  &gt;&gt;&gt; model = Doc2Vec.load_word2vec_format(&#39;/tmp/vectors.txt&#39;, binary=False)  # C text format
+  &gt;&gt;&gt; model = Doc2Vec.load_word2vec_format(&#39;/tmp/vectors.bin&#39;, binary=True)  # C binary format
+
+.. [1] Quoc Le and Tomas Mikolov. Distributed Representations of Sentences and Documents. http://arxiv.org/pdf/1405.4053v2.pdf
+.. [2] Tomas Mikolov, Kai Chen, Greg Corrado, and Jeffrey Dean. Efficient Estimation of Word Representations in Vector Space. In Proceedings of Workshop at ICLR, 2013.
+.. [3] Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg Corrado, and Jeffrey Dean. Distributed Representations of Words and Phrases and their Compositionality.
+       In Proceedings of NIPS, 2013.
+.. [blog] Optimizing word2vec in gensim, http://radimrehurek.com/2013/09/word2vec-in-python-part-two-optimizing/
+
+&quot;&quot;&quot;
+
+import logging
+import os
+
+try:
+    from queue import Queue
+except ImportError:
+    from Queue import Queue
+
+from numpy import zeros, random, sum as np_sum
+
+logger = logging.getLogger(__name__)
+
+from gensim import utils  # utility fnc for pickling, common scipy operations etc
+from gensim.models.word2vec import Word2Vec, Vocab, train_cbow_pair, train_sg_pair
+
+try:
+    from gensim.models.doc2vec_inner import train_sentence_dbow, train_sentence_dm, FAST_VERSION
+except:
+    # failed... fall back to plain numpy (20-80x slower training than the above)
+    FAST_VERSION = -1
+
+    def train_sentence_dbow(model, sentence, lbls, alpha, work=None, train_words=True, train_lbls=True):
+        &quot;&quot;&quot;
+        Update distributed bag of words model by training on a single sentence.
+
+        The sentence is a list of Vocab objects (or None, where the corresponding
+        word is not in the vocabulary. Called internally from `Doc2Vec.train()`.
+
+        This is the non-optimized, Python version. If you have cython installed, gensim
+        will use the optimized version from doc2vec_inner instead.
+
+        &quot;&quot;&quot;
+        neg_labels = []
+        if model.negative:
+            # precompute negative labels
+            neg_labels = zeros(model.negative + 1)
+            neg_labels[0] = 1.0
+
+        for label in lbls:
+            if label is None:
+                continue  # OOV word in the input sentence =&gt; skip
+            for word in sentence:
+                if word is None:
+                    continue  # OOV word in the input sentence =&gt; skip
+                train_sg_pair(model, word, label, alpha, neg_labels, train_words, train_lbls)
+
+        return len([word for word in sentence if word is not None])
+
+    def train_sentence_dm(model, sentence, lbls, alpha, work=None, neu1=None, train_words=True, train_lbls=True):
+        &quot;&quot;&quot;
+        Update distributed memory model by training on a single sentence.
+
+        The sentence is a list of Vocab objects (or None, where the corresponding
+        word is not in the vocabulary. Called internally from `Doc2Vec.train()`.
+
+        This is the non-optimized, Python version. If you have a C compiler, gensim
+        will use the optimized version from doc2vec_inner instead.
+
+        &quot;&quot;&quot;
+        lbl_indices = [lbl.index for lbl in lbls if lbl is not None]
+        lbl_sum = np_sum(model.syn0[lbl_indices], axis=0)
+        lbl_len = len(lbl_indices)
+        neg_labels = []
+        if model.negative:
+            # precompute negative labels
+            neg_labels = zeros(model.negative + 1)
+            neg_labels[0] = 1.
+
+        for pos, word in enumerate(sentence):
+            if word is None:
+                continue  # OOV word in the input sentence =&gt; skip
+            reduced_window = random.randint(model.window)  # `b` in the original doc2vec code
+            start = max(0, pos - model.window + reduced_window)
+            window_pos = enumerate(sentence[start : pos + model.window + 1 - reduced_window], start)
+            word2_indices = [word2.index for pos2, word2 in window_pos if (word2 is not None and pos2 != pos)]
+            l1 = np_sum(model.syn0[word2_indices], axis=0) + lbl_sum  # 1 x layer1_size
+            if word2_indices and model.cbow_mean:
+                l1 /= (len(word2_indices) + lbl_len)
+            neu1e = train_cbow_pair(model, word, word2_indices, l1, alpha, neg_labels, train_words, train_words)
+            if train_lbls:
+                model.syn0[lbl_indices] += neu1e
+
+        return len([word for word in sentence if word is not None])
+
+
+class LabeledSentence(object):
+    &quot;&quot;&quot;
+    A single labeled sentence = text item.
+    Replaces &quot;sentence as a list of words&quot; from Word2Vec.
+
+    &quot;&quot;&quot;
+    def __init__(self, words, labels):
+        &quot;&quot;&quot;
+        `words` is a list of tokens (unicode strings), `labels` a
+        list of text labels associated with this text.
+
+        &quot;&quot;&quot;
+        self.words = words
+        self.labels = labels
+
+    def __str__(self):
+        return &#39;%s(%s, %s)&#39; % (self.__class__.__name__, self.words, self.labels)
+
+
+class Doc2Vec(Word2Vec):
+    &quot;&quot;&quot;Class for training, using and evaluating neural networks described in http://arxiv.org/pdf/1405.4053v2.pdf&quot;&quot;&quot;
+    def __init__(self, sentences=None, size=300, alpha=0.025, window=8, min_count=5,
+                 sample=0, seed=1, workers=1, min_alpha=0.0001, dm=1, hs=1, negative=0,
+                 dm_mean=0, train_words=True, train_lbls=True, **kwargs):
+        &quot;&quot;&quot;
+        Initialize the model from an iterable of `sentences`. Each sentence is a
+        LabeledSentence object that will be used for training.
+
+        The `sentences` iterable can be simply a list of LabeledSentence elements, but for larger corpora,
+        consider an iterable that streams the sentences directly from disk/network.
+
+        If you don&#39;t supply `sentences`, the model is left uninitialized -- use if
+        you plan to initialize it in some other way.
+
+        `dm` defines the training algorithm. By default (`dm=1`), distributed memory is used.
+        Otherwise, `dbow` is employed.
+
+        `size` is the dimensionality of the feature vectors.
+
+        `window` is the maximum distance between the current and predicted word within a sentence.
+
+        `alpha` is the initial learning rate (will linearly drop to zero as training progresses).
+
+        `seed` = for the random number generator.
+
+        `min_count` = ignore all words with total frequency lower than this.
+
+        `sample` = threshold for configuring which higher-frequency words are randomly downsampled;
+                default is 0 (off), useful value is 1e-5.
+
+        `workers` = use this many worker threads to train the model (=faster training with multicore machines).
+
+        `hs` = if 1 (default), hierarchical sampling will be used for model training (else set to 0).
+
+        `negative` = if &gt; 0, negative sampling will be used, the int for negative
+        specifies how many &quot;noise words&quot; should be drawn (usually between 5-20).
+
+        `dm_mean` = if 0 (default), use the sum of the context word vectors. If 1, use the mean.
+        Only applies when dm is used.
+
+        &quot;&quot;&quot;
+        Word2Vec.__init__(self, size=size, alpha=alpha, window=window, min_count=min_count,
+                          sample=sample, seed=seed, workers=workers, min_alpha=min_alpha,
+                          sg=(1+dm) % 2, hs=hs, negative=negative, cbow_mean=dm_mean, **kwargs)
+        self.train_words = train_words
+        self.train_lbls = train_lbls
+        self.labels = set()
+        if sentences is not None:
+            self.build_vocab(sentences)
+            self.train(sentences)
+            self.build_labels(sentences)
+
+    @staticmethod
+    def _vocab_from(sentences):
+        sentence_no, vocab = -1, {}
+        total_words = 0
+        for sentence_no, sentence in enumerate(sentences):
+            if sentence_no % 10000 == 0:
+                logger.info(&quot;PROGRESS: at item #%i, processed %i words and %i word types&quot; %
+                            (sentence_no, total_words, len(vocab)))
+            sentence_length = len(sentence.words)
+            for label in sentence.labels:
+                total_words += 1
+                if label in vocab:
+                    vocab[label].count += sentence_length
+                else:
+                    vocab[label] = Vocab(count=sentence_length)
+            for word in sentence.words:
+                total_words += 1
+                if word in vocab:
+                    vocab[word].count += 1
+                else:
+                    vocab[word] = Vocab(count=1)
+        logger.info(&quot;collected %i word types from a corpus of %i words and %i items&quot; %
+                    (len(vocab), total_words, sentence_no + 1))
+        return vocab
+
+    def _prepare_sentences(self, sentences):
+        for sentence in sentences:
+            # avoid calling random_sample() where prob &gt;= 1, to speed things up a little:
+            sampled = [self.vocab[word] for word in sentence.words
+                       if word in self.vocab and (self.vocab[word].sample_probability &gt;= 1.0 or
+                                                  self.vocab[word].sample_probability &gt;= random.random_sample())]
+            yield (sampled, [self.vocab[word] for word in sentence.labels if word in self.vocab])
+
+    def _get_job_words(self, alpha, work, job, neu1):
+        if self.sg:
+            return sum(train_sentence_dbow(self, sentence, lbls, alpha, work, self.train_words, self.train_lbls) for sentence, lbls in job)
+        else:
+            return sum(train_sentence_dm(self, sentence, lbls, alpha, work, neu1, self.train_words, self.train_lbls) for sentence, lbls in job)
+
+    def __str__(self):
+        return &quot;Doc2Vec(vocab=%s, size=%s, alpha=%s)&quot; % (len(self.index2word), self.layer1_size, self.alpha)
+
+    def save(self, *args, **kwargs):
+        kwargs[&#39;ignore&#39;] = kwargs.get(&#39;ignore&#39;, [&#39;syn0norm&#39;])  # don&#39;t bother storing the cached normalized vectors
+        super(Doc2Vec, self).save(*args, **kwargs)
+
+    def build_labels(self, sentences):
+        self.labels |= self._labels_from(sentences)
+
+    @staticmethod
+    def _labels_from(sentences):
+        labels = set()
+        for sentence in sentences:
+            labels |= set(sentence.labels)
+        return labels
+
+    def most_similar_labels(self, positive=[], negative=[], topn=10):
+        &quot;&quot;&quot;
+        Find the top-N most similar labels.
+        &quot;&quot;&quot;
+        result = self.most_similar(positive=positive, negative=negative, topn=len(self.vocab))
+        result = [(k, v) for (k, v) in result if k in self.labels]
+        return result[:topn]
+
+    def most_similar_words(self, positive=[], negative=[], topn=10):
+        &quot;&quot;&quot;
+        Find the top-N most similar words.
+        &quot;&quot;&quot;
+        result = self.most_similar(positive=positive, negative=negative, topn=len(self.vocab))
+        result = [(k, v) for (k, v) in result if k not in self.labels]
+        return result[:topn]
+
+    def most_similar_vocab(self, positive=[], negative=[], vocab=[], topn=10, cosmul=False):
+        &quot;&quot;&quot;
+        Find the top-N most similar words in vocab list.
+        &quot;&quot;&quot;
+        if cosmul:
+            result = self.most_similar_cosmul(positive=positive, negative=negative, topn=len(self.vocab))
+        else:
+            result = self.most_similar(positive=positive, negative=negative, topn=len(self.vocab))
+        result = [(k, v) for (k, v) in result if k in vocab]
+        return result[:topn]
+
+class LabeledBrownCorpus(object):
+    &quot;&quot;&quot;Iterate over sentences from the Brown corpus (part of NLTK data), yielding
+    each sentence out as a LabeledSentence object.&quot;&quot;&quot;
+    def __init__(self, dirname):
+        self.dirname = dirname
+
+    def __iter__(self):
+        for fname in os.listdir(self.dirname):
+            fname = os.path.join(self.dirname, fname)
+            if not os.path.isfile(fname):
+                continue
+            for item_no, line in enumerate(utils.smart_open(fname)):
+                line = utils.to_unicode(line)
+                # each file line is a single sentence in the Brown corpus
+                # each token is WORD/POS_TAG
+                token_tags = [t.split(&#39;/&#39;) for t in line.split() if len(t.split(&#39;/&#39;)) == 2]
+                # ignore words with non-alphabetic tags like &quot;,&quot;, &quot;!&quot; etc (punctuation, weird stuff)
+                words = [&quot;%s/%s&quot; % (token.lower(), tag[:2]) for token, tag in token_tags if tag[:2].isalpha()]
+                if not words:  # don&#39;t bother sending out empty sentences
+                    continue
+                yield LabeledSentence(words, [&#39;%s_SENT_%s&#39; % (fname, item_no)])
+
+
+class LabeledLineSentence(object):
+    &quot;&quot;&quot;Simple format: one sentence = one line = one LabeledSentence object.
+
+    Words are expected to be already preprocessed and separated by whitespace,
+    labels are constructed automatically from the sentence line number.&quot;&quot;&quot;
+    def __init__(self, source):
+        &quot;&quot;&quot;
+        `source` can be either a string (filename) or a file object.
+
+        Example::
+
+            sentences = LineSentence(&#39;myfile.txt&#39;)
+
+        Or for compressed files::
+
+            sentences = LineSentence(&#39;compressed_text.txt.bz2&#39;)
+            sentences = LineSentence(&#39;compressed_text.txt.gz&#39;)
+
+        &quot;&quot;&quot;
+        self.source = source
+
+    def __iter__(self):
+        &quot;&quot;&quot;Iterate through the lines in the source.&quot;&quot;&quot;
+        try:
+            # Assume it is a file-like object and try treating it as such
+            # Things that don&#39;t have seek will trigger an exception
+            self.source.seek(0)
+            for item_no, line in enumerate(self.source):
+                yield LabeledSentence(utils.to_unicode(line).split(), [&#39;SENT_%s&#39; % item_no])
+        except AttributeError:
+            # If it didn&#39;t work like a file, use it as a string filename
+            with utils.smart_open(self.source) as fin:
+                for item_no, line in enumerate(fin):
+                    yield LabeledSentence(utils.to_unicode(line).split(), [&#39;SENT_%s&#39; % item_no])
+
+class LabeledListSentence(object):
+    &quot;&quot;&quot;one sentence = list of words
+
+    labels are constructed automatically from the sentence line number.&quot;&quot;&quot;
+    def __init__(self, words_list, labels):
+        &quot;&quot;&quot;
+        words_list like:
+
+            words_list = [
+                [&#39;human&#39;, &#39;interface&#39;, &#39;computer&#39;],
+                [&#39;survey&#39;, &#39;user&#39;, &#39;computer&#39;, &#39;system&#39;, &#39;response&#39;, &#39;time&#39;],
+                [&#39;eps&#39;, &#39;user&#39;, &#39;interface&#39;, &#39;system&#39;],
+            ]
+            sentence = LabeledListSentence(words_list)
+
+        &quot;&quot;&quot;
+        self.words_list = words_list
+        self.labels = labels
+
+    def __iter__(self):
+        for i, words in enumerate(self.words_list):
+            yield LabeledSentence(words, [&#39;SENT_%s&#39; % self.labels[i]])
+
+```
+ 
+### ■ wikipediaのデータからコーパスを作成する。
+※ここは省いても動きます。
+
+```console  
+wget http://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-  articles.xml.bz2
+#ダウンロードに10分くらいかかるかも
+python path/to/wikicorpus.py path/to/jawiki-latest-pages-articles.xml.bz2 path/to/jawiki
+#8時間くらいかかるかも
+```
+
+
+## 実装(実践)
+
+実際のデータを読み込ませて、類似度やベクトル計算をしてみる。
+今回は、ドキュメント(docs)とそのタイトル(titles)を読み込ませて、docsをベクトル化して類似度やベクトル計算をしてみました。
+
+```main.py
+import gensim
+import mysql.connector
+
+#定義
+previous_title = &quot;&quot;
+docs = []
+titles = []
+
+#MySQLに接続
+config = {
+  &#39;user&#39;: &quot;USERNAME&quot;,
+  &#39;password&#39;: &#39;PASSWORD&#39;,
+  &#39;host&#39;: &#39;HOST&#39;,
+  &#39;database&#39;: &#39;DATABASE&#39;,
+  &#39;port&#39;: &#39;PORT&#39;
+}
+connect = mysql.connector.connect(**config)
+#Queryを実行する
+cur=connect.cursor(buffered=True)
+
+QUERY = &quot;select d.title,d.body from docs as d order by doc.id&quot; #ここはカスタマイズしてください
+cur.execute(QUERY)
+rows = cur.fetchall()
+
+#Queryの出力結果をforで回してsentencesとlabelsを作成
+i = 0
+for row in rows:
+  if previous_title != row[0]:
+  	previous_title = row[0]
+  	titles.append(row[0])
+  	docs.append([])
+  	i+=1
+  docs[i-1].append(row[1])
+
+cur.close()
+connect.close()
+
+&quot;&quot;&quot;
+上で作っているデータは要するにこういうデータです。
+docs = [
+    [&#39;human&#39;, &#39;interface&#39;, &#39;computer&#39;], #0
+    [&#39;survey&#39;, &#39;user&#39;, &#39;computer&#39;, &#39;system&#39;, &#39;response&#39;, &#39;time&#39;], #1
+    [&#39;eps&#39;, &#39;user&#39;, &#39;interface&#39;, &#39;system&#39;], #2
+    [&#39;system&#39;, &#39;human&#39;, &#39;system&#39;, &#39;eps&#39;], #3
+    [&#39;user&#39;, &#39;response&#39;, &#39;time&#39;], #4
+    [&#39;trees&#39;], #5
+    [&#39;graph&#39;, &#39;trees&#39;], #6
+    [&#39;graph&#39;, &#39;minors&#39;, &#39;trees&#39;], #7
+    [&#39;graph&#39;, &#39;minors&#39;, &#39;survey&#39;] #8
+]
+
+titles = [
+	&quot;doc1&quot;,
+	&quot;doc2&quot;,
+	&quot;doc3&quot;,
+	&quot;doc4&quot;,
+	&quot;doc5&quot;,
+	&quot;doc6&quot;,
+	&quot;doc7&quot;,
+	&quot;doc8&quot;,
+	&quot;doc9&quot;
+]
+&quot;&quot;&quot;
+
+labeledSentences = gensim.models.doc2vec.LabeledListSentence(docs,titles)
+model = gensim.models.doc2vec.Doc2Vec(labeledSentences, min_count=0)
+
+# ある文書に似ている文書を表示
+print model.most_similar_labels(&#39;SENT_doc1&#39;)
+
+# ある文書に似ている単語を表示
+print model.most_similar_words(&#39;SENT_doc1&#39;)
+
+# 複数の文書を加算減算した上で、似ているユーザーを表示
+print model.most_similar_labels(positive=[&#39;SENT_doc1&#39;, &#39;SENT_doc2&#39;], negative=[&#39;SENT_doc3&#39;], topn=5)
+
+# 複数の文書を加算減算した上で、似ている単語を表示
+print model.most_similar_words(positive=[&#39;SENT_doc1&#39;, &#39;SENT_doc2&#39;], negative=[&#39;SENT_doc3&#39;], topn=5)
+
+```
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する by @okappy on @Qiita" data-url="http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する" href="http://b.hatena.ne.jp/entry/http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/okappy"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/1418/profile-images/1480224071" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/okappy">okappy</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">7301</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;okappy&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-e04102d4-2681-44c5-812c-568b12a76f72"></div>
+    <div id="UserFollowButton-react-component-e04102d4-2681-44c5-812c-568b12a76f72"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/okappy/items/119e31cae9aa9bd9da6d">非デザイナーエンジニアが一人でWebサービスを作るときに便利なツール32選</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/okappy/items/e5fc62f9026e0d73c3e9">グーグルのバグ予測アルゴリズムを実装したツール「bugspots」について</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/okappy/items/e16639178ba85edfee72">米googleの研究者が開発したWord2Vecで自然言語処理(独自データ)</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/okappy/items/32a7ba7eddf8203c9fa1">Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/okappy/items/343af6b7eb98759f01d4">Amazonがオープンソースで公開したディープラーニングのライブラリ「DSSTNE」を使ってみる</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/atrae"><img alt="株式会社アトラエ" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/2ae642ad3b56c40d9c1bbb9c7fda1527be1bf400/original.jpg?1405994865" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#word2vec%E3%81%AE%E3%81%8A%E3%81%95%E3%82%89%E3%81%84\&quot;\u003eWord2Vecのおさらい\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#doc2vec%E3%81%A8%E3%81%AF\&quot;\u003eDoc2Vecとは？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%8A%80%E8%A1%93%E7%9A%84%E3%81%AB%E3%81%AF\&quot;\u003e技術的には\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#gensim%E3%81%A8%E3%81%AF\&quot;\u003egensimとは？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%9A%9B%E3%81%AB%E6%96%87%E6%9B%B8%E9%96%93%E3%81%AE%E9%A1%9E%E4%BC%BC%E5%BA%A6%E3%82%92%E5%87%BA%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003e実際に文書間の類似度を出してみる\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A3%85%E6%BA%96%E5%82%99\&quot;\u003e実装(準備)\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-scipy%E3%82%92%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB\&quot;\u003e■ Scipyをインストール\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-gensim%E3%81%AE%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB\&quot;\u003e■ gensimのインストール\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-doc2vecpy%E3%82%92%E3%82%AB%E3%82%B9%E3%82%BF%E3%83%9E%E3%82%A4%E3%82%BA\&quot;\u003e■ doc2vec.pyをカスタマイズ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-wikipedia%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%82%92%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B\&quot;\u003e■ wikipediaのデータからコーパスを作成する。\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A3%85%E5%AE%9F%E8%B7%B5\&quot;\u003e実装(実践)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-b4873866-27e2-4b4c-b142-dd5a4cebb79b"></div>
+    <div id="Toc-react-component-b4873866-27e2-4b4c-b142-dd5a4cebb79b"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:241,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;32a7ba7eddf8203c9fa1&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="chrysocome"><a itemprop="url" href="/chrysocome"><img alt="chrysocome" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/41477/profile-images/1485746108" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="bonk"><a itemprop="url" href="/bonk"><img alt="bonk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18421/profile-images/1473682428" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ysakamoto"><a itemprop="url" href="/ysakamoto"><img alt="ysakamoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/40840/profile-images/1473688576" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="clazybone"><a itemprop="url" href="/clazybone"><img alt="clazybone" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21917/profile-images/1473758808" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="rneuo"><a itemprop="url" href="/rneuo"><img alt="rneuo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51849/profile-images/1473692560" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HorLie_michisan"><a itemprop="url" href="/HorLie_michisan"><img alt="HorLie_michisan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73103/profile-images/1473761969" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="myau999"><a itemprop="url" href="/myau999"><img alt="myau999" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80939/profile-images/1473701951" /></a></div></div><div class="ArticleFooter__user"><a href="/okappy/items/32a7ba7eddf8203c9fa1/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/32a7ba7eddf8203c9fa1/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/okappy/items/32a7ba7eddf8203c9fa1.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/8ba050e2cd75d8a2e7dc#_reference-da6b9da6e790f294581c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />okappy さん改良版 gensim.models.doc2vec.py で チュートリアル・サンプルコードを実行したら、TypeError: &#39;LabeledSentence&#39; object is not iterable になった件</a><time class="references_datetime js-dateTimeView" datetime="2016-02-04T10:55:32+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/f358228060f5d7a9b67e#_reference-a1f58b0039c7b4b5342b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 Python gensim 】Doc2Vec を 文書類似度 と 単語類似度 を 個別に演算できるよう改良したコード は、satomacotoさん改良コード が うまく動いた件</a><time class="references_datetime js-dateTimeView" datetime="2016-09-05T08:10:00+00:00">6 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/Morinikki/items/66941b9e3e57b9224fd7#_reference-48e3f037ae1a87238b2b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99505/profile-images/1479662341" />ハースストーンの類似カードをDeep Learningで探してみた</a><time class="references_datetime js-dateTimeView" datetime="2016-12-13T15:03:11+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する by @okappy on @Qiita" data-url="http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Word2Vecの進化形Doc2Vecで文章と文章の類似度を算出する" href="http://b.hatena.ne.jp/entry/http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:301443,&quot;uuid&quot;:&quot;32a7ba7eddf8203c9fa1&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;okappy&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:1418,&quot;url_name&quot;:&quot;okappy&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/1418/profile-images/1480224071&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-a1067fc1-c564-48de-b44a-0a25f2075108"></div>
+    <div id="CommentListContainer-react-component-a1067fc1-c564-48de-b44a-0a25f2075108"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="tijKkcsvEFzmYDUdT5YZW+PbNf2KgoSFgEHdOQOlbGeooHN/nuVfPplXP13sN9XFnUwUnig8ahoQJpnqg7dtWg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/okappy/items/32a7ba7eddf8203c9fa1" /><input type="hidden" name="item_uuid" id="item_uuid" value="32a7ba7eddf8203c9fa1" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1", "id": 301443, "uuid": "32a7ba7eddf8203c9fa1" }</script><script class="js-user" type="application/json">{&quot;id&quot;:1418,&quot;url_name&quot;:&quot;okappy&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/1418/profile-images/1480224071&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="7eUhhaUipMRrJSvFf+j/EJnM6lEEil+/ae+fXR0H5JDzbZhr8OjrphQSIYXcSTOO51vLMqY0sSD5iNuOnRXlrQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/okappy/items/32a7ba7eddf8203c9fa1" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-51281596-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

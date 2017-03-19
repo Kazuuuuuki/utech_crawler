@@ -1,0 +1,1068 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【チュートリアル】機械学習を使って30分で固有表現抽出器を作る - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+はじめに
+
+固有表現抽出は、テキストに出現する人名や地名などの固有名詞や、日付や時間などの数値表現を抽出する技術です。固有表現抽出は、質問応答システム、対話システム、情報抽出といった自然言語処理を用いた応用アプリケーションの要素技術としても使われています。
+
+今回は機械学習技術を使って固有表現抽出器を作ってみます。
+
+※注意事項
+理論的な話は一切出てきません。理論を知りたい方は他を当たってください。
+
+
+対象読者
+
+
+固有表現抽出を少しは知っている方
+固有表現抽出器..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Hironsan13" name="twitter:creator" /><meta content="【チュートリアル】機械学習を使って30分で固有表現抽出器を作る - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# はじめに
+**固有表現抽出**は、テキストに出現する**人名**や**地名**などの固有名詞や、**日付**や**時間**などの数値表現を抽出する技術です。固有表現抽出は、**質問応答システム**、**対話システム**、**情報抽..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="CrRwWS8EViHghZqYG0kQyJsbG0I0z9BoFAOqB74YAGB+M9b9EwLTlIKOdaAVmwD5VWbEKNd73FF2kBoNJ83N9A==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"Hironsan","type":"items","id":"326b66711eb4196aa9d4"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-809dd984-8e62-4122-9e41-9eb169bf45b6"></div>
+    <div id="HeaderContainer-react-component-809dd984-8e62-4122-9e41-9eb169bf45b6"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">【チュートリアル】機械学習を使って30分で固有表現抽出器を作る</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">329</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:329,&quot;uuid&quot;:&quot;326b66711eb4196aa9d4&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="sayamada"><a itemprop="url" href="/sayamada"><img alt="sayamada" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44722/profile-images/1473690004" /></a></li><li class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></li><li class="js-hovercard" data-hovercard-target-name="fantm21"><a itemprop="url" href="/fantm21"><img alt="fantm21" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32946/profile-images/1473686015" /></a></li><li class="js-hovercard" data-hovercard-target-name="dubsadara"><a itemprop="url" href="/dubsadara"><img alt="dubsadara" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/95833/profile-images/1473706695" /></a></li><li class="js-hovercard" data-hovercard-target-name="drstkng"><a itemprop="url" href="/drstkng"><img alt="drstkng" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81593/profile-images/1473702165" /></a></li><li class="js-hovercard" data-hovercard-target-name="yakawa"><a itemprop="url" href="/yakawa"><img alt="yakawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64468/profile-images/1473696589" /></a></li><li class="js-hovercard" data-hovercard-target-name="yacchin1205"><a itemprop="url" href="/yacchin1205"><img alt="yacchin1205" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28770/profile-images/1473685246" /></a></li><li class="js-hovercard" data-hovercard-target-name="tam0927"><a itemprop="url" href="/tam0927"><img alt="tam0927" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3726/profile-images/1473756040" /></a></li><li class="js-hovercard" data-hovercard-target-name="knoguchi"><a itemprop="url" href="/knoguchi"><img alt="knoguchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13775/profile-images/1473683016" /></a></li><li><a href="/Hironsan/items/326b66711eb4196aa9d4/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/Hironsan"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" alt="1473700709" /></a> <a class="u-link-unstyled" href="/Hironsan">Hironsan</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-01-29T10:52:07+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-01-29">Edited at <time datetime="2016-02-22T22:55:06+09:00" itemprop="dateModified">2016-02-22</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/Hironsan/items/326b66711eb4196aa9d4/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/Hironsan/items/326b66711eb4196aa9d4/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/Hironsan/items/326b66711eb4196aa9d4.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-326b66711eb4196aa9d4" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div>
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p><strong>固有表現抽出</strong>は、テキストに出現する<strong>人名</strong>や<strong>地名</strong>などの固有名詞や、<strong>日付</strong>や<strong>時間</strong>などの数値表現を抽出する技術です。固有表現抽出は、<strong>質問応答システム</strong>、<strong>対話システム</strong>、<strong>情報抽出</strong>といった自然言語処理を用いた応用アプリケーションの要素技術としても使われています。</p>
+
+<p>今回は<strong>機械学習技術</strong>を使って固有表現抽出器を作ってみます。</p>
+
+<p><strong>※注意事項</strong><br>
+<font color="red">理論的な話は一切出てきません。理論を知りたい方は他を当たってください。</font></p>
+
+<h1>
+<span id="対象読者" class="fragment"></span><a href="#%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85"><i class="fa fa-link"></i></a>対象読者</h1>
+
+<ul>
+<li>固有表現抽出を少しは知っている方</li>
+<li>固有表現抽出器を作ってみたい方</li>
+<li>Pythonコードを読める方</li>
+</ul>
+
+<h1>
+<span id="固有表現抽出とは" class="fragment"></span><a href="#%E5%9B%BA%E6%9C%89%E8%A1%A8%E7%8F%BE%E6%8A%BD%E5%87%BA%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>固有表現抽出とは？</h1>
+
+<p>ここでは、固有表現抽出の概要と方法について説明します。</p>
+
+<h2>
+<span id="概要" class="fragment"></span><a href="#%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>概要</h2>
+
+<p>固有表現抽出は、テキストに出現する人名や地名などの固有名詞や、日付や時間などの数値表現を抽出する技術です。具体例を見てみましょう。以下の文から固有表現を抽出してみます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+太郎は5月18日の朝9時に花子に会いに行った。
+</pre></div></div>
+
+<p>上記の文に含まれる固有表現を抽出すると<strong>人名</strong>として<strong>太郎</strong>と<strong>花子</strong>、<strong>日付</strong>として<strong>5月18日</strong>、<strong>時間</strong>として<strong>朝9時</strong>が抽出できます。</p>
+
+<p>上記の例では固有表現のクラスとして人名、日付、時間が抽出されました。一般的には以下の8つのクラスがよく使われます。</p>
+
+<table>
+<thead>
+<tr>
+<th>クラス</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ART 固有物名　</td>
+<td>ノーベル文学賞、Windows7</td>
+</tr>
+<tr>
+<td>LOC 地名</td>
+<td>アメリカ、千葉県</td>
+</tr>
+<tr>
+<td>ORG 組織</td>
+<td>自民党、NHK            　</td>
+</tr>
+<tr>
+<td>PSN 人名</td>
+<td>安倍晋三、メルケル     　　</td>
+</tr>
+<tr>
+<td>DAT 日付</td>
+<td>1月29日、2016/01/29 　　</td>
+</tr>
+<tr>
+<td>TIM 時間</td>
+<td>午後三時、10:30</td>
+</tr>
+<tr>
+<td>MNY 金額</td>
+<td>241円、8ドル           　</td>
+</tr>
+<tr>
+<td>PNT 割合</td>
+<td>10％、3割           　　</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<span id="方法" class="fragment"></span><a href="#%E6%96%B9%E6%B3%95"><i class="fa fa-link"></i></a>方法</h2>
+
+<p>固有表現抽出を行う方法として、形態素解析済みの文に対してラベル付けを行う方法があります。以下は「太郎は5月18日の朝9時に・・・」という文を形態素解析してからラベル付けを行った例です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/77079/1ff148a3-2372-5906-9422-d28b6b9cdf9a.png" target="_blank" rel="nofollow noopener"><img width="954" alt="スクリーンショット 2016-01-28 14.35.17.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/1ff148a3-2372-5906-9422-d28b6b9cdf9a.png"></a></p>
+
+<p>B-XXX、I-XXX というラベルがこれらの文字列が固有表現であることを表現しています。B-XXX は固有表現文字列の始まり、I-XXX は固有表現文字列が続いていることを意味しています。XXX 部分にはORG、PSN などの固有表現クラスが入ります。固有表現でない部分には O というラベルが付与されます。</p>
+
+<p>ラベル付けは規則を用いて行うこともできますが、今回は<strong>機械学習技術</strong>を用いて行います。つまり、あらかじめラベル付けされた学習データからモデルを作成し、そのモデルを用いてラベルの付いていない文にラベル付けを行います。具体的にはCRFというアルゴリズムを用いて学習を行っていきます。</p>
+
+<p>それでは実際に手を動かして行きましょう。</p>
+
+<h1>
+<span id="インストール" class="fragment"></span><a href="#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB"><i class="fa fa-link"></i></a>インストール</h1>
+
+<p>まずは必要なPythonモジュールをインストールするところから始めます。ターミナルで以下のコマンドを実行してモジュールをインストールしてください。CRFのライブラリとしてCRFsuiteをインストールしています。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">pip install numpy</span>
+<span class="go">pip install scipy</span>
+<span class="go">pip install sklearn</span>
+<span class="go">pip install python-crfsuite</span>
+</pre></div></div>
+
+<p>インストールしたら必要なモジュールをimportします。以下のコードを実行してください。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">import</span> <span class="nn">pycrfsuite</span>
+<span class="kn">import</span> <span class="nn">sklearn</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelBinarizer</span>
+</pre></div></div>
+
+<h1>
+<span id="固有表現抽出器を構築するのに使用するデータ" class="fragment"></span><a href="#%E5%9B%BA%E6%9C%89%E8%A1%A8%E7%8F%BE%E6%8A%BD%E5%87%BA%E5%99%A8%E3%82%92%E6%A7%8B%E7%AF%89%E3%81%99%E3%82%8B%E3%81%AE%E3%81%AB%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E3%83%87%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>固有表現抽出器を構築するのに使用するデータ</h1>
+
+<p>CRFは教師あり学習なので教師データがタグ付けされたデータが必要です。今回はあらかじめタグ付けしたデータを用意しておきました。<a href="https://github.com/Hironsan/IOB2Corpus" rel="nofollow noopener" target="_blank">こちら</a>からダウンロードしてください。ファイル名は「hironsan.txt」です。</p>
+
+<p>それでは、まずはダウンロードしたデータを読み込むためのクラスを定義します。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">codecs</span>
+
+<span class="k">class</span> <span class="nc">CorpusReader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">sent</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">sents</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">:</span>
+                    <span class="n">sents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sent</span><span class="p">)</span>
+                    <span class="n">sent</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">continue</span>
+                <span class="n">morph_info</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">)</span>
+                <span class="n">sent</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">morph_info</span><span class="p">)</span>
+        <span class="n">train_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sents</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__train_sents</span> <span class="o">=</span> <span class="n">sents</span><span class="p">[:</span><span class="n">train_num</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__test_sents</span> <span class="o">=</span> <span class="n">sents</span><span class="p">[</span><span class="n">train_num</span><span class="p">:]</span>
+
+    <span class="k">def</span> <span class="nf">iob_sents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">'train'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__train_sents</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s">'test'</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__test_sents</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+</pre></div></div>
+
+<p>次に、作成したクラスを用いてダウンロードしたデータを読み込みます。学習データ数が450文、テストデータ数が50文となっています。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">c</span> <span class="o">=</span> <span class="n">CorpusReader</span><span class="p">(</span><span class="s">'hironsan.txt'</span><span class="p">)</span>
+<span class="n">train_sents</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">iob_sents</span><span class="p">(</span><span class="s">'train'</span><span class="p">)</span>
+<span class="n">test_sents</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">iob_sents</span><span class="p">(</span><span class="s">'test'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>読み込んだデータの形式は以下のようになっています。形態素解析器「MeCab」で形態素解析を行った後にIOB2タグを付けています。データは一文ごとに分かれており、一文は複数の形態素情報の集まりから構成されます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">train_sents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">[[</span><span class="s">'2005'</span><span class="p">,</span> <span class="s">'名詞'</span><span class="p">,</span> <span class="s">'数'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'B-DAT'</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">'年'</span><span class="p">,</span> <span class="s">'名詞'</span><span class="p">,</span> <span class="s">'接尾'</span><span class="p">,</span> <span class="s">'助数詞'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'年'</span><span class="p">,</span> <span class="s">'ネン'</span><span class="p">,</span> <span class="s">'ネン'</span><span class="p">,</span> <span class="s">'I-DAT'</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">'7'</span><span class="p">,</span> <span class="s">'名詞'</span><span class="p">,</span> <span class="s">'数'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'I-DAT'</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">'月'</span><span class="p">,</span> <span class="s">'名詞'</span><span class="p">,</span> <span class="s">'一般'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'月'</span><span class="p">,</span> <span class="s">'ツキ'</span><span class="p">,</span> <span class="s">'ツキ'</span><span class="p">,</span> <span class="s">'I-DAT'</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">'14'</span><span class="p">,</span> <span class="s">'名詞'</span><span class="p">,</span> <span class="s">'数'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'I-DAT'</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">'日'</span><span class="p">,</span> <span class="s">'名詞'</span><span class="p">,</span> <span class="s">'接尾'</span><span class="p">,</span> <span class="s">'助数詞'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'日'</span><span class="p">,</span> <span class="s">'ニチ'</span><span class="p">,</span> <span class="s">'ニチ'</span><span class="p">,</span> <span class="s">'I-DAT'</span><span class="p">],</span>
+ <span class="p">[</span><span class="s">'、'</span><span class="p">,</span> <span class="s">'記号'</span><span class="p">,</span> <span class="s">'読点'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'、'</span><span class="p">,</span> <span class="s">'、'</span><span class="p">,</span> <span class="s">'、'</span><span class="p">,</span> <span class="s">'O'</span><span class="p">],</span>
+<span class="o">...</span>
+<span class="p">]</span>
+</pre></div></div>
+
+<p>それでは次に、固有表現抽出に使う素性について説明していきます。</p>
+
+<h1>
+<span id="使用する素性" class="fragment"></span><a href="#%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E7%B4%A0%E6%80%A7"><i class="fa fa-link"></i></a>使用する素性</h1>
+
+<p>ここでは、使用する素性の概要を説明してから、それをコーディングしていきます。</p>
+
+<h2>
+<span id="概要-1" class="fragment"></span><a href="#%E6%A6%82%E8%A6%81-1"><i class="fa fa-link"></i></a>概要</h2>
+
+<p>次に、使用する素性について説明します。今回は、前後２文字の単語、品詞細分類、文字種、固有表現タグを使います。以下にこれらの素性を用いた場合の例を示します。枠で囲まれた部分が使用する素性です。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/c78cb70a-06d0-bc18-9c81-e704fbc7792a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/c78cb70a-06d0-bc18-9c81-e704fbc7792a.png" alt="ner.png"></a></p>
+
+<p>文字種の分類は以下のようになっています。全部で７種類あります。</p>
+
+<table>
+<thead>
+<tr>
+<th>文字種タグ</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ZSPACE</td>
+<td>空白</td>
+</tr>
+<tr>
+<td>ZDIGIT</td>
+<td>アラビア数字</td>
+</tr>
+<tr>
+<td>ZLLET</td>
+<td>英字小文字</td>
+</tr>
+<tr>
+<td>ZULET</td>
+<td>英字大文字</td>
+</tr>
+<tr>
+<td>HIRAG</td>
+<td>ひらがな</td>
+</tr>
+<tr>
+<td>KATAK</td>
+<td>カタカナ</td>
+</tr>
+<tr>
+<td>OTHER</td>
+<td>その他</td>
+</tr>
+</tbody>
+</table>
+
+<p>素性として用いる文字種は単語に含まれるすべての文字種を結合したものです。例えば「多い」という単語は漢字とひらがなを含んでいます。ひらがなの文字種タグはHIRAGであり、漢字の文字種タグはOTHERです。そのため、「多い」という単語の文字種は「HIRAG-OTHER」になります。</p>
+
+<h2>
+<span id="素性抽出のコーディング" class="fragment"></span><a href="#%E7%B4%A0%E6%80%A7%E6%8A%BD%E5%87%BA%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0"><i class="fa fa-link"></i></a>素性抽出のコーディング</h2>
+
+<h3>
+<span id="文字種の判定" class="fragment"></span><a href="#%E6%96%87%E5%AD%97%E7%A8%AE%E3%81%AE%E5%88%A4%E5%AE%9A"><i class="fa fa-link"></i></a>文字種の判定</h3>
+
+<p>文字種の判定については以下のようなコードになります。文字列に含まれるすべての文字種を-(ハイフン)で結合しています。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">is_hiragana</span><span class="p">(</span><span class="n">ch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mh">0x3040</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mh">0x309F</span>
+
+<span class="k">def</span> <span class="nf">is_katakana</span><span class="p">(</span><span class="n">ch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mh">0x30A0</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mh">0x30FF</span>
+
+<span class="k">def</span> <span class="nf">get_character_type</span><span class="p">(</span><span class="n">ch</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">ch</span><span class="o">.</span><span class="n">isspace</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s">'ZSPACE'</span>
+    <span class="k">elif</span> <span class="n">ch</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s">'ZDIGIT'</span>
+    <span class="k">elif</span> <span class="n">ch</span><span class="o">.</span><span class="n">islower</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s">'ZLLET'</span>
+    <span class="k">elif</span> <span class="n">ch</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s">'ZULET'</span>
+    <span class="k">elif</span> <span class="n">is_hiragana</span><span class="p">(</span><span class="n">ch</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">'HIRAG'</span>
+    <span class="k">elif</span> <span class="n">is_katakana</span><span class="p">(</span><span class="n">ch</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">'KATAK'</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">'OTHER'</span>
+
+<span class="k">def</span> <span class="nf">get_character_types</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="n">character_types</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">get_character_type</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+    <span class="n">character_types_str</span> <span class="o">=</span> <span class="s">'-'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">character_types</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">character_types_str</span>
+</pre></div></div>
+
+<h3>
+<span id="品詞細分類の抽出" class="fragment"></span><a href="#%E5%93%81%E8%A9%9E%E7%B4%B0%E5%88%86%E9%A1%9E%E3%81%AE%E6%8A%BD%E5%87%BA"><i class="fa fa-link"></i></a>品詞細分類の抽出</h3>
+
+<p>形態素情報から品詞細分類を抽出するコードは以下のようになります。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">extract_pos_with_subtype</span><span class="p">(</span><span class="n">morph</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">morph</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">'*'</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s">'-'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">morph</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">idx</span><span class="p">])</span>
+</pre></div></div>
+
+<h3>
+<span id="文からの素性抽出" class="fragment"></span><a href="#%E6%96%87%E3%81%8B%E3%82%89%E3%81%AE%E7%B4%A0%E6%80%A7%E6%8A%BD%E5%87%BA"><i class="fa fa-link"></i></a>文からの素性抽出</h3>
+
+<p>以上をふまえて、各単語に対して素性抽出をするコードを書くと以下のようになります。少し冗長ですがわかると思います。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">word2features</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">chtype</span> <span class="o">=</span> <span class="n">get_character_types</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">postag</span> <span class="o">=</span> <span class="n">extract_pos_with_subtype</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">'bias'</span><span class="p">,</span>
+        <span class="s">'word='</span> <span class="o">+</span> <span class="n">word</span><span class="p">,</span>
+        <span class="s">'type='</span> <span class="o">+</span> <span class="n">chtype</span><span class="p">,</span>
+        <span class="s">'postag='</span> <span class="o">+</span> <span class="n">postag</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">word2</span> <span class="o">=</span> <span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">chtype2</span> <span class="o">=</span> <span class="n">get_character_types</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">postag2</span> <span class="o">=</span> <span class="n">extract_pos_with_subtype</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">iobtag2</span> <span class="o">=</span> <span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="s">'-2:word='</span> <span class="o">+</span> <span class="n">word2</span><span class="p">,</span>
+            <span class="s">'-2:type='</span> <span class="o">+</span> <span class="n">chtype2</span><span class="p">,</span>
+            <span class="s">'-2:postag='</span> <span class="o">+</span> <span class="n">postag2</span><span class="p">,</span>
+            <span class="s">'-2:iobtag='</span> <span class="o">+</span> <span class="n">iobtag2</span><span class="p">,</span>
+        <span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">'BOS'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">word1</span> <span class="o">=</span> <span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">chtype1</span> <span class="o">=</span> <span class="n">get_character_types</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">postag1</span> <span class="o">=</span> <span class="n">extract_pos_with_subtype</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">iobtag1</span> <span class="o">=</span> <span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="s">'-1:word='</span> <span class="o">+</span> <span class="n">word1</span><span class="p">,</span>
+            <span class="s">'-1:type='</span> <span class="o">+</span> <span class="n">chtype1</span><span class="p">,</span>
+            <span class="s">'-1:postag='</span> <span class="o">+</span> <span class="n">postag1</span><span class="p">,</span>
+            <span class="s">'-1:iobtag='</span> <span class="o">+</span> <span class="n">iobtag1</span><span class="p">,</span>
+        <span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">'BOS'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sent</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">word1</span> <span class="o">=</span> <span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">chtype1</span> <span class="o">=</span> <span class="n">get_character_types</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">postag1</span> <span class="o">=</span> <span class="n">extract_pos_with_subtype</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="s">'+1:word='</span> <span class="o">+</span> <span class="n">word1</span><span class="p">,</span>
+            <span class="s">'+1:type='</span> <span class="o">+</span> <span class="n">chtype1</span><span class="p">,</span>
+            <span class="s">'+1:postag='</span> <span class="o">+</span> <span class="n">postag1</span><span class="p">,</span>
+        <span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">'EOS'</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">sent</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+        <span class="n">word2</span> <span class="o">=</span> <span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">chtype2</span> <span class="o">=</span> <span class="n">get_character_types</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">postag2</span> <span class="o">=</span> <span class="n">extract_pos_with_subtype</span><span class="p">(</span><span class="n">sent</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="s">'+2:word='</span> <span class="o">+</span> <span class="n">word2</span><span class="p">,</span>
+            <span class="s">'+2:type='</span> <span class="o">+</span> <span class="n">chtype2</span><span class="p">,</span>
+            <span class="s">'+2:postag='</span> <span class="o">+</span> <span class="n">postag2</span><span class="p">,</span>
+        <span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">'EOS'</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">features</span>
+
+
+<span class="k">def</span> <span class="nf">sent2features</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">word2features</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sent</span><span class="p">))]</span>
+
+
+<span class="k">def</span> <span class="nf">sent2labels</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">morph</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">morph</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">sent2tokens</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">morph</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">morph</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">]</span>
+</pre></div></div>
+
+<p>sent2featuresで文から素性を抽出します。実際に抽出される素性は以下のようになります。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sent2features</span><span class="p">(</span><span class="n">train_sents</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'bias'</span><span class="p">,</span>
+ <span class="s">'word=2005'</span><span class="p">,</span>
+ <span class="s">'type=ZDIGIT'</span><span class="p">,</span>
+ <span class="s">'postag=名詞-数'</span><span class="p">,</span>
+ <span class="s">'BOS'</span><span class="p">,</span>
+ <span class="s">'BOS'</span><span class="p">,</span>
+ <span class="s">'+1:word=年'</span><span class="p">,</span>
+ <span class="s">'+1:type=OTHER'</span><span class="p">,</span>
+ <span class="s">'+1:postag=名詞-接尾-助数詞'</span><span class="p">,</span>
+ <span class="s">'+2:word=7'</span><span class="p">,</span>
+ <span class="s">'+2:type=ZDIGIT'</span><span class="p">,</span>
+ <span class="s">'+2:postag=名詞-数'</span><span class="p">]</span>
+</pre></div></div>
+
+<p>データから素性が抽出できることがわかりました。後で使用するために、データから学習データとテストデータ用の素性とラベルを抽出しておきます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">X_train</span> <span class="o">=</span> <span class="p">[</span><span class="n">sent2features</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_sents</span><span class="p">]</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="p">[</span><span class="n">sent2labels</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">train_sents</span><span class="p">]</span>
+
+<span class="n">X_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">sent2features</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">test_sents</span><span class="p">]</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">sent2labels</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">test_sents</span><span class="p">]</span>
+</pre></div></div>
+
+<h1>
+<span id="モデルの学習" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>モデルの学習</h1>
+
+<p>モデルを学習するために、pycrfsuite.Trainerオブジェクトを作成し、学習データを読み込ませた後、trainメソッドを呼び出します。まずは、Trainerオブジェクトの作成と学習データの読み込みを行います。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">pycrfsuite</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">xseq</span><span class="p">,</span> <span class="n">yseq</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
+    <span class="n">trainer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">xseq</span><span class="p">,</span> <span class="n">yseq</span><span class="p">)</span>
+</pre></div></div>
+
+<p>次に学習パラメータを設定します。本来は開発用データを用いて決めるべきですが、今回は固定値としておきます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">trainer</span><span class="o">.</span><span class="n">set_params</span><span class="p">({</span>
+    <span class="s">'c1'</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>   <span class="c"># coefficient for L1 penalty</span>
+    <span class="s">'c2'</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>  <span class="c"># coefficient for L2 penalty</span>
+    <span class="s">'max_iterations'</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>  <span class="c"># stop earlier</span>
+
+    <span class="c"># include transitions that are possible, but not observed</span>
+    <span class="s">'feature.possible_transitions'</span><span class="p">:</span> <span class="bp">True</span>
+<span class="p">})</span>
+</pre></div></div>
+
+
+
+<p>それでは準備が整ったのでモデルを学習させます。ファイル名を指定して、trainメソッドを実行してください。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="s">'model.crfsuite'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>実行が終わると、指定したファイル名のファイルが作成されます。この中に、学習したモデルが格納されています。</p>
+
+<h1>
+<span id="テストデータの予測" class="fragment"></span><a href="#%E3%83%86%E3%82%B9%E3%83%88%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E4%BA%88%E6%B8%AC"><i class="fa fa-link"></i></a>テストデータの予測</h1>
+
+<p>学習したモデルを使用するためには、pycrfsuite.Taggerオブジェクトを作成し、学習したモデルを読み込み、tagメソッドを使用します。まずは、Taggerオブジェクトの作成と学習済みモデルの読み込みを行います。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">tagger</span> <span class="o">=</span> <span class="n">pycrfsuite</span><span class="o">.</span><span class="n">Tagger</span><span class="p">()</span>
+<span class="n">tagger</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s">'model.crfsuite'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>それでは、実際に文に対してタグ付けをしてみます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">example_sent</span> <span class="o">=</span> <span class="n">test_sents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sent2tokens</span><span class="p">(</span><span class="n">example_sent</span><span class="p">)))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Predicted:"</span><span class="p">,</span> <span class="s">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">sent2features</span><span class="p">(</span><span class="n">example_sent</span><span class="p">))))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Correct:  "</span><span class="p">,</span> <span class="s">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sent2labels</span><span class="p">(</span><span class="n">example_sent</span><span class="p">)))</span>
+</pre></div></div>
+
+<p>以下のような結果が得られるはずです。Predictedは作成したモデルを用いて予想したタグ列で、Correctは正解のタグ列です。今回の文の場合は、モデルの予想結果と正解データが一致していました。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">昨年 10 月 に は 、 34 人 が 、 今回 の 現場 に 近い エジプト の タバ で 爆発 事件 の ため 死亡 し て いる 。</span>
+<span class="go">Predicted: B-DAT I-DAT I-DAT O O O O O O O O O O O O B-LOC O B-LOC O O O O O O O O O O</span>
+<span class="go">Correct:   B-DAT I-DAT I-DAT O O O O O O O O O O O O B-LOC O B-LOC O O O O O O O O O O</span>
+</pre></div></div>
+
+<p>固有表現抽出器の構築はこれで終了しました。</p>
+
+<h1>
+<span id="モデルの評価" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E8%A9%95%E4%BE%A1"><i class="fa fa-link"></i></a>モデルの評価</h1>
+
+<p>モデルを作成しましたが、これだけでは良いのか悪いのかわかりません。そのため、作成したモデルについては評価を行うことが重要です。それでは作成したモデルについて評価していきましょう。評価は、適合率、再現率、F値で行います。以下が評価を行うコードです。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">bio_classification_report</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="n">lb</span> <span class="o">=</span> <span class="n">LabelBinarizer</span><span class="p">()</span>
+    <span class="n">y_true_combined</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">y_true</span><span class="p">)))</span>
+    <span class="n">y_pred_combined</span> <span class="o">=</span> <span class="n">lb</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)))</span>
+
+    <span class="n">tagset</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span><span class="s">'O'</span><span class="p">}</span>
+    <span class="n">tagset</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tagset</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tag</span><span class="p">:</span> <span class="n">tag</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'-'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">class_indices</span> <span class="o">=</span> <span class="p">{</span><span class="n">cls</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">cls</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lb</span><span class="o">.</span><span class="n">classes_</span><span class="p">)}</span>
+
+    <span class="k">return</span> <span class="n">classification_report</span><span class="p">(</span>
+        <span class="n">y_true_combined</span><span class="p">,</span>
+        <span class="n">y_pred_combined</span><span class="p">,</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">class_indices</span><span class="p">[</span><span class="n">cls</span><span class="p">]</span> <span class="k">for</span> <span class="n">cls</span> <span class="ow">in</span> <span class="n">tagset</span><span class="p">],</span>
+        <span class="n">target_names</span> <span class="o">=</span> <span class="n">tagset</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div></div>
+
+<p>評価に使うためのテストデータ集合内の文に対してタグ付けします。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="n">tagger</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">xseq</span><span class="p">)</span> <span class="k">for</span> <span class="n">xseq</span> <span class="ow">in</span> <span class="n">X_test</span><span class="p">]</span>
+</pre></div></div>
+
+<p>学習したモデルを用いてタグ付けしたデータと、正解データを評価用の関数に渡して結果を表示します。各カテゴリについて、適合率、再現率、F値、タグ数を表示しています。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">bio_classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
+             <span class="n">precision</span>    <span class="n">recall</span>  <span class="n">f1</span><span class="o">-</span><span class="n">score</span>   <span class="n">support</span>
+
+      <span class="n">B</span><span class="o">-</span><span class="n">ART</span>       <span class="mf">1.00</span>      <span class="mf">0.89</span>      <span class="mf">0.94</span>         <span class="mi">9</span>
+      <span class="n">I</span><span class="o">-</span><span class="n">ART</span>       <span class="mf">0.92</span>      <span class="mf">1.00</span>      <span class="mf">0.96</span>        <span class="mi">12</span>
+      <span class="n">B</span><span class="o">-</span><span class="n">DAT</span>       <span class="mf">1.00</span>      <span class="mf">1.00</span>      <span class="mf">1.00</span>        <span class="mi">12</span>
+      <span class="n">I</span><span class="o">-</span><span class="n">DAT</span>       <span class="mf">1.00</span>      <span class="mf">1.00</span>      <span class="mf">1.00</span>        <span class="mi">22</span>
+      <span class="n">B</span><span class="o">-</span><span class="n">LOC</span>       <span class="mf">1.00</span>      <span class="mf">0.95</span>      <span class="mf">0.97</span>        <span class="mi">55</span>
+      <span class="n">I</span><span class="o">-</span><span class="n">LOC</span>       <span class="mf">0.94</span>      <span class="mf">0.94</span>      <span class="mf">0.94</span>        <span class="mi">17</span>
+      <span class="n">B</span><span class="o">-</span><span class="n">ORG</span>       <span class="mf">0.75</span>      <span class="mf">0.86</span>      <span class="mf">0.80</span>        <span class="mi">14</span>
+      <span class="n">I</span><span class="o">-</span><span class="n">ORG</span>       <span class="mf">1.00</span>      <span class="mf">0.90</span>      <span class="mf">0.95</span>        <span class="mi">10</span>
+      <span class="n">B</span><span class="o">-</span><span class="n">PSN</span>       <span class="mf">0.00</span>      <span class="mf">0.00</span>      <span class="mf">0.00</span>         <span class="mi">3</span>
+      <span class="n">B</span><span class="o">-</span><span class="n">TIM</span>       <span class="mf">1.00</span>      <span class="mf">0.71</span>      <span class="mf">0.83</span>         <span class="mi">7</span>
+      <span class="n">I</span><span class="o">-</span><span class="n">TIM</span>       <span class="mf">1.00</span>      <span class="mf">0.81</span>      <span class="mf">0.90</span>        <span class="mi">16</span>
+
+<span class="n">avg</span> <span class="o">/</span> <span class="n">total</span>       <span class="mf">0.95</span>      <span class="mf">0.91</span>      <span class="mf">0.93</span>       <span class="mi">177</span>
+</pre></div></div>
+
+<p>ちょっと結果が良すぎる気もしますが、用いたデータに同じような文が含まれていたのでしょう。</p>
+
+<p>※注意<br>
+UndefinedMetricWarningが出るかもしれません。予測したサンプルに存在しないラベルに対して適合率などが定義できないからのようです。用意できたデータ数が少ないので・・・</p>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<p>今回は、Pythonのライブラリであるcrfsuiteを使うことで簡単に固有表現抽出器を作ることができました。タグ付けにはIREXの定義に基づいて8種類の固有表現を付けました。しかし、実際に使うにはIREXの定義は粗いことが多いです。そのため、固有表現抽出を何かのタスクに使う場合には、タスクに応じて必要なタグを付けたデータを用意する必要があります。</p>
+
+<p>また、より良い素性やモデルのパラメータを探してみると良いと思います。</p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<ul>
+<li><a href="https://python-crfsuite.readthedocs.org/en/latest/" rel="nofollow noopener" target="_blank">python-crfsuite Documentation</a></li>
+<li><a href="http://ci.nii.ac.jp/naid/110002726221" rel="nofollow noopener" target="_blank">Support Vector Machineを用いた日本語固有表現抽出</a></li>
+<li><a href="http://ci.nii.ac.jp/naid/110002712193" rel="nofollow noopener" target="_blank">日本語固有表現抽出におけるわかち書き問題の解決</a></li>
+<li><a href="http://nlp.cs.nyu.edu/irex/NE/df990214.txt" rel="nofollow noopener" target="_blank">IREXによる固有表現の定義</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/Hironsan/items/326b66711eb4196aa9d4" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="B8tpxTAozR8puodTEG9mNKQVPrRymA7i63cDa/assEhzTM9hDC5IqkuxaGsevXYFamjh3pEsAtuJ5LNhb3l93A==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1456149306" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# はじめに
+**固有表現抽出**は、テキストに出現する**人名**や**地名**などの固有名詞や、**日付**や**時間**などの数値表現を抽出する技術です。固有表現抽出は、**質問応答システム**、**対話システム**、**情報抽出**といった自然言語処理を用いた応用アプリケーションの要素技術としても使われています。
+
+今回は**機械学習技術**を使って固有表現抽出器を作ってみます。
+
+**※注意事項**
+&lt;font color=&quot;red&quot;&gt;理論的な話は一切出てきません。理論を知りたい方は他を当たってください。&lt;/font&gt;
+
+# 対象読者
+
+* 固有表現抽出を少しは知っている方
+* 固有表現抽出器を作ってみたい方
+* Pythonコードを読める方
+
+
+# 固有表現抽出とは？
+ここでは、固有表現抽出の概要と方法について説明します。
+
+## 概要
+固有表現抽出は、テキストに出現する人名や地名などの固有名詞や、日付や時間などの数値表現を抽出する技術です。具体例を見てみましょう。以下の文から固有表現を抽出してみます。
+
+```
+太郎は5月18日の朝9時に花子に会いに行った。
+```
+上記の文に含まれる固有表現を抽出すると**人名**として**太郎**と**花子**、**日付**として**5月18日**、**時間**として**朝9時**が抽出できます。
+
+上記の例では固有表現のクラスとして人名、日付、時間が抽出されました。一般的には以下の8つのクラスがよく使われます。
+
+|クラス  |例  |
+|------------|-----------------------|
+|ART 固有物名　|ノーベル文学賞、Windows7  |
+|LOC 地名     |アメリカ、千葉県          |
+|ORG 組織     |自民党、NHK            　|
+|PSN 人名     |安倍晋三、メルケル     　　|
+|DAT 日付     |1月29日、2016/01/29 　　 |
+|TIM 時間     |午後三時、10:30          |
+|MNY 金額     |241円、8ドル           　|
+|PNT 割合     |10％、3割           　　 |
+
+## 方法
+固有表現抽出を行う方法として、形態素解析済みの文に対してラベル付けを行う方法があります。以下は「太郎は5月18日の朝9時に・・・」という文を形態素解析してからラベル付けを行った例です。
+
+&lt;img width=&quot;954&quot; alt=&quot;スクリーンショット 2016-01-28 14.35.17.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/1ff148a3-2372-5906-9422-d28b6b9cdf9a.png&quot;&gt;
+
+B-XXX、I-XXX というラベルがこれらの文字列が固有表現であることを表現しています。B-XXX は固有表現文字列の始まり、I-XXX は固有表現文字列が続いていることを意味しています。XXX 部分にはORG、PSN などの固有表現クラスが入ります。固有表現でない部分には O というラベルが付与されます。
+
+ラベル付けは規則を用いて行うこともできますが、今回は**機械学習技術**を用いて行います。つまり、あらかじめラベル付けされた学習データからモデルを作成し、そのモデルを用いてラベルの付いていない文にラベル付けを行います。具体的にはCRFというアルゴリズムを用いて学習を行っていきます。
+
+それでは実際に手を動かして行きましょう。
+
+
+# インストール
+まずは必要なPythonモジュールをインストールするところから始めます。ターミナルで以下のコマンドを実行してモジュールをインストールしてください。CRFのライブラリとしてCRFsuiteをインストールしています。
+
+```shell-session
+pip install numpy
+pip install scipy
+pip install sklearn
+pip install python-crfsuite
+```
+
+インストールしたら必要なモジュールをimportします。以下のコードを実行してください。
+
+```py
+from itertools import chain
+import pycrfsuite
+import sklearn
+from sklearn.metrics import classification_report
+from sklearn.preprocessing import LabelBinarizer
+```
+
+
+# 固有表現抽出器を構築するのに使用するデータ
+CRFは教師あり学習なので教師データがタグ付けされたデータが必要です。今回はあらかじめタグ付けしたデータを用意しておきました。[こちら](https://github.com/Hironsan/IOB2Corpus)からダウンロードしてください。ファイル名は「hironsan.txt」です。
+
+それでは、まずはダウンロードしたデータを読み込むためのクラスを定義します。
+
+```py
+import codecs
+
+class CorpusReader(object):
+
+    def __init__(self, path):
+        with codecs.open(path, encoding=&#39;utf-8&#39;) as f:
+            sent = []
+            sents = []
+            for line in f:
+                if line	== &#39;\n&#39;:
+                    sents.append(sent)
+                    sent = []
+                    continue
+                morph_info = line.strip().split(&#39;\t&#39;)
+                sent.append(morph_info)
+        train_num = int(len(sents) * 0.9)
+        self.__train_sents = sents[:train_num]
+        self.__test_sents = sents[train_num:]
+
+    def iob_sents(self, name):
+        if name == &#39;train&#39;:
+            return self.__train_sents
+        elif name == &#39;test&#39;:
+            return self.__test_sents
+        else:
+            return None
+```
+
+次に、作成したクラスを用いてダウンロードしたデータを読み込みます。学習データ数が450文、テストデータ数が50文となっています。
+
+```py
+c = CorpusReader(&#39;hironsan.txt&#39;)
+train_sents = c.iob_sents(&#39;train&#39;)
+test_sents = c.iob_sents(&#39;test&#39;)
+```
+
+読み込んだデータの形式は以下のようになっています。形態素解析器「MeCab」で形態素解析を行った後にIOB2タグを付けています。データは一文ごとに分かれており、一文は複数の形態素情報の集まりから構成されます。
+
+```py
+&gt;&gt;&gt; train_sents[0]
+[[&#39;2005&#39;, &#39;名詞&#39;, &#39;数&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;B-DAT&#39;],
+ [&#39;年&#39;, &#39;名詞&#39;, &#39;接尾&#39;, &#39;助数詞&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;年&#39;, &#39;ネン&#39;, &#39;ネン&#39;, &#39;I-DAT&#39;],
+ [&#39;7&#39;, &#39;名詞&#39;, &#39;数&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;I-DAT&#39;],
+ [&#39;月&#39;, &#39;名詞&#39;, &#39;一般&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;月&#39;, &#39;ツキ&#39;, &#39;ツキ&#39;, &#39;I-DAT&#39;],
+ [&#39;14&#39;, &#39;名詞&#39;, &#39;数&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;I-DAT&#39;],
+ [&#39;日&#39;, &#39;名詞&#39;, &#39;接尾&#39;, &#39;助数詞&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;日&#39;, &#39;ニチ&#39;, &#39;ニチ&#39;, &#39;I-DAT&#39;],
+ [&#39;、&#39;, &#39;記号&#39;, &#39;読点&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;*&#39;, &#39;、&#39;, &#39;、&#39;, &#39;、&#39;, &#39;O&#39;],
+...
+]
+```
+それでは次に、固有表現抽出に使う素性について説明していきます。
+
+
+# 使用する素性
+ここでは、使用する素性の概要を説明してから、それをコーディングしていきます。
+
+## 概要
+次に、使用する素性について説明します。今回は、前後２文字の単語、品詞細分類、文字種、固有表現タグを使います。以下にこれらの素性を用いた場合の例を示します。枠で囲まれた部分が使用する素性です。
+![ner.png](https://qiita-image-store.s3.amazonaws.com/0/77079/c78cb70a-06d0-bc18-9c81-e704fbc7792a.png)
+
+文字種の分類は以下のようになっています。全部で７種類あります。
+
+| 文字種タグ |     説明    |
+|-----------|-------------|
+| ZSPACE    | 空白        |
+| ZDIGIT    | アラビア数字 |
+| ZLLET     | 英字小文字   |
+| ZULET     | 英字大文字  |
+| HIRAG     | ひらがな    |
+| KATAK     | カタカナ    |
+| OTHER     | その他      |
+
+素性として用いる文字種は単語に含まれるすべての文字種を結合したものです。例えば「多い」という単語は漢字とひらがなを含んでいます。ひらがなの文字種タグはHIRAGであり、漢字の文字種タグはOTHERです。そのため、「多い」という単語の文字種は「HIRAG-OTHER」になります。
+
+## 素性抽出のコーディング
+### 文字種の判定
+文字種の判定については以下のようなコードになります。文字列に含まれるすべての文字種を-(ハイフン)で結合しています。
+
+```py
+def is_hiragana(ch):
+    return 0x3040 &lt;= ord(ch) &lt;= 0x309F
+
+def is_katakana(ch):
+    return 0x30A0 &lt;= ord(ch) &lt;= 0x30FF
+
+def get_character_type(ch):
+    if ch.isspace():
+        return &#39;ZSPACE&#39;
+    elif ch.isdigit():
+        return &#39;ZDIGIT&#39;
+    elif ch.islower():
+        return &#39;ZLLET&#39;
+    elif ch.isupper():
+        return &#39;ZULET&#39;
+    elif is_hiragana(ch):
+        return &#39;HIRAG&#39;
+    elif is_katakana(ch):
+        return &#39;KATAK&#39;
+    else:
+        return &#39;OTHER&#39;
+
+def get_character_types(string):
+    character_types = map(get_character_type, string)
+    character_types_str = &#39;-&#39;.join(sorted(set(character_types)))
+
+    return character_types_str
+```
+
+### 品詞細分類の抽出
+形態素情報から品詞細分類を抽出するコードは以下のようになります。
+
+```py
+def extract_pos_with_subtype(morph):
+    idx = morph.index(&#39;*&#39;)
+
+    return &#39;-&#39;.join(morph[1:idx])
+```
+
+### 文からの素性抽出
+以上をふまえて、各単語に対して素性抽出をするコードを書くと以下のようになります。少し冗長ですがわかると思います。
+
+```py
+def word2features(sent, i):
+    word = sent[i][0]
+    chtype = get_character_types(sent[i][0])
+    postag = extract_pos_with_subtype(sent[i])
+    features = [
+        &#39;bias&#39;,
+        &#39;word=&#39; + word,
+        &#39;type=&#39; + chtype,
+        &#39;postag=&#39; + postag,
+    ]
+    if i &gt;= 2:
+        word2 = sent[i-2][0]
+        chtype2 = get_character_types(sent[i-2][0])
+        postag2 = extract_pos_with_subtype(sent[i-2])
+        iobtag2 = sent[i-2][-1]
+        features.extend([
+            &#39;-2:word=&#39; + word2,
+            &#39;-2:type=&#39; + chtype2,
+            &#39;-2:postag=&#39; + postag2,
+            &#39;-2:iobtag=&#39; + iobtag2,
+        ])
+    else:
+        features.append(&#39;BOS&#39;)
+
+    if i &gt;= 1:
+        word1 = sent[i-1][0]
+        chtype1 = get_character_types(sent[i-1][0])
+        postag1 = extract_pos_with_subtype(sent[i-1])
+        iobtag1 = sent[i-1][-1]
+        features.extend([
+            &#39;-1:word=&#39; + word1,
+            &#39;-1:type=&#39; + chtype1,
+            &#39;-1:postag=&#39; + postag1,
+            &#39;-1:iobtag=&#39; + iobtag1,
+        ])
+    else:
+        features.append(&#39;BOS&#39;)
+
+    if i &lt; len(sent)-1:
+        word1 = sent[i+1][0]
+        chtype1 = get_character_types(sent[i+1][0])
+        postag1 = extract_pos_with_subtype(sent[i+1])
+        features.extend([
+            &#39;+1:word=&#39; + word1,
+            &#39;+1:type=&#39; + chtype1,
+            &#39;+1:postag=&#39; + postag1,
+        ])
+    else:
+        features.append(&#39;EOS&#39;)
+
+    if i &lt; len(sent)-2:
+        word2 = sent[i+2][0]
+        chtype2 = get_character_types(sent[i+2][0])
+        postag2 = extract_pos_with_subtype(sent[i+2])
+        features.extend([
+            &#39;+2:word=&#39; + word2,
+            &#39;+2:type=&#39; + chtype2,
+            &#39;+2:postag=&#39; + postag2,
+        ])
+    else:
+        features.append(&#39;EOS&#39;)
+
+    return features
+
+
+def sent2features(sent):
+    return [word2features(sent, i) for i in range(len(sent))]
+
+
+def sent2labels(sent):
+    return [morph[-1] for morph in sent]
+
+
+def sent2tokens(sent):
+    return [morph[0] for morph in sent]
+```
+
+sent2featuresで文から素性を抽出します。実際に抽出される素性は以下のようになります。
+
+```py
+&gt;&gt;&gt; sent2features(train_sents[0])[0]
+[&#39;bias&#39;,
+ &#39;word=2005&#39;,
+ &#39;type=ZDIGIT&#39;,
+ &#39;postag=名詞-数&#39;,
+ &#39;BOS&#39;,
+ &#39;BOS&#39;,
+ &#39;+1:word=年&#39;,
+ &#39;+1:type=OTHER&#39;,
+ &#39;+1:postag=名詞-接尾-助数詞&#39;,
+ &#39;+2:word=7&#39;,
+ &#39;+2:type=ZDIGIT&#39;,
+ &#39;+2:postag=名詞-数&#39;]
+```
+
+データから素性が抽出できることがわかりました。後で使用するために、データから学習データとテストデータ用の素性とラベルを抽出しておきます。
+
+```py
+X_train = [sent2features(s) for s in train_sents]
+y_train = [sent2labels(s) for s in train_sents]
+
+X_test = [sent2features(s) for s in test_sents]
+y_test = [sent2labels(s) for s in test_sents]
+```
+
+# モデルの学習
+モデルを学習するために、pycrfsuite.Trainerオブジェクトを作成し、学習データを読み込ませた後、trainメソッドを呼び出します。まずは、Trainerオブジェクトの作成と学習データの読み込みを行います。
+
+```py
+trainer = pycrfsuite.Trainer(verbose=False)
+
+for xseq, yseq in zip(X_train, y_train):
+    trainer.append(xseq, yseq)
+```
+
+次に学習パラメータを設定します。本来は開発用データを用いて決めるべきですが、今回は固定値としておきます。
+
+```py
+trainer.set_params({
+    &#39;c1&#39;: 1.0,   # coefficient for L1 penalty
+    &#39;c2&#39;: 1e-3,  # coefficient for L2 penalty
+    &#39;max_iterations&#39;: 50,  # stop earlier
+
+    # include transitions that are possible, but not observed
+    &#39;feature.possible_transitions&#39;: True
+})
+```
+
+&lt;!--
+
+デフォルトの学習アルゴリズムに対して設定可能なパラメータは以下の通りです。
+
+```py
+&gt;&gt;&gt; trainer.params()
+
+[&#39;feature.minfreq&#39;,
+ &#39;feature.possible_states&#39;,
+ &#39;feature.possible_transitions&#39;,
+ &#39;c1&#39;,
+ &#39;c2&#39;,
+ &#39;max_iterations&#39;,
+ &#39;num_memories&#39;,
+ &#39;epsilon&#39;,
+ &#39;period&#39;,
+ &#39;delta&#39;,
+ &#39;linesearch&#39;,
+ &#39;max_linesearch&#39;]
+```
+--&gt;
+
+それでは準備が整ったのでモデルを学習させます。ファイル名を指定して、trainメソッドを実行してください。
+
+```py
+trainer.train(&#39;model.crfsuite&#39;)
+```
+実行が終わると、指定したファイル名のファイルが作成されます。この中に、学習したモデルが格納されています。
+
+
+# テストデータの予測
+学習したモデルを使用するためには、pycrfsuite.Taggerオブジェクトを作成し、学習したモデルを読み込み、tagメソッドを使用します。まずは、Taggerオブジェクトの作成と学習済みモデルの読み込みを行います。
+
+```py
+tagger = pycrfsuite.Tagger()
+tagger.open(&#39;model.crfsuite&#39;)
+```
+
+それでは、実際に文に対してタグ付けをしてみます。
+
+```py
+example_sent = test_sents[0]
+print(&#39; &#39;.join(sent2tokens(example_sent)))
+
+print(&quot;Predicted:&quot;, &#39; &#39;.join(tagger.tag(sent2features(example_sent))))
+print(&quot;Correct:  &quot;, &#39; &#39;.join(sent2labels(example_sent)))
+```
+
+以下のような結果が得られるはずです。Predictedは作成したモデルを用いて予想したタグ列で、Correctは正解のタグ列です。今回の文の場合は、モデルの予想結果と正解データが一致していました。
+
+```shell-session
+昨年 10 月 に は 、 34 人 が 、 今回 の 現場 に 近い エジプト の タバ で 爆発 事件 の ため 死亡 し て いる 。
+Predicted: B-DAT I-DAT I-DAT O O O O O O O O O O O O B-LOC O B-LOC O O O O O O O O O O
+Correct:   B-DAT I-DAT I-DAT O O O O O O O O O O O O B-LOC O B-LOC O O O O O O O O O O
+```
+
+固有表現抽出器の構築はこれで終了しました。
+
+# モデルの評価
+モデルを作成しましたが、これだけでは良いのか悪いのかわかりません。そのため、作成したモデルについては評価を行うことが重要です。それでは作成したモデルについて評価していきましょう。評価は、適合率、再現率、F値で行います。以下が評価を行うコードです。
+
+```py
+def bio_classification_report(y_true, y_pred):
+    lb = LabelBinarizer()
+    y_true_combined = lb.fit_transform(list(chain.from_iterable(y_true)))
+    y_pred_combined = lb.transform(list(chain.from_iterable(y_pred)))
+        
+    tagset = set(lb.classes_) - {&#39;O&#39;}
+    tagset = sorted(tagset, key=lambda tag: tag.split(&#39;-&#39;, 1)[::-1])
+    class_indices = {cls: idx for idx, cls in enumerate(lb.classes_)}
+    
+    return classification_report(
+        y_true_combined,
+        y_pred_combined,
+        labels = [class_indices[cls] for cls in tagset],
+        target_names = tagset,
+    )
+```
+
+評価に使うためのテストデータ集合内の文に対してタグ付けします。
+
+```py
+y_pred = [tagger.tag(xseq) for xseq in X_test]
+```
+
+学習したモデルを用いてタグ付けしたデータと、正解データを評価用の関数に渡して結果を表示します。各カテゴリについて、適合率、再現率、F値、タグ数を表示しています。
+
+```py
+&gt;&gt;&gt; print(bio_classification_report(y_test, y_pred))
+             precision    recall  f1-score   support
+
+      B-ART       1.00      0.89      0.94         9
+      I-ART       0.92      1.00      0.96        12
+      B-DAT       1.00      1.00      1.00        12
+      I-DAT       1.00      1.00      1.00        22
+      B-LOC       1.00      0.95      0.97        55
+      I-LOC       0.94      0.94      0.94        17
+      B-ORG       0.75      0.86      0.80        14
+      I-ORG       1.00      0.90      0.95        10
+      B-PSN       0.00      0.00      0.00         3
+      B-TIM       1.00      0.71      0.83         7
+      I-TIM       1.00      0.81      0.90        16
+
+avg / total       0.95      0.91      0.93       177
+```
+
+ちょっと結果が良すぎる気もしますが、用いたデータに同じような文が含まれていたのでしょう。
+
+※注意
+UndefinedMetricWarningが出るかもしれません。予測したサンプルに存在しないラベルに対して適合率などが定義できないからのようです。用意できたデータ数が少ないので・・・
+
+# おわりに
+今回は、Pythonのライブラリであるcrfsuiteを使うことで簡単に固有表現抽出器を作ることができました。タグ付けにはIREXの定義に基づいて8種類の固有表現を付けました。しかし、実際に使うにはIREXの定義は粗いことが多いです。そのため、固有表現抽出を何かのタスクに使う場合には、タスクに応じて必要なタグを付けたデータを用意する必要があります。
+
+また、より良い素性やモデルのパラメータを探してみると良いと思います。
+
+
+# 参考
+
+* [python-crfsuite Documentation](https://python-crfsuite.readthedocs.org/en/latest/)
+* [Support Vector Machineを用いた日本語固有表現抽出](http://ci.nii.ac.jp/naid/110002726221)
+* [日本語固有表現抽出におけるわかち書き問題の解決](http://ci.nii.ac.jp/naid/110002712193)
+* [IREXによる固有表現の定義](http://nlp.cs.nyu.edu/irex/NE/df990214.txt)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【チュートリアル】機械学習を使って30分で固有表現抽出器を作る by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【チュートリアル】機械学習を使って30分で固有表現抽出器を作る" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/Hironsan"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/Hironsan">Hironsan</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">4816</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;Hironsan&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-7089a1d8-e9e8-4a7f-b5c1-832ea57ccfe4"></div>
+    <div id="UserFollowButton-react-component-7089a1d8-e9e8-4a7f-b5c1-832ea57ccfe4"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/6425787ccbee75dfae36">機械学習を使って作る対話システム</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/8ad9b11bcc0c618ec5e2">DeepLearningで上司を認識して画面を隠す</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/20951116a2650f45fea5">学年ビリのアホが1年半でTOEICスコアを300点から840点に上げた英語勉強法の話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/326b66711eb4196aa9d4">【チュートリアル】機械学習を使って30分で固有表現抽出器を作る</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/ca0b176fd859490dde08">まだ機械学習の論文を追うのに消耗してるの？それBotで解決したよ</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85\&quot;\u003e対象読者\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9B%BA%E6%9C%89%E8%A1%A8%E7%8F%BE%E6%8A%BD%E5%87%BA%E3%81%A8%E3%81%AF\&quot;\u003e固有表現抽出とは？\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A6%82%E8%A6%81\&quot;\u003e概要\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%B9%E6%B3%95\&quot;\u003e方法\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB\&quot;\u003eインストール\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9B%BA%E6%9C%89%E8%A1%A8%E7%8F%BE%E6%8A%BD%E5%87%BA%E5%99%A8%E3%82%92%E6%A7%8B%E7%AF%89%E3%81%99%E3%82%8B%E3%81%AE%E3%81%AB%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E3%83%87%E3%83%BC%E3%82%BF\&quot;\u003e固有表現抽出器を構築するのに使用するデータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E7%B4%A0%E6%80%A7\&quot;\u003e使用する素性\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A6%82%E8%A6%81-1\&quot;\u003e概要\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B4%A0%E6%80%A7%E6%8A%BD%E5%87%BA%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0\&quot;\u003e素性抽出のコーディング\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%87%E5%AD%97%E7%A8%AE%E3%81%AE%E5%88%A4%E5%AE%9A\&quot;\u003e文字種の判定\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%93%81%E8%A9%9E%E7%B4%B0%E5%88%86%E9%A1%9E%E3%81%AE%E6%8A%BD%E5%87%BA\&quot;\u003e品詞細分類の抽出\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%87%E3%81%8B%E3%82%89%E3%81%AE%E7%B4%A0%E6%80%A7%E6%8A%BD%E5%87%BA\&quot;\u003e文からの素性抽出\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003eモデルの学習\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%86%E3%82%B9%E3%83%88%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E4%BA%88%E6%B8%AC\&quot;\u003eテストデータの予測\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E8%A9%95%E4%BE%A1\&quot;\u003eモデルの評価\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-410bef71-3234-42a0-ab84-f7a256f363b2"></div>
+    <div id="Toc-react-component-410bef71-3234-42a0-ab84-f7a256f363b2"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:329,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;326b66711eb4196aa9d4&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sayamada"><a itemprop="url" href="/sayamada"><img alt="sayamada" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44722/profile-images/1473690004" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fantm21"><a itemprop="url" href="/fantm21"><img alt="fantm21" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32946/profile-images/1473686015" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dubsadara"><a itemprop="url" href="/dubsadara"><img alt="dubsadara" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/95833/profile-images/1473706695" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="drstkng"><a itemprop="url" href="/drstkng"><img alt="drstkng" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81593/profile-images/1473702165" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yakawa"><a itemprop="url" href="/yakawa"><img alt="yakawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64468/profile-images/1473696589" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yacchin1205"><a itemprop="url" href="/yacchin1205"><img alt="yacchin1205" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28770/profile-images/1473685246" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tam0927"><a itemprop="url" href="/tam0927"><img alt="tam0927" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3726/profile-images/1473756040" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="knoguchi"><a itemprop="url" href="/knoguchi"><img alt="knoguchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13775/profile-images/1473683016" /></a></div></div><div class="ArticleFooter__user"><a href="/Hironsan/items/326b66711eb4196aa9d4/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/326b66711eb4196aa9d4/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/Hironsan/items/326b66711eb4196aa9d4.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/Hironsan/items/6425787ccbee75dfae36#_reference-5e49e89d10f4a72025a0"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" />機械学習を使って作る対話システム</a><time class="references_datetime js-dateTimeView" datetime="2016-06-02T23:49:54+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/hiroto0227/items/93ff4d229eca19476b42#_reference-3f8101e778969f3c89cc"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/22436847?v=3" />CRFを用いた固有表現抽出 pythonで実装</a><time class="references_datetime js-dateTimeView" datetime="2017-03-16T15:58:58+00:00">3 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【チュートリアル】機械学習を使って30分で固有表現抽出器を作る by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【チュートリアル】機械学習を使って30分で固有表現抽出器を作る" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/326b66711eb4196aa9d4" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e結果が良すぎるのは、テストデータからの素性抽出にもsent2featuresを使っているからではないですか？\u003cbr\u003e\nテスト時に素性として使うiobtagには、正解のタグではなく、直前に自分自身が予測したタグを指定するべきです。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-02-07T00:59:28+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:733296,&quot;is_team&quot;:false,&quot;item_id&quot;:365047,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;326b66711eb4196aa9d4&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;結果が良すぎるのは、テストデータからの素性抽出にもsent2featuresを使っているからではないですか？\nテスト時に素性として使うiobtagには、正解のタグではなく、直前に自分自身が予測したタグを指定するべきです。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/Hironsan/items/326b66711eb4196aa9d4#comment-48bc93c18bd164509069&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-05-21T13:32:12+09:00&quot;,&quot;id&quot;:79883,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/79883/profile-images/1473701603&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;harumattya&quot;},&quot;uuid&quot;:&quot;48bc93c18bd164509069&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:365047,&quot;uuid&quot;:&quot;326b66711eb4196aa9d4&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;Hironsan&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;},{&quot;id&quot;:79883,&quot;url_name&quot;:&quot;harumattya&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/79883/profile-images/1473701603&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-089b55d4-4563-4c14-a744-d2b73df18d2c"></div>
+    <div id="CommentListContainer-react-component-089b55d4-4563-4c14-a744-d2b73df18d2c"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="qVccWXU5n14y/LztHqank+xuO0ncwjOJYxqnsfdA7o7d0Lr9ST8a61D3U9UQdLeiIhPkIz92P7ABiRe7bpUjGg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/326b66711eb4196aa9d4" /><input type="hidden" name="item_uuid" id="item_uuid" value="326b66711eb4196aa9d4" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/Hironsan/items/326b66711eb4196aa9d4", "id": 365047, "uuid": "326b66711eb4196aa9d4" }</script><script class="js-user" type="application/json">{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="s+gnIiB9jRbcnAiWA67iVyPbnmleXBSY1ND/1e+RzijHb4GGHHsIo76X564NfPJm7aZBA73oGKG2Q0/fdkQDvA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/326b66711eb4196aa9d4" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

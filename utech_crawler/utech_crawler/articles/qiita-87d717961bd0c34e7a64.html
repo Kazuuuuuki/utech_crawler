@@ -1,0 +1,907 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【Python】自然言語処理でラーメン屋を分類してみる - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+はじめに
+
+こんにちは、コピペデータサイエンティストです。
+
+3年ぐらい前に「ラーメンと自然言語処理」というおちゃらけLTをしたのですが、今見ると恥ずかしいぐらいショボいので、Pythonで作りなおしてみました。
+
+
+長くなったので3行でまとめると
+
+
+Web上に転がっている口コミとか紹介文を
+Pythonのライブラリを用いて解析することで
+好きなラーメン屋に似たラーメン屋を見つける手法を構築した
+
+
+
+方法
+
+統計的潜在意味解析という手法を用います。ざっくり言うと..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="naotaka1128" name="twitter:creator" /><meta content="【Python】自然言語処理でラーメン屋を分類してみる - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="## はじめに
+こんにちは、コピペデータサイエンティストです。
+
+3年ぐらい前に「[ラーメンと自然言語処理](http://www.slideshare.net/naotakauchida/ss-56212544)」というおちゃらけL..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="652zv0lZWMdhd39hoJ62Mbp1hQopxl8so8A+hu0KUUbC38CwmbqmXjx/wPrx3w0/9dnJxOXSzaemzZjuFDEEZA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"naotaka1128","type":"items","id":"87d717961bd0c34e7a64"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-df744ad3-c232-4deb-9bf8-44194aafb123"></div>
+    <div id="HeaderContainer-react-component-df744ad3-c232-4deb-9bf8-44194aafb123"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">【Python】自然言語処理でラーメン屋を分類してみる</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="12"><a class="u-link-unstyled TagList__label" href="/tags/LDA"><img alt="LDA" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>LDA</span></a></li><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="26"><a class="u-link-unstyled TagList__label" href="/tags/gensim"><img alt="gensim" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/4f3a1e98e20e6a8178d36e39351a1e378db90429/medium.jpg?1466552766" /><span>gensim</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">151</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:151,&quot;uuid&quot;:&quot;87d717961bd0c34e7a64&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="luminor"><a itemprop="url" href="/luminor"><img alt="luminor" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/109257/profile-images/1473710819" /></a></li><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></li><li class="js-hovercard" data-hovercard-target-name="tsota"><a itemprop="url" href="/tsota"><img alt="tsota" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/103795/profile-images/1473709113" /></a></li><li class="js-hovercard" data-hovercard-target-name="touyoubuntu"><a itemprop="url" href="/touyoubuntu"><img alt="touyoubuntu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10943/profile-images/1483934426" /></a></li><li class="js-hovercard" data-hovercard-target-name="Arcnote"><a itemprop="url" href="/Arcnote"><img alt="Arcnote" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/40542/profile-images/1473688473" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomohiku"><a itemprop="url" href="/tomohiku"><img alt="tomohiku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74428/profile-images/1473699835" /></a></li><li class="js-hovercard" data-hovercard-target-name="shunhikita"><a itemprop="url" href="/shunhikita"><img alt="shunhikita" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47886/profile-images/1473691151" /></a></li><li class="js-hovercard" data-hovercard-target-name="taise"><a itemprop="url" href="/taise"><img alt="taise" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5492/profile-images/1473682037" /></a></li><li class="js-hovercard" data-hovercard-target-name="kentaro-a"><a itemprop="url" href="/kentaro-a"><img alt="kentaro-a" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72810/profile-images/1473699278" /></a></li><li><a href="/naotaka1128/items/87d717961bd0c34e7a64/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/naotaka1128"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518" alt="1484449518" /></a> <a class="u-link-unstyled" href="/naotaka1128">naotaka1128</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-07-23T08:30:20+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-07-23">Edited at <time datetime="2016-07-23T08:39:13+09:00" itemprop="dateModified">2016-07-23</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/naotaka1128/items/87d717961bd0c34e7a64/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/naotaka1128/items/87d717961bd0c34e7a64/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/naotaka1128/items/87d717961bd0c34e7a64.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-87d717961bd0c34e7a64" itemprop="articleBody">
+<h2>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h2>
+
+<p>こんにちは、コピペデータサイエンティストです。</p>
+
+<p>3年ぐらい前に「<a href="http://www.slideshare.net/naotakauchida/ss-56212544" rel="nofollow noopener" target="_blank">ラーメンと自然言語処理</a>」というおちゃらけLTをしたのですが、今見ると恥ずかしいぐらいショボいので、Pythonで作りなおしてみました。</p>
+
+<h2>
+<span id="長くなったので3行でまとめると" class="fragment"></span><a href="#%E9%95%B7%E3%81%8F%E3%81%AA%E3%81%A3%E3%81%9F%E3%81%AE%E3%81%A73%E8%A1%8C%E3%81%A7%E3%81%BE%E3%81%A8%E3%82%81%E3%82%8B%E3%81%A8"><i class="fa fa-link"></i></a>長くなったので3行でまとめると</h2>
+
+<ul>
+<li>Web上に転がっている口コミとか紹介文を</li>
+<li>Pythonのライブラリを用いて解析することで</li>
+<li>好きなラーメン屋に似たラーメン屋を見つける手法を構築した</li>
+</ul>
+
+<h2>
+<span id="方法" class="fragment"></span><a href="#%E6%96%B9%E6%B3%95"><i class="fa fa-link"></i></a>方法</h2>
+
+<p>統計的潜在意味解析という手法を用います。ざっくり言うと、文書がどんなトピックを持っているか、何に関する文書なのか、を推定してくれるものです。</p>
+
+<p>以下の様なイメージで各トピックに割り振られる割合を算出できるため、以下の例ではAとBが近い、ということを計算することが可能です。</p>
+
+<ul>
+<li>ラーメン屋A： [0.75, 0.15, 0.10]</li>
+<li>ラーメン屋B： [0.60, 0.15, 0.15]</li>
+<li>ラーメン屋C： [0.05, 0.25, 0.70]</li>
+</ul>
+
+<p>上記のような使い方ではありませんが、以下の適用事例や書籍が参考になるかと思います。</p>
+
+<ul>
+<li><a href="http://developer.smartnews.com/blog/2013/08/19/lda-based-channel-categorization-in-smartnews/" rel="nofollow noopener" target="_blank">SmartNewsさん： LDAを用いたニュース記事の分類</a></li>
+<li><a href="http://mrorii.github.io/blog/2013/12/27/analyzing-dazai-osamu-literature-using-topic-models/" rel="nofollow noopener" target="_blank">太宰治の文学の変化をTopic Modelで分析</a></li>
+<li><a href="http://www.amazon.co.jp/dp/4339027588" rel="nofollow noopener" target="_blank">トピックモデルによる統計的潜在意味解析</a></li>
+</ul>
+
+<h2>
+<span id="主に使うもの" class="fragment"></span><a href="#%E4%B8%BB%E3%81%AB%E4%BD%BF%E3%81%86%E3%82%82%E3%81%AE"><i class="fa fa-link"></i></a>主に使うもの</h2>
+
+<ul>
+<li>Python(3.x系): インストールは<a href="http://qiita.com/y__sama/items/5b62d31cb7e6ed50f02c" id="reference-19f40952cd2842eb7711">この記事</a>が大変参考になります</li>
+<li>gensim: トピックモデリングのライブラリ (<a href="https://radimrehurek.com/gensim/" rel="nofollow noopener" target="_blank">公式</a> / <a href="http://toukei.runble1.com/anaconda-gensim-install/" rel="nofollow noopener" target="_blank">インストール</a>)</li>
+<li>MeCab
+
+<ul>
+<li>分かち書きのために必要</li>
+<li>ラーメン屋の固有名称は弾きたいのでneologdという辞書を使う</li>
+<li>インストール: <a href="http://statsbeginner.hatenablog.com/entry/2016/02/05/020027" rel="nofollow noopener" target="_blank">本体</a> / <a href="https://github.com/neologd/mecab-ipadic-neologd/" rel="nofollow noopener" target="_blank">neologd</a>
+</li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<span id="おおまかな流れ" class="fragment"></span><a href="#%E3%81%8A%E3%81%8A%E3%81%BE%E3%81%8B%E3%81%AA%E6%B5%81%E3%82%8C"><i class="fa fa-link"></i></a>おおまかな流れ</h2>
+
+<p>かなり長くなってしまったので、<br>
+最初におおまかな全体の流れを列挙しておきます。</p>
+
+<ol>
+<li>口コミ等の文書データ準備
+
+<ul>
+<li>ｺﾞﾆｮｺﾞﾆｮして準備する(略)</li>
+<li>MeCabで分かち書きしておく</li>
+</ul>
+</li>
+<li>分類器の学習準備
+
+<ul>
+<li>1.で準備したデータから
+
+<ul>
+<li>単語リスト(dictionary) 作成</li>
+<li>TFIDFコーパス 作成</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>分類器学習： gensimでLDAモデルを学習</li>
+<li>店の分類: 学習済み分類器に文書データを通してトピック分け</li>
+<li>似ている店を探す
+
+<ul>
+<li>店ごとのトピック分け結果から類似度を計算</li>
+<li>類似度が高い順に似ている店と判定する</li>
+</ul>
+</li>
+</ol>
+
+<h2>
+<span id="ここから実際に作業していきます" class="fragment"></span><a href="#%E3%81%93%E3%81%93%E3%81%8B%E3%82%89%E5%AE%9F%E9%9A%9B%E3%81%AB%E4%BD%9C%E6%A5%AD%E3%81%97%E3%81%A6%E3%81%84%E3%81%8D%E3%81%BE%E3%81%99"><i class="fa fa-link"></i></a>ここから実際に作業していきます</h2>
+
+<h3>
+<span id="1-口コミデータ準備" class="fragment"></span><a href="#1-%E5%8F%A3%E3%82%B3%E3%83%9F%E3%83%87%E3%83%BC%E3%82%BF%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>1. 口コミデータ準備</h3>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 収集した文書データの読み込み</span>
+<span class="kn">from</span> <span class="nn">io_modules</span> <span class="k">import</span> <span class="n">load_data</span>  <span class="c"># 自作のDB読み込みライブラリ</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">LOAD_QUERY</span><span class="p">,</span> <span class="n">RAMEN_DB</span><span class="p">)</span>
+
+<span class="c"># 参考記事のstem関数で語幹を抽出</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="k">import</span> <span class="n">stems</span>  <span class="c"># 参考記事の実装ほぼそのまま</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="p">[</span><span class="n">stems</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+
+<span class="sd">"""</span>
+<span class="sd">docs = [</span>
+<span class="sd">  ['大盛り', '感想', '方面', 'ベスト', 'ラーメン', ...</span>
+<span class="sd">  ['ラーメン', '行列', '寒い', '熱々', '喜び', ...</span>
+<span class="sd">   ...</span>
+<span class="sd">]</span>
+<span class="sd">"""</span>
+</pre></div></div>
+
+<ul>
+<li>全体として
+
+<ul>
+<li>単なる前処理</li>
+<li>分かち書きした大量の口コミ/紹介文(数万〜数十万件)を準備します</li>
+<li>全文書に数回しか出てこないレアな単語を削除すると言った作業も行います</li>
+</ul>
+</li>
+<li>語幹の抽出: <a href="http://qiita.com/katryo/items/f86971afcb65ce1e7d40#3-5" id="reference-62b92479d141f048e09b">この記事</a>を参考に</li>
+<li>備考
+
+<ul>
+<li>分かち書きのためにラーメン用の辞書を準備しました
+
+<ul>
+<li>なくても動くけど、あったほうがキレイな結果になったので</li>
+<li>分かち書き→カウント→出現頻度の高い単語を2000個抽出</li>
+<li>高い安いといった値段に関することや、店がきれい/汚いといった味に関係ないことを省きました</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<span id="2-事前準備" class="fragment"></span><a href="#2-%E4%BA%8B%E5%89%8D%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>2. 事前準備</h3>
+
+<p>ここから、実際にgensimを用いてLDAを行っていきます。<br>
+まずはgensim用の辞書やコーパスの作成を行います。</p>
+
+<h4>
+<span id="gensimのロード" class="fragment"></span><a href="#gensim%E3%81%AE%E3%83%AD%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>gensimのロード</h4>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">gensim</span> <span class="k">import</span> <span class="n">corpora</span><span class="p">,</span> <span class="n">models</span>
+</pre></div></div>
+
+<h4>
+<span id="辞書の作成" class="fragment"></span><a href="#%E8%BE%9E%E6%9B%B8%E3%81%AE%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>辞書の作成</h4>
+
+<p>ややこしいですがMeCabで分かち書きするのに使うユーザー辞書ではなく、gensimが文書中の出現単語と単語IDをマッピングするためのものです。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="n">dictionary</span> <span class="o">=</span> <span class="n">gensim</span><span class="o">.</span><span class="n">corpora</span><span class="o">.</span><span class="n">Dictionary</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+<span class="n">dictionary</span><span class="o">.</span><span class="n">save_as_text</span><span class="p">(</span><span class="s">'./data/text.dict'</span><span class="p">)</span>  <span class="c"># 保存</span>
+<span class="c"># gensim.corpora.Dictionary.load_from_text('./data/text.dict')  # 次回からファイルロード可</span>
+
+<span class="sd">"""</span>
+<span class="sd">単語ID   単語    出現回数</span>
+<span class="sd">1543    あさり     731</span>
+<span class="sd">62      あっさり   54934</span>
+<span class="sd">952     あったかい 691</span>
+<span class="sd">672     あつい    1282</span>
+<span class="sd">308     ありがたい 4137</span>
+<span class="sd">・</span>
+<span class="sd">・</span>
+<span class="sd">"""</span>
+</pre></div></div>
+
+<h4>
+<span id="コーパスの作成" class="fragment"></span><a href="#%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%81%AE%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>コーパスの作成</h4>
+
+<p>最初に集めた口コミをコーパスとして整備し、分類器の学習に使用します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span><span class="n">dictionary</span><span class="o">.</span><span class="n">doc2bow</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
+<span class="n">gensim</span><span class="o">.</span><span class="n">corpora</span><span class="o">.</span><span class="n">MmCorpus</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s">'./data/text.mm'</span><span class="p">,</span> <span class="n">corpus</span><span class="p">)</span>  <span class="c"># 保存</span>
+<span class="c"># corpus = gensim.corpora.MmCorpus('./data/text.mm')  # 次回からはファイルロード可</span>
+
+<span class="sd">"""\</span>
+<span class="sd">doc_id  word_id  出現頻度</span>
+<span class="sd">     6      150       3  # word_id=150: もやし </span>
+<span class="sd">     6      163       9  # word_id=163: しょうゆ</span>
+<span class="sd">     6      164       1</span>
+<span class="sd">     6      165       1</span>
+<span class="sd">・</span>
+<span class="sd">・</span>
+<span class="sd">"""</span>
+</pre></div></div>
+
+<p>必要かどうか議論が分かれるところですが、<br>
+今回はコーパスにTFIDF処理を行ってLDAを行います。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="n">tfidf</span> <span class="o">=</span> <span class="n">gensim</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">TfidfModel</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">corpus_tfidf</span> <span class="o">=</span> <span class="n">tfidf</span><span class="p">[</span><span class="n">corpus</span><span class="p">]</span>
+
+<span class="c"># 折角計算したのでpickleに保存</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'./data/corpus_tfidf.dump'</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">corpus_tfidf</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+<span class="c"># 次回からはロードできます</span>
+<span class="c"># with open('./data/corpus_tfidf.dump', mode='rb') as f:</span>
+<span class="c">#     corpus_tfidf = pickle.load(f)</span>
+</pre></div></div>
+
+<h3>
+<span id="3-分類器の学習" class="fragment"></span><a href="#3-%E5%88%86%E9%A1%9E%E5%99%A8%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>3. 分類器の学習</h3>
+
+<p>ここまでで準備ができたので、実際にgensimでLDAを行います。<br>
+今回は50個のトピックに分類してみました。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 文書量にもよりますが、数時間程度かかったりもします。</span>
+<span class="n">lda</span> <span class="o">=</span> <span class="n">gensim</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">LdaModel</span><span class="p">(</span><span class="n">corpus</span><span class="o">=</span><span class="n">corpus_tfidf</span><span class="p">,</span> <span class="n">id2word</span><span class="o">=</span><span class="n">dictionary</span><span class="p">,</span>
+                             <span class="n">num_topics</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">minimum_probability</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+                             <span class="n">passes</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">update_every</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">lda</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">'./data/lda.model'</span><span class="p">)</span>  <span class="c"># 保存</span>
+<span class="c"># lda = gensim.models.LdaModel.load('./data/lda.model')  # 次回からロード可</span>
+</pre></div></div>
+
+<p>ここで、学習したモデルの中身を表示してみましょう。</p>
+
+<p>一部に感想を表すトピック(#0, #36, #42等)が混在しているものの、概ねラーメンの味を表すトピック(#2:味噌, #49:家系 等)となっており、それなりの分類器ができているものと思われます。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">'tpc_{0}: {1}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">80</span><span class="p">]</span><span class="o">+</span><span class="s">'...'</span><span class="p">))</span>
+
+<span class="o">==============</span>
+
+<span class="n">tpc_0</span><span class="p">:</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">感動</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">衝撃</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">念願</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">難点</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">感激</span> <span class="o">+...</span>
+<span class="n">tpc_1</span><span class="p">:</span> <span class="mf">0.035</span><span class="o">*</span><span class="n">焼豚</span> <span class="o">+</span> <span class="mf">0.022</span><span class="o">*</span><span class="n">冷やし中華</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">暑い</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">病み付き</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">頑固</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">ま</span><span class="o">...</span>
+<span class="n">tpc_2</span><span class="p">:</span> <span class="mf">0.050</span><span class="o">*</span><span class="n">味噌</span> <span class="o">+</span> <span class="mf">0.029</span><span class="o">*</span><span class="n">みそ</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">生姜</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">バター</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">もやし</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">ラード</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">コーン</span> <span class="o">+...</span>
+<span class="n">tpc_3</span><span class="p">:</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">香味</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ガーリック</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">芳醇</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">オイル</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">濃厚</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*...</span>
+<span class="n">tpc_4</span><span class="p">:</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">使用</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">昆布</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">素材</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">スープ</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">魚介</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">...</span>
+<span class="n">tpc_5</span><span class="p">:</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">こい</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">あさり</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">うすい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">人受け</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">気持ちよい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*...</span>
+<span class="n">tpc_6</span><span class="p">:</span> <span class="mf">0.047</span><span class="o">*</span><span class="n">えび</span> <span class="o">+</span> <span class="mf">0.046</span><span class="o">*</span><span class="n">エビ</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">胡麻</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">海老</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">病みつき</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">すき焼き</span><span class="o">...</span>
+<span class="n">tpc_7</span><span class="p">:</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">まずい</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">期待</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">悪い</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">残念</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">普通</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">...</span>
+<span class="n">tpc_8</span><span class="p">:</span> <span class="mf">0.070</span><span class="o">*</span><span class="n">そば</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">そぼろ</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">つけ</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">明太子</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">鶏肉</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">濃厚</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+...</span>
+<span class="n">tpc_9</span><span class="p">:</span> <span class="mf">0.041</span><span class="o">*</span><span class="n">柚子</span> <span class="o">+</span> <span class="mf">0.024</span><span class="o">*</span><span class="n">和風</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">煮込み</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">三つ葉</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">人生</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">魚介</span> <span class="o">+...</span>
+<span class="n">tpc_10</span><span class="p">:</span> <span class="mf">0.040</span><span class="o">*</span><span class="n">野菜</span> <span class="o">+</span> <span class="mf">0.027</span><span class="o">*</span><span class="n">ニンニク</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">増し</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">にんにく</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">もやし</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">少なめ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">キャ</span><span class="o">...</span>
+<span class="n">tpc_11</span><span class="p">:</span> <span class="mf">0.026</span><span class="o">*</span><span class="n">手打ち</span> <span class="o">+</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">もつ</span> <span class="o">+</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">しょうが</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">辛口</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">感</span><span class="o">...</span>
+<span class="n">tpc_12</span><span class="p">:</span> <span class="mf">0.031</span><span class="o">*</span><span class="n">ソバ</span> <span class="o">+</span> <span class="mf">0.030</span><span class="o">*</span><span class="n">蕎麦</span> <span class="o">+</span> <span class="mf">0.029</span><span class="o">*</span><span class="n">中華</span> <span class="o">+</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">白湯</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">軍鶏</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+...</span>
+<span class="n">tpc_13</span><span class="p">:</span> <span class="mf">0.057</span><span class="o">*</span><span class="n">ブラック</span> <span class="o">+</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">黒い</span> <span class="o">+</span> <span class="mf">0.020</span><span class="o">*</span><span class="n">真っ黒</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">スタミナ</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">牡蠣</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">見た目</span><span class="o">...</span>
+<span class="n">tpc_14</span><span class="p">:</span> <span class="mf">0.060</span><span class="o">*</span><span class="n">タンメン</span> <span class="o">+</span> <span class="mf">0.048</span><span class="o">*</span><span class="n">海老</span> <span class="o">+</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">野菜</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">白菜</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">つみれ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">餃子</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">...</span>
+<span class="n">tpc_15</span><span class="p">:</span> <span class="mf">0.073</span><span class="o">*</span><span class="n">辛い</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">激辛</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">味噌</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">唐辛子</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">山椒</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">辛味</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">辛味噌</span> <span class="o">+</span> <span class="mf">0.</span><span class="o">..</span>
+<span class="n">tpc_16</span><span class="p">:</span> <span class="mf">0.031</span><span class="o">*</span><span class="n">青葉</span> <span class="o">+</span> <span class="mf">0.029</span><span class="o">*</span><span class="n">めし</span> <span class="o">+</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">ダブル</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">魚介</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">流行</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">インスタント</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ラーメ</span><span class="o">...</span>
+<span class="n">tpc_17</span><span class="p">:</span> <span class="mf">0.041</span><span class="o">*</span><span class="n">替え玉</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">替玉</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">とんこつ</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">辛子</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">極細</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">紅しょ</span><span class="o">...</span>
+<span class="n">tpc_18</span><span class="p">:</span> <span class="mf">0.032</span><span class="o">*</span><span class="n">懐かしい</span> <span class="o">+</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">やさしい</span> <span class="o">+</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">意味</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">優しい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">感じ</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">あ</span><span class="o">...</span>
+<span class="n">tpc_19</span><span class="p">:</span> <span class="mf">0.027</span><span class="o">*</span><span class="n">レモン</span> <span class="o">+</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">ふつー</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">ガッツ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">惜しい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ステーキ</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">濃厚</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味</span><span class="o">...</span>
+<span class="n">tpc_20</span><span class="p">:</span> <span class="mf">0.088</span><span class="o">*</span><span class="n">煮干</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">そば</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">香り</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">スープ</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">醤</span><span class="o">...</span>
+<span class="n">tpc_21</span><span class="p">:</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">寿司</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">お薦め</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">お気に入り</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">育ち</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*...</span>
+<span class="n">tpc_22</span><span class="p">:</span> <span class="mf">0.025</span><span class="o">*</span><span class="n">空揚げ</span> <span class="o">+</span> <span class="mf">0.021</span><span class="o">*</span><span class="n">おしゃれ</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">オシャレ</span> <span class="o">+</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">カフェ</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">お洒落</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">雰囲気</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*...</span>
+<span class="n">tpc_23</span><span class="p">:</span> <span class="mf">0.024</span><span class="o">*</span><span class="n">価値</span> <span class="o">+</span> <span class="mf">0.022</span><span class="o">*</span><span class="n">白味噌</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">味噌</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">赤味噌</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">究極</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">焦げ</span> <span class="o">+...</span>
+<span class="n">tpc_24</span><span class="p">:</span> <span class="mf">0.095</span><span class="o">*</span><span class="n">チャーハン</span> <span class="o">+</span> <span class="mf">0.040</span><span class="o">*</span><span class="n">セット</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">ミニ</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">餃子</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*...</span>
+<span class="n">tpc_25</span><span class="p">:</span> <span class="mf">0.024</span><span class="o">*</span><span class="n">おでん</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">なつかしい</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">焼肉</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">フラット</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">濃い口</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">...</span>
+<span class="n">tpc_26</span><span class="p">:</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">外れ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">真面目</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">うるさい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">...</span>
+<span class="n">tpc_27</span><span class="p">:</span> <span class="mf">0.073</span><span class="o">*</span><span class="n">もち</span> <span class="o">+</span> <span class="mf">0.032</span><span class="o">*</span><span class="n">キムチ</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">辛みそ</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.00</span><span class="o">...</span>
+<span class="n">tpc_28</span><span class="p">:</span> <span class="mf">0.021</span><span class="o">*</span><span class="n">すだち</span> <span class="o">+</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">七味</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">めん</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">玉ねぎ</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">たまねぎ</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">期待外れ</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">つけ</span><span class="o">...</span>
+<span class="n">tpc_29</span><span class="p">:</span> <span class="mf">0.079</span><span class="o">*</span><span class="n">餃子</span> <span class="o">+</span> <span class="mf">0.026</span><span class="o">*</span><span class="n">ビール</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">生ビール</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">しょう油</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">...</span>
+<span class="n">tpc_30</span><span class="p">:</span> <span class="mf">0.021</span><span class="o">*</span><span class="n">締め</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">無性</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">胚芽</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">酒粕</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">水炊き</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">カニ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">濃厚</span> <span class="o">+</span> <span class="mf">0.</span><span class="o">...</span>
+<span class="n">tpc_31</span><span class="p">:</span> <span class="mf">0.051</span><span class="o">*</span><span class="n">ちゃんぽん</span> <span class="o">+</span> <span class="mf">0.024</span><span class="o">*</span><span class="n">学生</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">坦々</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">海鮮</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ショック</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">本物</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味し</span><span class="o">...</span>
+<span class="n">tpc_32</span><span class="p">:</span> <span class="mf">0.025</span><span class="o">*</span><span class="n">臭い</span> <span class="o">+</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">匂い</span> <span class="o">+</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">におい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">秘伝</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">つゆ</span> <span class="o">...</span>
+<span class="n">tpc_33</span><span class="p">:</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">魚介</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">旨味</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">スープ</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">メンマ</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">良い</span><span class="o">...</span>
+<span class="n">tpc_34</span><span class="p">:</span> <span class="mf">0.074</span><span class="o">*</span><span class="n">カレー</span> <span class="o">+</span> <span class="mf">0.040</span><span class="o">*</span><span class="n">焼き飯</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">元祖</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">スパイス</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">セット</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">ラ</span><span class="o">...</span>
+<span class="n">tpc_35</span><span class="p">:</span> <span class="mf">0.068</span><span class="o">*</span><span class="n">トマト</span> <span class="o">+</span> <span class="mf">0.031</span><span class="o">*</span><span class="n">チーズ</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">イタリアン</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">パスタ</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">ホルモン</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">リゾット</span> <span class="o">+</span> <span class="mf">0.00</span><span class="o">...</span>
+<span class="n">tpc_36</span><span class="p">:</span> <span class="mf">0.038</span><span class="o">*</span><span class="n">同僚</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">最強</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">堅い</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ダントツ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">話題</span><span class="o">...</span>
+<span class="n">tpc_37</span><span class="p">:</span> <span class="mf">0.059</span><span class="o">*</span><span class="n">とんこつ</span> <span class="o">+</span> <span class="mf">0.026</span><span class="o">*</span><span class="n">しょうゆ</span> <span class="o">+</span> <span class="mf">0.025</span><span class="o">*</span><span class="n">子供</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">どろどろ</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.01</span><span class="o">...</span>
+<span class="n">tpc_38</span><span class="p">:</span> <span class="mf">0.027</span><span class="o">*</span><span class="n">ごはん</span> <span class="o">+</span> <span class="mf">0.025</span><span class="o">*</span><span class="n">おにぎり</span> <span class="o">+</span> <span class="mf">0.022</span><span class="o">*</span><span class="n">ご飯</span> <span class="o">+</span> <span class="mf">0.016</span><span class="o">*</span><span class="n">雑炊</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">ライス</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">漬物</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">セット</span> <span class="o">...</span>
+<span class="n">tpc_39</span><span class="p">:</span> <span class="mf">0.026</span><span class="o">*</span><span class="n">ゆず</span> <span class="o">+</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">淡い</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">熟成</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">焼き豚</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">スープ</span><span class="o">...</span>
+<span class="n">tpc_40</span><span class="p">:</span> <span class="mf">0.042</span><span class="o">*</span><span class="n">うどん</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">カツオ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ええ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">天ぷら</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">感</span><span class="o">...</span>
+<span class="n">tpc_41</span><span class="p">:</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">塩辛い</span> <span class="o">+</span> <span class="mf">0.020</span><span class="o">*</span><span class="n">だれ</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">ジャンク</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">つけ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">フレンチ</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">シェフ</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">ラー</span><span class="o">...</span>
+<span class="n">tpc_42</span><span class="p">:</span> <span class="mf">0.029</span><span class="o">*</span><span class="n">友達</span> <span class="o">+</span> <span class="mf">0.028</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">行列</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">あっさり</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*...</span>
+<span class="n">tpc_43</span><span class="p">:</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">メンマ</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ネギ</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">良い</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">魚介</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">スープ</span><span class="o">...</span>
+<span class="n">tpc_44</span><span class="p">:</span> <span class="mf">0.040</span><span class="o">*</span><span class="n">つけ</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">濃厚</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">ぬるい</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">割り</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">魚介</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">魚粉</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">盛り</span> <span class="o">+</span> <span class="mf">0.</span><span class="o">...</span>
+<span class="n">tpc_45</span><span class="p">:</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">不味い</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">岩のり</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">春菊</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">日本一</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">行</span><span class="o">...</span>
+<span class="n">tpc_46</span><span class="p">:</span> <span class="mf">0.074</span><span class="o">*</span><span class="n">ワンタン</span> <span class="o">+</span> <span class="mf">0.045</span><span class="o">*</span><span class="n">メン</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">雲呑</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*...</span>
+<span class="n">tpc_47</span><span class="p">:</span> <span class="mf">0.027</span><span class="o">*</span><span class="n">ふつう</span> <span class="o">+</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">系列</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">盛蕎麦</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">漬け</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">古い</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">一生懸命</span><span class="o">...</span>
+<span class="n">tpc_48</span><span class="p">:</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">ハーフ</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">サラダ</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">デザート</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">料理</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">居酒屋</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">豆腐</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">セット</span><span class="o">...</span>
+<span class="n">tpc_49</span><span class="p">:</span> <span class="mf">0.068</span><span class="o">*</span><span class="n">家系</span> <span class="o">+</span> <span class="mf">0.019</span><span class="o">*</span><span class="n">ほうれん草</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">海苔</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">濃い</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">ラ</span><span class="o">...</span>
+</pre></div></div>
+
+<h3>
+<span id="4-店の分類-トピック分け" class="fragment"></span><a href="#4-%E5%BA%97%E3%81%AE%E5%88%86%E9%A1%9E-%E3%83%88%E3%83%94%E3%83%83%E3%82%AF%E5%88%86%E3%81%91"><i class="fa fa-link"></i></a>4. 店の分類 (トピック分け)</h3>
+
+<p>分類器の学習ができたので、この分類器に店の口コミを通すことによって、店のトピック分け(トピックベクトル算出)を行います。</p>
+
+<p>まずは、私が中高生時代から愛してやまない、"新福菜館本店@京都" の食べログピックアップ口コミを1件入力して性能を見てみましょう。ただその前に、以下の理解を容易にするために、新福菜館がどのようなラーメンを提供されているか共有しておきます。</p>
+
+<p>「新福菜館 京都」<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/99986/72ec24ab-49f3-0da6-c47d-8a74f8257be7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/99986/72ec24ab-49f3-0da6-c47d-8a74f8257be7.png" alt="スクリーンショット 2016-07-23 3.30.54.png"></a></p>
+
+<p>黒いですね…。黒いラーメンです。</p>
+
+<p>ただ見た目と異なり、意外とあっさりしつつもコクのある美味しい醤油ラーメンです。</p>
+
+<p>さて、今回構築した分類器はどのような結果を返すでしょうか？</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 引用元: http://tabelog.com/kyoto/A2601/A260101/26000791/dtlrvwlst/763925/</span>
+<span class="c"># ちなみに個人的には生卵入れないほうが好きです笑</span>
+<span class="o">&gt;&gt;</span> <span class="nb">str</span><span class="o">=</span><span class="s">"京都出張の際、念願だった新福菜館の本店に立ち寄りました。 (中略) 何と言うか、スープの加減といい、麺の茹で具合といい、具の盛り方といい、チャーシューのおいしさといい、やはり本店はさらに旨い！と感じました。とにかくこれが６５０円とは安いです。新福菜館の「中華そば」は、チャーシューの煮汁のように真っ黒なスープ、たっぷり乗った九条ねぎが特徴。もちろん、「ヤキメシ」もたまりません。 (中略) 帰り際にふと見たお客さんの注文したもの（後でここのレビューを見て、それが「特大 新福そば」だと知りましたが）には生卵が乗っていて、生卵好きな私とし ては、「あ～、そんなこともできたのかあ！」とショックを受けました。新福菜館のスープには絶対合いそうですし、次回は絶対頼もうと思います。"</span>
+<span class="o">&gt;&gt;</span> <span class="n">vec</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">doc2bow</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">stems</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+
+<span class="c"># 分類結果表示</span>
+<span class="o">&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">lda</span><span class="p">[</span><span class="n">vec</span><span class="p">])</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.28870310712135505</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">0.25689765230576195</span><span class="p">),</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">0.3333132412551591</span><span class="p">),</span> <span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mf">0.081085999317724824</span><span class="p">)]</span>
+
+<span class="c"># 各トピック内容 / 影響度の高い順に</span>
+<span class="o">&gt;&gt;</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>  <span class="c"># 新福菜館の黒いラーメンの特徴を捉えられている</span>
+<span class="mf">0.057</span><span class="o">*</span><span class="n">ブラック</span> <span class="o">+</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">黒い</span> <span class="o">+</span> <span class="mf">0.020</span><span class="o">*</span><span class="n">真っ黒</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">スタミナ</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">牡蠣</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">見た目</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">濃い</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味しい</span>
+
+<span class="o">&gt;&gt;</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="mf">0.019</span><span class="o">*</span><span class="n">感動</span> <span class="o">+</span> <span class="mf">0.014</span><span class="o">*</span><span class="n">衝撃</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">念願</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">難点</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">感激</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">行列</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味い</span>
+
+<span class="o">&gt;&gt;</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="mf">0.070</span><span class="o">*</span><span class="n">そば</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">そぼろ</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">つけ</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">明太子</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">鶏肉</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">濃厚</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">チャーシュー</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">あっさり</span> <span class="o">+</span> <span class="mf">0.007</span><span class="o">*</span><span class="n">ご飯</span>
+
+<span class="o">&gt;&gt;</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="mi">31</span><span class="p">)</span>
+<span class="mf">0.051</span><span class="o">*</span><span class="n">ちゃんぽん</span> <span class="o">+</span> <span class="mf">0.024</span><span class="o">*</span><span class="n">学生</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">坦々</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">海鮮</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">ショック</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">本物</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">野菜</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">格別</span>
+</pre></div></div>
+
+<p>ちゃんと黒いラーメンって出ました。</p>
+
+<p>正常に動作することがわかったので、新福菜館本店に言及しているWeb上の数百件の文章を連結して分類器に入れてみましょう。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="o">&gt;&gt;</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"WEB上でかき集めた文章ほげほげ"</span>
+<span class="o">&gt;&gt;</span> <span class="n">sinpuku_vec</span> <span class="o">=</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">doc2bow</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">stems</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+<span class="o">&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">lda</span><span class="p">[</span><span class="n">sinpuku_vec</span><span class="p">])</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.003061940579476011</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">0.001795672854987279</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mf">0.016165280743592875</span><span class="p">),</span> <span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mf">0.0016683462844631061</span><span class="p">),</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">0.387457274481951</span><span class="p">),</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">0.048457912903426922</span><span class="p">),</span> <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mf">0.025816920842756448</span><span class="p">),</span> <span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mf">0.0014647251485231138</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">0.0018013651819984121</span><span class="p">),</span> <span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mf">0.001155430885775867</span><span class="p">),</span> <span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mf">0.11249915373166983</span><span class="p">),</span> <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mf">0.0030405756373518885</span><span class="p">),</span> <span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mf">0.0031413889216075561</span><span class="p">),</span> <span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mf">0.0030955757983300515</span><span class="p">),</span> <span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mf">0.0021349369911582098</span><span class="p">),</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mf">0.006158571006380364</span><span class="p">),</span> <span class="p">(</span><span class="mi">34</span><span class="p">,</span> <span class="mf">0.061260735988294568</span><span class="p">),</span> <span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mf">0.0023903609848973475</span><span class="p">),</span> <span class="p">(</span><span class="mi">37</span><span class="p">,</span> <span class="mf">0.020874795314517719</span><span class="p">),</span> <span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mf">0.0018301667593946488</span><span class="p">),</span> <span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="mf">0.27803177713836785</span><span class="p">),</span> <span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mf">0.0055461332216832828</span><span class="p">),</span> <span class="p">(</span><span class="mi">46</span><span class="p">,</span> <span class="mf">0.0016396961473594117</span><span class="p">),</span> <span class="p">(</span><span class="mi">47</span><span class="p">,</span> <span class="mf">0.0056507918659765869</span><span class="p">)]</span>
+
+<span class="o">&gt;&gt;</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span>  <span class="c"># 値: 0.38</span>
+<span class="mf">0.057</span><span class="o">*</span><span class="n">ブラック</span> <span class="o">+</span> <span class="mf">0.023</span><span class="o">*</span><span class="n">黒い</span> <span class="o">+</span> <span class="mf">0.020</span><span class="o">*</span><span class="n">真っ黒</span> <span class="o">+</span> <span class="mf">0.018</span><span class="o">*</span><span class="n">醤油</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">スタミナ</span> <span class="o">+</span> <span class="mf">0.010</span><span class="o">*</span><span class="n">牡蠣</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">見た目</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">濃い</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">美味しい</span>
+
+<span class="o">&gt;&gt;</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>  <span class="c"># 値: 0.27</span>
+<span class="mf">0.029</span><span class="o">*</span><span class="n">友達</span> <span class="o">+</span> <span class="mf">0.028</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">行列</span> <span class="o">+</span> <span class="mf">0.015</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">あっさり</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">すごい</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">感じ</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">有名</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">多い</span>
+
+<span class="o">&gt;&gt;</span> <span class="n">lda</span><span class="o">.</span><span class="n">print_topic</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span>  <span class="c"># 値: 0.11</span>
+<span class="mf">0.095</span><span class="o">*</span><span class="n">チャーハン</span> <span class="o">+</span> <span class="mf">0.040</span><span class="o">*</span><span class="n">セット</span> <span class="o">+</span> <span class="mf">0.017</span><span class="o">*</span><span class="n">ミニ</span> <span class="o">+</span> <span class="mf">0.013</span><span class="o">*</span><span class="n">餃子</span> <span class="o">+</span> <span class="mf">0.012</span><span class="o">*</span><span class="n">ラーメン</span> <span class="o">+</span> <span class="mf">0.011</span><span class="o">*</span><span class="n">美味しい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">おいしい</span> <span class="o">+</span> <span class="mf">0.009</span><span class="o">*</span><span class="n">単品</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">注文</span> <span class="o">+</span> <span class="mf">0.008</span><span class="o">*</span><span class="n">チャーシュー</span>
+</pre></div></div>
+
+<p>結果が若干見づらくなってしまいましたが、多くの意見を反映した結果か第3位トピックにチャーハンが登場しました。</p>
+
+<p>最初の口コミを書かれた方は頼まれなかったようですが、実は新福菜館は黒いチャーハンも有名です。このことにより(?)、集合知によるラーメン屋のトピック分けが機能することが分かりました。</p>
+
+<h3>
+<span id="5-似ている店を探す" class="fragment"></span><a href="#5-%E4%BC%BC%E3%81%A6%E3%81%84%E3%82%8B%E5%BA%97%E3%82%92%E6%8E%A2%E3%81%99"><i class="fa fa-link"></i></a>5. 似ている店を探す</h3>
+
+<p>さて、分類器により任意のラーメン屋のトピックベクトルが算出できるようになりました。最後に、この分類器を活用して似ている店を探していきたいと思います。</p>
+
+<p>理論上はどんな店に対してでも似ている店を探すことが出来ますが、前節の内容を引き継ぎ、新福菜館本店に似ている店を探そうと思います。</p>
+
+<p>細かいコードは端折りますが、概ね、全国のラーメン屋のLDAトピック計算 → 新福菜館本店のLDAトピックと類似度計算、というのを以下の様に行います。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 各種設定</span>
+<span class="n">MIN_SIMILARITY</span> <span class="o">=</span> <span class="mf">0.6</span>  <span class="c"># 類似度のしきい値</span>
+<span class="n">RELATE_STORE_NUM</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c"># 似ている店の抽出数</span>
+
+<span class="c"># 全国のラーメン屋のLDAトピック計算</span>
+<span class="kn">from</span> <span class="nn">my_algorithms</span> <span class="k">import</span> <span class="n">calc_vecs</span>
+<span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">prefs</span><span class="p">,</span> <span class="n">vecs</span><span class="p">)</span> <span class="o">=</span> <span class="n">calc_vecs</span><span class="p">(</span><span class="n">reviews</span><span class="p">,</span> <span class="n">lda</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">)</span>
+
+<span class="c"># 新福菜館本店と全国のラーメン屋のLDAトピックの類似度を計算</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="k">import</span> <span class="n">cosine_similarity</span>
+<span class="n">similarities</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">sinpuku_vec</span><span class="p">,</span> <span class="n">vecs</span><span class="p">)</span>
+
+<span class="c"># 似ている店を表示する</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'name'</span><span class="p">:</span> <span class="n">names</span><span class="p">,</span>
+                   <span class="s">'pref'</span><span class="p">:</span> <span class="n">prefs</span><span class="p">,</span>
+                   <span class="s">'similarity'</span><span class="p">:</span> <span class="n">similarities</span><span class="p">})</span>
+<span class="n">relate_store_list</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">similarity</span> <span class="o">&gt;</span> <span class="n">MIN_SIMILARITY</span><span class="p">]</span> \
+                      <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s">"similarity"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="k">False</span><span class="p">)</span> \
+                      <span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">RELATE_STORE_NUM</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">relate_store_list</span><span class="p">)</span>
+
+<span class="o">==============</span>
+
+<span class="nb">id</span>  <span class="n">similarity</span>  <span class="n">pref</span>    <span class="n">name</span>
+<span class="mi">0</span>   <span class="mf">0.934</span>       <span class="n">toyama</span>  <span class="n">誠や</span>
+<span class="mi">1</span>   <span class="mf">0.898</span>       <span class="n">hokkaido</span>    <span class="n">いそのかづお</span>
+<span class="mi">2</span>   <span class="mf">0.891</span>       <span class="n">shiga</span>   <span class="n">金久右衛門</span> <span class="n">三井アウトレットパーク滋賀竜王店</span>
+<span class="mi">3</span>   <span class="mf">0.891</span>       <span class="n">kyoto</span>   <span class="n">新福菜館</span> <span class="n">東土川店</span>
+<span class="mi">4</span>   <span class="mf">0.888</span>       <span class="n">osaka</span>   <span class="n">金久右衛門</span> <span class="n">道頓堀店</span>
+<span class="mi">5</span>   <span class="mf">0.886</span>       <span class="n">chiba</span>   <span class="n">炭一ラーメン</span>
+<span class="mi">6</span>   <span class="mf">0.874</span>       <span class="n">osaka</span>   <span class="n">金久右衛門</span>  <span class="n">江坂店</span>
+<span class="mi">7</span>   <span class="mf">0.873</span>       <span class="n">toyama</span>  <span class="n">いろは</span> <span class="n">射水本店</span>
+<span class="mi">8</span>   <span class="mf">0.864</span>       <span class="n">osaka</span>   <span class="n">金久右衛門</span> <span class="n">梅田店</span>
+<span class="mi">9</span>   <span class="mf">0.861</span>       <span class="n">mie</span>     <span class="n">林家</span>
+<span class="mi">10</span>  <span class="mf">0.847</span>      <span class="n">niigata</span>  <span class="n">ラーメン</span> <span class="n">つり吉</span>
+<span class="mi">11</span>  <span class="mf">0.846</span>      <span class="n">osaka</span>    <span class="n">金久右衛門</span> <span class="n">本店</span>
+<span class="mi">12</span>  <span class="mf">0.838</span>      <span class="n">toyama</span>   <span class="n">めん八</span> <span class="n">御旅屋店</span>
+<span class="mi">13</span>  <span class="mf">0.837</span>      <span class="n">aichi</span>    <span class="n">きくや飯店</span>
+<span class="mi">14</span>  <span class="mf">0.820</span>      <span class="n">hyogo</span>    <span class="n">中乃屋</span>
+<span class="mi">15</span>  <span class="mf">0.814</span>      <span class="n">kyoto</span>    <span class="n">金久右衛門</span> <span class="n">京都西院店</span>
+<span class="mi">16</span>  <span class="mf">0.807</span>      <span class="n">aichi</span>    <span class="n">よこじ</span>
+<span class="mi">17</span>  <span class="mf">0.804</span>      <span class="n">kumamoto</span> <span class="n">好来ラーメン店</span>
+<span class="mi">18</span>  <span class="mf">0.792</span>      <span class="n">kyoto</span>    <span class="n">新福菜館</span>  <span class="n">久御山店</span>
+<span class="mi">19</span>  <span class="mf">0.791</span>      <span class="n">niigata</span>  <span class="n">ゴインゴイン</span>
+
+</pre></div></div>
+
+<p>幾つかピックアップして結果を確認してみましょう。</p>
+
+<p>「誠や 富山」<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/99986/15bc5d5b-2171-ce18-0f7c-a5c3f8b7ece0.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/99986/15bc5d5b-2171-ce18-0f7c-a5c3f8b7ece0.png" alt="スクリーンショット 2016-07-23 2.31.42.png"></a></p>
+
+<p>「いそのかづお 北海道」<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/99986/26ad7f25-ba1d-a2a3-428d-100aaf65ec30.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/99986/26ad7f25-ba1d-a2a3-428d-100aaf65ec30.png" alt="スクリーンショット 2016-07-23 2.32.56.png"></a></p>
+
+<p>「金久右衛門 三井アウトレットパーク滋賀竜王店」<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/99986/4af5222c-4016-b93d-2653-a45b01912af5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/99986/4af5222c-4016-b93d-2653-a45b01912af5.png" alt="スクリーンショット 2016-07-23 2.33.43.png"></a></p>
+
+<p>黒いですね…、見事に黒い。その他も調べてみましたが、兵庫の中乃屋さん以外は全部黒いラーメンでした。</p>
+
+<p>新福菜館は支店も幾つかあり、店名を一切除去して解析しているにも関わらずきちんと結果に入ってきてくれたのも良いポイントかと思います。</p>
+
+<p>黒いラーメンといえば富山ブラックが有名で幾つか登場していますが、新福菜館の味は富山ブラックとは少し違うかなと。味というよりもなんしかラーメンの黒さで似た店が選ばれてしまった感も否めません。この辺りの雑さは今後の改善ポイントとしていきたい所存です。</p>
+
+<h2>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h2>
+
+<p>今回はラーメンを題材として、ネット上に転がっている文字データから、人間が(ほぼ)介在することなく様々な知見を得る方法をご紹介いたしました。</p>
+
+<p>人間が介在して作った教師ありデータをもとに分類する手法に比べると甚だ頼りない結果にも見えますが、Pythonの既存のライブラリを用いて手軽に得られる結果としてはそこそこ良い結果ではないかと思います。</p>
+
+<p>勿論ラーメンだけでなく、一定量以上の文章量があれば様々なものに対応が可能です。<br>
+みなさんも良かったら色々な文書で試してみてください。</p>
+<div class="hidden"><form class="js-task-list-update" action="/naotaka1128/items/87d717961bd0c34e7a64" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="9ChkBeuKeT2sjBPXODnY/eTMgAlmp/G1ns9xI731k+HdahcKO2mHpPGErExpeGPzq2DMx6qzYz6bwtdLRM7Gww==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1469230753" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+## はじめに
+こんにちは、コピペデータサイエンティストです。
+
+3年ぐらい前に「[ラーメンと自然言語処理](http://www.slideshare.net/naotakauchida/ss-56212544)」というおちゃらけLTをしたのですが、今見ると恥ずかしいぐらいショボいので、Pythonで作りなおしてみました。
+
+## 長くなったので3行でまとめると
+* Web上に転がっている口コミとか紹介文を
+* Pythonのライブラリを用いて解析することで
+* 好きなラーメン屋に似たラーメン屋を見つける手法を構築した
+
+## 方法
+統計的潜在意味解析という手法を用います。ざっくり言うと、文書がどんなトピックを持っているか、何に関する文書なのか、を推定してくれるものです。
+
+以下の様なイメージで各トピックに割り振られる割合を算出できるため、以下の例ではAとBが近い、ということを計算することが可能です。
+
+* ラーメン屋A： [0.75, 0.15, 0.10]
+* ラーメン屋B： [0.60, 0.15, 0.15]
+* ラーメン屋C： [0.05, 0.25, 0.70]
+
+上記のような使い方ではありませんが、以下の適用事例や書籍が参考になるかと思います。
+
+* [SmartNewsさん： LDAを用いたニュース記事の分類](http://developer.smartnews.com/blog/2013/08/19/lda-based-channel-categorization-in-smartnews/)
+* [太宰治の文学の変化をTopic Modelで分析](http://mrorii.github.io/blog/2013/12/27/analyzing-dazai-osamu-literature-using-topic-models/)
+* [トピックモデルによる統計的潜在意味解析] (http://www.amazon.co.jp/dp/4339027588)
+
+## 主に使うもの
+* Python(3.x系): インストールは[この記事](http://qiita.com/y__sama/items/5b62d31cb7e6ed50f02c)が大変参考になります
+* gensim: トピックモデリングのライブラリ ([公式](https://radimrehurek.com/gensim/) / [インストール](http://toukei.runble1.com/anaconda-gensim-install/))
+* MeCab
+    * 分かち書きのために必要
+    * ラーメン屋の固有名称は弾きたいのでneologdという辞書を使う
+    * インストール: [本体](http://statsbeginner.hatenablog.com/entry/2016/02/05/020027) / [neologd](https://github.com/neologd/mecab-ipadic-neologd/)
+
+## おおまかな流れ
+かなり長くなってしまったので、
+最初におおまかな全体の流れを列挙しておきます。
+
+1. 口コミ等の文書データ準備
+    * ｺﾞﾆｮｺﾞﾆｮして準備する(略)
+    * MeCabで分かち書きしておく
+2. 分類器の学習準備
+    * 1.で準備したデータから
+        * 単語リスト(dictionary) 作成
+        * TFIDFコーパス 作成
+3. 分類器学習： gensimでLDAモデルを学習
+4. 店の分類: 学習済み分類器に文書データを通してトピック分け
+5. 似ている店を探す
+    * 店ごとのトピック分け結果から類似度を計算
+    * 類似度が高い順に似ている店と判定する
+
+## ここから実際に作業していきます
+### 1. 口コミデータ準備
+
+```py3
+# 収集した文書データの読み込み
+from io_modules import load_data  # 自作のDB読み込みライブラリ
+rows = load_data(LOAD_QUERY, RAMEN_DB)
+
+# 参考記事のstem関数で語幹を抽出
+from utils import stems  # 参考記事の実装ほぼそのまま
+docs = [stems(row) for row in rows]
+
+&quot;&quot;&quot;
+docs = [
+  [&#39;大盛り&#39;, &#39;感想&#39;, &#39;方面&#39;, &#39;ベスト&#39;, &#39;ラーメン&#39;, ...
+  [&#39;ラーメン&#39;, &#39;行列&#39;, &#39;寒い&#39;, &#39;熱々&#39;, &#39;喜び&#39;, ...
+   ...
+]
+&quot;&quot;&quot;
+```
+
+* 全体として
+    * 単なる前処理
+    * 分かち書きした大量の口コミ/紹介文(数万〜数十万件)を準備します
+    * 全文書に数回しか出てこないレアな単語を削除すると言った作業も行います
+* 語幹の抽出: [この記事](http://qiita.com/katryo/items/f86971afcb65ce1e7d40#3-5)を参考に
+* 備考
+    * 分かち書きのためにラーメン用の辞書を準備しました
+        * なくても動くけど、あったほうがキレイな結果になったので
+        * 分かち書き→カウント→出現頻度の高い単語を2000個抽出
+        * 高い安いといった値段に関することや、店がきれい/汚いといった味に関係ないことを省きました
+
+
+### 2. 事前準備
+
+ここから、実際にgensimを用いてLDAを行っていきます。
+まずはgensim用の辞書やコーパスの作成を行います。
+
+#### gensimのロード
+
+```py3
+from gensim import corpora, models
+```
+
+#### 辞書の作成
+ややこしいですがMeCabで分かち書きするのに使うユーザー辞書ではなく、gensimが文書中の出現単語と単語IDをマッピングするためのものです。
+
+```py3
+dictionary = gensim.corpora.Dictionary(docs)
+dictionary.save_as_text(&#39;./data/text.dict&#39;)  # 保存
+# gensim.corpora.Dictionary.load_from_text(&#39;./data/text.dict&#39;)  # 次回からファイルロード可
+
+&quot;&quot;&quot;
+単語ID   単語    出現回数
+1543    あさり     731
+62      あっさり   54934
+952     あったかい 691
+672     あつい    1282
+308     ありがたい 4137
+・
+・
+&quot;&quot;&quot;
+```
+
+#### コーパスの作成
+
+最初に集めた口コミをコーパスとして整備し、分類器の学習に使用します。
+
+```py3
+corpus = [dictionary.doc2bow(doc) for doc in docs]
+gensim.corpora.MmCorpus.serialize(&#39;./data/text.mm&#39;, corpus)  # 保存
+# corpus = gensim.corpora.MmCorpus(&#39;./data/text.mm&#39;)  # 次回からはファイルロード可
+
+&quot;&quot;&quot;\
+doc_id  word_id  出現頻度
+     6      150       3  # word_id=150: もやし 
+     6      163       9  # word_id=163: しょうゆ
+     6      164       1
+     6      165       1
+・
+・
+&quot;&quot;&quot;
+```
+
+必要かどうか議論が分かれるところですが、
+今回はコーパスにTFIDF処理を行ってLDAを行います。
+
+```py3
+tfidf = gensim.models.TfidfModel(corpus)
+corpus_tfidf = tfidf[corpus]
+
+# 折角計算したのでpickleに保存
+import pickle
+with open(&#39;./data/corpus_tfidf.dump&#39;, mode=&#39;wb&#39;) as f:
+    pickle.dump(corpus_tfidf, f)
+
+# 次回からはロードできます
+# with open(&#39;./data/corpus_tfidf.dump&#39;, mode=&#39;rb&#39;) as f:
+#     corpus_tfidf = pickle.load(f)
+```
+
+### 3. 分類器の学習
+ここまでで準備ができたので、実際にgensimでLDAを行います。
+今回は50個のトピックに分類してみました。
+
+```py3
+# 文書量にもよりますが、数時間程度かかったりもします。
+lda = gensim.models.LdaModel(corpus=corpus_tfidf, id2word=dictionary,
+                             num_topics=50, minimum_probability=0.001,
+                             passes=20, update_every=0, chunksize=10000)
+lda.save(&#39;./data/lda.model&#39;)  # 保存
+# lda = gensim.models.LdaModel.load(&#39;./data/lda.model&#39;)  # 次回からロード可
+```
+
+ここで、学習したモデルの中身を表示してみましょう。
+
+一部に感想を表すトピック(#0, #36, #42等)が混在しているものの、概ねラーメンの味を表すトピック(#2:味噌, #49:家系 等)となっており、それなりの分類器ができているものと思われます。
+
+```py3
+for i in range(50):
+    print(&#39;tpc_{0}: {1}&#39;.format(i, lda.print_topic(i)[0:80]+&#39;...&#39;))
+
+==============
+
+tpc_0: 0.019*感動 + 0.014*衝撃 + 0.013*念願 + 0.012*難点 + 0.012*美味しい + 0.011*ラーメン + 0.010*感激 +...
+tpc_1: 0.035*焼豚 + 0.022*冷やし中華 + 0.018*暑い + 0.010*病み付き + 0.009*頑固 + 0.008*美味しい + 0.008*ま...
+tpc_2: 0.050*味噌 + 0.029*みそ + 0.017*生姜 + 0.013*バター + 0.012*もやし + 0.011*ラード + 0.009*コーン +...
+tpc_3: 0.013*香味 + 0.010*ガーリック + 0.010*芳醇 + 0.009*チャーシュー + 0.008*オイル + 0.008*濃厚 + 0.008*...
+tpc_4: 0.010*醤油 + 0.009*使用 + 0.009*昆布 + 0.008*素材 + 0.007*スープ + 0.007*魚介 + 0.007*チャーシュー ...
+tpc_5: 0.015*こい + 0.014*あさり + 0.012*うすい + 0.010*ラーメン + 0.010*人受け + 0.010*気持ちよい + 0.010*...
+tpc_6: 0.047*えび + 0.046*エビ + 0.014*胡麻 + 0.014*海老 + 0.012*病みつき + 0.008*美味しい + 0.008*すき焼き...
+tpc_7: 0.016*まずい + 0.015*期待 + 0.013*悪い + 0.012*残念 + 0.012*美味しい + 0.011*普通 + 0.011*ラーメン ...
+tpc_8: 0.070*そば + 0.015*そぼろ + 0.013*つけ + 0.012*明太子 + 0.012*鶏肉 + 0.010*濃厚 + 0.010*美味しい +...
+tpc_9: 0.041*柚子 + 0.024*和風 + 0.017*煮込み + 0.010*三つ葉 + 0.010*人生 + 0.009*美味しい + 0.009*魚介 +...
+tpc_10: 0.040*野菜 + 0.027*ニンニク + 0.018*増し + 0.013*にんにく + 0.010*もやし + 0.010*少なめ + 0.009*キャ...
+tpc_11: 0.026*手打ち + 0.023*もつ + 0.016*しょうが + 0.010*辛口 + 0.010*ラーメン + 0.009*美味しい + 0.008*感...
+tpc_12: 0.031*ソバ + 0.030*蕎麦 + 0.029*中華 + 0.016*白湯 + 0.011*軍鶏 + 0.008*美味しい + 0.007*ラーメン +...
+tpc_13: 0.057*ブラック + 0.023*黒い + 0.020*真っ黒 + 0.018*醤油 + 0.011*スタミナ + 0.010*牡蠣 + 0.009*見た目...
+tpc_14: 0.060*タンメン + 0.048*海老 + 0.019*野菜 + 0.014*白菜 + 0.011*つみれ + 0.009*餃子 + 0.007*美味しい ...
+tpc_15: 0.073*辛い + 0.015*激辛 + 0.012*味噌 + 0.011*唐辛子 + 0.011*山椒 + 0.010*辛味 + 0.010*辛味噌 + 0...
+tpc_16: 0.031*青葉 + 0.029*めし + 0.019*ダブル + 0.012*魚介 + 0.010*流行 + 0.009*インスタント + 0.009*ラーメ...
+tpc_17: 0.041*替え玉 + 0.017*替玉 + 0.014*とんこつ + 0.014*辛子 + 0.010*極細 + 0.010*ラーメン + 0.009*紅しょ...
+tpc_18: 0.032*懐かしい + 0.023*やさしい + 0.016*意味 + 0.012*ラーメン + 0.011*優しい + 0.010*感じ + 0.010*あ...
+tpc_19: 0.027*レモン + 0.016*ふつー + 0.011*ガッツ + 0.009*惜しい + 0.009*ステーキ + 0.008*濃厚 + 0.008*美味...
+tpc_20: 0.088*煮干 + 0.009*そば + 0.008*香り + 0.008*ラーメン + 0.008*スープ + 0.007*チャーシュー + 0.007*醤...
+tpc_21: 0.023*寿司 + 0.015*お薦め + 0.012*お気に入り + 0.010*ラーメン + 0.009*美味しい + 0.008*育ち + 0.008*...
+tpc_22: 0.025*空揚げ + 0.021*おしゃれ + 0.017*オシャレ + 0.016*カフェ + 0.014*お洒落 + 0.014*雰囲気 + 0.011*...
+tpc_23: 0.024*価値 + 0.022*白味噌 + 0.018*味噌 + 0.014*赤味噌 + 0.010*究極 + 0.010*美味しい + 0.009*焦げ +...
+tpc_24: 0.095*チャーハン + 0.040*セット + 0.017*ミニ + 0.013*餃子 + 0.012*ラーメン + 0.011*美味しい + 0.009*...
+tpc_25: 0.024*おでん + 0.015*なつかしい + 0.013*焼肉 + 0.011*フラット + 0.010*濃い口 + 0.010*ラーメン + 0.009...
+tpc_26: 0.010*外れ + 0.009*ラーメン + 0.009*美味しい + 0.008*真面目 + 0.008*おいしい + 0.008*うるさい + 0.008...
+tpc_27: 0.073*もち + 0.032*キムチ + 0.012*辛みそ + 0.010*おいしい + 0.010*美味しい + 0.008*チャーシュー + 0.00...
+tpc_28: 0.021*すだち + 0.019*七味 + 0.018*めん + 0.015*玉ねぎ + 0.011*たまねぎ + 0.010*期待外れ + 0.010*つけ...
+tpc_29: 0.079*餃子 + 0.026*ビール + 0.011*美味しい + 0.010*ラーメン + 0.009*生ビール + 0.009*しょう油 + 0.008...
+tpc_30: 0.021*締め + 0.018*無性 + 0.018*胚芽 + 0.015*酒粕 + 0.010*水炊き + 0.009*カニ + 0.009*濃厚 + 0....
+tpc_31: 0.051*ちゃんぽん + 0.024*学生 + 0.015*坦々 + 0.011*海鮮 + 0.009*ショック + 0.009*本物 + 0.009*美味し...
+tpc_32: 0.025*臭い + 0.023*匂い + 0.016*におい + 0.010*秘伝 + 0.010*おいしい + 0.010*ラーメン + 0.010*つゆ ...
+tpc_33: 0.010*醤油 + 0.009*チャーシュー + 0.008*魚介 + 0.008*旨味 + 0.007*スープ + 0.007*メンマ + 0.007*良い...
+tpc_34: 0.074*カレー + 0.040*焼き飯 + 0.015*元祖 + 0.011*スパイス + 0.010*セット + 0.008*美味しい + 0.008*ラ...
+tpc_35: 0.068*トマト + 0.031*チーズ + 0.015*イタリアン + 0.014*パスタ + 0.011*ホルモン + 0.011*リゾット + 0.00...
+tpc_36: 0.038*同僚 + 0.014*最強 + 0.010*堅い + 0.010*ラーメン + 0.010*ダントツ + 0.009*美味しい + 0.009*話題...
+tpc_37: 0.059*とんこつ + 0.026*しょうゆ + 0.025*子供 + 0.015*おいしい + 0.012*どろどろ + 0.012*ラーメン + 0.01...
+tpc_38: 0.027*ごはん + 0.025*おにぎり + 0.022*ご飯 + 0.016*雑炊 + 0.014*ライス + 0.012*漬物 + 0.011*セット ...
+tpc_39: 0.026*ゆず + 0.019*淡い + 0.009*熟成 + 0.009*焼き豚 + 0.008*醤油 + 0.008*チャーシュー + 0.007*スープ...
+tpc_40: 0.042*うどん + 0.012*カツオ + 0.009*ええ + 0.009*天ぷら + 0.009*ラーメン + 0.008*美味しい + 0.008*感...
+tpc_41: 0.023*塩辛い + 0.020*だれ + 0.012*ジャンク + 0.012*つけ + 0.009*フレンチ + 0.008*シェフ + 0.008*ラー...
+tpc_42: 0.029*友達 + 0.028*おいしい + 0.015*行列 + 0.015*美味しい + 0.013*ラーメン + 0.013*あっさり + 0.012*...
+tpc_43: 0.012*メンマ + 0.011*チャーシュー + 0.010*醤油 + 0.009*ネギ + 0.009*良い + 0.008*魚介 + 0.008*スープ...
+tpc_44: 0.040*つけ + 0.014*濃厚 + 0.013*ぬるい + 0.013*割り + 0.013*魚介 + 0.013*魚粉 + 0.011*盛り + 0....
+tpc_45: 0.019*不味い + 0.017*岩のり + 0.017*春菊 + 0.012*日本一 + 0.010*美味しい + 0.009*ラーメン + 0.008*行...
+tpc_46: 0.074*ワンタン + 0.045*メン + 0.015*チャーシュー + 0.009*美味しい + 0.008*雲呑 + 0.008*醤油 + 0.007*...
+tpc_47: 0.027*ふつう + 0.019*系列 + 0.017*盛蕎麦 + 0.012*漬け + 0.010*古い + 0.010*おいしい + 0.010*一生懸命...
+tpc_48: 0.018*ハーフ + 0.014*サラダ + 0.014*デザート + 0.014*料理 + 0.013*居酒屋 + 0.012*豆腐 + 0.010*セット...
+tpc_49: 0.068*家系 + 0.019*ほうれん草 + 0.013*海苔 + 0.010*醤油 + 0.010*チャーシュー + 0.010*濃い + 0.010*ラ...
+```
+
+### 4. 店の分類 (トピック分け)
+
+分類器の学習ができたので、この分類器に店の口コミを通すことによって、店のトピック分け(トピックベクトル算出)を行います。
+
+まずは、私が中高生時代から愛してやまない、&quot;新福菜館本店@京都&quot; の食べログピックアップ口コミを1件入力して性能を見てみましょう。ただその前に、以下の理解を容易にするために、新福菜館がどのようなラーメンを提供されているか共有しておきます。
+
+「新福菜館 京都」
+![スクリーンショット 2016-07-23 3.30.54.png](https://qiita-image-store.s3.amazonaws.com/0/99986/72ec24ab-49f3-0da6-c47d-8a74f8257be7.png)
+
+黒いですね…。黒いラーメンです。
+
+ただ見た目と異なり、意外とあっさりしつつもコクのある美味しい醤油ラーメンです。
+
+さて、今回構築した分類器はどのような結果を返すでしょうか？
+
+```py3
+# 引用元: http://tabelog.com/kyoto/A2601/A260101/26000791/dtlrvwlst/763925/
+# ちなみに個人的には生卵入れないほうが好きです笑
+&gt;&gt; str=&quot;京都出張の際、念願だった新福菜館の本店に立ち寄りました。 (中略) 何と言うか、スープの加減といい、麺の茹で具合といい、具の盛り方といい、チャーシューのおいしさといい、やはり本店はさらに旨い！と感じました。とにかくこれが６５０円とは安いです。新福菜館の「中華そば」は、チャーシューの煮汁のように真っ黒なスープ、たっぷり乗った九条ねぎが特徴。もちろん、「ヤキメシ」もたまりません。 (中略) 帰り際にふと見たお客さんの注文したもの（後でここのレビューを見て、それが「特大 新福そば」だと知りましたが）には生卵が乗っていて、生卵好きな私とし ては、「あ～、そんなこともできたのかあ！」とショックを受けました。新福菜館のスープには絶対合いそうですし、次回は絶対頼もうと思います。&quot;
+&gt;&gt; vec = dictionary.doc2bow(utils.stems(str))
+
+# 分類結果表示
+&gt;&gt; print(lda[vec])
+[(0, 0.28870310712135505), (8, 0.25689765230576195), (13, 0.3333132412551591), (31, 0.081085999317724824)]
+
+# 各トピック内容 / 影響度の高い順に
+&gt;&gt; lda.print_topic(13)  # 新福菜館の黒いラーメンの特徴を捉えられている
+0.057*ブラック + 0.023*黒い + 0.020*真っ黒 + 0.018*醤油 + 0.011*スタミナ + 0.010*牡蠣 + 0.009*見た目 + 0.008*濃い + 0.008*ラーメン + 0.008*美味しい
+
+&gt;&gt; lda.print_topic(0)
+0.019*感動 + 0.014*衝撃 + 0.013*念願 + 0.012*難点 + 0.012*美味しい + 0.011*ラーメン + 0.010*感激 + 0.010*行列 + 0.010*おいしい + 0.008*美味い
+
+&gt;&gt; lda.print_topic(8)
+0.070*そば + 0.015*そぼろ + 0.013*つけ + 0.012*明太子 + 0.012*鶏肉 + 0.010*濃厚 + 0.010*美味しい + 0.008*チャーシュー + 0.008*あっさり + 0.007*ご飯
+
+&gt;&gt; lda.print_topic(31)
+0.051*ちゃんぽん + 0.024*学生 + 0.015*坦々 + 0.011*海鮮 + 0.009*ショック + 0.009*本物 + 0.009*美味しい + 0.008*ラーメン + 0.008*野菜 + 0.008*格別
+```
+
+ちゃんと黒いラーメンって出ました。
+
+正常に動作することがわかったので、新福菜館本店に言及しているWeb上の数百件の文章を連結して分類器に入れてみましょう。
+
+```py3
+&gt;&gt; str = &quot;WEB上でかき集めた文章ほげほげ&quot;
+&gt;&gt; sinpuku_vec = dictionary.doc2bow(utils.stems(str))
+&gt;&gt; print(lda[sinpuku_vec])
+[(0, 0.003061940579476011), (5, 0.001795672854987279), (7, 0.016165280743592875), (11, 0.0016683462844631061), (13, 0.387457274481951), (16, 0.048457912903426922), (18, 0.025816920842756448), (19, 0.0014647251485231138), (20, 0.0018013651819984121), (21, 0.001155430885775867), (24, 0.11249915373166983), (25, 0.0030405756373518885), (26, 0.0031413889216075561), (27, 0.0030955757983300515), (29, 0.0021349369911582098), (32, 0.006158571006380364), (34, 0.061260735988294568), (36, 0.0023903609848973475), (37, 0.020874795314517719), (41, 0.0018301667593946488), (42, 0.27803177713836785), (45, 0.0055461332216832828), (46, 0.0016396961473594117), (47, 0.0056507918659765869)]
+
+&gt;&gt; lda.print_topic(13)  # 値: 0.38
+0.057*ブラック + 0.023*黒い + 0.020*真っ黒 + 0.018*醤油 + 0.011*スタミナ + 0.010*牡蠣 + 0.009*見た目 + 0.008*濃い + 0.008*ラーメン + 0.008*美味しい
+
+&gt;&gt; lda.print_topic(42)  # 値: 0.27
+0.029*友達 + 0.028*おいしい + 0.015*行列 + 0.015*美味しい + 0.013*ラーメン + 0.013*あっさり + 0.012*すごい + 0.011*感じ + 0.011*有名 + 0.011*多い
+
+&gt;&gt; lda.print_topic(24)  # 値: 0.11
+0.095*チャーハン + 0.040*セット + 0.017*ミニ + 0.013*餃子 + 0.012*ラーメン + 0.011*美味しい + 0.009*おいしい + 0.009*単品 + 0.008*注文 + 0.008*チャーシュー
+```
+
+結果が若干見づらくなってしまいましたが、多くの意見を反映した結果か第3位トピックにチャーハンが登場しました。
+
+最初の口コミを書かれた方は頼まれなかったようですが、実は新福菜館は黒いチャーハンも有名です。このことにより(?)、集合知によるラーメン屋のトピック分けが機能することが分かりました。
+
+
+### 5. 似ている店を探す
+さて、分類器により任意のラーメン屋のトピックベクトルが算出できるようになりました。最後に、この分類器を活用して似ている店を探していきたいと思います。
+
+理論上はどんな店に対してでも似ている店を探すことが出来ますが、前節の内容を引き継ぎ、新福菜館本店に似ている店を探そうと思います。
+
+細かいコードは端折りますが、概ね、全国のラーメン屋のLDAトピック計算 → 新福菜館本店のLDAトピックと類似度計算、というのを以下の様に行います。
+
+```py3
+# 各種設定
+MIN_SIMILARITY = 0.6  # 類似度のしきい値
+RELATE_STORE_NUM = 20  # 似ている店の抽出数
+
+# 全国のラーメン屋のLDAトピック計算
+from my_algorithms import calc_vecs
+(names, prefs, vecs) = calc_vecs(reviews, lda, dictionary)
+
+# 新福菜館本店と全国のラーメン屋のLDAトピックの類似度を計算
+from sklearn.metrics.pairwise import cosine_similarity
+similarities = cosine_similarity(sinpuku_vec, vecs)
+
+# 似ている店を表示する
+import pandas as pd
+df = pd.DataFrame({&#39;name&#39;: names,
+                   &#39;pref&#39;: prefs,
+                   &#39;similarity&#39;: similarities})
+relate_store_list = df[df.similarity &gt; MIN_SIMILARITY] \
+                      .sort_values(by=&quot;similarity&quot;, ascending=False) \
+                      .head(RELATE_STORE_NUM)
+print(relate_store_list)
+
+==============
+
+id	similarity	pref	name
+0	0.934	    toyama	誠や
+1	0.898	    hokkaido	いそのかづお
+2	0.891	    shiga	金久右衛門 三井アウトレットパーク滋賀竜王店
+3	0.891	    kyoto	新福菜館 東土川店
+4	0.888	    osaka	金久右衛門 道頓堀店
+5	0.886	    chiba	炭一ラーメン
+6	0.874	    osaka	金久右衛門  江坂店
+7	0.873	    toyama	いろは 射水本店
+8	0.864	    osaka	金久右衛門 梅田店
+9	0.861	    mie		林家
+10	0.847	   niigata	ラーメン つり吉
+11	0.846	   osaka	金久右衛門 本店
+12	0.838	   toyama	めん八 御旅屋店
+13	0.837	   aichi	きくや飯店
+14	0.820	   hyogo	中乃屋
+15	0.814	   kyoto	金久右衛門 京都西院店
+16	0.807	   aichi	よこじ
+17	0.804	   kumamoto	好来ラーメン店
+18	0.792	   kyoto	新福菜館  久御山店
+19	0.791	   niigata	ゴインゴイン
+
+```
+
+幾つかピックアップして結果を確認してみましょう。
+
+「誠や 富山」
+![スクリーンショット 2016-07-23 2.31.42.png](https://qiita-image-store.s3.amazonaws.com/0/99986/15bc5d5b-2171-ce18-0f7c-a5c3f8b7ece0.png)
+
+「いそのかづお 北海道」
+![スクリーンショット 2016-07-23 2.32.56.png](https://qiita-image-store.s3.amazonaws.com/0/99986/26ad7f25-ba1d-a2a3-428d-100aaf65ec30.png)
+
+「金久右衛門 三井アウトレットパーク滋賀竜王店」
+![スクリーンショット 2016-07-23 2.33.43.png](https://qiita-image-store.s3.amazonaws.com/0/99986/4af5222c-4016-b93d-2653-a45b01912af5.png)
+
+黒いですね…、見事に黒い。その他も調べてみましたが、兵庫の中乃屋さん以外は全部黒いラーメンでした。
+
+新福菜館は支店も幾つかあり、店名を一切除去して解析しているにも関わらずきちんと結果に入ってきてくれたのも良いポイントかと思います。
+
+黒いラーメンといえば富山ブラックが有名で幾つか登場していますが、新福菜館の味は富山ブラックとは少し違うかなと。味というよりもなんしかラーメンの黒さで似た店が選ばれてしまった感も否めません。この辺りの雑さは今後の改善ポイントとしていきたい所存です。
+
+## まとめ
+
+今回はラーメンを題材として、ネット上に転がっている文字データから、人間が(ほぼ)介在することなく様々な知見を得る方法をご紹介いたしました。
+
+人間が介在して作った教師ありデータをもとに分類する手法に比べると甚だ頼りない結果にも見えますが、Pythonの既存のライブラリを用いて手軽に得られる結果としてはそこそこ良い結果ではないかと思います。
+
+勿論ラーメンだけでなく、一定量以上の文章量があれば様々なものに対応が可能です。
+みなさんも良かったら色々な文書で試してみてください。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【Python】自然言語処理でラーメン屋を分類してみる by @naotaka1128 on @Qiita" data-url="http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【Python】自然言語処理でラーメン屋を分類してみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/naotaka1128"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/naotaka1128">naotaka1128</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">774</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;naotaka1128&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-af704231-6bb4-4b02-8728-905bf4c81529"></div>
+    <div id="UserFollowButton-react-component-af704231-6bb4-4b02-8728-905bf4c81529"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/e7451ac6b8154dadd47e">新米エンジニアが月300万PVのサイトを作った時に役立ったGem20選（+SEOの小技）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/87d717961bd0c34e7a64">【Python】自然言語処理でラーメン屋を分類してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/2c4551abfd40e43b0146">【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/db54af23b12e79e61169">TeamGeek から学ぶマネジメント・アンチパターン13選</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/e617f63907fed035408a">【word2vec】会社のクチコミを自然言語処理した結果を可視化してみる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%95%B7%E3%81%8F%E3%81%AA%E3%81%A3%E3%81%9F%E3%81%AE%E3%81%A73%E8%A1%8C%E3%81%A7%E3%81%BE%E3%81%A8%E3%82%81%E3%82%8B%E3%81%A8\&quot;\u003e長くなったので3行でまとめると\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%B9%E6%B3%95\&quot;\u003e方法\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%B8%BB%E3%81%AB%E4%BD%BF%E3%81%86%E3%82%82%E3%81%AE\&quot;\u003e主に使うもの\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%81%8A%E3%81%BE%E3%81%8B%E3%81%AA%E6%B5%81%E3%82%8C\&quot;\u003eおおまかな流れ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%93%E3%81%8B%E3%82%89%E5%AE%9F%E9%9A%9B%E3%81%AB%E4%BD%9C%E6%A5%AD%E3%81%97%E3%81%A6%E3%81%84%E3%81%8D%E3%81%BE%E3%81%99\&quot;\u003eここから実際に作業していきます\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1-%E5%8F%A3%E3%82%B3%E3%83%9F%E3%83%87%E3%83%BC%E3%82%BF%E6%BA%96%E5%82%99\&quot;\u003e1. 口コミデータ準備\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-%E4%BA%8B%E5%89%8D%E6%BA%96%E5%82%99\&quot;\u003e2. 事前準備\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#gensim%E3%81%AE%E3%83%AD%E3%83%BC%E3%83%89\&quot;\u003egensimのロード\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%BE%9E%E6%9B%B8%E3%81%AE%E4%BD%9C%E6%88%90\&quot;\u003e辞書の作成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B3%E3%83%BC%E3%83%91%E3%82%B9%E3%81%AE%E4%BD%9C%E6%88%90\&quot;\u003eコーパスの作成\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-%E5%88%86%E9%A1%9E%E5%99%A8%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003e3. 分類器の学習\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#4-%E5%BA%97%E3%81%AE%E5%88%86%E9%A1%9E-%E3%83%88%E3%83%94%E3%83%83%E3%82%AF%E5%88%86%E3%81%91\&quot;\u003e4. 店の分類 (トピック分け)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#5-%E4%BC%BC%E3%81%A6%E3%81%84%E3%82%8B%E5%BA%97%E3%82%92%E6%8E%A2%E3%81%99\&quot;\u003e5. 似ている店を探す\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-226a673f-c6eb-4581-a4f0-f29333e87f2b"></div>
+    <div id="Toc-react-component-226a673f-c6eb-4581-a4f0-f29333e87f2b"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:151,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;87d717961bd0c34e7a64&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="luminor"><a itemprop="url" href="/luminor"><img alt="luminor" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/109257/profile-images/1473710819" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tsota"><a itemprop="url" href="/tsota"><img alt="tsota" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/103795/profile-images/1473709113" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="touyoubuntu"><a itemprop="url" href="/touyoubuntu"><img alt="touyoubuntu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10943/profile-images/1483934426" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Arcnote"><a itemprop="url" href="/Arcnote"><img alt="Arcnote" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/40542/profile-images/1473688473" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomohiku"><a itemprop="url" href="/tomohiku"><img alt="tomohiku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74428/profile-images/1473699835" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shunhikita"><a itemprop="url" href="/shunhikita"><img alt="shunhikita" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47886/profile-images/1473691151" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="taise"><a itemprop="url" href="/taise"><img alt="taise" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5492/profile-images/1473682037" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kentaro-a"><a itemprop="url" href="/kentaro-a"><img alt="kentaro-a" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72810/profile-images/1473699278" /></a></div></div><div class="ArticleFooter__user"><a href="/naotaka1128/items/87d717961bd0c34e7a64/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/87d717961bd0c34e7a64/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/naotaka1128/items/87d717961bd0c34e7a64.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/oggata/items/22e4512821a3ce2590d0#_reference-1995aa214d457f348225"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43766/profile-images/1473689641" />DeepLearningを勉強するために、VirtualBox上のUbuntuで、日本発(Chainer)とGoogle発(TensorFlow)のフレームワークを動かすまで</a><time class="references_datetime js-dateTimeView" datetime="2016-12-08T07:52:38+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/naotaka1128/items/2c4551abfd40e43b0146#_reference-8e8a63447c6d2a0c51a3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518" />【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる</a><time class="references_datetime js-dateTimeView" datetime="2016-12-19T23:17:33+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/naotaka1128/items/e617f63907fed035408a#_reference-b9637dde5d600170dee1"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518" />【word2vec】会社のクチコミを自然言語処理した結果を可視化してみる</a><time class="references_datetime js-dateTimeView" datetime="2017-01-23T15:01:14+00:00">about 2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【Python】自然言語処理でラーメン屋を分類してみる by @naotaka1128 on @Qiita" data-url="http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【Python】自然言語処理でラーメン屋を分類してみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:410115,&quot;uuid&quot;:&quot;87d717961bd0c34e7a64&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;naotaka1128&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:99986,&quot;url_name&quot;:&quot;naotaka1128&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-a5c6bf77-0c5e-4725-8d5e-c7cc57e2a340"></div>
+    <div id="CommentListContainer-react-component-a5c6bf77-0c5e-4725-8d5e-c7cc57e2a340"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="axbAnh5BGrXjzpgz+Xg2CNJXD1GGm/xevwf5ErCCQiJCVLORzqLkLL7GJ6ioOY0GnftDn0qPbtW6Cl96SbkXAA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/naotaka1128/items/87d717961bd0c34e7a64" /><input type="hidden" name="item_uuid" id="item_uuid" value="87d717961bd0c34e7a64" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/naotaka1128/items/87d717961bd0c34e7a64", "id": 410115, "uuid": "87d717961bd0c34e7a64" }</script><script class="js-user" type="application/json">{&quot;id&quot;:99986,&quot;url_name&quot;:&quot;naotaka1128&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="k1yiI+9vJzT9a1cdWjN1ryamLxRh4v5YB5vCewlYoV26HtEsP4zZraBj6IYLcs6haQpj2q32bNMClmQT8GP0fw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/naotaka1128/items/87d717961bd0c34e7a64" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-71142098-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

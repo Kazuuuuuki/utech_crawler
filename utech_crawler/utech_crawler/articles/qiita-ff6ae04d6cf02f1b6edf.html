@@ -1,0 +1,564 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳） - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="TensorFlowのチュートリアル（MNIST For ML Beginners）
+https://www.tensorflow.org/versions/master/tutorials/mnist/beginners
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+
+
+このチュートリアルは、機械学習と TensorFlow に不慣れな読者を対象とします。MNIST が何であるか、ソフトマックス（多項ロジスティック）回帰が何であるかを知っている場合は..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="KojiOhki" name="twitter:creator" /><meta content="TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳） - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="TensorFlowのチュートリアル（MNIST For ML Beginners）
+https://www.tensorflow.org/versions/master/tutorials/mnist/beginners
+の翻訳です..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="xiNsczp3mjE4Q6AnAMMuhxyWFCJJPXCA+3jBGo1ivLmypMrXBnEfhFpITx8OET620uvLSKqJfLmZ63EQFLdxLQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"KojiOhki","type":"items","id":"ff6ae04d6cf02f1b6edf"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-39f9e1bf-7aad-4f23-b2c0-1e1acd2c22a4"></div>
+    <div id="HeaderContainer-react-component-39f9e1bf-7aad-4f23-b2c0-1e1acd2c22a4"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳）</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="42"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB"><img alt="チュートリアル" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>チュートリアル</span></a></li><li class="TagList__item" data-count="141"><a class="u-link-unstyled TagList__label" href="/tags/%E7%BF%BB%E8%A8%B3"><img alt="翻訳" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/63cf06ce52c66d46e47ae59be8e2a2f8701dd69a/medium.jpg?1408052899" /><span>翻訳</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">173</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:173,&quot;uuid&quot;:&quot;ff6ae04d6cf02f1b6edf&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></li><li class="js-hovercard" data-hovercard-target-name="trifle"><a itemprop="url" href="/trifle"><img alt="trifle" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52200/profile-images/1473692665" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></li><li class="js-hovercard" data-hovercard-target-name="tarariko"><a itemprop="url" href="/tarariko"><img alt="tarariko" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/78253/profile-images/1473701092" /></a></li><li class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></li><li class="js-hovercard" data-hovercard-target-name="masia02"><a itemprop="url" href="/masia02"><img alt="masia02" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1292/profile-images/1473755498" /></a></li><li class="js-hovercard" data-hovercard-target-name="rkakamilan"><a itemprop="url" href="/rkakamilan"><img alt="rkakamilan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100512/profile-images/1473708115" /></a></li><li class="js-hovercard" data-hovercard-target-name="y_ussie"><a itemprop="url" href="/y_ussie"><img alt="y_ussie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70686/profile-images/1473698553" /></a></li><li><a href="/KojiOhki/items/ff6ae04d6cf02f1b6edf/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/KojiOhki"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" alt="1473684259" /></a> <a class="u-link-unstyled" href="/KojiOhki">KojiOhki</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-11-18T18:53:32+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-11-18">Edited at <time datetime="2017-01-13T09:30:54+09:00" itemprop="dateModified">2017-01-13</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/KojiOhki/items/ff6ae04d6cf02f1b6edf/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">10</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/KojiOhki/items/ff6ae04d6cf02f1b6edf/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(10)</span></a></li><li><a href="/KojiOhki/items/ff6ae04d6cf02f1b6edf.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-ff6ae04d6cf02f1b6edf" itemprop="articleBody"><p>TensorFlowのチュートリアル（MNIST For ML Beginners）<br>
+<a href="https://www.tensorflow.org/versions/master/tutorials/mnist/beginners" class="autolink" rel="nofollow noopener" target="_blank">https://www.tensorflow.org/versions/master/tutorials/mnist/beginners</a><br>
+の翻訳です。<br>
+翻訳の誤りなどあればご指摘お待ちしております。</p>
+
+<hr>
+
+<p>このチュートリアルは、機械学習と TensorFlow に不慣れな読者を対象とします。MNIST が何であるか、ソフトマックス（多項ロジスティック）回帰が何であるかを知っている場合は、<a href="https://www.tensorflow.org/versions/master/tutorials/mnist/pros/index.html" rel="nofollow noopener" target="_blank">よりテンポの速いチュートリアル</a>を好むかもしれません。チュートリアルを開始する前に<a href="https://www.tensorflow.org/versions/r0.9/get_started/os_setup.html" rel="nofollow noopener" target="_blank">TensorFlow をインストール</a>してください。</p>
+
+<p>プログラミングを学ぶとき、最初にすることが「Hello World.」をプリントすることであるという伝統があります。 プログラミングには Hello World があるように、機械学習には MNIST があります。</p>
+
+<p>MNIST は、単純なコンピュータビジョンのデータセットです。それは、以下のような手書きの数字のイメージで構成されています：</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/MNIST.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/MNIST.png" alt="図"></a></p>
+
+<p>また、それぞれの画像にはそれがどの数字かを示す、ラベルが含まれています。例えば、上記の画像のラベルは 5、0、4、1 です。</p>
+
+<p>このチュートリアルでは、画像を見て、それが何の数字かを予測するモデルをトレーニングするつもりです。私たちの目標は最先端の性能を実現する本当に精巧なモデルを訓練することではなく（後でそうするためにコードを提示します！）、TensorFlow の使用に慣れることにあります。このように、私たちはソフトマックス回帰と呼ばれる非常に単純なモデルから始めるつもりです。</p>
+
+<p>このチュートリアルの実際のコードは非常に短く、すべての面白いものはわずか３行で起こります。しかし、その背後にある考え方を理解することはとても重要です：TensorFlow がどのように動作し、機械学習の中心概念は何か。このため、とても慎重にコードを見ていきます。</p>
+
+<h2>
+<span id="mnistデータ" class="fragment"></span><a href="#mnist%E3%83%87%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>MNISTデータ</h2>
+
+<p>MNIST データは <a href="http://yann.lecun.com/exdb/mnist/" rel="nofollow noopener" target="_blank">Yann LeCun のウェブサイト上</a>でホストされています。便宜のために、データを自動的にダウンロードしてインストールする、いくつかの Python コードを含めました。<a href="https://www.tensorflow.org/code/tensorflow/examples/tutorials/mnist/input_data.py" rel="nofollow noopener" target="_blank">コード</a>をダウンロードし、以下のようにそれをインポート、または単にコピー＆ペーストすることができます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">tensorflow.examples.tutorials.mnist</span> <span class="kn">import</span> <span class="n">input_data</span>
+<span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s">"MNIST_data/"</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div></div>
+
+<p>ダウンロードされたデータは、二つの部分、訓練データ（mnist.train）の 55,000 データ・ポイントとテストデータの 5,000 データ・ポイント（mnist.test）に分かれます。この分割はとても重要です：学習内容が実際に一般化されていることを確認するために、学習しないデータを別に持つことが機械学習には不可欠なのです！</p>
+
+<p>前述したように、すべての MNIST データ・ポイントは、２つの部分を持っています：手書き数字の画像と、それに対応するラベルです。私たちは、画像を「xs」、ラベルを「ys」と呼びます。訓練セットとテストセットのどちらも、xs と ys を含みます。例えば、訓練画像は mnist.train.images であり、訓練ラベルは mnist.train.labels です。</p>
+
+<p>各画像は 28 ピクセル × 28 ピクセルです。私たちは、これを数値の大きな配列と解釈することができます：</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/MNIST-Matrix.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/MNIST-Matrix.png" alt="図"></a></p>
+
+<p>私たちは、28x28=784 の数値のベクトルにこの配列をフラット化することができます。画像間で一貫している限り、配列をフラットにする方法は重要ではありません。このような観点から、MNIST 画像は、<a href="http://colah.github.io/posts/2014-10-Visualizing-MNIST/" rel="nofollow noopener" target="_blank">非常にリッチな構造</a>（警告：計算的に集約的な視覚化）を持った、784 次元のベクトル空間の一連の点です。</p>
+
+<p>データをフラットにすることは、画像の２次元構造に関する情報を捨てます。それは悪いことではありませんか？最高のコンピュータビジョンの方法では、この構造を活用し、後のチュートリアルではそうします。しかし、ここで採用する単純な方法、ソフトマックス回帰ではそうしません。</p>
+
+<p>結果として mnist.train.images は [55000, 784] の形状を有するテンソル（ｎ次元配列）です。最初の次元は画像のインデックスで、２番目の次元は各画像のピクセルのインデックスです。テンソルの各要素は、特定の画像の特定のピクセルのための、0 と 1 の間のピクセル強度です。</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/mnist-train-xs.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/mnist-train-xs.png" alt="図"></a></p>
+
+<p>MNIST で対応するラベルは、与えられた画像がどの数字かを記す、0 から 9 までの数字です。このチュートリアルの目的のため、ラベルを「１-ホットベクトル」として必要とします。１-ホットベクトルは、ほとんどの次元で 0 であり、１つの次元でのみ 1 であるベクトルです。この場合、$n$ 番目の数字は $n$ 次元目が 1 であるベクトルとして表現されます。例えば、3 は、$[0,0,0,1,0,0,0,0,0,0]$ です。結果的に、mnist.train.labels は、float の [55000, 10] 配列です。</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/mnist-train-ys.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/mnist-train-ys.png" alt="図"></a></p>
+
+<p>これで、実際にモデルを作るための準備が整いました！</p>
+
+<h2>
+<span id="ソフトマックス回帰" class="fragment"></span><a href="#%E3%82%BD%E3%83%95%E3%83%88%E3%83%9E%E3%83%83%E3%82%AF%E3%82%B9%E5%9B%9E%E5%B8%B0"><i class="fa fa-link"></i></a>ソフトマックス回帰</h2>
+
+<p>MNIST 内のすべての画像は、0 なのか 9 なのか分かりませんが、数字であることを私たちは知っています。私たちは、画像を見て、それが各々の数字である確率を与えることができるようにしたいです。例えば、モデルは 9 の絵を見て、それが 80% の確信度で 9 である、しかし、5% の機会でそれは 8 である（上部にループがあるため）、他のすべての数字は、確かではないため、確率はわずかである、というように。</p>
+
+<p>これは、ソフトマックス回帰が自然で単純なモデルである、古典的なケースです。いくつかの異なるものの一つであるオブジェクトに確率を割り当てたい場合は、ソフトマックスを使用すべきです。後に、より洗練されたモデルを訓練する場合でも、最後のステップは、ソフトマックスのレイヤーになります。</p>
+
+<p>ソフトマックス回帰には、2 つのステップがあります：最初に、入力がある特定のクラスに含まれる証拠を足し合わせ、次に、この証拠を確率に変換します。</p>
+
+<p>与えられた画像が特定のクラスに含まれる証拠を合計するために、ピクセル強度の加重和を行います。クラスに含まれる画像に反して、ピクセルが高い強度を持つ場合は重みは負であり、支持する証拠である場合には正です。</p>
+
+<p>次の図は、あるモデルが、これらのクラスのそれぞれについて学習した重みを示しています。赤色が負の重みを表し、青色が正の重みを表します。</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/softmax-weights.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/softmax-weights.png" alt="図"></a></p>
+
+<p>また、バイアスと呼ばれるいくつかの余分な証拠を追加します。基本的に、いくつかのものは、入力に関わらず、可能性が高いと言うことができるようにしたいです。結果的に、与えられた入力 $x$ がクラス $i$ であるための証拠は：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\text{evidence}_i = \sum_j W_{i,~ j} x_j + b_i
+</pre></div></div>
+
+<p>ここで、$W_i$ は重み、$b_i$ はクラス $i$ のバイアス、$j$ は入力画像 $x$ 内のピクセルを加算するためのインデックスです。そして、「ソフトマックス」関数を使って証拠の合計を予測確率 $y$ に変換します：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+y = \text{softmax}(\text{evidence})
+</pre></div></div>
+
+<p>ここでソフトマックスは、線形関数の出力を望みの形に整形する、「活性化」または「リンク」関数として提供されています、このケースでは、10 例の確率分布です。証拠の合計を入力が各クラスに含まれる確率に変換すると考えることができます。それは次のように定義されます：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\text{softmax}(x) = \text{normalize}(\exp(x))
+</pre></div></div>
+
+<p>式を展開すると、次のようになります：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\text{softmax}(x)_i = \frac{\exp(x_i)}{\sum_j \exp(x_j)}
+</pre></div></div>
+
+<p>しかし、しばしばソフトマックスを最初の方法で考える方がより有益です：入力を累乗して、正規化。累乗は、１単位の証拠の増加が、すべての仮説に与えられる重みを乗法的に増加させることを意味します。そして逆に、１単位の証拠の減少が、仮説の重みのある割合を減少させることを意味します。どの仮説もゼロまたは負の重みを持っていません。ソフトマックスはこれらの重みを正規化します、それらの合計は１になり、有効な確率分布を形成します。 （ソフトマックス関数についてより多くの直感を得るためには、インタラクティブ視覚化を完備した、Michael Nieslen の本の関連する<a href="http://neuralnetworksanddeeplearning.com/chap3.html#softmax" rel="nofollow noopener" target="_blank">セクション</a>をチェックしてください。）</p>
+
+<p>ソフトマックス回帰は次のような図で表すことができますが、より多くの $x$ を持ちます。各出力には、$x$ の加重和を計算し、バイアス加え、ソフトマックスを適用します。</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/softmax-regression-scalargraph.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/softmax-regression-scalargraph.png" alt="図"></a></p>
+
+<p>方程式は：</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/softmax-regression-scalarequation.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/softmax-regression-scalarequation.png" alt="図"></a></p>
+
+<p>行列の乗算とベクトルの加算に変えることにより、この手順を「ベクトル化」することができます。これは、計算効率のために有効です。 （また、考えるためにも有用です。）</p>
+
+<p><a href="https://www.tensorflow.org/versions/master/images/softmax-regression-vectorequation.png" target="_blank" rel="nofollow noopener"><img src="https://www.tensorflow.org/versions/master/images/softmax-regression-vectorequation.png" alt="図"></a></p>
+
+<p>よりコンパクトに：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+y = \text{softmax}(Wx + b)
+</pre></div></div>
+
+<h2>
+<span id="回帰の実装" class="fragment"></span><a href="#%E5%9B%9E%E5%B8%B0%E3%81%AE%E5%AE%9F%E8%A3%85"><i class="fa fa-link"></i></a>回帰の実装</h2>
+
+<p>Python で効率的な数値計算を行うためには、通常、行列の乗算などの高コストな操作を、別の言語で実装された非常に効率的なコードを用いて Python の外で行う、NumPy のようなライブラリを使用します。残念ながら、まだすべての操作を Python からスイッチ・バックするには多くのオーバーヘッドがある場合があります。GPU、または分散環境で計算を実行したい場合、データ転送が高コストの場合には、このオーバーヘッドは特に悪いです。</p>
+
+<p>TensorFlow も Python の外に重い処理を持ち出しますが、このオーバーヘッドを一歩遠く回避する方法を取ります。単一の高コストな操作を Python から独立して実行する代わりに、TensorFlow では、完全に Python の外で実行する操作を相互作用のグラフとして記述することができます。 （これは、いくつかの機械学習ライブラリーに見られるようなアプローチです）。</p>
+
+<p>TensorFlow を使用するには、インポートする必要があります。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+</pre></div></div>
+
+<p>シンボリック変数を操作することによって、これらの相互作用の操作について説明します。 1 つ作成してみましょう：</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">784</span><span class="p">])</span>
+</pre></div></div>
+
+<p>x は特定の値ではありません。これは、プレースホルダー（TensorFlow に計算を実行するよう依頼するとき、私たちが入力する値）です。任意の数の MNIST 画像を入力することができるようにしたいです、それぞれは 784 次元ベクトルにフラット化します。これを浮動小数点数の２次元テンソルとして、形状 [None, 784] で表します。（ここで None は、次元が任意の長さをとることができることを意味します。）</p>
+
+<p>また、モデルの重みとバイアスを必要としています。これらを追加の入力のように扱うと想像されるかもしれませんが、TensorFlow ではそれを処理するためのより良い方法があります：変数です。変数は、TensorFlow の相互作用のグラフ内にある、変更可能なテンソルです。それは計算により使用され、変更することもできます。機械学習アプリケーションでは、一般的に、モデル・パラメータは変数として持ちます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">W</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">784</span><span class="p">,</span><span class="mi">10</span><span class="p">]))</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">10</span><span class="p">]))</span>
+</pre></div></div>
+
+<p>tf.Variable に変数の初期値を与えることによって、これらの変数を作成します。このケースでは、W と b を共に 0 で満たされたテンソルとして初期化します。W と b を学習しようとしているので、それらが最初何であるかはあまり重要ではありません。</p>
+
+<p>W は [784, 10] の形状をしていることに注意してください、これを 784 次元の画像ベクトルに乗算し、異なるクラスのための 10 次元の証拠ベクトルを生成するためです。b は [10] の形状をしていて、出力にそれを追加することができます。</p>
+
+<p>これで、モデルを実装することができます。たった１行で！</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+</pre></div></div>
+
+<p>まず、式 tf.matmul(x,W) で x に W を掛けます。式での乗算と比べて、逆転しています（先ほどは $Wx$ でした）、これは、x を複数の入力を持つ２次元テンソルとして扱うための、小さなトリックです。それから、b を加え、最後に tf.nn.softmax を適用します。</p>
+
+<p>これですべてです。モデルを定義するためのたった１行と、セットアップのための短い数行のみです。TensorFlow がソフトマックス回帰を特に容易にできるように設計されているためではありません：それは機械学習モデルから物理シミュレーションまで、多くの種類の数値計算を記述する非常に柔軟な方法です。そして一旦定義されれば、モデルを異なるデバイス上で実行することもできます：お使いのコンピュータの CPU、GPU、さらにはスマートフォンでも！</p>
+
+<h2>
+<span id="訓練" class="fragment"></span><a href="#%E8%A8%93%E7%B7%B4"><i class="fa fa-link"></i></a>訓練</h2>
+
+<p>モデルを訓練するために、良いモデルとは何を意味するのかを定義する必要があります。実際には、機械学習では典型的には、悪いモデルとは何を意味するのかを定義し（コストや損失と呼びます）、悪さを最小限に抑えるようにします。しかし、これらは同じ意味です。</p>
+
+<p>ひとつの非常に一般的な、とても素敵なコスト関数は、「交差エントロピー」です。驚くべきことに、交差エントロピーは、情報理論における情報圧縮コードについて考えから生まれましたが、ギャンブルから機械学習まで、多くの分野で重要なアイデアになりました。定義は：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+H_{y'}(y) = -\sum_i y'_i \log(y_i)
+</pre></div></div>
+
+<p>ここで、$y$ は予測された確率分布で、$y'$ は（入力される１-ホットベクトルの）真の分布です。大雑把な意味では、交差エントロピーは、予測が真実を記述するためにどのくらい非効率かを測ります。交差エントロピーに関する詳しい説明は、このチュートリアルの範囲を超えていますが、それを<a href="http://colah.github.io/posts/2015-09-Visual-Information/" rel="nofollow noopener" target="_blank">理解</a>することは十分に価値があります。</p>
+
+<p>交差エントロピーを実装するには、最初に正解を入力するための新しいプレースホルダを追加する必要があります：</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">y_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+</pre></div></div>
+
+<p>これで交差エントロピー $-\sum y'\log(y)$ を実装することができます：</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">reduction_indices</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div></div>
+
+<p>まず、tf.log は、y の各要素の対数を計算します。次に、y_ の各要素と tf.log(y) の対応する要素を掛けます。そして、tf.reduce_sum は、reduction_indices=[1] パラメータにより、y の第２の次元の要素を足します。最後に、tf.reduce_sum はテンソルのすべての要素を足します。最後に、tf.reduce_mean は、バッチ内のすべてのサンプルにわたる平均を計算します。</p>
+
+<p>私たちはモデルに何をさせたいかを知っているので、TensorFlow にそれを訓練させることはとても簡単です。TensorFlow は計算のグラフ全体を知っているので、自動的に<a href="http://colah.github.io/posts/2015-08-Backprop/" rel="nofollow noopener" target="_blank">バックプロパゲーション・アルゴリズム</a>を使用して、変数が、最小化したいコストにどのように影響するかを効率的に決定することができます。そして、変数を変更してコストを減少させるための、最適化アルゴリズムの選択を適用することができます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
+</pre></div></div>
+
+<p>ここでは、TensorFlow に、勾配降下アルゴリズムを使用して学習率 0.5 で cross_entropy を最小化するように依頼します。勾配降下は単純な手順です、ここでは TensorFlow は単にコストを削減する方向に各変数を少しシフトします。しかし TensorFlow はまた、<a href="http://www.tensorflow.org/api_docs/python/train.html#optimizers" rel="nofollow noopener" target="_blank">多くの他の最適化アルゴリズム</a>を提供します：１つを使用するのは、１行を微調整するのと同様に簡単です。</p>
+
+<p>TensorFlow が実際にここでしていることは、舞台裏では、バックプロパゲーションと勾配降下を実装する、新しい操作をグラフに追加することです。そして、実行時に、勾配降下訓練の１ステップ、コストを減少させるために、変数の微調整を行う、単一の操作を戻します。</p>
+
+<p>ここで、訓練するためのモデルを設定します。起動する前に最後に一つ、作成した変数を初期化するために操作を追加する必要があります：</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">()</span>
+</pre></div></div>
+
+<p>これでセッションでモデルを起動して、変数を初期化する操作を実行することができます：</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+</pre></div></div>
+
+<p>訓練してみましょう、訓練ステップを 1000 回実行します。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+  <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+  <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">train_step</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+</pre></div></div>
+
+<p>ループの各ステップでは、訓練セットから 100 個のランダムなデータ・ポイントの「バッチ」を取得します。プレースホルダを置き換えるバッチ・データをフィードし、train_step を実行します。</p>
+
+<p>ランダム・データの小さなバッチを使用することは、確率的訓練と呼ばれます、このケースでは、確率的勾配降下と呼ばれます。理想的には、何をなすべきかについてのよりよい感覚を与えることになるので、訓練の全ステップですべてのデータを使用したいのですが、それは高コストです。そのため、代わりに、毎回異なるサブセットを使用します。こうすることで、低コストで同様の効果が得られます。</p>
+
+<h2>
+<span id="モデルの評価" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E8%A9%95%E4%BE%A1"><i class="fa fa-link"></i></a>モデルの評価</h2>
+
+<p>モデルはどのくらいうまくいっているのでしょうか？</p>
+
+<p>最初に、どこで正しいラベルを予測したかを把握しましょう。 tf.argmax はいくつかの軸に沿ったテンソルで最も高い要素のインデックスを与える非常に便利な関数です。例えば、tf.argmax(y,1) はモデルが各入力に対して最も可能性が高いと考えているラベルで、一方、tf.argmax(y_,1) は正しいラベルです。予測が真実に一致するかどうかをチェックするために tf.equal を使用することができます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+</pre></div></div>
+
+<p>結果はブール値のリストになります。正しいもの割合を決定するために、浮動小数点数にキャストして、平均値を取ります。たとえば、[True, False, True, True] は [1,0,1,1] になり、0.75 になります。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">correct_prediction</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+</pre></div></div>
+
+<p>最後に、テストデータでの精度を求めます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">print</span><span class="p">(</span><span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">}))</span>
+</pre></div></div>
+
+<p>これは約 91% になるはずです。</p>
+
+<p>これは良いですか？それほどでもありません。実際には、かなり悪いです。それは非常に単純なモデルを使用しているためです。いくつかの小さな変更で、97% を得ることができます。最高のモデルは、99.7% 以上の精度を得ることができます！ （詳細については、<a href="http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html" rel="nofollow noopener" target="_blank">結果のリスト</a>を見てください。）</p>
+
+<p>重要なのは、私たちがこのモデルから学んだことです。まだ、これらの結果について少し気落ちしている場合には、<a href="https://www.tensorflow.org/versions/r0.9/tutorials/mnist/pros/index.html" rel="nofollow noopener" target="_blank">次のチュートリアル</a>をチェックアウトして下さい、そこでは TensorFlow を使用して、より良い、より洗練されたモデルを構築する方法を学ぶことができます！</p>
+<div class="hidden"><form class="js-task-list-update" action="/KojiOhki/items/ff6ae04d6cf02f1b6edf" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="r1zDhhlMd8ngBWlBqgABFq5IcA90WbRuWjLHaSYhAYvb22UiJUryfIIOhnmk0hEnYDWvZZftuFc4oXdjv/TMHw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1484267454" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+TensorFlowのチュートリアル（MNIST For ML Beginners）
+https://www.tensorflow.org/versions/master/tutorials/mnist/beginners
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+---
+
+このチュートリアルは、機械学習と TensorFlow に不慣れな読者を対象とします。MNIST が何であるか、ソフトマックス（多項ロジスティック）回帰が何であるかを知っている場合は、[よりテンポの速いチュートリアル](https://www.tensorflow.org/versions/master/tutorials/mnist/pros/index.html)を好むかもしれません。チュートリアルを開始する前に[TensorFlow をインストール](https://www.tensorflow.org/versions/r0.9/get_started/os_setup.html)してください。
+
+プログラミングを学ぶとき、最初にすることが「Hello World.」をプリントすることであるという伝統があります。 プログラミングには Hello World があるように、機械学習には MNIST があります。
+
+MNIST は、単純なコンピュータビジョンのデータセットです。それは、以下のような手書きの数字のイメージで構成されています：
+
+![図](https://www.tensorflow.org/versions/master/images/MNIST.png)
+
+また、それぞれの画像にはそれがどの数字かを示す、ラベルが含まれています。例えば、上記の画像のラベルは 5、0、4、1 です。
+
+このチュートリアルでは、画像を見て、それが何の数字かを予測するモデルをトレーニングするつもりです。私たちの目標は最先端の性能を実現する本当に精巧なモデルを訓練することではなく（後でそうするためにコードを提示します！）、TensorFlow の使用に慣れることにあります。このように、私たちはソフトマックス回帰と呼ばれる非常に単純なモデルから始めるつもりです。
+
+このチュートリアルの実際のコードは非常に短く、すべての面白いものはわずか３行で起こります。しかし、その背後にある考え方を理解することはとても重要です：TensorFlow がどのように動作し、機械学習の中心概念は何か。このため、とても慎重にコードを見ていきます。
+
+##MNISTデータ
+
+MNIST データは [Yann LeCun のウェブサイト上](http://yann.lecun.com/exdb/mnist/)でホストされています。便宜のために、データを自動的にダウンロードしてインストールする、いくつかの Python コードを含めました。[コード](https://www.tensorflow.org/code/tensorflow/examples/tutorials/mnist/input_data.py)をダウンロードし、以下のようにそれをインポート、または単にコピー＆ペーストすることができます。
+
+```py
+from tensorflow.examples.tutorials.mnist import input_data
+mnist = input_data.read_data_sets(&quot;MNIST_data/&quot;, one_hot=True)
+```
+
+ダウンロードされたデータは、二つの部分、訓練データ（mnist.train）の 55,000 データ・ポイントとテストデータの 5,000 データ・ポイント（mnist.test）に分かれます。この分割はとても重要です：学習内容が実際に一般化されていることを確認するために、学習しないデータを別に持つことが機械学習には不可欠なのです！
+
+前述したように、すべての MNIST データ・ポイントは、２つの部分を持っています：手書き数字の画像と、それに対応するラベルです。私たちは、画像を「xs」、ラベルを「ys」と呼びます。訓練セットとテストセットのどちらも、xs と ys を含みます。例えば、訓練画像は mnist.train.images であり、訓練ラベルは mnist.train.labels です。
+
+各画像は 28 ピクセル × 28 ピクセルです。私たちは、これを数値の大きな配列と解釈することができます：
+
+![図](https://www.tensorflow.org/versions/master/images/MNIST-Matrix.png)
+
+私たちは、28x28=784 の数値のベクトルにこの配列をフラット化することができます。画像間で一貫している限り、配列をフラットにする方法は重要ではありません。このような観点から、MNIST 画像は、[非常にリッチな構造](http://colah.github.io/posts/2014-10-Visualizing-MNIST/)（警告：計算的に集約的な視覚化）を持った、784 次元のベクトル空間の一連の点です。
+
+データをフラットにすることは、画像の２次元構造に関する情報を捨てます。それは悪いことではありませんか？最高のコンピュータビジョンの方法では、この構造を活用し、後のチュートリアルではそうします。しかし、ここで採用する単純な方法、ソフトマックス回帰ではそうしません。
+
+結果として mnist.train.images は [55000, 784] の形状を有するテンソル（ｎ次元配列）です。最初の次元は画像のインデックスで、２番目の次元は各画像のピクセルのインデックスです。テンソルの各要素は、特定の画像の特定のピクセルのための、0 と 1 の間のピクセル強度です。
+
+![図](https://www.tensorflow.org/versions/master/images/mnist-train-xs.png)
+
+MNIST で対応するラベルは、与えられた画像がどの数字かを記す、0 から 9 までの数字です。このチュートリアルの目的のため、ラベルを「１-ホットベクトル」として必要とします。１-ホットベクトルは、ほとんどの次元で 0 であり、１つの次元でのみ 1 であるベクトルです。この場合、$n$ 番目の数字は $n$ 次元目が 1 であるベクトルとして表現されます。例えば、3 は、$[0,0,0,1,0,0,0,0,0,0]$ です。結果的に、mnist.train.labels は、float の [55000, 10] 配列です。
+
+![図](https://www.tensorflow.org/versions/master/images/mnist-train-ys.png)
+
+これで、実際にモデルを作るための準備が整いました！
+
+##ソフトマックス回帰
+
+MNIST 内のすべての画像は、0 なのか 9 なのか分かりませんが、数字であることを私たちは知っています。私たちは、画像を見て、それが各々の数字である確率を与えることができるようにしたいです。例えば、モデルは 9 の絵を見て、それが 80% の確信度で 9 である、しかし、5% の機会でそれは 8 である（上部にループがあるため）、他のすべての数字は、確かではないため、確率はわずかである、というように。
+
+これは、ソフトマックス回帰が自然で単純なモデルである、古典的なケースです。いくつかの異なるものの一つであるオブジェクトに確率を割り当てたい場合は、ソフトマックスを使用すべきです。後に、より洗練されたモデルを訓練する場合でも、最後のステップは、ソフトマックスのレイヤーになります。
+
+ソフトマックス回帰には、2 つのステップがあります：最初に、入力がある特定のクラスに含まれる証拠を足し合わせ、次に、この証拠を確率に変換します。
+
+与えられた画像が特定のクラスに含まれる証拠を合計するために、ピクセル強度の加重和を行います。クラスに含まれる画像に反して、ピクセルが高い強度を持つ場合は重みは負であり、支持する証拠である場合には正です。
+
+次の図は、あるモデルが、これらのクラスのそれぞれについて学習した重みを示しています。赤色が負の重みを表し、青色が正の重みを表します。
+
+![図](https://www.tensorflow.org/versions/master/images/softmax-weights.png)
+
+また、バイアスと呼ばれるいくつかの余分な証拠を追加します。基本的に、いくつかのものは、入力に関わらず、可能性が高いと言うことができるようにしたいです。結果的に、与えられた入力 $x$ がクラス $i$ であるための証拠は：
+
+```math
+\text{evidence}_i = \sum_j W_{i,~ j} x_j + b_i
+```
+
+ここで、$W\_i$ は重み、$b\_i$ はクラス $i$ のバイアス、$j$ は入力画像 $x$ 内のピクセルを加算するためのインデックスです。そして、「ソフトマックス」関数を使って証拠の合計を予測確率 $y$ に変換します：
+
+```math
+y = \text{softmax}(\text{evidence})
+```
+
+ここでソフトマックスは、線形関数の出力を望みの形に整形する、「活性化」または「リンク」関数として提供されています、このケースでは、10 例の確率分布です。証拠の合計を入力が各クラスに含まれる確率に変換すると考えることができます。それは次のように定義されます：
+
+```math
+\text{softmax}(x) = \text{normalize}(\exp(x))
+```
+
+式を展開すると、次のようになります：
+
+```math
+\text{softmax}(x)_i = \frac{\exp(x_i)}{\sum_j \exp(x_j)}
+```
+
+しかし、しばしばソフトマックスを最初の方法で考える方がより有益です：入力を累乗して、正規化。累乗は、１単位の証拠の増加が、すべての仮説に与えられる重みを乗法的に増加させることを意味します。そして逆に、１単位の証拠の減少が、仮説の重みのある割合を減少させることを意味します。どの仮説もゼロまたは負の重みを持っていません。ソフトマックスはこれらの重みを正規化します、それらの合計は１になり、有効な確率分布を形成します。 （ソフトマックス関数についてより多くの直感を得るためには、インタラクティブ視覚化を完備した、Michael Nieslen の本の関連する[セクション](http://neuralnetworksanddeeplearning.com/chap3.html#softmax)をチェックしてください。）
+
+ソフトマックス回帰は次のような図で表すことができますが、より多くの $x$ を持ちます。各出力には、$x$ の加重和を計算し、バイアス加え、ソフトマックスを適用します。
+
+![図](https://www.tensorflow.org/versions/master/images/softmax-regression-scalargraph.png)
+
+方程式は：
+
+![図](https://www.tensorflow.org/versions/master/images/softmax-regression-scalarequation.png)
+
+行列の乗算とベクトルの加算に変えることにより、この手順を「ベクトル化」することができます。これは、計算効率のために有効です。 （また、考えるためにも有用です。）
+
+![図](https://www.tensorflow.org/versions/master/images/softmax-regression-vectorequation.png)
+
+よりコンパクトに：
+
+```math
+y = \text{softmax}(Wx + b)
+```
+
+##回帰の実装
+
+Python で効率的な数値計算を行うためには、通常、行列の乗算などの高コストな操作を、別の言語で実装された非常に効率的なコードを用いて Python の外で行う、NumPy のようなライブラリを使用します。残念ながら、まだすべての操作を Python からスイッチ・バックするには多くのオーバーヘッドがある場合があります。GPU、または分散環境で計算を実行したい場合、データ転送が高コストの場合には、このオーバーヘッドは特に悪いです。
+
+TensorFlow も Python の外に重い処理を持ち出しますが、このオーバーヘッドを一歩遠く回避する方法を取ります。単一の高コストな操作を Python から独立して実行する代わりに、TensorFlow では、完全に Python の外で実行する操作を相互作用のグラフとして記述することができます。 （これは、いくつかの機械学習ライブラリーに見られるようなアプローチです）。
+
+TensorFlow を使用するには、インポートする必要があります。
+
+```py
+import tensorflow as tf
+```
+
+シンボリック変数を操作することによって、これらの相互作用の操作について説明します。 1 つ作成してみましょう：
+
+```py
+x = tf.placeholder(tf.float32, [None, 784])
+```
+
+x は特定の値ではありません。これは、プレースホルダー（TensorFlow に計算を実行するよう依頼するとき、私たちが入力する値）です。任意の数の MNIST 画像を入力することができるようにしたいです、それぞれは 784 次元ベクトルにフラット化します。これを浮動小数点数の２次元テンソルとして、形状 [None, 784] で表します。（ここで None は、次元が任意の長さをとることができることを意味します。）
+
+また、モデルの重みとバイアスを必要としています。これらを追加の入力のように扱うと想像されるかもしれませんが、TensorFlow ではそれを処理するためのより良い方法があります：変数です。変数は、TensorFlow の相互作用のグラフ内にある、変更可能なテンソルです。それは計算により使用され、変更することもできます。機械学習アプリケーションでは、一般的に、モデル・パラメータは変数として持ちます。
+
+```py
+W = tf.Variable(tf.zeros([784,10]))
+b = tf.Variable(tf.zeros([10]))
+```
+
+tf.Variable に変数の初期値を与えることによって、これらの変数を作成します。このケースでは、W と b を共に 0 で満たされたテンソルとして初期化します。W と b を学習しようとしているので、それらが最初何であるかはあまり重要ではありません。
+
+W は [784, 10] の形状をしていることに注意してください、これを 784 次元の画像ベクトルに乗算し、異なるクラスのための 10 次元の証拠ベクトルを生成するためです。b は [10] の形状をしていて、出力にそれを追加することができます。
+
+これで、モデルを実装することができます。たった１行で！
+
+```py
+y = tf.nn.softmax(tf.matmul(x, W) + b)
+```
+
+まず、式 tf.matmul(x,W) で x に W を掛けます。式での乗算と比べて、逆転しています（先ほどは $Wx$ でした）、これは、x を複数の入力を持つ２次元テンソルとして扱うための、小さなトリックです。それから、b を加え、最後に tf.nn.softmax を適用します。
+
+これですべてです。モデルを定義するためのたった１行と、セットアップのための短い数行のみです。TensorFlow がソフトマックス回帰を特に容易にできるように設計されているためではありません：それは機械学習モデルから物理シミュレーションまで、多くの種類の数値計算を記述する非常に柔軟な方法です。そして一旦定義されれば、モデルを異なるデバイス上で実行することもできます：お使いのコンピュータの CPU、GPU、さらにはスマートフォンでも！
+
+##訓練
+
+モデルを訓練するために、良いモデルとは何を意味するのかを定義する必要があります。実際には、機械学習では典型的には、悪いモデルとは何を意味するのかを定義し（コストや損失と呼びます）、悪さを最小限に抑えるようにします。しかし、これらは同じ意味です。
+
+ひとつの非常に一般的な、とても素敵なコスト関数は、「交差エントロピー」です。驚くべきことに、交差エントロピーは、情報理論における情報圧縮コードについて考えから生まれましたが、ギャンブルから機械学習まで、多くの分野で重要なアイデアになりました。定義は：
+
+```math
+H_{y&#39;}(y) = -\sum_i y&#39;_i \log(y_i)
+```
+
+ここで、$y$ は予測された確率分布で、$y&#39;$ は（入力される１-ホットベクトルの）真の分布です。大雑把な意味では、交差エントロピーは、予測が真実を記述するためにどのくらい非効率かを測ります。交差エントロピーに関する詳しい説明は、このチュートリアルの範囲を超えていますが、それを[理解](http://colah.github.io/posts/2015-09-Visual-Information/)することは十分に価値があります。
+
+交差エントロピーを実装するには、最初に正解を入力するための新しいプレースホルダを追加する必要があります：
+
+```py
+y_ = tf.placeholder(tf.float32, [None, 10])
+```
+
+これで交差エントロピー $-\sum y&#39;\log(y)$ を実装することができます：
+
+```py
+cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
+```
+
+まず、tf.log は、y の各要素の対数を計算します。次に、y_ の各要素と tf.log(y) の対応する要素を掛けます。そして、tf.reduce_sum は、reduction_indices=[1] パラメータにより、y の第２の次元の要素を足します。最後に、tf.reduce_sum はテンソルのすべての要素を足します。最後に、tf.reduce_mean は、バッチ内のすべてのサンプルにわたる平均を計算します。
+
+私たちはモデルに何をさせたいかを知っているので、TensorFlow にそれを訓練させることはとても簡単です。TensorFlow は計算のグラフ全体を知っているので、自動的に[バックプロパゲーション・アルゴリズム](http://colah.github.io/posts/2015-08-Backprop/)を使用して、変数が、最小化したいコストにどのように影響するかを効率的に決定することができます。そして、変数を変更してコストを減少させるための、最適化アルゴリズムの選択を適用することができます。
+
+```py
+train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+```
+
+ここでは、TensorFlow に、勾配降下アルゴリズムを使用して学習率 0.5 で cross_entropy を最小化するように依頼します。勾配降下は単純な手順です、ここでは TensorFlow は単にコストを削減する方向に各変数を少しシフトします。しかし TensorFlow はまた、[多くの他の最適化アルゴリズム](http://www.tensorflow.org/api_docs/python/train.html#optimizers)を提供します：１つを使用するのは、１行を微調整するのと同様に簡単です。
+
+TensorFlow が実際にここでしていることは、舞台裏では、バックプロパゲーションと勾配降下を実装する、新しい操作をグラフに追加することです。そして、実行時に、勾配降下訓練の１ステップ、コストを減少させるために、変数の微調整を行う、単一の操作を戻します。
+
+ここで、訓練するためのモデルを設定します。起動する前に最後に一つ、作成した変数を初期化するために操作を追加する必要があります：
+
+```py
+init = tf.initialize_all_variables()
+```
+
+これでセッションでモデルを起動して、変数を初期化する操作を実行することができます：
+
+```py
+sess = tf.Session()
+sess.run(init)
+```
+
+訓練してみましょう、訓練ステップを 1000 回実行します。
+
+```py
+for i in range(1000):
+  batch_xs, batch_ys = mnist.train.next_batch(100)
+  sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+```
+
+ループの各ステップでは、訓練セットから 100 個のランダムなデータ・ポイントの「バッチ」を取得します。プレースホルダを置き換えるバッチ・データをフィードし、train_step を実行します。
+
+ランダム・データの小さなバッチを使用することは、確率的訓練と呼ばれます、このケースでは、確率的勾配降下と呼ばれます。理想的には、何をなすべきかについてのよりよい感覚を与えることになるので、訓練の全ステップですべてのデータを使用したいのですが、それは高コストです。そのため、代わりに、毎回異なるサブセットを使用します。こうすることで、低コストで同様の効果が得られます。
+
+##モデルの評価
+
+モデルはどのくらいうまくいっているのでしょうか？
+
+最初に、どこで正しいラベルを予測したかを把握しましょう。 tf.argmax はいくつかの軸に沿ったテンソルで最も高い要素のインデックスを与える非常に便利な関数です。例えば、tf.argmax(y,1) はモデルが各入力に対して最も可能性が高いと考えているラベルで、一方、tf.argmax(y_,1) は正しいラベルです。予測が真実に一致するかどうかをチェックするために tf.equal を使用することができます。
+
+```py
+correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+```
+
+結果はブール値のリストになります。正しいもの割合を決定するために、浮動小数点数にキャストして、平均値を取ります。たとえば、[True, False, True, True] は [1,0,1,1] になり、0.75 になります。
+
+```py
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+```
+
+最後に、テストデータでの精度を求めます。
+
+```py
+print(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
+```
+
+これは約 91% になるはずです。
+
+これは良いですか？それほどでもありません。実際には、かなり悪いです。それは非常に単純なモデルを使用しているためです。いくつかの小さな変更で、97% を得ることができます。最高のモデルは、99.7% 以上の精度を得ることができます！ （詳細については、[結果のリスト](http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html)を見てください。）
+
+重要なのは、私たちがこのモデルから学んだことです。まだ、これらの結果について少し気落ちしている場合には、[次のチュートリアル](https://www.tensorflow.org/versions/r0.9/tutorials/mnist/pros/index.html)をチェックアウトして下さい、そこでは TensorFlow を使用して、より良い、より洗練されたモデルを構築する方法を学ぶことができます！
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳） by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳）" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/KojiOhki"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/KojiOhki">KojiOhki</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1874</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;KojiOhki&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-47309e4d-1a5b-49cb-a881-d5e4d06baaea"></div>
+    <div id="UserFollowButton-react-component-47309e4d-1a5b-49cb-a881-d5e4d06baaea"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/89cd7b69a8a6239d67ca">LSTMネットワークの概要</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/af2241027b00f892d2bd">ニューラルネットワーク、多様体、トポロジー</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/ff6ae04d6cf02f1b6edf">TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/64a2ee54214b01a411c7">TensorFlowチュートリアル - 熟練者のためのディープMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/dab6922b6cd7b990c002">TensorFlowチュートリアル - 画像認識（翻訳）</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#mnist%E3%83%87%E3%83%BC%E3%82%BF\&quot;\u003eMNISTデータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BD%E3%83%95%E3%83%88%E3%83%9E%E3%83%83%E3%82%AF%E3%82%B9%E5%9B%9E%E5%B8%B0\&quot;\u003eソフトマックス回帰\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%9B%9E%E5%B8%B0%E3%81%AE%E5%AE%9F%E8%A3%85\&quot;\u003e回帰の実装\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A8%93%E7%B7%B4\&quot;\u003e訓練\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E8%A9%95%E4%BE%A1\&quot;\u003eモデルの評価\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-8edc41e5-3eaf-4aa5-9c1a-35e135eee4a0"></div>
+    <div id="Toc-react-component-8edc41e5-3eaf-4aa5-9c1a-35e135eee4a0"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:173,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;ff6ae04d6cf02f1b6edf&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="trifle"><a itemprop="url" href="/trifle"><img alt="trifle" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52200/profile-images/1473692665" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tarariko"><a itemprop="url" href="/tarariko"><img alt="tarariko" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/78253/profile-images/1473701092" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="masia02"><a itemprop="url" href="/masia02"><img alt="masia02" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1292/profile-images/1473755498" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="rkakamilan"><a itemprop="url" href="/rkakamilan"><img alt="rkakamilan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100512/profile-images/1473708115" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="y_ussie"><a itemprop="url" href="/y_ussie"><img alt="y_ussie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70686/profile-images/1473698553" /></a></div></div><div class="ArticleFooter__user"><a href="/KojiOhki/items/ff6ae04d6cf02f1b6edf/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/ff6ae04d6cf02f1b6edf/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/KojiOhki/items/ff6ae04d6cf02f1b6edf.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/EtsuroHONDA/items/79844b78655ccb3a7ae6#_reference-a7468d8a050c2378334c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/123035/profile-images/1473715430" />中学生にも分かるTensorFlow入門　その4 　プログラムの解説・フローチャート</a><time class="references_datetime js-dateTimeView" datetime="2016-05-05T15:51:47+00:00">11 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/oimou/items/4a4258a7f7cc2bd70afe#_reference-d0c3da2af759567fbf41"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/10905/profile-images/1488593126" />Jupyter Notebookでいじって学ぶTensorFlow - MNIST For ML Beginners</a><time class="references_datetime js-dateTimeView" datetime="2016-08-27T16:17:57+00:00">7 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/aokikenichi/items/827bc3ab6a2956932e6c#_reference-04b8c4caedc59a63b71f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/116049/profile-images/1473713122" />お手軽気軽手ぶら無料！IBM Data Scientist Workbenchで深層学習TensorFlow, Chainer, Kerasにダイビングする（途中まで）</a><time class="references_datetime js-dateTimeView" datetime="2016-09-23T08:08:01+00:00">6 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/tackey/items/929d9c58dd62c7e9a850#_reference-6cfdf62c4452e86e5af5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/82763/profile-images/1473702558" />TensorFlowのチュートリアルを徐々に進めていく</a><time class="references_datetime js-dateTimeView" datetime="2016-10-20T10:20:24+00:00">5 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/junichiro/items/6f0de9688e12535f93e8#_reference-933c3e64e215185586fb"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/121876/profile-images/1473715053" />TensorFlow 入門 〜 MNIST for beginner のプチ応用 〜</a><time class="references_datetime js-dateTimeView" datetime="2017-01-12T05:03:54+00:00">2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳） by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳）" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:343760,&quot;uuid&quot;:&quot;ff6ae04d6cf02f1b6edf&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;KojiOhki&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-94d75c30-81d1-4f82-b0e1-f1b57c4f8b92"></div>
+    <div id="CommentListContainer-react-component-94d75c30-81d1-4f82-b0e1-f1b57c4f8b92"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="oVDoe/XWR9qbkptFgMlIMHI1TA5L/SsfvIyCvmT3SIrV107fydDCb/mZdH2OG1gBvEiTZKhJJybeHzK0/SKFHg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/ff6ae04d6cf02f1b6edf" /><input type="hidden" name="item_uuid" id="item_uuid" value="ff6ae04d6cf02f1b6edf" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/KojiOhki/items/ff6ae04d6cf02f1b6edf", "id": 343760, "uuid": "ff6ae04d6cf02f1b6edf" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="ma7smVs/Ye73qLw4XtdLvhuFCNiLijzP5K7YPihMkIjtKUo9ZznkW5WjUwBQBVuP1fjXsmg+MPaGPWg0sZldHA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/ff6ae04d6cf02f1b6edf" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,608 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>落ちこぼれないためのTensorFlow Tutorialコード - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="前記事にて，Deep Learning Framework &quot;TensorFlow&quot; のドキュメントが難しい，という点に触れた．本記事では，TensorFlowの2層ネットワークを使って MNIST（手書き数字の分類問題）を解くことをやってみたい．
+
+
+動機 - for Beginners と for Experts の間を埋めたい
+
+TensorFlowのTutorialに目を通すと，最初に ”MNIST for Beginners” があってその次が &quot;Deep M..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="TomokIshii" name="twitter:creator" /><meta content="落ちこぼれないためのTensorFlow Tutorialコード - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+[前記事](http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a)にて，Deep Learning Framework &quot;TensorFlow&quot; のドキュメントが難しい，という..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="HHoLfHsfppvKsbPOViOPQUdsRvBo1lwLDc0NLOxGS8G5IFfXJYfqEEAjc16ovuOFyRR4UuPVwlNgoh/hRU6gCg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"TomokIshii","type":"items","id":"92a266b805d7eee02b1d"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-e197b305-f66b-443f-8ccd-08ef183d833c"></div>
+    <div id="HeaderContainer-react-component-e197b305-f66b-443f-8ccd-08ef183d833c"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">落ちこぼれないためのTensorFlow Tutorialコード</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">164</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:164,&quot;uuid&quot;:&quot;92a266b805d7eee02b1d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="h2suzuki"><a itemprop="url" href="/h2suzuki"><img alt="h2suzuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50772/profile-images/1473692218" /></a></li><li class="js-hovercard" data-hovercard-target-name="airtoxin"><a itemprop="url" href="/airtoxin"><img alt="airtoxin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22102/profile-images/1478352585" /></a></li><li class="js-hovercard" data-hovercard-target-name="macchaberrycream"><a itemprop="url" href="/macchaberrycream"><img alt="macchaberrycream" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33391/profile-images/1473686115" /></a></li><li class="js-hovercard" data-hovercard-target-name="tsuyoring"><a itemprop="url" href="/tsuyoring"><img alt="tsuyoring" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45294/profile-images/1473690224" /></a></li><li class="js-hovercard" data-hovercard-target-name="rkakamilan"><a itemprop="url" href="/rkakamilan"><img alt="rkakamilan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100512/profile-images/1473708115" /></a></li><li class="js-hovercard" data-hovercard-target-name="oghi57"><a itemprop="url" href="/oghi57"><img alt="oghi57" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/59104/profile-images/1473694829" /></a></li><li class="js-hovercard" data-hovercard-target-name="windhorn"><a itemprop="url" href="/windhorn"><img alt="windhorn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42363/profile-images/1473689129" /></a></li><li class="js-hovercard" data-hovercard-target-name="riocampos"><a itemprop="url" href="/riocampos"><img alt="riocampos" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19597/profile-images/1473682761" /></a></li><li><a href="/TomokIshii/items/92a266b805d7eee02b1d/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/TomokIshii"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" alt="1473699746" /></a> <a class="u-link-unstyled" href="/TomokIshii">TomokIshii</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-11-23T18:31:06+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-11-23">Edited at <time datetime="2016-05-31T03:15:19+09:00" itemprop="dateModified">2016-05-31</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/TomokIshii/items/92a266b805d7eee02b1d/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">15</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/TomokIshii/items/92a266b805d7eee02b1d/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(15)</span></a></li><li><a href="/TomokIshii/items/92a266b805d7eee02b1d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-92a266b805d7eee02b1d" itemprop="articleBody"><p><a href="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a" id="reference-4d8bab9067665fe47bc8">前記事</a>にて，Deep Learning Framework "TensorFlow" のドキュメントが難しい，という点に触れた．本記事では，TensorFlowの2層ネットワークを使って MNIST（手書き数字の分類問題）を解くことをやってみたい．</p>
+
+<h3>
+<span id="動機---for-beginners-と-for-experts-の間を埋めたい" class="fragment"></span><a href="#%E5%8B%95%E6%A9%9F---for-beginners-%E3%81%A8-for-experts-%E3%81%AE%E9%96%93%E3%82%92%E5%9F%8B%E3%82%81%E3%81%9F%E3%81%84"><i class="fa fa-link"></i></a>動機 - for Beginners と for Experts の間を埋めたい</h3>
+
+<p>TensorFlowのTutorialに目を通すと，最初に ”MNIST for Beginners” があってその次が "Deep MNIST for Experts" となっており，かなり技術レベルのジャンプがあるように見える．</p>
+
+<ul>
+<li>For Beginners ... Softmax Regression （ソフトマックス関数による多クラス，ロジスティック回帰）</li>
+<li>（ネットワークモデルの基本，MLP (Multi Layer Perceptron Neural Network)は?  ）</li>
+<li>For Experts ... Convolutional Neural Network （畳込みニューラルネット）</li>
+</ul>
+
+<p>いきなりCNN（畳込みニューラルネット）ではなく，多層ネットワーク(MLP)モデルを入れて段階的に進んだ方がよりよく理解できるのではないだろうか？ 本記事では，そのような間を埋めるTutorialコードを作成してみた．特徴は以下の通り．</p>
+
+<ul>
+<li>2層ネットワーク(MLP)のモデル．（（入力＋）隠れ層 ＋ 出力層）</li>
+<li>技法のレベルとしてはオンライン講座，"Coursera Machine Learning (Stanford)" に出てきた範囲．</li>
+<li>ユニットを選別する計算技法 "Dropout" は用いない．（なお本記事のタイトル「落ちこぼれないための」は，「"Dropout"を使わない」にかかっています．）</li>
+</ul>
+
+<p>（やっていることは，GitHub TensorFlowリポジトリにあった全結合モデルのサンプルコード "mnist.py" に近いかもしれません．但し，自分でみて理解しやすい短いコードを目指しました．）</p>
+
+<h3>
+<span id="コードの説明" class="fragment"></span><a href="#%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E8%AA%AC%E6%98%8E"><i class="fa fa-link"></i></a>コードの説明</h3>
+
+<p>以下，部分ごとにコードを見ていきたい．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+
+<span class="c"># Import data</span>
+<span class="kn">import</span> <span class="nn">input_data</span>
+<span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s">"../MNIST_data/"</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+</pre></div></div>
+
+<p>まず，必要なモジュールのimport. 本当なら"input_data.py"を読み解いた方が良かったのかもしれないが，結構，いろいろな機能が入っているので，今回は中身を解析することをせずにブラックボックスとしてこれを使用することにした．</p>
+
+<p>次に使用する変数の準備である．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Variables</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">784</span><span class="p">])</span>
+<span class="n">y_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+
+<span class="n">w_h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">random_normal</span><span class="p">([</span><span class="mi">784</span><span class="p">,</span> <span class="mi">625</span><span class="p">],</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+<span class="n">w_o</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">random_normal</span><span class="p">([</span><span class="mi">625</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+<span class="n">b_h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">625</span><span class="p">]))</span>
+<span class="n">b_o</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">10</span><span class="p">]))</span>
+
+</pre></div></div>
+
+<p><code>x</code>, <code>y_</code> は，訓練データ（テストデータ）を入れるプレースホルダ，<code>w_h, w_o, b_h, b_o</code> は学習パラメータ（weightとbias，隠れ層用と出力層用）である．正規分布の乱数を生成する "tf.random_normal()" で Random Initialize している．乱数のパラメータは「小さい値」という大ざっばな基準により，mean=0.0, stddev = 0.05 とした．（biasの方は，ゼロで初期化．）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Create the model</span>
+<span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w_h</span><span class="p">,</span> <span class="n">b_h</span><span class="p">,</span> <span class="n">w_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">):</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w_h</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_h</span><span class="p">)</span>
+    <span class="n">pyx</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w_o</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_o</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pyx</span>
+
+<span class="n">y_hypo</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w_h</span><span class="p">,</span> <span class="n">b_h</span><span class="p">,</span> <span class="n">w_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">)</span>
+
+<span class="c"># Cost Function basic term</span>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_hypo</span><span class="p">))</span>
+
+</pre></div></div>
+
+<p>ここが本コードで重要な部分，ニューラルネットワークのモデルを記述している部分である．</p>
+
+<p>隠れ層は，入力層の値から線形予測子を計算し，それをSigmoid関数に入れて算出する．</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\textbf{u} ^{(h)} = \textbf{w} ^{(h)} \textbf{z} ^{(i)} + \textbf{b}^{(h)}
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\textbf{z} ^{(h)} = f^{(h)}(\textbf{u}^{(h)})
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+f^{(h)}  \ : \ Sigmoid()\ ...\ \texttt{activation function}
+</pre></div></div>
+
+<p>出力層は，隠れ層の値から線形予測子を求め，それをSoftmax関数に入れて算出する．</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\textbf{u} ^{(o)} = \textbf{w} ^{(o)} \textbf{z} ^{(h)} + \textbf{b}^{(o)}
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\textbf{z} ^{(o)} = f^{(o)} (\textbf{u} ^{(o)})
+</pre></div></div>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+f^{(o)} \ :\ Softmax()\ ...\ \texttt{activation function} 
+</pre></div></div>
+
+<p>（以上，def model() の中身）  </p>
+
+<p>このモデルにて自分のモデルの値 <code>y_hypo</code> を計算，さらに訓練データのラベル <code>y_</code> と合わせて cross entropy値を求める．（これがコスト関数の主要部である．）  </p>
+
+<p>次に正則化(Regularization) の項を計算する．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Regularization terms (weight decay)</span>
+<span class="n">L2_sqr</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">w_h</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">w_o</span><span class="p">)</span>
+<span class="n">lambda_2</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+</pre></div></div>
+
+<p>正則化(Regularization)の項は，２乗ノルム(<code>L2_sqr</code>)（重み減衰） を用いた．TensorFlowでは，これを算出する "tf.nn.l2_loss()" がサポートされている．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># the loss and accuracy</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">cross_entropy</span> <span class="o">+</span> <span class="n">lambda_2</span> <span class="o">*</span> <span class="n">L2_sqr</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_hypo</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">correct_prediction</span><span class="p">,</span> <span class="s">"float"</span><span class="p">))</span>
+
+</pre></div></div>
+
+<p>ここは，オプティマイザーに関する定義と，関係する数値の算定を行う箇所である．オプティマイザーが評価するのは正則項を加えたコスト関数．勾配降下法(Gradient Descent Optimize)を選び，その学習率(learning rate) を 0.001 とした．また，分類結果の判定とその精度を計算する式を記述する．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Train</span>
+<span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Training...'</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20001</span><span class="p">):</span>
+        <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">train_accuracy</span> <span class="o">=</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'  step, accurary = </span><span class="si">%6d</span><span class="s">: </span><span class="si">%6.3f</span><span class="s">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">train_accuracy</span><span class="p">))</span>
+
+</pre></div></div>
+
+<p>変数を初期化した後セッションを立ち上げ，訓練データを使ってパラメータの学習を行う．  今回は収束判定や早期打ち切り等は行わず，所定の反復回数（20,000回+）の計算を実施している．</p>
+
+<p>学習が完了したら，テストデータを使って分類器の精度を算出する．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># （with tf.Session() as sess: の内部になります）</span>
+
+    <span class="c"># Test trained model</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'accuracy = '</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">}))</span>
+</pre></div></div>
+
+<hr>
+
+<h3>
+<span id="コードの再掲載と実行状況" class="fragment"></span><a href="#%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E5%86%8D%E6%8E%B2%E8%BC%89%E3%81%A8%E5%AE%9F%E8%A1%8C%E7%8A%B6%E6%B3%81"><i class="fa fa-link"></i></a>コードの再掲載と実行状況</h3>
+
+<p>以上説明したコードをまとめて，再度，掲載する．（約60行のコードです．）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+
+<span class="c"># Import data</span>
+<span class="kn">import</span> <span class="nn">input_data</span>
+<span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s">"../MNIST_data/"</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c"># Variables</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">784</span><span class="p">])</span>
+<span class="n">y_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="s">"float"</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+
+<span class="n">w_h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">random_normal</span><span class="p">([</span><span class="mi">784</span><span class="p">,</span> <span class="mi">625</span><span class="p">],</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+<span class="n">w_o</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">random_normal</span><span class="p">([</span><span class="mi">625</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stddev</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+<span class="n">b_h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">625</span><span class="p">]))</span>
+<span class="n">b_o</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">10</span><span class="p">]))</span>
+
+<span class="c"># Create the model</span>
+<span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w_h</span><span class="p">,</span> <span class="n">b_h</span><span class="p">,</span> <span class="n">w_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">):</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w_h</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_h</span><span class="p">)</span>
+    <span class="n">pyx</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">w_o</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_o</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pyx</span>
+
+<span class="n">y_hypo</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">w_h</span><span class="p">,</span> <span class="n">b_h</span><span class="p">,</span> <span class="n">w_o</span><span class="p">,</span> <span class="n">b_o</span><span class="p">)</span>
+
+<span class="c"># Cost Function basic term</span>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_hypo</span><span class="p">))</span>
+
+<span class="c"># Regularization terms (weight decay)</span>
+<span class="n">L2_sqr</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">w_h</span><span class="p">)</span> <span class="o">+</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">l2_loss</span><span class="p">(</span><span class="n">w_o</span><span class="p">)</span>
+<span class="n">lambda_2</span> <span class="o">=</span> <span class="mf">0.01</span>
+
+<span class="c"># the loss and accuracy</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">cross_entropy</span> <span class="o">+</span> <span class="n">lambda_2</span> <span class="o">*</span> <span class="n">L2_sqr</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_hypo</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">correct_prediction</span><span class="p">,</span> <span class="s">"float"</span><span class="p">))</span>
+
+<span class="c"># Train</span>
+<span class="n">init</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">initialize_all_variables</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span> <span class="k">as</span> <span class="n">sess</span><span class="p">:</span>
+    <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">init</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Training...'</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20001</span><span class="p">):</span>
+        <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">train_step</span><span class="o">.</span><span class="n">run</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">train_accuracy</span> <span class="o">=</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'  step, accurary = </span><span class="si">%6d</span><span class="s">: </span><span class="si">%6.3f</span><span class="s">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">train_accuracy</span><span class="p">))</span>
+
+    <span class="c"># Test trained model</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'accuracy = '</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">.</span><span class="n">eval</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">}))</span>
+
+</pre></div></div>
+
+<p>（注：最初の３行 <code>from __future__ ...</code>は，Python-3との互換性のためのステートメントです．）</p>
+
+<p>このコードを実行した状況が以下である．</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+Training...
+  step, accurary =      0:  0.130
+  step, accurary =   2000:  0.900
+  step, accurary =   4000:  0.910
+  step, accurary =   6000:  0.930
+  step, accurary =   8000:  0.920
+  step, accurary =  10000:  0.960
+  step, accurary =  12000:  0.950
+  step, accurary =  14000:  0.950
+  step, accurary =  16000:  0.960
+  step, accurary =  18000:  0.960
+  step, accurary =  20000:  0.960
+accuracy =  0.9546
+
+</pre></div></div>
+
+<p>テストデータ分類の精度は，95.46 % となった．期待通り，Softmax関数による回帰計算の値（91%）と畳込みニューラルネットによる精度(99.2%) のほぼ中間の値となった．（ややねらった感があります．）</p>
+
+<h3>
+<span id="次のステップとしてやりたいこと" class="fragment"></span><a href="#%E6%AC%A1%E3%81%AE%E3%82%B9%E3%83%86%E3%83%83%E3%83%97%E3%81%A8%E3%81%97%E3%81%A6%E3%82%84%E3%82%8A%E3%81%9F%E3%81%84%E3%81%93%E3%81%A8"><i class="fa fa-link"></i></a>次のステップとしてやりたいこと</h3>
+
+<ul>
+<li>他のデータセットでの分類．（"MNIST" 以外のデータで，ということです．）</li>
+<li>”TensorBoard" によるGraph Visualization.</li>
+<li>他のオプティマイザー(AdaGrad, Adam, etc.)の使用，性能確認．</li>
+<li>ネットワーク構成（レイヤー数 x ユニット数）の影響調査．</li>
+</ul>
+
+<p>（まだまだ勉強中ですが，少しずつ試しながらTensoFlowのコードをシェアできたらと思います．）</p>
+
+<h3>
+<span id="参考文献-web-site" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE-web-site"><i class="fa fa-link"></i></a>参考文献 (web site)</h3>
+
+<ul>
+<li>TensorFlow ドキュメント <a href="http://www.tensorflow.org/" class="autolink" rel="nofollow noopener" target="_blank">http://www.tensorflow.org/</a>
+</li>
+<li>深層学習（講談社 機械学習プロフェッショナルシリーズ）
+<a href="http://www.kspub.co.jp/book/detail/1529021.html" rel="nofollow noopener" target="_blank">http://www.kspub.co.jp/book/detail/1529021.html</a>
+</li>
+<li>Newmu Theano-Tutorials - GitHub <a href="https://github.com/Newmu/Theano-Tutorials" rel="nofollow noopener" target="_blank">https://github.com/Newmu/Theano-Tutorials</a>
+</li>
+<li>TensorFlowで回帰をやってみる - Qiita<br>
+<a href="http://qiita.com/syoamakase/items/db883d7ebad7a2220233" id="reference-1f82737453cb2b08ff10">http://qiita.com/syoamakase/items/db883d7ebad7a2220233</a>
+</li>
+<li>初めてのTensorFlow - イントロダクションとしての線形回帰 - Qiita
+<a href="http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a">http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a</a>
+</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/TomokIshii/items/92a266b805d7eee02b1d" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="amHkDTNxE1OvqjqgiGqZ7PRJ7Es0JqWKTNmVivcDIQPPO7imbelf2CU4+jB29/UoejHS6b8lO9IhtodHXgvKyA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1464632119" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+[前記事](http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a)にて，Deep Learning Framework &quot;TensorFlow&quot; のドキュメントが難しい，という点に触れた．本記事では，TensorFlowの2層ネットワークを使って MNIST（手書き数字の分類問題）を解くことをやってみたい．
+
+### 動機 - for Beginners と for Experts の間を埋めたい
+
+TensorFlowのTutorialに目を通すと，最初に ”MNIST for Beginners” があってその次が &quot;Deep MNIST for Experts&quot; となっており，かなり技術レベルのジャンプがあるように見える．
+
+- For Beginners ... Softmax Regression （ソフトマックス関数による多クラス，ロジスティック回帰）
+- （ネットワークモデルの基本，MLP (Multi Layer Perceptron Neural Network)は?  ）
+- For Experts ... Convolutional Neural Network （畳込みニューラルネット）
+
+いきなりCNN（畳込みニューラルネット）ではなく，多層ネットワーク(MLP)モデルを入れて段階的に進んだ方がよりよく理解できるのではないだろうか？ 本記事では，そのような間を埋めるTutorialコードを作成してみた．特徴は以下の通り．
+
+- 2層ネットワーク(MLP)のモデル．（（入力＋）隠れ層 ＋ 出力層）
+- 技法のレベルとしてはオンライン講座，&quot;Coursera Machine Learning (Stanford)&quot; に出てきた範囲．
+- ユニットを選別する計算技法 &quot;Dropout&quot; は用いない．（なお本記事のタイトル「落ちこぼれないための」は，「&quot;Dropout&quot;を使わない」にかかっています．）
+
+（やっていることは，GitHub TensorFlowリポジトリにあった全結合モデルのサンプルコード &quot;mnist.py&quot; に近いかもしれません．但し，自分でみて理解しやすい短いコードを目指しました．）
+
+### コードの説明
+
+以下，部分ごとにコードを見ていきたい．
+
+```py
+import tensorflow as tf
+
+# Import data
+import input_data
+mnist = input_data.read_data_sets(&quot;../MNIST_data/&quot;, one_hot=True)
+
+```
+
+まず，必要なモジュールのimport. 本当なら&quot;input_data.py&quot;を読み解いた方が良かったのかもしれないが，結構，いろいろな機能が入っているので，今回は中身を解析することをせずにブラックボックスとしてこれを使用することにした．
+
+次に使用する変数の準備である．
+
+```py
+# Variables
+x = tf.placeholder(&quot;float&quot;, [None, 784])
+y_ = tf.placeholder(&quot;float&quot;, [None, 10])
+
+w_h = tf.Variable(tf.random_normal([784, 625], mean=0.0, stddev=0.05))
+w_o = tf.Variable(tf.random_normal([625, 10], mean=0.0, stddev=0.05))
+b_h = tf.Variable(tf.zeros([625]))
+b_o = tf.Variable(tf.zeros([10]))
+
+```
+
+`x`, `y_` は，訓練データ（テストデータ）を入れるプレースホルダ，`w_h, w_o, b_h, b_o` は学習パラメータ（weightとbias，隠れ層用と出力層用）である．正規分布の乱数を生成する &quot;tf.random_normal()&quot; で Random Initialize している．乱数のパラメータは「小さい値」という大ざっばな基準により，mean=0.0, stddev = 0.05 とした．（biasの方は，ゼロで初期化．）
+
+```py
+# Create the model
+def model(X, w_h, b_h, w_o, b_o):
+    h = tf.sigmoid(tf.matmul(X, w_h) + b_h)
+    pyx = tf.nn.softmax(tf.matmul(h, w_o) + b_o)
+    
+    return pyx
+
+y_hypo = model(x, w_h, b_h, w_o, b_o)
+
+# Cost Function basic term
+cross_entropy = -tf.reduce_sum(y_*tf.log(y_hypo))
+
+```
+
+ここが本コードで重要な部分，ニューラルネットワークのモデルを記述している部分である．
+
+隠れ層は，入力層の値から線形予測子を計算し，それをSigmoid関数に入れて算出する．
+  
+```math
+\textbf{u} ^{(h)} = \textbf{w} ^{(h)} \textbf{z} ^{(i)} + \textbf{b}^{(h)}
+```
+
+```math
+\textbf{z} ^{(h)} = f^{(h)}(\textbf{u}^{(h)})
+```
+
+```math
+f^{(h)}  \ : \ Sigmoid()\ ...\ \texttt{activation function}
+```
+
+出力層は，隠れ層の値から線形予測子を求め，それをSoftmax関数に入れて算出する．
+  
+```math
+\textbf{u} ^{(o)} = \textbf{w} ^{(o)} \textbf{z} ^{(h)} + \textbf{b}^{(o)}
+```
+
+```math
+\textbf{z} ^{(o)} = f^{(o)} (\textbf{u} ^{(o)})
+```
+
+```math
+f^{(o)} \ :\ Softmax()\ ...\ \texttt{activation function} 
+```
+
+（以上，def model() の中身）  
+
+このモデルにて自分のモデルの値 `y_hypo` を計算，さらに訓練データのラベル `y_` と合わせて cross entropy値を求める．（これがコスト関数の主要部である．）  
+
+次に正則化(Regularization) の項を計算する．
+
+```py
+# Regularization terms (weight decay)
+L2_sqr = tf.nn.l2_loss(w_h) + tf.nn.l2_loss(w_o)
+lambda_2 = 0.01
+
+```
+
+正則化(Regularization)の項は，２乗ノルム(`L2_sqr`)（重み減衰） を用いた．TensorFlowでは，これを算出する &quot;tf.nn.l2_loss()&quot; がサポートされている．
+
+```py
+# the loss and accuracy
+loss = cross_entropy + lambda_2 * L2_sqr
+train_step = tf.train.GradientDescentOptimizer(0.001).minimize(loss)
+correct_prediction = tf.equal(tf.argmax(y_hypo,1), tf.argmax(y_,1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, &quot;float&quot;))
+
+```
+
+ここは，オプティマイザーに関する定義と，関係する数値の算定を行う箇所である．オプティマイザーが評価するのは正則項を加えたコスト関数．勾配降下法(Gradient Descent Optimize)を選び，その学習率(learning rate) を 0.001 とした．また，分類結果の判定とその精度を計算する式を記述する．
+
+
+```py
+# Train
+init = tf.initialize_all_variables()
+
+with tf.Session() as sess:
+    sess.run(init)
+    print(&#39;Training...&#39;)
+    for i in range(20001):
+        batch_xs, batch_ys = mnist.train.next_batch(100)
+        train_step.run({x: batch_xs, y_: batch_ys})
+        if i % 2000 == 0:
+            train_accuracy = accuracy.eval({x: batch_xs, y_: batch_ys})
+            print(&#39;  step, accurary = %6d: %6.3f&#39; % (i, train_accuracy))
+
+```
+
+変数を初期化した後セッションを立ち上げ，訓練データを使ってパラメータの学習を行う．  今回は収束判定や早期打ち切り等は行わず，所定の反復回数（20,000回+）の計算を実施している．
+
+学習が完了したら，テストデータを使って分類器の精度を算出する．
+
+```py
+# （with tf.Session() as sess: の内部になります）
+
+    # Test trained model
+    print(&#39;accuracy = &#39;, accuracy.eval({x: mnist.test.images, y_: mnist.test.labels}))
+```
+
+
+- - - - -
+
+### コードの再掲載と実行状況
+
+以上説明したコードをまとめて，再度，掲載する．（約60行のコードです．）
+
+```py
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import tensorflow as tf
+
+# Import data
+import input_data
+mnist = input_data.read_data_sets(&quot;../MNIST_data/&quot;, one_hot=True)
+
+# Variables
+x = tf.placeholder(&quot;float&quot;, [None, 784])
+y_ = tf.placeholder(&quot;float&quot;, [None, 10])
+
+w_h = tf.Variable(tf.random_normal([784, 625], mean=0.0, stddev=0.05))
+w_o = tf.Variable(tf.random_normal([625, 10], mean=0.0, stddev=0.05))
+b_h = tf.Variable(tf.zeros([625]))
+b_o = tf.Variable(tf.zeros([10]))
+
+# Create the model
+def model(X, w_h, b_h, w_o, b_o):
+    h = tf.sigmoid(tf.matmul(X, w_h) + b_h)
+    pyx = tf.nn.softmax(tf.matmul(h, w_o) + b_o)
+    
+    return pyx
+
+y_hypo = model(x, w_h, b_h, w_o, b_o)
+
+# Cost Function basic term
+cross_entropy = -tf.reduce_sum(y_*tf.log(y_hypo))
+
+# Regularization terms (weight decay)
+L2_sqr = tf.nn.l2_loss(w_h) + tf.nn.l2_loss(w_o)
+lambda_2 = 0.01
+
+# the loss and accuracy
+loss = cross_entropy + lambda_2 * L2_sqr
+train_step = tf.train.GradientDescentOptimizer(0.001).minimize(loss)
+correct_prediction = tf.equal(tf.argmax(y_hypo,1), tf.argmax(y_,1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, &quot;float&quot;))
+
+# Train
+init = tf.initialize_all_variables()
+
+with tf.Session() as sess:
+    sess.run(init)
+    print(&#39;Training...&#39;)
+    for i in range(20001):
+        batch_xs, batch_ys = mnist.train.next_batch(100)
+        train_step.run({x: batch_xs, y_: batch_ys})
+        if i % 2000 == 0:
+            train_accuracy = accuracy.eval({x: batch_xs, y_: batch_ys})
+            print(&#39;  step, accurary = %6d: %6.3f&#39; % (i, train_accuracy))
+
+    # Test trained model
+    print(&#39;accuracy = &#39;, accuracy.eval({x: mnist.test.images, y_: mnist.test.labels}))
+
+```
+
+（注：最初の３行 `from __future__ ... `は，Python-3との互換性のためのステートメントです．）
+
+このコードを実行した状況が以下である．
+
+```text
+Training...
+  step, accurary =      0:  0.130
+  step, accurary =   2000:  0.900
+  step, accurary =   4000:  0.910
+  step, accurary =   6000:  0.930
+  step, accurary =   8000:  0.920
+  step, accurary =  10000:  0.960
+  step, accurary =  12000:  0.950
+  step, accurary =  14000:  0.950
+  step, accurary =  16000:  0.960
+  step, accurary =  18000:  0.960
+  step, accurary =  20000:  0.960
+accuracy =  0.9546
+
+```
+
+テストデータ分類の精度は，95.46 % となった．期待通り，Softmax関数による回帰計算の値（91%）と畳込みニューラルネットによる精度(99.2%) のほぼ中間の値となった．（ややねらった感があります．）
+
+
+### 次のステップとしてやりたいこと
+- 他のデータセットでの分類．（&quot;MNIST&quot; 以外のデータで，ということです．）
+- ”TensorBoard&quot; によるGraph Visualization.
+- 他のオプティマイザー(AdaGrad, Adam, etc.)の使用，性能確認．
+- ネットワーク構成（レイヤー数 x ユニット数）の影響調査．
+
+（まだまだ勉強中ですが，少しずつ試しながらTensoFlowのコードをシェアできたらと思います．）
+
+### 参考文献 (web site)
+- TensorFlow ドキュメント http://www.tensorflow.org/
+- 深層学習（講談社 機械学習プロフェッショナルシリーズ）
+[http://www.kspub.co.jp/book/detail/1529021.html](http://www.kspub.co.jp/book/detail/1529021.html)
+- Newmu Theano-Tutorials - GitHub [https://github.com/Newmu/Theano-Tutorials](https://github.com/Newmu/Theano-Tutorials)
+- TensorFlowで回帰をやってみる - Qiita  
+ [http://qiita.com/syoamakase/items/db883d7ebad7a2220233](http://qiita.com/syoamakase/items/db883d7ebad7a2220233)
+- 初めてのTensorFlow - イントロダクションとしての線形回帰 - Qiita
+[http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a](http://qiita.com/TomokIshii/items/f355d8e87d23ee8e0c7a)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="落ちこぼれないためのTensorFlow Tutorialコード by @TomokIshii on @Qiita" data-url="http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="落ちこぼれないためのTensorFlow Tutorialコード" href="http://b.hatena.ne.jp/entry/http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/TomokIshii"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/TomokIshii">TomokIshii</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1011</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;TomokIshii&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-836be243-8db4-4299-a8ae-7bb0238238db"></div>
+    <div id="UserFollowButton-react-component-836be243-8db4-4299-a8ae-7bb0238238db"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/92a266b805d7eee02b1d">落ちこぼれないためのTensorFlow Tutorialコード</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/f355d8e87d23ee8e0c7a">初めてのTensorFlow - イントロダクションとしての線形回帰</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/01c2171f4def1a128fd3">基本的なRecurrent Neural Networkモデルを実装してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/26b7414bdb3cd3052786">TensorFlowでAutoencoderを実装してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/ff14771ac0e77632969a">pandasで様々な日付フォーマットを取り扱う</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8B%95%E6%A9%9F---for-beginners-%E3%81%A8-for-experts-%E3%81%AE%E9%96%93%E3%82%92%E5%9F%8B%E3%82%81%E3%81%9F%E3%81%84\&quot;\u003e動機 - for Beginners と for Experts の間を埋めたい\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E8%AA%AC%E6%98%8E\&quot;\u003eコードの説明\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B3%E3%83%BC%E3%83%89%E3%81%AE%E5%86%8D%E6%8E%B2%E8%BC%89%E3%81%A8%E5%AE%9F%E8%A1%8C%E7%8A%B6%E6%B3%81\&quot;\u003eコードの再掲載と実行状況\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%AC%A1%E3%81%AE%E3%82%B9%E3%83%86%E3%83%83%E3%83%97%E3%81%A8%E3%81%97%E3%81%A6%E3%82%84%E3%82%8A%E3%81%9F%E3%81%84%E3%81%93%E3%81%A8\&quot;\u003e次のステップとしてやりたいこと\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE-web-site\&quot;\u003e参考文献 (web site)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-e5e6549b-539f-4e3c-ace9-5991305be223"></div>
+    <div id="Toc-react-component-e5e6549b-539f-4e3c-ace9-5991305be223"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:164,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;92a266b805d7eee02b1d&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="h2suzuki"><a itemprop="url" href="/h2suzuki"><img alt="h2suzuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50772/profile-images/1473692218" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="airtoxin"><a itemprop="url" href="/airtoxin"><img alt="airtoxin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22102/profile-images/1478352585" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="macchaberrycream"><a itemprop="url" href="/macchaberrycream"><img alt="macchaberrycream" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33391/profile-images/1473686115" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tsuyoring"><a itemprop="url" href="/tsuyoring"><img alt="tsuyoring" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45294/profile-images/1473690224" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="rkakamilan"><a itemprop="url" href="/rkakamilan"><img alt="rkakamilan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100512/profile-images/1473708115" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="oghi57"><a itemprop="url" href="/oghi57"><img alt="oghi57" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/59104/profile-images/1473694829" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="windhorn"><a itemprop="url" href="/windhorn"><img alt="windhorn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42363/profile-images/1473689129" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="riocampos"><a itemprop="url" href="/riocampos"><img alt="riocampos" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19597/profile-images/1473682761" /></a></div></div><div class="ArticleFooter__user"><a href="/TomokIshii/items/92a266b805d7eee02b1d/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/92a266b805d7eee02b1d/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/TomokIshii/items/92a266b805d7eee02b1d.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/TomokIshii/items/2cab778a3192d561a1ef#_reference-c4442efce9612e8e66d7"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" />TensorFlowのMLPコードで&quot;Wine&quot;を分類</a><time class="references_datetime js-dateTimeView" datetime="2015-12-03T02:53:08+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/oimou/items/4a4258a7f7cc2bd70afe#_reference-0bc6e6c2cf7d7b182af4"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/10905/profile-images/1488593126" />Jupyter Notebookでいじって学ぶTensorFlow - MNIST For ML Beginners</a><time class="references_datetime js-dateTimeView" datetime="2016-08-27T16:17:57+00:00">7 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/WaterIsland/items/7438dcbd4667748f1100#_reference-01ab5edcf4d6445c6068"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/14868822?v=3" />TensorflowでMNISTデータ認識＋多層ニューラルネット</a><time class="references_datetime js-dateTimeView" datetime="2016-10-05T08:38:34+00:00">5 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/a4641393b9064d414cca#_reference-73276b2104bf28189c27"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 Python 】Chaier  基本ニューラル・ネットワーク コード書き方 備忘録 （１）irisデータ 多値分類（編）</a><time class="references_datetime js-dateTimeView" datetime="2016-11-21T22:58:39+00:00">4 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/junichiro/items/6f0de9688e12535f93e8#_reference-1dc9b8381b45a64b13c5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/121876/profile-images/1473715053" />TensorFlow 入門 〜 MNIST for beginner のプチ応用 〜</a><time class="references_datetime js-dateTimeView" datetime="2017-01-12T05:03:54+00:00">2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="落ちこぼれないためのTensorFlow Tutorialコード by @TomokIshii on @Qiita" data-url="http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="落ちこぼれないためのTensorFlow Tutorialコード" href="http://b.hatena.ne.jp/entry/http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:344948,&quot;uuid&quot;:&quot;92a266b805d7eee02b1d&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;TomokIshii&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:74152,&quot;url_name&quot;:&quot;TomokIshii&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-6b5d2636-012a-4e7a-ae73-f968a7d8ebb7"></div>
+    <div id="CommentListContainer-react-component-6b5d2636-012a-4e7a-ae73-f968a7d8ebb7"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="DW7j9HNmZ8ICX5oPQ+HqoQyVhNktOTW+KpiHrZdum+OoNL9fLf4rSYjNWp+9fIZlgu26e6Y6q+ZH95VgPmZwKA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/TomokIshii/items/92a266b805d7eee02b1d" /><input type="hidden" name="item_uuid" id="item_uuid" value="92a266b805d7eee02b1d" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/TomokIshii/items/92a266b805d7eee02b1d", "id": 344948, "uuid": "92a266b805d7eee02b1d" }</script><script class="js-user" type="application/json">{&quot;id&quot;:74152,&quot;url_name&quot;:&quot;TomokIshii&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="CBV93bWhN0tsQzCtKUi0hAOUnApCweLRdQ/lR/c/IpmtTyF26zl7wObR8D3X1dhAjeyiqMnCfIkYYPeKXjfJUg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/TomokIshii/items/92a266b805d7eee02b1d" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,685 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>ニューラルネットワークで時系列データの予測を行う - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="ニューラルネットワークで時系列データを扱う場合、リカレントニューラルネットワークを使用します。今回は、そのリカレントニューラルネットワークについての解説です。
+
+(長いため、以下ニューラルネットワークはNN、リカレントニューラルネットワーク(Recurrent Neural Network)はRNNと略記)
+
+
+RNNの概要
+
+データの中には、「ｘ」が出たら「ｙ」が来る可能性が高い、というように前のデータが次のデータに対し相関を持つものがあります。
+具体的には、言葉や音..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="icoxfog417" name="twitter:creator" /><meta content="ニューラルネットワークで時系列データの予測を行う - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="ニューラルネットワークで時系列データを扱う場合、リカレントニューラルネットワークを使用します。今回は、そのリカレントニューラルネットワークについての解説です。
+
+(長いため、以下ニューラルネットワークはNN、リカレントニューラルネット..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="SuFzxR4PR7tjM+q9OXlxzoPuIcb+e3i1CCmW7lSnWeJU0DRZsNDLxfeVo9a42PTvsQ7Gz0SEV48OrvVp98gPzA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"icoxfog417","type":"items","id":"2791ee878deee0d0fd9c"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-076f8dfc-64bb-4912-99e4-cb3ccc02b490"></div>
+    <div id="HeaderContainer-react-component-076f8dfc-64bb-4912-99e4-cb3ccc02b490"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">ニューラルネットワークで時系列データの予測を行う</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">588</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="2 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>2</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:588,&quot;uuid&quot;:&quot;2791ee878deee0d0fd9c&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="mettoboshi"><a itemprop="url" href="/mettoboshi"><img alt="mettoboshi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42925/profile-images/1473689342" /></a></li><li class="js-hovercard" data-hovercard-target-name="tyamamot"><a itemprop="url" href="/tyamamot"><img alt="tyamamot" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52220/profile-images/1473692670" /></a></li><li class="js-hovercard" data-hovercard-target-name="karumado"><a itemprop="url" href="/karumado"><img alt="karumado" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18303/profile-images/1473682398" /></a></li><li class="js-hovercard" data-hovercard-target-name="dsanno"><a itemprop="url" href="/dsanno"><img alt="dsanno" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/58026/profile-images/1473694517" /></a></li><li class="js-hovercard" data-hovercard-target-name="totakke"><a itemprop="url" href="/totakke"><img alt="totakke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24168/profile-images/1479960755" /></a></li><li class="js-hovercard" data-hovercard-target-name="kk2170"><a itemprop="url" href="/kk2170"><img alt="kk2170" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12680/profile-images/1473682495" /></a></li><li class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></li><li class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></li><li class="js-hovercard" data-hovercard-target-name="sobeit@github"><a itemprop="url" href="/sobeit@github"><img alt="sobeit@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5315/profile-images/1473681890" /></a></li><li class="js-hovercard" data-hovercard-target-name="shopetan"><a itemprop="url" href="/shopetan"><img alt="shopetan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55673/profile-images/1473693754" /></a></li><li><a href="/icoxfog417/items/2791ee878deee0d0fd9c/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/icoxfog417"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" alt="1484303516" /></a> <a class="u-link-unstyled" href="/icoxfog417">icoxfog417</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-01-07T16:43:06+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-01-07">Edited at <time datetime="2015-02-02T11:01:55+09:00" itemprop="dateModified">2015-02-02</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/icoxfog417/items/2791ee878deee0d0fd9c/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">13</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/icoxfog417/items/2791ee878deee0d0fd9c/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(13)</span></a></li><li><a href="/icoxfog417/items/2791ee878deee0d0fd9c.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-2791ee878deee0d0fd9c" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>ニューラルネットワークで時系列データを扱う場合、リカレントニューラルネットワークを使用します。今回は、そのリカレントニューラルネットワークについての解説です。</p>
+
+<p>(長いため、以下ニューラルネットワークはNN、リカレントニューラルネットワーク(Recurrent Neural Network)はRNNと略記)</p>
+
+<h2>
+<span id="rnnの概要" class="fragment"></span><a href="#rnn%E3%81%AE%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>RNNの概要</h2>
+
+<p>データの中には、「ｘ」が出たら「ｙ」が来る可能性が高い、というように前のデータが次のデータに対し相関を持つものがあります。<br>
+具体的には、言葉や音楽といったものです(「私」の後には「は」か「が」が来ることが多い、など)。こうした時系列で相関を持つデータでは、当然前に発生したデータを考慮したくなります。<br>
+NNに、前に発生したデータを投入できるようにはできないか。その答えが、RNNとなります。</p>
+
+<p>具体的には、下図のようになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/0ada9fe4-943e-a43a-94d2-4493c2acde8b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/0ada9fe4-943e-a43a-94d2-4493c2acde8b.png" alt="rnn2.PNG"></a></p>
+
+<p>時刻$t$の隠れ層の内容が、次の時刻$t+1$の時の入力として扱われます。$t+1$の隠れ層が$t+2$の・・・と続くわけですが、要は前回の隠れ層が次の隠れ層の学習にも使用される、というイメージです。</p>
+
+<h2>
+<span id="rnnの種別" class="fragment"></span><a href="#rnn%E3%81%AE%E7%A8%AE%E5%88%A5"><i class="fa fa-link"></i></a>RNNの種別</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">名称</th>
+<th style="text-align: left">結合対象</th>
+<th style="text-align: left">特徴</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">Fully recurrent network</td>
+<td style="text-align: left">全ノード(1:N)</td>
+<td style="text-align: left">自身も含め完全双方向に結合する</td>
+</tr>
+<tr>
+<td style="text-align: left">Hopfield network</td>
+<td style="text-align: left">全ノード(1:N-1)</td>
+<td style="text-align: left">双方向結合で、結合対象に自身は含まない</td>
+</tr>
+<tr>
+<td style="text-align: left">Elman network</td>
+<td style="text-align: left">1:1 (隠れ層-&gt;隠れ層)</td>
+<td style="text-align: left">入力層・コンテキスト(隠れ層)・出力層の3層構造</td>
+</tr>
+<tr>
+<td style="text-align: left">Jordan network</td>
+<td style="text-align: left">1:1 (出力層-&gt;隠れ層)</td>
+<td style="text-align: left">入力層・コンテキスト(隠れ層)・出力層の3層構造</td>
+</tr>
+<tr>
+<td style="text-align: left">Echo state network (ESN)</td>
+<td style="text-align: left">1-&gt;1?</td>
+<td style="text-align: left">結合対象は、ノードの集合(reservoir)からランダムに決定される</td>
+</tr>
+<tr>
+<td style="text-align: left">Long short term memory network (LSTM)</td>
+<td style="text-align: left">-</td>
+<td style="text-align: left">RNNのノードの代わりに、入力値を保持しておけるBlockを採用したもの。高精度</td>
+</tr>
+<tr>
+<td style="text-align: left">Bi-directional RNN (BRNN)</td>
+<td style="text-align: left">-</td>
+<td style="text-align: left">双方向(過去-&gt;未来/未来-&gt;過去)のRNNを組み合わせたもの</td>
+</tr>
+</tbody>
+</table>
+
+<p><a href="http://en.wikipedia.org/wiki/Hopfield_network" rel="nofollow noopener" target="_blank">Hopfield network</a>は、一般的なクラス分類以外に<a href="http://www.sist.ac.jp/%7Ekanakubo/research/neuro/hopfieldnetwork.html" rel="nofollow noopener" target="_blank">最適化問題への応用が可能</a>なモデルです。</p>
+
+<p>Elman/Jordanは、<a href="http://en.wikipedia.org/wiki/Types_of_artificial_neural_networks#Simple_recurrent_networks" rel="nofollow noopener" target="_blank">Simple recurrent networksと言われているように</a>一番シンプルな形となっています。RNNを利用したい場合はまずどちらかでやってみて、精度的な問題があるのなら他の手法に切り替えてみる、というのがよいのではないかと思います。<br>
+Elman/Jordanの違いは上記のとおりですが(前回データの反映が隠れ層から行われるか、出力層から行われるか)、<a href="http://www.heatonresearch.com/node/2155" rel="nofollow noopener" target="_blank">こちら</a>にも詳しく書かれています。精度的な優劣はありませんが、隠れ層の数によって次に伝播する量を変化させられるElmanの方が柔軟と言えると思います。</p>
+
+<p><a href="http://www.scholarpedia.org/article/Echo_state_network" rel="nofollow noopener" target="_blank">Echo state network</a>は毛色が違ったモデルで、ノードを事前に結合せずReservoir(貯水池などの意味)と呼ばれるプールに貯めておき、入力が与えられた後ランダム/動的に結合を行うというスタイルです。要は人の脳の中ではあらかじめ決められた結合などないわけだから、それを模倣し流動的に結合する・・・というコンセプトで作られたものです。これは<a href="http://en.wikipedia.org/wiki/Liquid_state_machine" rel="nofollow noopener" target="_blank">Liquid State Machines</a>(直訳すると液状機構)とも呼ばれているようです。</p>
+
+<p><a href="http://en.wikipedia.org/wiki/Long_short_term_memory" rel="nofollow noopener" target="_blank">Long short term memory network (LSTM)</a> と Bi-directional RNN (BRNN) は結合方法に関する制約は特にありません。<br>
+LSTMは単純なノードの代わりに重みを覚えておけるLSTM blockを採用したものです。これはRNNにおける学習の課題を解決するためのもので、後で解説します。</p>
+
+<p>Bi-directional RNNは過去→未来という一方向の学習だけでなく、未来→過去というある意味負の方向の時系列についても学習を行うことで精度を高められる、というものです。</p>
+
+<h2>
+<span id="rnnの学習" class="fragment"></span><a href="#rnn%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>RNNの学習</h2>
+
+<p>RNNの学習については以下のドキュメントが非常に丁寧に書かれています。英語ですが、現段階(2015/1)でRNNに関する日本語文献はほとんど存在しないので、もうあきらめて読む以外にすべはないです。</p>
+
+<p><a href="http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf" rel="nofollow noopener" target="_blank">A tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the "echo state network" approach</a></p>
+
+<p>RNNの学習は一般的に収束が非常に遅いです。精確を期すにはlerning rateを低めにする必要がありますが、低めにするとただでさえ遅い収束がより遅くなります。これはトレードオフになりますが、解決の方法として勾配の不安定性を最適化のプロセスの中で考慮する方法があるそうです(詳しくは<a href="http://ir.nmu.org.ua/bitstream/handle/123456789/120274/866d31771b48ba40c56fcc039f091b9b.pdf?sequence=1&amp;isAllowed=y#page=58" rel="nofollow noopener" target="_blank">EFFICIENT SECOND-ORDER LEARNING ALGORITHMS FOR DISCRETE-TIME RECURRENT NEURAL NETWORKS</a>参照)。</p>
+
+<p>一つ言えるのは、色々調べましたが現時点(2015/1)においてRNNの学習で精度・速度ともに問題のない確立した手法はまだ存在せず、よって当然それを実装したライブラリもないということです。ここは地道に修行を重ねる必要があります。</p>
+
+<h3>
+<span id="bptt-backpropagation-through-time" class="fragment"></span><a href="#bptt-backpropagation-through-time"><i class="fa fa-link"></i></a>BPTT (BackPropagation Through Time)</h3>
+
+<p>RNNは展開すると長いNNとみなすことができるので、通常通りbackpropagationが適用できるはず、というのが基本的な考え方です。イメージ的には以下のようになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/250e6a57-8081-fa17-94c1-a4b76823b261.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/250e6a57-8081-fa17-94c1-a4b76823b261.png" alt="bptt1.PNG"></a></p>
+
+<p>誤差は最後の時刻であるTから最初の0に向かって伝播していきます。よって、ある時刻tにおけるoutput layerの誤差は「時刻tにおけるteacher(教師データ)とoutput(出力)の差異」と「t+1から伝播してきた誤差」の和になります。</p>
+
+<p>図からも明らかなとおり、BPTTは最後のTまでのデータ、つまりすべての時系列データがなければ学習を行うことができません。そのため、長いデータは最新の分のみ切り取るなどといった対応が必要です。</p>
+
+<p>このBPTTには様々な課題があり、よってそれに対応するための学習方法もいろいろ考案されています。</p>
+
+<h4>
+<span id="lstmlong-short-term-memory" class="fragment"></span><a href="#lstmlong-short-term-memory"><i class="fa fa-link"></i></a>LSTM(Long short term memory)</h4>
+
+<p>Tがあまりに大きい、つまり長い時系列のデータの場合、計算上の問題で上層からの誤差が薄まったり逆に非常に大きくなったりします(これは、<a href="http://www.slideshare.net/beam2d/pfi-seminar-20141030rnn" rel="nofollow noopener" target="_blank">こちらに詳しいです(p8～)</a>)。<br>
+値が大きくなる分には最大値の制限で何とかなりますが、消えてしまうのはどうにもならないため、誤差が減衰しないよう伝播させるというのがLSTMの思想です。</p>
+
+<h4>
+<span id="teacher-forcing" class="fragment"></span><a href="#teacher-forcing"><i class="fa fa-link"></i></a>teacher forcing</h4>
+
+<p>RNNではtの出力がt+1のinputになり・・・と続いていきますが、学習時においてはt+1への入力の正解がteacherから明らかなので、それをそのまま使用してしまうという方法です。これにより各層で下層からの影響を無視して学習させることができ、収束速度を上げることができますが、(学習後)実際実行すると出力が安定しない?ようです。</p>
+
+<h4>
+<span id="rpropresilient-backpropagation" class="fragment"></span><a href="#rpropresilient-backpropagation"><i class="fa fa-link"></i></a>RPROP(Resilient backpropagation)</h4>
+
+<p>これは通常のNNでも使用される方法です。NNを学習させる際勾配を計算しますが、その勾配の向き(sign)が前回と今でどのように変化したかによって重み($\eta$)をかけるものです(詳細は<a href="http://paginas.fe.up.pt/%7Eee02162/dissertacao/RPROP%20paper.pdf" rel="nofollow noopener" target="_blank">こちら</a>に詳しいです。)。</p>
+
+<ul>
+<li>前回と今回で符号が同じ場合、勾配に重みをかけることで学習を加速させる。</li>
+<li>前回と今回で符号が異なる場合、勾配を減速させ見過ごした最適解に戻る。</li>
+</ul>
+
+<p>この挙動が、ちょうどボールを転がしているような感じになるため(勾配で加速し、勾配の向きが変わるとゆっくりになり逆向きの力が働く)、Resilientという名前がついているのだと思います。</p>
+
+<p>Sigmoid関数のような関数では値が一定範囲を超えた箇所ではフラット(勾配がほぼ0)になるため学習が進みにくくなりますが(<a href="http://www.heatonresearch.com/wiki/Flat_Spot_Problem" rel="nofollow noopener" target="_blank">Flat Spot Problem</a>)、この手法を適用することで重みがかかるため学習の停滞を防ぐ効果もあります。</p>
+
+<p>この手法自体にもさまざまなバリエーションがあります。詳しくは<a href="http://en.wikipedia.org/wiki/Rprop" rel="nofollow noopener" target="_blank">こちら</a>をご参考ください。</p>
+
+<p>上記の様々な手法以外に、通常のNN同様、誤差伝播の度合いを調整するlearning rate、ひとつ前の層の影響度を調整するmomentumといったパラメーターのチューニングも重要です。</p>
+
+<p>BPTTは一般的に収束が遅く学習に時間がかかります。そのため、隠れ層のノードが3～20程度の小さなネットワークで使われることが多く、これを超える場合数時間、またそれ以上の学習時間がかかる恐れがあります。</p>
+
+<h3>
+<span id="rtrl-real-time-recurrent-learning" class="fragment"></span><a href="#rtrl-real-time-recurrent-learning"><i class="fa fa-link"></i></a>RTRL (Real Time Recurrent Learning)</h3>
+
+<p>RTRLはBPTTとは異なり誤差を先の時間に伝播していく方法であり、このためオンライン学習に適しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/e6a99826-9162-d288-d08e-df3de96b8448.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/e6a99826-9162-d288-d08e-df3de96b8448.png" alt="rtrl.PNG"></a></p>
+
+<p>時刻tで発生した誤差で、次の時刻t+1の重みを更新します。上の図では各時間で誤差を計算し伝播させていますが、一定時間(epoch)の後に更新するという手法もあります。ただ、一度に更新しなければならない重みがBPTTに比べ多いため、計算負荷が高くなります。</p>
+
+<h3>
+<span id="ekf-extended-kalman-filter" class="fragment"></span><a href="#ekf-extended-kalman-filter"><i class="fa fa-link"></i></a>EKF (Extended Kalman Filter)</h3>
+
+<p>RNNに拡張カルマンフィルタを適用し、重みの更新を行うのがEKFです。拡張カルマンフィルタは線形の系を扱うカルマンフィルタを非線形に拡張したもので、以下のように系の状態を推定します。</p>
+
+<p>$ x(n+1) = f(x(n)) + q(n) $<br>
+$ d(n) = h_n(x(n)) $</p>
+
+<p>上記の数式は、以下のことを表現しています。</p>
+
+<ul>
+<li>次の状態$x(n+1)$は前の状態$x(n)$からの入力$f(x(n))$と、$q(n)$(外部からのノイズを表現したもの)で決まる</li>
+<li>状態$x(n)$の出力は$h_n(x(n))$</li>
+</ul>
+
+<p>イメージ的には下図のようになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/57454845-e204-34e3-4b61-ffafb949cea1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/57454845-e204-34e3-4b61-ffafb949cea1.png" alt="ekf.PNG"></a></p>
+
+<p>そして、RNNはこの拡張カルマンフィルタとみなせる、とします。それを表したのが以下の図です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/8b7bee8b-e4cd-5a45-edd7-80e9e3157d26.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/8b7bee8b-e4cd-5a45-edd7-80e9e3157d26.png" alt="rnn_ekf1.PNG"></a></p>
+
+<p>重み$w$を状態、出力を$d$とするところは問題ないと思います。問題なのはinputですが、これを出力$d$を計算するための関数$h$の中の一部とみなしてしまうことで、これは拡張カルマンフィルタだ、ということにします(実際inputの入力と重み$w$で計算するので、それほど無理なものでもないと思います)。</p>
+
+<p>そうすると拡張カルマンフィルタの状態更新の手法が、そのままRNNの状態、つまり重みの更新に適用できます。状態更新の計算式はかなりややこしいので詳細は省きますが、こうして拡張カルマンフィルタの手法をRNNに持ち込むのがEKFという手法です。<br>
+計算を簡略化するための方法もあり有望な手法ですが、BPTTやRTRL同様、精度を出すには経験に基づくチューニング(learning rate,ネットワークの構成など)が必要です。</p>
+
+<h2>
+<span id="rnnのライブラリ" class="fragment"></span><a href="#rnn%E3%81%AE%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA"><i class="fa fa-link"></i></a>RNNのライブラリ</h2>
+
+<p>メジャーどころのライブラリで明確に対応しているのは<a href="https://github.com/pybrain/pybrain" rel="nofollow noopener" target="_blank">pybrain</a>です。<a href="http://pybrain.org/docs/tutorial/netmodcon.html#using-recurrent-networks" rel="nofollow noopener" target="_blank">Recurrent Networkのチュートリアル</a>も用意されています。</p>
+
+<p>Deep Learningで有名なpylearn2でも可能なようですが、パスを見て分かるとおり現時点(2015/1)ではまだsandboxの中にあり、実際使うには不安な状態です。</p>
+
+<p><a href="https://github.com/lisa-lab/pylearn2/blob/82f31a5df7e4610c735baf99af22f7af438d02c2/pylearn2/sandbox/rnn/models/tests/test_rnn.py" rel="nofollow noopener" target="_blank">lisa-lab/pylearn2 pylearn2/pylearn2/sandbox/rnn/models/tests/test_rnn.py</a></p>
+
+<p>自前で実装する際は、Theanoを使った方法が紹介されています。</p>
+
+<p><a href="http://www.nehalemlabs.net/prototype/blog/2013/10/10/implementing-a-recurrent-neural-network-in-python/" rel="nofollow noopener" target="_blank">Implementing a recurrent neural network in python</a><br>
+<a href="https://github.com/gwtaylor/theano-rnn" rel="nofollow noopener" target="_blank">gwtaylor/theano-rnn</a></p>
+
+<p>こちらはRNNとRBMを組み合わせたものになりますが、コードも含め実装が紹介されています。</p>
+
+<p><a href="http://deeplearning.net/tutorial/rnnrbm.html" rel="nofollow noopener" target="_blank">Modeling and generating sequences of polyphonic music with the RNN-RBM</a><br>
+<a href="http://xiangze.hatenablog.com/entry/2014/09/28/143934" rel="nofollow noopener" target="_blank">RNN-RBMによる旋律の予測と生成と音楽情報処理に関する紹介</a></p>
+
+<p>その他、<a href="https://github.com/karpathy/neuraltalk" rel="nofollow noopener" target="_blank">neuraltalk</a>は画像とそれに対する説明を学習させ、画像を与えるとそれに対する説明を出力すといったモデルのようです。構築のためのライブラリというよりはできあいのものになりますが、この用途で使うのならばよいと思います。</p>
+
+<h2>
+<span id="rnnの実装" class="fragment"></span><a href="#rnn%E3%81%AE%E5%AE%9F%E8%A3%85"><i class="fa fa-link"></i></a>RNNの実装</h2>
+
+<p>今回は、上記のとおり実装例もある<code>pybrain</code>を利用してRNNを実装してみます。</p>
+
+<p>PyBrainの最新版は0.3.3です(2015/1時点)。PYPIサイトに<a href="https://pypi.python.org/pypi/PyBrain/0.3.3" rel="nofollow noopener" target="_blank">アップはされている</a>・・・ようですがpipから入るのは0.3.2であるため、<code>git clone</code>でリポジトリを落としてきてインストールします。手順・依存ライブラリはこちらをご参照ください。</p>
+
+<p><a href="https://github.com/pybrain/pybrain/wiki/Installation" rel="nofollow noopener" target="_blank">Installation</a></p>
+
+<p>メインな依存はScipyです。Pythonは2.5と書いてありますが、手元の環境でPython3.4.2でテスト(<code>python runtests.py</code>)が通ることを確認済みです。Issueなどを見るとPython3は未対応の部分もある気配がしますが、使っている中で問題になったところはありませんでした(知らずに誤差が出てたりしなければ・・・)。</p>
+
+<p>予測する時系列のデータは、ボールの軌道のデータを生成して使用しました。最初は<a href="http://arxiv.org/ftp/arxiv/papers/1206/1206.6392.pdf" rel="nofollow noopener" target="_blank">こちらの論文</a>で使用されていたボールのバウンドデータ (<a href="http://www.cs.utoronto.ca/%7Eilya/code/2008/RTRBM.tar" rel="nofollow noopener" target="_blank">www.cs.utoronto.ca/~ilya/code/2008/RTRBM.tar</a>) を使おうと思ったのですが、動作環境がPython2と古かったうえ、READMEの記述を信じるなら学習に1週間かかる(引用:the bouncing balls problems trains for a considerably longer amount of time (about a week on a fast computer...))とのことだったので、単純な軌道を生成して使うことにしました。</p>
+
+<p>モデルの構築についてはPyBrainのチュートリアルに丁寧に書かれていますが、主要な記述方法について以下にまとめておきます。</p>
+
+<p><a href="http://pybrain.org/docs/index.html" rel="nofollow noopener" target="_blank">Welcome to PyBrain’s documentation!</a></p>
+
+<h3>
+<span id="ネットワークの構築" class="fragment"></span><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E6%A7%8B%E7%AF%89"><i class="fa fa-link"></i></a>ネットワークの構築</h3>
+
+<p><code>pybrain.structure</code>を利用して組み立てを行います。下記では、2-3-1でバイアス項を持つ通常のネットワークを構築しています。</p>
+
+<p><a href="http://pybrain.org/docs/tutorial/netmodcon.html" rel="nofollow noopener" target="_blank">Building Networks with Modules and Connections</a></p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+from pybrain.structure import FeedForwardNetwork, LinearLayer, SigmoidLayer, BiasUnit, FullConnection
+
+net = FeedForwardNetwork()
+net.addInputModule(LinearLayer(2, name='i'))
+net.addModule(BiasUnit('bias'))
+net.addModule(SigmoidLayer(3, name='h'))
+net.addOutputModule(LinearLayer(1, name='o'))
+
+# connect nodes
+net.addConnection(FullConnection(net['i'], net['h']))
+net.addConnection(FullConnection(net['bias'], net['h']))
+net.addConnection(FullConnection(net['bias'], net['o']))
+net.addConnection(FullConnection(net['h'], net['o']))
+</pre></div></div>
+
+<p><a href="http://pybrain.org/docs/quickstart/network.html" rel="nofollow noopener" target="_blank"><code>buildNetwork</code></a>を使うとより簡単に構築できます。下記は上記の処理と同じです。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+net = buildNetwork(2, 3, 1, bias=True, hiddenclass=SigmoidLayer)
+</pre></div></div>
+
+<h3>
+<span id="ネットワークの学習" class="fragment"></span><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>ネットワークの学習</h3>
+
+<p>学習を行うために、まずはデータセットを用意します。下記では、上記で構築したネットワークに合わせて入力2に対し出力1のデータを<code>addSample</code>で渡しています(なお、ドキュメント中に出てくる<code>appendLinked</code>と<code>addSample</code>は<a href="https://github.com/pybrain/pybrain/blob/1dd5086a51c3c98497ef85b31178588a89d8951e/pybrain/datasets/unsupervised.py#L31" rel="nofollow noopener" target="_blank">等価です</a>)。</p>
+
+<p><a href="http://pybrain.org/docs/quickstart/dataset.html" rel="nofollow noopener" target="_blank">Building a DataSet</a></p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+from pybrain.datasets import SupervisedDataSet
+ds = SupervisedDataSet(2, 1)
+ds.addSample((0, 0), (0,))
+...
+</pre></div></div>
+
+<p>用意したデータセットで、学習を行います。<code>trainer.train</code>はdouble proportional to the error(二乗誤差?)を返却するので、これでトレーニングデータへの当てはまりを評価することができます。</p>
+
+<p><a href="http://pybrain.org/docs/quickstart/training.html" rel="nofollow noopener" target="_blank">Training your Network on your Dataset</a></p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+from pybrain.supervised.trainers import BackpropTrainer
+net = buildNetwork(2, 3, 1, bias=True, hiddenclass=TanhLayer)
+trainer = BackpropTrainer(net, ds)
+err = trainer.train()
+</pre></div></div>
+
+<h3>
+<span id="ネットワークによる予測" class="fragment"></span><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AB%E3%82%88%E3%82%8B%E4%BA%88%E6%B8%AC"><i class="fa fa-link"></i></a>ネットワークによる予測</h3>
+
+<p>予測は<code>activate</code>関数で行います。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+net.activate([1, 2])
+</pre></div></div>
+
+<h3>
+<span id="rnnの構築" class="fragment"></span><a href="#rnn%E3%81%AE%E6%A7%8B%E7%AF%89"><i class="fa fa-link"></i></a>RNNの構築</h3>
+
+<p>RNNの場合も、通常のネットワーク構築とほぼ変わりません。<br>
+RNNでは<code>RecurrentNetwork</code>を使用し、再帰のつながりを行う際は、<code>addRecurrentConnection</code>により接続を行います。</p>
+
+<p><a href="http://pybrain.org/docs/tutorial/netmodcon.html#using-recurrent-networks" rel="nofollow noopener" target="_blank">Using Recurrent Networks</a></p>
+
+<p>そして、予測は<code>net.reset()</code>でいったんリセットを行った後に<code>activate</code>で実行します。<br>
+<code>activate</code>については、上記の例ではずっと同じ値を入れて予測していましたが実際は予測した値を再度入れて～とやらないと当てはまりが悪かったです(理論上は最初の一つの入力さえあればその後どんどん予測できるので初期値のままでも問題ない気もしますが・・・)。</p>
+
+<p>今回はElmanとJordanの二つで試してみました。下記は、Jordanでのイメージです。x,yの座標とそれぞれの加速度を入力として渡しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/dead4b0b-526b-d91e-95c4-07ad1d012889.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/dead4b0b-526b-d91e-95c4-07ad1d012889.png" alt="rnn_demo.PNG"></a></p>
+
+<p>加速度は時刻tの位置と時刻t+1の位置で決まるため隠れ層でうまく学習してくれる・・・と思ったのですが、どうにも精度が出なかったので入力パラメーターとして加えました。</p>
+
+<p>学習データは、同じ初期加速度の下初期位置を変えて幾つかバッチを用意し、それで学習/テストを行いました。<br>
+初期加速度は学習/テストデータで同じため、このモデルはその加速度の下、ある地点にボールが置かれたときその後どのような軌跡を描くかを推測するモデルになっています。</p>
+
+<p>気になる精度ですが・・・テストデータとの誤差は平均5.7程度と、あまりよくありませんでした。<br>
+今回のデータは10×10の正方形の中でバウンドするボールの軌道を予測するもののため、誤差が5.7ということは予測はほぼ完全に外れているといっていいレベルです。</p>
+
+<p>アニメーションでみるとまあ気持ちはわかる程度に動いてはいるのですが、完全再現には程多いものになっています。<br>
+隠れ層・ノードの増減も試してみましたが変わらず・・・といった感じでした。</p>
+
+<p>実際の軌道<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/25990/89ccb8b2-d1bf-85be-927e-585b368ac829.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/89ccb8b2-d1bf-85be-927e-585b368ac829.gif" alt="real1.gif"></a></p>
+
+<p>予測した軌道(かなりベストに近いもの)<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/25990/e3fa448f-9a52-e883-7547-a822aa9c34a6.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/e3fa448f-9a52-e883-7547-a822aa9c34a6.gif" alt="predict1.gif"></a></p>
+
+<p>検証に使用したコードはこちらになっています。もし我こそはという方がいたらPull Requestをお待ちしております。</p>
+
+<p><a href="https://github.com/icoxfog417/rnn_demo" rel="nofollow noopener" target="_blank">rnn_demo</a></p>
+
+<h2>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h2>
+
+<ul>
+<li>RNNについて
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Recurrent_neural_network" rel="nofollow noopener" target="_blank">Recurrent neural network</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Types_of_artificial_neural_networks" rel="nofollow noopener" target="_blank">Types of artificial neural networks</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Hopfield_network" rel="nofollow noopener" target="_blank">Hopfield network</a></li>
+<li><a href="http://www.scholarpedia.org/article/Echo_state_network" rel="nofollow noopener" target="_blank">Echo state network</a></li>
+<li><a href="http://www.heatonresearch.com/node/2155" rel="nofollow noopener" target="_blank">What is the difference between Elman and Jordan neural networks</a></li>
+<li><a href="http://www.slideshare.net/beam2d/pfi-seminar-20141030rnn" rel="nofollow noopener" target="_blank">Recurrent Neural Networks</a></li>
+<li><a href="http://ieeexplore.ieee.org/xpl/login.jsp?tp=&amp;arnumber=650093&amp;url=http%3A%2F%2Fieeexplore.ieee.org%2Fiel4%2F78%2F14188%2F00650093.pdf%3Farnumber%3D650093" rel="nofollow noopener" target="_blank">Bidirectional recurrent neural networks</a></li>
+<li><a href="http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf" rel="nofollow noopener" target="_blank">A tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the "echo state network" approach</a></li>
+<li><a href="http://paginas.fe.up.pt/%7Eee02162/dissertacao/RPROP%20paper.pdf" rel="nofollow noopener" target="_blank">A Direct Adaptive Method for Faster Backpropagation Learning: The RPROP Algorithm</a></li>
+</ul>
+</li>
+<li>RNNの実装に関する論文など
+
+<ul>
+<li><a href="http://deeplearning.net/tutorial/rnnrbm.html" rel="nofollow noopener" target="_blank">Modeling and generating sequences of polyphonic music with the RNN-RBM</a></li>
+<li><a href="http://arxiv.org/ftp/arxiv/papers/1206/1206.6392.pdf" rel="nofollow noopener" target="_blank">Modeling Temporal Dependencies in High-Dimensional Sequences:Application to Polyphonic Music Generation and Transcription</a></li>
+<li>↑論文を日本語で解説してくださっている記事 <a href="http://xiangze.hatenablog.com/entry/2014/09/28/143934" rel="nofollow noopener" target="_blank">RNN-RBMによる旋律の予測と生成と音楽情報処理に関する紹介</a>
+</li>
+<li><a href="http://www.researchgate.net/publication/228575942_Continuous_time_recurrent_neural_networks_for_grammatical_induction" rel="nofollow noopener" target="_blank">Continuous time recurrent neural networks for grammatical induction</a></li>
+</ul>
+</li>
+<li>PyBrainについて 
+
+<ul>
+<li><a href="http://pybrain.org/docs/index.html" rel="nofollow noopener" target="_blank">Welcome to PyBrain’s documentation!</a></li>
+</ul>
+</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/icoxfog417/items/2791ee878deee0d0fd9c" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="rIh+IMcElpIGe2TzJ9GER/oMeR3IWxPKH/y9SdBLsHGyuTm8adsa7JLdLZimcAFmyOyeFHKkPPAZe97OcyTmXw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1422842515" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+ニューラルネットワークで時系列データを扱う場合、リカレントニューラルネットワークを使用します。今回は、そのリカレントニューラルネットワークについての解説です。
+
+(長いため、以下ニューラルネットワークはNN、リカレントニューラルネットワーク(Recurrent Neural Network)はRNNと略記)
+
+## RNNの概要
+データの中には、「ｘ」が出たら「ｙ」が来る可能性が高い、というように前のデータが次のデータに対し相関を持つものがあります。
+具体的には、言葉や音楽といったものです(「私」の後には「は」か「が」が来ることが多い、など)。こうした時系列で相関を持つデータでは、当然前に発生したデータを考慮したくなります。
+NNに、前に発生したデータを投入できるようにはできないか。その答えが、RNNとなります。
+
+具体的には、下図のようになります。
+
+![rnn2.PNG](https://qiita-image-store.s3.amazonaws.com/0/25990/0ada9fe4-943e-a43a-94d2-4493c2acde8b.png)
+
+時刻$t$の隠れ層の内容が、次の時刻$t+1$の時の入力として扱われます。$t+1$の隠れ層が$t+2$の・・・と続くわけですが、要は前回の隠れ層が次の隠れ層の学習にも使用される、というイメージです。
+
+## RNNの種別
+
+| 名称 | 結合対象 | 特徴 |
+|:------------------------|:------------|:-------------|
+| Fully recurrent network |全ノード(1:N)|自身も含め完全双方向に結合する|
+| Hopfield network        |全ノード(1:N-1)|双方向結合で、結合対象に自身は含まない|
+| Elman network |1:1 (隠れ層-&gt;隠れ層)|入力層・コンテキスト(隠れ層)・出力層の3層構造|
+| Jordan network |1:1 (出力層-&gt;隠れ層)|入力層・コンテキスト(隠れ層)・出力層の3層構造|
+| Echo state network (ESN) |1-&gt;1?|結合対象は、ノードの集合(reservoir)からランダムに決定される |
+| Long short term memory network (LSTM) |-|RNNのノードの代わりに、入力値を保持しておけるBlockを採用したもの。高精度|
+| Bi-directional RNN (BRNN) |- |双方向(過去-&gt;未来/未来-&gt;過去)のRNNを組み合わせたもの|
+
+[Hopfield network](http://en.wikipedia.org/wiki/Hopfield_network)は、一般的なクラス分類以外に[最適化問題への応用が可能](http://www.sist.ac.jp/~kanakubo/research/neuro/hopfieldnetwork.html)なモデルです。
+
+Elman/Jordanは、[Simple recurrent networksと言われているように](http://en.wikipedia.org/wiki/Types_of_artificial_neural_networks#Simple_recurrent_networks)一番シンプルな形となっています。RNNを利用したい場合はまずどちらかでやってみて、精度的な問題があるのなら他の手法に切り替えてみる、というのがよいのではないかと思います。
+Elman/Jordanの違いは上記のとおりですが(前回データの反映が隠れ層から行われるか、出力層から行われるか)、[こちら](http://www.heatonresearch.com/node/2155)にも詳しく書かれています。精度的な優劣はありませんが、隠れ層の数によって次に伝播する量を変化させられるElmanの方が柔軟と言えると思います。
+
+[Echo state network](http://www.scholarpedia.org/article/Echo_state_network)は毛色が違ったモデルで、ノードを事前に結合せずReservoir(貯水池などの意味)と呼ばれるプールに貯めておき、入力が与えられた後ランダム/動的に結合を行うというスタイルです。要は人の脳の中ではあらかじめ決められた結合などないわけだから、それを模倣し流動的に結合する・・・というコンセプトで作られたものです。これは[Liquid State Machines](http://en.wikipedia.org/wiki/Liquid_state_machine)(直訳すると液状機構)とも呼ばれているようです。
+
+[Long short term memory network (LSTM)](http://en.wikipedia.org/wiki/Long_short_term_memory) と Bi-directional RNN (BRNN) は結合方法に関する制約は特にありません。
+LSTMは単純なノードの代わりに重みを覚えておけるLSTM blockを採用したものです。これはRNNにおける学習の課題を解決するためのもので、後で解説します。
+
+Bi-directional RNNは過去→未来という一方向の学習だけでなく、未来→過去というある意味負の方向の時系列についても学習を行うことで精度を高められる、というものです。
+
+## RNNの学習
+
+RNNの学習については以下のドキュメントが非常に丁寧に書かれています。英語ですが、現段階(2015/1)でRNNに関する日本語文献はほとんど存在しないので、もうあきらめて読む以外にすべはないです。
+
+[A tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the &quot;echo state network&quot; approach](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf)
+
+RNNの学習は一般的に収束が非常に遅いです。精確を期すにはlerning rateを低めにする必要がありますが、低めにするとただでさえ遅い収束がより遅くなります。これはトレードオフになりますが、解決の方法として勾配の不安定性を最適化のプロセスの中で考慮する方法があるそうです(詳しくは[EFFICIENT SECOND-ORDER LEARNING ALGORITHMS FOR DISCRETE-TIME RECURRENT NEURAL NETWORKS](http://ir.nmu.org.ua/bitstream/handle/123456789/120274/866d31771b48ba40c56fcc039f091b9b.pdf?sequence=1&amp;isAllowed=y#page=58)参照)。
+
+一つ言えるのは、色々調べましたが現時点(2015/1)においてRNNの学習で精度・速度ともに問題のない確立した手法はまだ存在せず、よって当然それを実装したライブラリもないということです。ここは地道に修行を重ねる必要があります。
+
+### BPTT (BackPropagation Through Time)
+RNNは展開すると長いNNとみなすことができるので、通常通りbackpropagationが適用できるはず、というのが基本的な考え方です。イメージ的には以下のようになります。
+
+![bptt1.PNG](https://qiita-image-store.s3.amazonaws.com/0/25990/250e6a57-8081-fa17-94c1-a4b76823b261.png)
+
+誤差は最後の時刻であるTから最初の0に向かって伝播していきます。よって、ある時刻tにおけるoutput layerの誤差は「時刻tにおけるteacher(教師データ)とoutput(出力)の差異」と「t+1から伝播してきた誤差」の和になります。
+
+図からも明らかなとおり、BPTTは最後のTまでのデータ、つまりすべての時系列データがなければ学習を行うことができません。そのため、長いデータは最新の分のみ切り取るなどといった対応が必要です。
+
+このBPTTには様々な課題があり、よってそれに対応するための学習方法もいろいろ考案されています。
+
+#### LSTM(Long short term memory)
+Tがあまりに大きい、つまり長い時系列のデータの場合、計算上の問題で上層からの誤差が薄まったり逆に非常に大きくなったりします(これは、[こちらに詳しいです(p8～)](http://www.slideshare.net/beam2d/pfi-seminar-20141030rnn))。
+値が大きくなる分には最大値の制限で何とかなりますが、消えてしまうのはどうにもならないため、誤差が減衰しないよう伝播させるというのがLSTMの思想です。
+
+#### teacher forcing
+RNNではtの出力がt+1のinputになり・・・と続いていきますが、学習時においてはt+1への入力の正解がteacherから明らかなので、それをそのまま使用してしまうという方法です。これにより各層で下層からの影響を無視して学習させることができ、収束速度を上げることができますが、(学習後)実際実行すると出力が安定しない?ようです。
+
+#### RPROP(Resilient backpropagation)
+これは通常のNNでも使用される方法です。NNを学習させる際勾配を計算しますが、その勾配の向き(sign)が前回と今でどのように変化したかによって重み($\eta$)をかけるものです(詳細は[こちら](http://paginas.fe.up.pt/~ee02162/dissertacao/RPROP%20paper.pdf)に詳しいです。)。
+
+* 前回と今回で符号が同じ場合、勾配に重みをかけることで学習を加速させる。
+* 前回と今回で符号が異なる場合、勾配を減速させ見過ごした最適解に戻る。
+
+この挙動が、ちょうどボールを転がしているような感じになるため(勾配で加速し、勾配の向きが変わるとゆっくりになり逆向きの力が働く)、Resilientという名前がついているのだと思います。
+
+Sigmoid関数のような関数では値が一定範囲を超えた箇所ではフラット(勾配がほぼ0)になるため学習が進みにくくなりますが([Flat Spot Problem](http://www.heatonresearch.com/wiki/Flat_Spot_Problem))、この手法を適用することで重みがかかるため学習の停滞を防ぐ効果もあります。
+
+この手法自体にもさまざまなバリエーションがあります。詳しくは[こちら](http://en.wikipedia.org/wiki/Rprop)をご参考ください。
+
+
+上記の様々な手法以外に、通常のNN同様、誤差伝播の度合いを調整するlearning rate、ひとつ前の層の影響度を調整するmomentumといったパラメーターのチューニングも重要です。
+
+BPTTは一般的に収束が遅く学習に時間がかかります。そのため、隠れ層のノードが3～20程度の小さなネットワークで使われることが多く、これを超える場合数時間、またそれ以上の学習時間がかかる恐れがあります。
+
+
+### RTRL (Real Time Recurrent Learning) 
+RTRLはBPTTとは異なり誤差を先の時間に伝播していく方法であり、このためオンライン学習に適しています。
+
+![rtrl.PNG](https://qiita-image-store.s3.amazonaws.com/0/25990/e6a99826-9162-d288-d08e-df3de96b8448.png)
+
+時刻tで発生した誤差で、次の時刻t+1の重みを更新します。上の図では各時間で誤差を計算し伝播させていますが、一定時間(epoch)の後に更新するという手法もあります。ただ、一度に更新しなければならない重みがBPTTに比べ多いため、計算負荷が高くなります。
+
+### EKF (Extended Kalman Filter) 
+RNNに拡張カルマンフィルタを適用し、重みの更新を行うのがEKFです。拡張カルマンフィルタは線形の系を扱うカルマンフィルタを非線形に拡張したもので、以下のように系の状態を推定します。
+
+$ x(n+1) = f(x(n)) + q(n) $
+$ d(n) = h_n(x(n)) $
+
+上記の数式は、以下のことを表現しています。
+
+* 次の状態$x(n+1)$は前の状態$x(n)$からの入力$f(x(n))$と、$q(n)$(外部からのノイズを表現したもの)で決まる
+* 状態$x(n)$の出力は$h_n(x(n))$
+
+イメージ的には下図のようになります。
+
+![ekf.PNG](https://qiita-image-store.s3.amazonaws.com/0/25990/57454845-e204-34e3-4b61-ffafb949cea1.png)
+
+そして、RNNはこの拡張カルマンフィルタとみなせる、とします。それを表したのが以下の図です。
+
+![rnn_ekf1.PNG](https://qiita-image-store.s3.amazonaws.com/0/25990/8b7bee8b-e4cd-5a45-edd7-80e9e3157d26.png)
+
+重み$w$を状態、出力を$d$とするところは問題ないと思います。問題なのはinputですが、これを出力$d$を計算するための関数$h$の中の一部とみなしてしまうことで、これは拡張カルマンフィルタだ、ということにします(実際inputの入力と重み$w$で計算するので、それほど無理なものでもないと思います)。
+
+そうすると拡張カルマンフィルタの状態更新の手法が、そのままRNNの状態、つまり重みの更新に適用できます。状態更新の計算式はかなりややこしいので詳細は省きますが、こうして拡張カルマンフィルタの手法をRNNに持ち込むのがEKFという手法です。
+計算を簡略化するための方法もあり有望な手法ですが、BPTTやRTRL同様、精度を出すには経験に基づくチューニング(learning rate,ネットワークの構成など)が必要です。
+
+## RNNのライブラリ
+メジャーどころのライブラリで明確に対応しているのは[pybrain](https://github.com/pybrain/pybrain)です。[Recurrent Networkのチュートリアル](http://pybrain.org/docs/tutorial/netmodcon.html#using-recurrent-networks)も用意されています。
+
+Deep Learningで有名なpylearn2でも可能なようですが、パスを見て分かるとおり現時点(2015/1)ではまだsandboxの中にあり、実際使うには不安な状態です。
+
+[lisa-lab/pylearn2 pylearn2/pylearn2/sandbox/rnn/models/tests/test_rnn.py](https://github.com/lisa-lab/pylearn2/blob/82f31a5df7e4610c735baf99af22f7af438d02c2/pylearn2/sandbox/rnn/models/tests/test_rnn.py)
+
+自前で実装する際は、Theanoを使った方法が紹介されています。
+
+[Implementing a recurrent neural network in python](http://www.nehalemlabs.net/prototype/blog/2013/10/10/implementing-a-recurrent-neural-network-in-python/)
+[gwtaylor/theano-rnn](https://github.com/gwtaylor/theano-rnn)
+
+こちらはRNNとRBMを組み合わせたものになりますが、コードも含め実装が紹介されています。
+
+[Modeling and generating sequences of polyphonic music with the RNN-RBM](http://deeplearning.net/tutorial/rnnrbm.html)
+[RNN-RBMによる旋律の予測と生成と音楽情報処理に関する紹介](http://xiangze.hatenablog.com/entry/2014/09/28/143934)
+
+その他、[neuraltalk](https://github.com/karpathy/neuraltalk)は画像とそれに対する説明を学習させ、画像を与えるとそれに対する説明を出力すといったモデルのようです。構築のためのライブラリというよりはできあいのものになりますが、この用途で使うのならばよいと思います。
+
+## RNNの実装
+今回は、上記のとおり実装例もある`pybrain`を利用してRNNを実装してみます。
+
+PyBrainの最新版は0.3.3です(2015/1時点)。PYPIサイトに[アップはされている](https://pypi.python.org/pypi/PyBrain/0.3.3)・・・ようですがpipから入るのは0.3.2であるため、`git clone`でリポジトリを落としてきてインストールします。手順・依存ライブラリはこちらをご参照ください。
+
+[Installation](https://github.com/pybrain/pybrain/wiki/Installation)
+
+メインな依存はScipyです。Pythonは2.5と書いてありますが、手元の環境でPython3.4.2でテスト(`python runtests.py`)が通ることを確認済みです。Issueなどを見るとPython3は未対応の部分もある気配がしますが、使っている中で問題になったところはありませんでした(知らずに誤差が出てたりしなければ・・・)。
+
+予測する時系列のデータは、ボールの軌道のデータを生成して使用しました。最初は[こちらの論文](http://arxiv.org/ftp/arxiv/papers/1206/1206.6392.pdf)で使用されていたボールのバウンドデータ (www.cs.utoronto.ca/~ilya/code/2008/RTRBM.tar) を使おうと思ったのですが、動作環境がPython2と古かったうえ、READMEの記述を信じるなら学習に1週間かかる(引用:the bouncing balls problems trains for a considerably longer amount of time (about a week on a fast computer...))とのことだったので、単純な軌道を生成して使うことにしました。
+
+モデルの構築についてはPyBrainのチュートリアルに丁寧に書かれていますが、主要な記述方法について以下にまとめておきます。
+
+[Welcome to PyBrain’s documentation!](http://pybrain.org/docs/index.html)
+
+### ネットワークの構築
+`pybrain.structure`を利用して組み立てを行います。下記では、2-3-1でバイアス項を持つ通常のネットワークを構築しています。
+
+[Building Networks with Modules and Connections](http://pybrain.org/docs/tutorial/netmodcon.html)
+
+```
+from pybrain.structure import FeedForwardNetwork, LinearLayer, SigmoidLayer, BiasUnit, FullConnection
+
+net = FeedForwardNetwork()
+net.addInputModule(LinearLayer(2, name=&#39;i&#39;))
+net.addModule(BiasUnit(&#39;bias&#39;))
+net.addModule(SigmoidLayer(3, name=&#39;h&#39;))
+net.addOutputModule(LinearLayer(1, name=&#39;o&#39;))
+
+# connect nodes
+net.addConnection(FullConnection(net[&#39;i&#39;], net[&#39;h&#39;]))
+net.addConnection(FullConnection(net[&#39;bias&#39;], net[&#39;h&#39;]))
+net.addConnection(FullConnection(net[&#39;bias&#39;], net[&#39;o&#39;]))
+net.addConnection(FullConnection(net[&#39;h&#39;], net[&#39;o&#39;]))
+```
+
+[`buildNetwork`](http://pybrain.org/docs/quickstart/network.html)を使うとより簡単に構築できます。下記は上記の処理と同じです。
+
+```
+net = buildNetwork(2, 3, 1, bias=True, hiddenclass=SigmoidLayer)
+```
+
+### ネットワークの学習
+
+学習を行うために、まずはデータセットを用意します。下記では、上記で構築したネットワークに合わせて入力2に対し出力1のデータを`addSample`で渡しています(なお、ドキュメント中に出てくる`appendLinked`と`addSample`は[等価です](https://github.com/pybrain/pybrain/blob/1dd5086a51c3c98497ef85b31178588a89d8951e/pybrain/datasets/unsupervised.py#L31))。
+
+[Building a DataSet](http://pybrain.org/docs/quickstart/dataset.html)
+
+```
+from pybrain.datasets import SupervisedDataSet
+ds = SupervisedDataSet(2, 1)
+ds.addSample((0, 0), (0,))
+...
+```
+
+用意したデータセットで、学習を行います。`trainer.train`はdouble proportional to the error(二乗誤差?)を返却するので、これでトレーニングデータへの当てはまりを評価することができます。
+
+[Training your Network on your Dataset](http://pybrain.org/docs/quickstart/training.html)
+
+```
+from pybrain.supervised.trainers import BackpropTrainer
+net = buildNetwork(2, 3, 1, bias=True, hiddenclass=TanhLayer)
+trainer = BackpropTrainer(net, ds)
+err = trainer.train()
+```
+
+### ネットワークによる予測
+予測は`activate`関数で行います。
+
+```
+net.activate([1, 2])
+```
+
+### RNNの構築
+RNNの場合も、通常のネットワーク構築とほぼ変わりません。
+RNNでは`RecurrentNetwork`を使用し、再帰のつながりを行う際は、`addRecurrentConnection`により接続を行います。
+
+[Using Recurrent Networks](http://pybrain.org/docs/tutorial/netmodcon.html#using-recurrent-networks)
+
+そして、予測は`net.reset()`でいったんリセットを行った後に`activate`で実行します。
+`activate`については、上記の例ではずっと同じ値を入れて予測していましたが実際は予測した値を再度入れて～とやらないと当てはまりが悪かったです(理論上は最初の一つの入力さえあればその後どんどん予測できるので初期値のままでも問題ない気もしますが・・・)。
+
+今回はElmanとJordanの二つで試してみました。下記は、Jordanでのイメージです。x,yの座標とそれぞれの加速度を入力として渡しています。
+
+![rnn_demo.PNG](https://qiita-image-store.s3.amazonaws.com/0/25990/dead4b0b-526b-d91e-95c4-07ad1d012889.png)
+
+加速度は時刻tの位置と時刻t+1の位置で決まるため隠れ層でうまく学習してくれる・・・と思ったのですが、どうにも精度が出なかったので入力パラメーターとして加えました。
+
+学習データは、同じ初期加速度の下初期位置を変えて幾つかバッチを用意し、それで学習/テストを行いました。
+初期加速度は学習/テストデータで同じため、このモデルはその加速度の下、ある地点にボールが置かれたときその後どのような軌跡を描くかを推測するモデルになっています。
+
+気になる精度ですが・・・テストデータとの誤差は平均5.7程度と、あまりよくありませんでした。
+今回のデータは10×10の正方形の中でバウンドするボールの軌道を予測するもののため、誤差が5.7ということは予測はほぼ完全に外れているといっていいレベルです。
+
+アニメーションでみるとまあ気持ちはわかる程度に動いてはいるのですが、完全再現には程多いものになっています。
+隠れ層・ノードの増減も試してみましたが変わらず・・・といった感じでした。
+
+実際の軌道
+![real1.gif](https://qiita-image-store.s3.amazonaws.com/0/25990/89ccb8b2-d1bf-85be-927e-585b368ac829.gif)
+
+予測した軌道(かなりベストに近いもの)
+![predict1.gif](https://qiita-image-store.s3.amazonaws.com/0/25990/e3fa448f-9a52-e883-7547-a822aa9c34a6.gif)
+
+検証に使用したコードはこちらになっています。もし我こそはという方がいたらPull Requestをお待ちしております。
+
+[rnn_demo](https://github.com/icoxfog417/rnn_demo)
+
+## 参考
+* RNNについて
+ * [Recurrent neural network](http://en.wikipedia.org/wiki/Recurrent_neural_network)
+ * [Types of artificial neural networks](http://en.wikipedia.org/wiki/Types_of_artificial_neural_networks)
+ * [Hopfield network](http://en.wikipedia.org/wiki/Hopfield_network)
+ * [Echo state network](http://www.scholarpedia.org/article/Echo_state_network)
+ * [What is the difference between Elman and Jordan neural networks](http://www.heatonresearch.com/node/2155)
+ * [Recurrent Neural Networks](http://www.slideshare.net/beam2d/pfi-seminar-20141030rnn)
+ * [Bidirectional recurrent neural networks](http://ieeexplore.ieee.org/xpl/login.jsp?tp=&amp;arnumber=650093&amp;url=http%3A%2F%2Fieeexplore.ieee.org%2Fiel4%2F78%2F14188%2F00650093.pdf%3Farnumber%3D650093)
+ * [A tutorial on training recurrent neural networks, covering BPPT, RTRL, EKF and the &quot;echo state network&quot; approach](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf)
+ * [A Direct Adaptive Method for Faster Backpropagation Learning: The RPROP Algorithm](http://paginas.fe.up.pt/~ee02162/dissertacao/RPROP%20paper.pdf)
+* RNNの実装に関する論文など
+ * [Modeling and generating sequences of polyphonic music with the RNN-RBM](http://deeplearning.net/tutorial/rnnrbm.html)
+ * [Modeling Temporal Dependencies in High-Dimensional Sequences:Application to Polyphonic Music Generation and Transcription](http://arxiv.org/ftp/arxiv/papers/1206/1206.6392.pdf)
+  * ↑論文を日本語で解説してくださっている記事 [RNN-RBMによる旋律の予測と生成と音楽情報処理に関する紹介](http://xiangze.hatenablog.com/entry/2014/09/28/143934)
+ * [Continuous time recurrent neural networks for grammatical induction](http://www.researchgate.net/publication/228575942_Continuous_time_recurrent_neural_networks_for_grammatical_induction)
+* PyBrainについて 
+ * [Welcome to PyBrain’s documentation!](http://pybrain.org/docs/index.html)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ニューラルネットワークで時系列データの予測を行う by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ニューラルネットワークで時系列データの予測を行う" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/icoxfog417"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/icoxfog417">icoxfog417</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">20387</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;icoxfog417&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-fe095c99-e1cd-40aa-bda3-c00aa91802f2"></div>
+    <div id="UserFollowButton-react-component-fe095c99-e1cd-40aa-bda3-c00aa91802f2"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/e8f97a6acad07903b5b0">Pythonを書き始める前に見るべきTips</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/adbbf445d357c924b8fc">画像処理の数式を見て石になった時のための、金の針</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/242439ecd1a477ece312">ゼロからDeepまで学ぶ強化学習</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/65e800c3a2094457c3a0">はじめるDeep learning</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/5d79b3336226aa51e30d">React.js 実戦投入への道</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AE%E6%A6%82%E8%A6%81\&quot;\u003eRNNの概要\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AE%E7%A8%AE%E5%88%A5\&quot;\u003eRNNの種別\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003eRNNの学習\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#bptt-backpropagation-through-time\&quot;\u003eBPTT (BackPropagation Through Time)\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstmlong-short-term-memory\&quot;\u003eLSTM(Long short term memory)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#teacher-forcing\&quot;\u003eteacher forcing\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rpropresilient-backpropagation\&quot;\u003eRPROP(Resilient backpropagation)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rtrl-real-time-recurrent-learning\&quot;\u003eRTRL (Real Time Recurrent Learning)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#ekf-extended-kalman-filter\&quot;\u003eEKF (Extended Kalman Filter)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AE%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA\&quot;\u003eRNNのライブラリ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AE%E5%AE%9F%E8%A3%85\&quot;\u003eRNNの実装\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E6%A7%8B%E7%AF%89\&quot;\u003eネットワークの構築\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003eネットワークの学習\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AB%E3%82%88%E3%82%8B%E4%BA%88%E6%B8%AC\&quot;\u003eネットワークによる予測\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AE%E6%A7%8B%E7%AF%89\&quot;\u003eRNNの構築\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-5d1ccbd8-5877-4bca-b6d5-b00aa838a411"></div>
+    <div id="Toc-react-component-5d1ccbd8-5877-4bca-b6d5-b00aa838a411"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:588,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;2791ee878deee0d0fd9c&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mettoboshi"><a itemprop="url" href="/mettoboshi"><img alt="mettoboshi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42925/profile-images/1473689342" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tyamamot"><a itemprop="url" href="/tyamamot"><img alt="tyamamot" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52220/profile-images/1473692670" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="karumado"><a itemprop="url" href="/karumado"><img alt="karumado" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18303/profile-images/1473682398" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dsanno"><a itemprop="url" href="/dsanno"><img alt="dsanno" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/58026/profile-images/1473694517" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="totakke"><a itemprop="url" href="/totakke"><img alt="totakke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24168/profile-images/1479960755" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kk2170"><a itemprop="url" href="/kk2170"><img alt="kk2170" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12680/profile-images/1473682495" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sobeit@github"><a itemprop="url" href="/sobeit@github"><img alt="sobeit@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5315/profile-images/1473681890" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shopetan"><a itemprop="url" href="/shopetan"><img alt="shopetan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55673/profile-images/1473693754" /></a></div></div><div class="ArticleFooter__user"><a href="/icoxfog417/items/2791ee878deee0d0fd9c/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/2791ee878deee0d0fd9c/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/icoxfog417/items/2791ee878deee0d0fd9c.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 4 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/HirofumiYashima/items/217fd188dede2b137582#_reference-e6b36ca291d1c82262ad"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />Facebook が、IBM Watson とはまったく異なる アルゴリズム &amp; アーキテクチャ で「質問応答システム」市場 に参戦間近か？ ～ サービス名は「Memory Networks」</a><time class="references_datetime js-dateTimeView" datetime="2015-09-03T11:46:08+00:00">over 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/inuscript/items/54daa5aedde599e2637c#_reference-0da109d626203f9e984c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/7307/profile-images/1473684148" />ディープラーニングを使って転職会議の企業クチコミデータを感情分析してみる</a><time class="references_datetime js-dateTimeView" datetime="2015-12-07T15:00:31+00:00">over 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/S346/items/24e875e3c5ac58f55810#_reference-a15bc241d19c4c216d92"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/100747/profile-images/1473708194" />【エヴァンゲリオン】アスカっぽいセリフをDeepLearningで自動生成してみる</a><time class="references_datetime js-dateTimeView" datetime="2015-12-07T15:38:11+00:00">over 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/moaikids/items/5c4f32d73716478fc1e1#_reference-7c4b0bf9da8f1c43ee73"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/44364/profile-images/1473689874" />RNN / LSTM を用いてさだまさし風の歌詞を自動生成してみる</a><time class="references_datetime js-dateTimeView" datetime="2015-12-18T15:02:00+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/AkitsuguHirano/items/0bb0a616b25afe8d76d4#_reference-e80fce5c7df759de8b11"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/78487/profile-images/1473701180" />TensorFlow - Recurrent Neural Networks</a><time class="references_datetime js-dateTimeView" datetime="2015-12-26T07:57:54+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/tanishi/items/70a5085213b7eae32231#_reference-bbce01355541450adab7"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/40921/profile-images/1473688600" />深層学習について何もわからないけどそういう系の勉強会に行った</a><time class="references_datetime js-dateTimeView" datetime="2016-03-18T17:23:08+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/fda19bc0928c2879c48b#_reference-79a7a64d2b2c708eb32c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 Webサイトで情報収集  】 Deep Learning &amp; ウェーブレット変換 で 動画・映像データ解析 をどこまで 行えるのか</a><time class="references_datetime js-dateTimeView" datetime="2016-04-07T07:11:48+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/yukiB/items/f6314d2861fc8d9b739f#_reference-e7044252f29c639afb98"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/59864/profile-images/1473695058" />TensorFlowのRNNを基本的なモデルで試す</a><time class="references_datetime js-dateTimeView" datetime="2016-05-29T23:58:42+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/S_Shimotori/items/0a983c81f766c22bebf1#_reference-96f80e1b68a494a9780d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/84589/profile-images/1473703143" />Amazon DSSTNEのディープラーニング設定項目一覧</a><time class="references_datetime js-dateTimeView" datetime="2016-09-20T08:40:42+00:00">6 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ニューラルネットワークで時系列データの予測を行う by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ニューラルネットワークで時系列データの予測を行う" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e実装例を拝見しました。１点気になっています。\u003cbr\u003e\nデータセットを作成した時、SequentialDataSet　ではないようです。学習の時、前データの結果が考慮できますか\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-10-20T13:38:35+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:660717,&quot;is_team&quot;:false,&quot;item_id&quot;:222483,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2791ee878deee0d0fd9c&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;実装例を拝見しました。１点気になっています。\nデータセットを作成した時、SequentialDataSet　ではないようです。学習の時、前データの結果が考慮できますか\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c#comment-2dc86b80ca6a0936a329&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2016-10-20T13:31:23+09:00&quot;,&quot;id&quot;:145132,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://secure.gravatar.com/avatar/edffa3fc13a7e655b14186e90fb0e963&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;machine&quot;},&quot;uuid&quot;:&quot;2dc86b80ca6a0936a329&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;http://pybrain.org/docs/tutorial/datasets.html#sequentialdataset\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003eSequentialDataSet\u003c/a\u003eは、連続したデータを扱いやすくするためのコンテナのようです。端的には自動で連番を振ってくれる配列に近く、この形式にしているか否かで学習には影響がないと思います。実際、\u003ca href=\&quot;http://pybrain.org/docs/tutorial/netmodcon.html#using-recurrent-networks\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003eRecurrentのTutorial\u003c/a\u003eでもSequentialDataSetは使用されておらず、ネットワークへの入力値が同じであればDatasetがSequentialであるか否かは関係ないと思われます。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-10-23T11:16:59+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:662529,&quot;is_team&quot;:false,&quot;item_id&quot;:222483,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2791ee878deee0d0fd9c&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;[SequentialDataSet](http://pybrain.org/docs/tutorial/datasets.html#sequentialdataset)は、連続したデータを扱いやすくするためのコンテナのようです。端的には自動で連番を振ってくれる配列に近く、この形式にしているか否かで学習には影響がないと思います。実際、[RecurrentのTutorial](http://pybrain.org/docs/tutorial/netmodcon.html#using-recurrent-networks)でもSequentialDataSetは使用されておらず、ネットワークへの入力値が同じであればDatasetがSequentialであるか否かは関係ないと思われます。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c#comment-28512d7a3bbe7fe6637e&quot;,&quot;user&quot;:{&quot;contribution&quot;:20387,&quot;created_at&quot;:&quot;2013-06-19T22:28:11+09:00&quot;,&quot;id&quot;:25990,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;icoxfog417&quot;},&quot;uuid&quot;:&quot;28512d7a3bbe7fe6637e&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:222483,&quot;uuid&quot;:&quot;2791ee878deee0d0fd9c&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;icoxfog417&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;},{&quot;id&quot;:145132,&quot;url_name&quot;:&quot;machine&quot;,&quot;profile_image_url&quot;:&quot;https://secure.gravatar.com/avatar/edffa3fc13a7e655b14186e90fb0e963&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-1c7eee17-dca3-42d6-8a7d-31c9de9dfd87"></div>
+    <div id="CommentListContainer-react-component-1c7eee17-dca3-42d6-8a7d-31c9de9dfd87"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="YN8PBxCDa9HYFR26yFj8Q0+REfcQLbsOlDu129fBWwt+7kibvlznr0yzVNFJ+XlifXH2/qrSlDSSvNZcdK4NJQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/2791ee878deee0d0fd9c" /><input type="hidden" name="item_uuid" id="item_uuid" value="2791ee878deee0d0fd9c" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/icoxfog417/items/2791ee878deee0d0fd9c", "id": 222483, "uuid": "2791ee878deee0d0fd9c" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="n2LG9/LM8c+Em8tBf3xjauB90haUbth1FiF0yNLomziBU4FrXBN9sRA9gir+3eZL0p01Hy6R908QphdPcYfNFg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/2791ee878deee0d0fd9c" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

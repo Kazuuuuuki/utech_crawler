@@ -1,0 +1,1121 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>はじめてのアニメ顔認識 with Chainer - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Deep Learningをやってみたいものの、Caffeだと、何か「書いている」気分もせずに悶々としていたところ、chainerが登場したので試してみることに。
+
+なにはともあれ、かねてよりやりたかった、アニメ顔認識をやってみます。
+本当は顔検出器＋顔によるキャラ分類とかをやってみたいのですが、まずは顔とそれ以外を分類することを目指します。
+
+ちなみに、アニメの顔認識というと、OpenCV+カスケードによる検出器があったりして、かなりいい感じに認識してくれます。
+しか..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="eulerdora" name="twitter:creator" /><meta content="はじめてのアニメ顔認識 with Chainer - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/homulerdora/items/9a9af1481bf63470731a" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Deep Learningをやってみたいものの、Caffeだと、何か「書いている」気分もせずに悶々としていたところ、chainerが登場したので試してみることに。
+
+なにはともあれ、かねてよりやりたかった、アニメ顔認識をやってみます。..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="qnT9oTok4ls+V9xEoXmSuXhLV589MfbZvUTFgFj5hIvxurCbCjhH/OKpDvkqsLCSFFE1UpVVHPWtA7fYib0YYg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"homulerdora","type":"items","id":"9a9af1481bf63470731a"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-e1f65874-b104-4de8-9563-c9b7fc164829"></div>
+    <div id="HeaderContainer-react-component-e1f65874-b104-4de8-9563-c9b7fc164829"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Chainer",        "name": "Chainer"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">はじめてのアニメ顔認識 with Chainer</h1><ul class="TagList"><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">135</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:135,&quot;uuid&quot;:&quot;9a9af1481bf63470731a&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="marotoku"><a itemprop="url" href="/marotoku"><img alt="marotoku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64478/profile-images/1473696592" /></a></li><li class="js-hovercard" data-hovercard-target-name="yahihi"><a itemprop="url" href="/yahihi"><img alt="yahihi" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/c0b97f4521e0cdb6b8f835077a8f7e0f?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="abe-perorist"><a itemprop="url" href="/abe-perorist"><img alt="abe-perorist" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/58836/profile-images/1473694751" /></a></li><li class="js-hovercard" data-hovercard-target-name="shimo_t"><a itemprop="url" href="/shimo_t"><img alt="shimo_t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64100/profile-images/1473696475" /></a></li><li class="js-hovercard" data-hovercard-target-name="yukinoi"><a itemprop="url" href="/yukinoi"><img alt="yukinoi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48207/profile-images/1473691268" /></a></li><li class="js-hovercard" data-hovercard-target-name="thelarch"><a itemprop="url" href="/thelarch"><img alt="thelarch" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62004/profile-images/1473695821" /></a></li><li class="js-hovercard" data-hovercard-target-name="kimihiro_n"><a itemprop="url" href="/kimihiro_n"><img alt="kimihiro_n" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25168/profile-images/1473684273" /></a></li><li class="js-hovercard" data-hovercard-target-name="attinomikan"><a itemprop="url" href="/attinomikan"><img alt="attinomikan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74242/profile-images/1473699776" /></a></li><li class="js-hovercard" data-hovercard-target-name="giwa"><a itemprop="url" href="/giwa"><img alt="giwa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6410/profile-images/1473682855" /></a></li><li><a href="/homulerdora/items/9a9af1481bf63470731a/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/homulerdora"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/75199/profile-images/1473700089" alt="1473700089" /></a> <a class="u-link-unstyled" href="/homulerdora">homulerdora</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-07-25T00:41:56+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-07-25">Edited at <time datetime="2015-10-08T14:40:20+09:00" itemprop="dateModified">2015-10-08</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/homulerdora/items/9a9af1481bf63470731a/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">7</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/homulerdora/items/9a9af1481bf63470731a/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(7)</span></a></li><li><a href="/homulerdora/items/9a9af1481bf63470731a.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-9a9af1481bf63470731a" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>Deep Learningをやってみたいものの、Caffeだと、何か「書いている」気分もせずに悶々としていたところ、chainerが登場したので試してみることに。</p>
+
+<p>なにはともあれ、かねてよりやりたかった、アニメ顔認識をやってみます。<br>
+本当は顔検出器＋顔によるキャラ分類とかをやってみたいのですが、まずは顔とそれ以外を分類することを目指します。</p>
+
+<p>ちなみに、アニメの顔認識というと、<a href="http://ultraist.hatenablog.com/entry/20110718/1310965532" rel="nofollow noopener" target="_blank">OpenCV+カスケードによる検出器</a>があったりして、かなりいい感じに認識してくれます。<br>
+しかし、</p>
+
+<ul>
+<li>原則、正面からの顔以外はうまく認識できない</li>
+<li>斜めに少し傾いていても、検出されない</li>
+</ul>
+
+<p>といった問題があるので、なんとか検出精度を向上させたいところです。</p>
+
+<h1>
+<span id="step1-テスト画像準備" class="fragment"></span><a href="#step1-%E3%83%86%E3%82%B9%E3%83%88%E7%94%BB%E5%83%8F%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>Step1: テスト画像準備</h1>
+
+<p>他のタスクにも使うことを考えて、自分で準備することにしました。所要時間20hぐらい。ぽよ～ん。</p>
+
+<h2>
+<span id="方針" class="fragment"></span><a href="#%E6%96%B9%E9%87%9D"><i class="fa fa-link"></i></a>方針</h2>
+
+<ol>
+<li>OpenCVと<a href="https://github.com/nagadomi/lbpcascade_animeface" rel="nofollow noopener" target="_blank">lbpcascade_animeface</a>を使って、アニメのフレームから顔を切り出し。</li>
+<li>そこから誤認識された画像をのぞいて、正解集合に入れる。</li>
+<li>再びOpenCVを使って、顔が認識されなかったフレームを抽出。</li>
+<li>3.の画像から、実際は顔が写っているものを探して、対象の顔を切り出し、正解集合に追加。</li>
+<li>残りは顔が映っていないフレームから、ランダムにcropして、不正解集合に追加。</li>
+<li>それぞれの画像を90度、180度、270度回転させて、データを4倍に増やす。</li>
+<li>Networkの設計上、入力サイズをそろえる必要があったため、64x64に変換。</li>
+</ol>
+
+<h3>
+<span id="トレーニングセット" class="fragment"></span><a href="#%E3%83%88%E3%83%AC%E3%83%BC%E3%83%8B%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>トレーニングセット</h3>
+
+<ul>
+<li>110,525枚（顔データ34,355枚、その他画像76,170枚）</li>
+<li>AngelBeats!、キルミー・ベイベー、ごちうさ・・など</li>
+<li>適当に絵柄が異なりそうなものを選択、したつもり。</li>
+</ul>
+
+<h3>
+<span id="バリデーションセット" class="fragment"></span><a href="#%E3%83%90%E3%83%AA%E3%83%87%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%BB%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>バリデーションセット</h3>
+
+<ul>
+<li>8,525枚（顔データ3,045枚、その他画像5,480枚）</li>
+<li>きんモザ</li>
+</ul>
+
+<p>トレーニングセットとバリデーションセットの内訳の比率が揃ってないのは、嫌な感じですが、とりあえず先に進みます。</p>
+
+<h2>
+<span id="画像サンプル" class="fragment"></span><a href="#%E7%94%BB%E5%83%8F%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB"><i class="fa fa-link"></i></a>画像サンプル</h2>
+
+<ul>
+<li>顔画像</li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/75199/c20cb67d-212e-8f79-9ea1-f8ee1acc5f47.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/c20cb67d-212e-8f79-9ea1-f8ee1acc5f47.png" alt="train-sample-36-0.png"></a></p>
+
+<ul>
+<li>全体</li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/75199/f0b7fff6-8720-ac13-30a4-009d7764b471.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/f0b7fff6-8720-ac13-30a4-009d7764b471.png" alt="train-sample-36.png"></a></p>
+
+<h1>
+<span id="step2-学習器作成" class="fragment"></span><a href="#step2-%E5%AD%A6%E7%BF%92%E5%99%A8%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>Step2: 学習器作成</h1>
+
+<h2>
+<span id="cnn" class="fragment"></span><a href="#cnn"><i class="fa fa-link"></i></a>CNN</h2>
+
+<div class="code-frame" data-lang="py3">
+<div class="code-lang"><span class="bold">network/frgnet64.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">chainer</span>
+<span class="kn">import</span> <span class="nn">chainer.functions</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="k">class</span> <span class="nc">FrgNet64</span><span class="p">(</span><span class="n">chainer</span><span class="o">.</span><span class="n">FunctionSet</span><span class="p">):</span>
+   <span class="n">insize</span> <span class="o">=</span> <span class="mi">64</span>
+
+   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="nb">super</span><span class="p">(</span><span class="n">FrgNet64</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+         <span class="n">conv1</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">96</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+         <span class="n">bn1</span>   <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">96</span><span class="p">),</span>
+         <span class="n">conv2</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+         <span class="n">bn2</span>   <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">BatchNormalization</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+         <span class="n">conv3</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+         <span class="n">conv4</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+         <span class="n">fc5</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">18816</span><span class="p">,</span> <span class="mi">2048</span><span class="p">),</span>
+         <span class="n">fc6</span>   <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+      <span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">forward_but_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_data</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">True</span><span class="p">):</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="n">chainer</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">volatile</span><span class="o">=</span><span class="ow">not</span> <span class="n">train</span><span class="p">)</span>
+
+      <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">))),</span> <span class="mi">5</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bn2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">h</span><span class="p">))),</span> <span class="mi">5</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv4</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">slope</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">leaky_relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc5</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">slope</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc6</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">calc_confidence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_data</span><span class="p">):</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_but_one</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">True</span><span class="p">):</span>
+      <span class="sd">""" You must subtract the mean value from the data before. """</span>
+      <span class="n">y</span> <span class="o">=</span> <span class="n">chainer</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">y_data</span><span class="p">,</span> <span class="n">volatile</span><span class="o">=</span><span class="ow">not</span> <span class="n">train</span><span class="p">)</span>
+      <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_but_one</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax_cross_entropy</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>※全結合層を3層にすると、精度が多少上がったりもしたのですが、処理速度が結構落ちたので、採用しませんでした。</p>
+
+<h2>
+<span id="学習用コード" class="fragment"></span><a href="#%E5%AD%A6%E7%BF%92%E7%94%A8%E3%82%B3%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>学習用コード</h2>
+
+<div class="code-frame" data-lang="py3">
+<div class="code-lang"><span class="bold">network/manager.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">six</span>
+
+<span class="kn">from</span> <span class="nn">util</span> <span class="k">import</span> <span class="n">loader</span>
+<span class="kn">from</span> <span class="nn">chainer</span> <span class="k">import</span> <span class="n">cuda</span><span class="p">,</span> <span class="n">optimizers</span>
+
+<span class="k">class</span> <span class="nc">NetSet</span><span class="p">:</span>
+   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meanpath</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load_mean</span><span class="p">(</span><span class="n">meanpath</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">=</span> <span class="n">gpu</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">insize</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">insize</span>
+      <span class="k">if</span> <span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="n">cuda</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">gpu</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">()</span>
+
+   <span class="k">def</span> <span class="nf">calc_max_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prob_arr</span><span class="p">):</span>
+      <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">prob_arr</span><span class="o">.</span><span class="n">shape</span>
+      <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">h</span>
+      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+         <span class="n">label</span> <span class="o">=</span> <span class="n">prob_arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+         <span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">prob_arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">label</span><span class="p">])</span>
+      <span class="k">return</span> <span class="n">labels</span>
+
+   <span class="k">def</span> <span class="nf">forward_data_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">):</span>
+      <span class="n">sum_loss</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">sum_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span> <span class="n">batchsize</span><span class="p">):</span>
+         <span class="n">mini_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">batchsize</span><span class="p">]</span>
+         <span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_minibatch</span><span class="p">(</span><span class="n">mini_dataset</span><span class="p">)</span>
+         <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_minibatch</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span>
+         <span class="n">loss_data</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">data</span>
+         <span class="n">acc_data</span> <span class="o">=</span> <span class="n">acc</span><span class="o">.</span><span class="n">data</span>
+         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">loss_data</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">loss_data</span><span class="p">)</span>
+            <span class="n">acc_data</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">acc_data</span><span class="p">)</span>
+         <span class="n">sum_loss</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss_data</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">mini_dataset</span><span class="p">)</span>
+         <span class="n">sum_accuracy</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">acc_data</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">mini_dataset</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">sum_loss</span><span class="p">,</span> <span class="n">sum_accuracy</span>
+
+   <span class="k">def</span> <span class="nf">forward_minibatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="n">x_batch</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">x_batch</span><span class="p">)</span>
+         <span class="n">y_batch</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">y_batch</span><span class="p">)</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">create_minibatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+      <span class="n">minibatch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span>
+         <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">insize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">insize</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+      <span class="n">minibatch_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="nb">tuple</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+         <span class="n">path</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nb">tuple</span>
+         <span class="n">minibatch</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="k">False</span><span class="p">)</span>
+         <span class="n">minibatch_label</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+      <span class="k">return</span> <span class="n">minibatch</span><span class="p">,</span> <span class="n">minibatch_label</span>
+
+   <span class="k">def</span> <span class="nf">create_minibatch_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="k">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_minibatch</span><span class="p">([])</span>
+      <span class="n">rs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">batchsize</span><span class="p">,))</span>
+      <span class="n">minidataset</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">rs</span><span class="p">:</span>
+         <span class="n">minidataset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_minibatch</span><span class="p">(</span><span class="n">minidataset</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py3">
+<div class="code-lang"><span class="bold">train/batch.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">six.moves.cPickle</span> <span class="k">as</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">util</span> <span class="k">import</span> <span class="n">loader</span><span class="p">,</span> <span class="n">visualizer</span>
+<span class="kn">from</span> <span class="nn">chainer</span> <span class="k">import</span> <span class="n">cuda</span><span class="p">,</span> <span class="n">optimizers</span>
+<span class="kn">from</span> <span class="nn">network.manager</span> <span class="k">import</span> <span class="n">NetSet</span>
+
+<span class="k">class</span> <span class="nc">Trainer</span><span class="p">(</span><span class="n">NetSet</span><span class="p">):</span>
+   <span class="sd">""" Network utility class """</span>
+   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainlist</span><span class="p">,</span> <span class="n">validlist</span><span class="p">,</span> <span class="n">meanpath</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> 
+                <span class="n">optimizer</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+      <span class="nb">super</span><span class="p">(</span><span class="n">Trainer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">meanpath</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">gpu</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">trainset</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load_image_list</span><span class="p">(</span><span class="n">trainlist</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">validset</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load_image_list</span><span class="p">(</span><span class="n">validlist</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizer</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">wd_rate</span> <span class="o">=</span> <span class="n">weight_decay</span>
+      <span class="k">if</span> <span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="n">cuda</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">gpu</span><span class="p">)</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">()</span>
+      <span class="n">optimizer</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">collect_parameters</span><span class="p">())</span>
+
+   <span class="k">def</span> <span class="nf">train_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">valid_interval</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> 
+                    <span class="n">model_interval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">log_interval</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">max_epoch</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+      <span class="n">epoch_iter</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">if</span> <span class="n">batchsize</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="n">epoch_iter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trainset</span><span class="p">)</span> <span class="o">//</span> <span class="n">batchsize</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="n">begin_at</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+      <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+         <span class="nb">print</span><span class="p">(</span><span class="s">'epoch {} starts.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">))</span>
+         <span class="n">train_duration</span> <span class="o">=</span> <span class="mi">0</span>
+         <span class="n">sum_loss</span> <span class="o">=</span> <span class="mi">0</span>
+         <span class="n">sum_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+         <span class="n">N</span> <span class="o">=</span> <span class="n">batchsize</span> <span class="o">*</span> <span class="n">log_interval</span>
+         <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">epoch_iter</span><span class="p">):</span>
+            <span class="n">iter_begin_at</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_minibatch_random</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trainset</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">)</span>
+            <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_minibatch</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span>
+            <span class="n">train_duration</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">iter_begin_at</span>
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">iter</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+               <span class="n">visualizer</span><span class="o">.</span><span class="n">save_model_graph</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="s">'graph.dot'</span><span class="p">)</span>
+               <span class="n">visualizer</span><span class="o">.</span><span class="n">save_model_graph</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="s">'graph.split.dot'</span><span class="p">,</span> <span class="n">remove_split</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+               <span class="nb">print</span><span class="p">(</span><span class="s">'model graph is generated.'</span><span class="p">)</span>
+            <span class="n">sum_loss</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="n">batchsize</span>
+            <span class="n">sum_accuracy</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="n">batchsize</span>
+
+            <span class="k">if</span> <span class="nb">iter</span> <span class="o">%</span> <span class="n">log_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+               <span class="n">throughput</span> <span class="o">=</span> <span class="n">batchsize</span> <span class="o">*</span> <span class="nb">iter</span> <span class="o">/</span> <span class="n">train_duration</span>
+               <span class="nb">print</span><span class="p">(</span><span class="s">'training: iteration={:d}, mean loss={:.8f}, accuracy rate={:.6f}, learning rate={:f}, weight decay={:f}'</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">iter</span> <span class="o">+</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">epoch_iter</span><span class="p">,</span> <span class="n">sum_loss</span> <span class="o">/</span> <span class="n">N</span><span class="p">,</span> <span class="n">sum_accuracy</span> <span class="o">/</span> <span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wd_rate</span><span class="p">))</span>
+               <span class="nb">print</span><span class="p">(</span><span class="s">'epoch {}: passed time={}, throughput ({} images/sec)'</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">train_duration</span><span class="p">,</span> <span class="n">throughput</span><span class="p">))</span>
+               <span class="n">sum_loss</span> <span class="o">=</span> <span class="mi">0</span>
+               <span class="n">sum_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="nb">iter</span> <span class="o">%</span> <span class="n">valid_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+               <span class="n">N_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validset</span><span class="p">)</span>
+               <span class="n">valid_begin_at</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+               <span class="n">valid_sum_loss</span><span class="p">,</span> <span class="n">valid_sum_accuracy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_data_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validset</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+               <span class="n">valid_duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">valid_begin_at</span>
+               <span class="n">throughput</span> <span class="o">=</span> <span class="n">N_test</span> <span class="o">/</span> <span class="n">valid_duration</span>
+               <span class="nb">print</span><span class="p">(</span><span class="s">'validation: iteration={:d}, mean loss={:.8f}, accuracy rate={:.6f}'</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">iter</span> <span class="o">+</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">epoch_iter</span><span class="p">,</span> <span class="n">valid_sum_loss</span> <span class="o">/</span> <span class="n">N_test</span><span class="p">,</span> <span class="n">valid_sum_accuracy</span> <span class="o">/</span> <span class="n">N_test</span><span class="p">))</span>
+               <span class="nb">print</span><span class="p">(</span><span class="s">'validation time={}, throughput ({} images/sec)'</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">valid_duration</span><span class="p">,</span> <span class="n">throughput</span><span class="p">))</span>
+
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">lr</span> <span class="o">*=</span> <span class="n">lr_decay</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">wd_rate</span> <span class="o">*=</span> <span class="n">lr_decay</span>
+         <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="n">model_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s">'saving model...(epoch {})'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">))</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">'model-'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span> <span class="o">+</span> <span class="s">'.dump'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+      <span class="nb">print</span><span class="p">(</span><span class="s">'train finished, total duration={} sec.'</span>
+         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">begin_at</span><span class="p">))</span>
+      <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s">'model.dump'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">forward_data_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">True</span><span class="p">):</span>
+      <span class="n">sum_loss</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="n">sum_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">),</span> <span class="n">batchsize</span><span class="p">):</span>
+         <span class="n">mini_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">batchsize</span><span class="p">]</span>
+         <span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_minibatch</span><span class="p">(</span><span class="n">mini_dataset</span><span class="p">)</span>
+         <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward_minibatch</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="p">)</span>
+         <span class="n">loss_data</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">data</span>
+         <span class="n">acc_data</span> <span class="o">=</span> <span class="n">acc</span><span class="o">.</span><span class="n">data</span>
+         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">loss_data</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">loss_data</span><span class="p">)</span>
+            <span class="n">acc_data</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">acc_data</span><span class="p">)</span>
+         <span class="n">sum_loss</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss_data</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">mini_dataset</span><span class="p">)</span>
+         <span class="n">sum_accuracy</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">acc_data</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">mini_dataset</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">sum_loss</span><span class="p">,</span> <span class="n">sum_accuracy</span>
+
+   <span class="k">def</span> <span class="nf">forward_minibatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="k">True</span><span class="p">):</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="n">x_batch</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">x_batch</span><span class="p">)</span>
+         <span class="n">y_batch</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">y_batch</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grads</span><span class="p">()</span>
+
+      <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="p">)</span>
+
+      <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+         <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">weight_decay</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wd_rate</span><span class="p">)</span>            
+         <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py3">
+<div class="code-lang"><span class="bold">util/loader.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">six.moves.cPickle</span> <span class="k">as</span> <span class="nn">pickle</span>
+
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
+
+<span class="c">### functions to load files, such as model.dump, images, and mean file.</span>
+
+<span class="k">def</span> <span class="nf">unpickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+   <span class="sd">""" load trained model.</span>
+<span class="sd">       If the model is trained on GPU, then you must initialize cuda-driver before.</span>
+<span class="sd">   """</span>
+   <span class="k">return</span> <span class="n">unpickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">load_mean</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+   <span class="sd">""" load mean file</span>
+<span class="sd">   """</span>
+   <span class="k">return</span> <span class="n">unpickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">load_image_list</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+   <span class="sd">""" load image-file list. Image-file list file consists of filepath and the label.</span>
+<span class="sd">   """</span>
+   <span class="n">tuples</span> <span class="o">=</span> <span class="p">[]</span>
+   <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+      <span class="n">pair</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+      <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+         <span class="k">continue</span>
+      <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">"list file format isn't correct: [filepath] [label]"</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+         <span class="n">tuples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+   <span class="k">return</span> <span class="n">tuples</span>
+
+<span class="k">def</span> <span class="nf">image2array</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">flip</span><span class="o">=</span><span class="k">False</span><span class="p">):</span>
+   <span class="n">image</span> <span class="o">=</span> <span class="n">image2array</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+   <span class="n">image</span> <span class="o">-=</span> <span class="n">mean</span>
+   <span class="k">if</span> <span class="n">flip</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+   <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">image</span>
+</pre></div>
+</div>
+
+<p>main.pyはごちゃごちゃしているので、訓練部分だけ抜粋します。</p>
+
+<div class="code-frame" data-lang="py3">
+<div class="code-lang"><span class="bold">main.py</span></div>
+<div class="highlight"><pre>
+<span class="c">### a function for training.</span>
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">trainlist</span><span class="p">,</span> <span class="n">validlist</span><span class="p">,</span> <span class="n">meanpath</span><span class="p">,</span> <span class="n">modelname</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">,</span> <span class="n">max_epoch</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+   <span class="n">model</span> <span class="o">=</span> <span class="k">None</span>
+   <span class="k">if</span> <span class="n">modelname</span> <span class="o">==</span> <span class="s">"frg64"</span><span class="p">:</span>
+      <span class="n">model</span> <span class="o">=</span> <span class="n">FrgNet64</span><span class="p">()</span>
+   <span class="k">elif</span> <span class="n">modelname</span> <span class="o">==</span> <span class="s">"frg128"</span><span class="p">:</span>
+      <span class="n">model</span> <span class="o">=</span> <span class="n">FrgNet128</span><span class="p">()</span>
+   <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">MomentumSGD</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+   <span class="n">trainer</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span><span class="n">trainlist</span><span class="p">,</span> <span class="n">validlist</span><span class="p">,</span> <span class="n">meanpath</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span>
+                           <span class="n">optimizer</span><span class="p">,</span> <span class="mf">0.0001</span><span class="p">,</span> <span class="n">gpu</span><span class="p">)</span>
+
+   <span class="n">trainer</span><span class="o">.</span><span class="n">train_random</span><span class="p">(</span><span class="n">batchsize</span><span class="p">,</span> <span class="n">lr_decay</span><span class="o">=</span><span class="mf">0.97</span><span class="p">,</span> <span class="n">valid_interval</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+                        <span class="n">model_interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">log_interval</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_epoch</span><span class="o">=</span><span class="n">max_epoch</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>学習は基本的にGPUを使い、また、画像サイズが小さいこともあって、CPU側はマルチスレッド用に書いていないです。</p>
+
+<h1>
+<span id="step3-学習" class="fragment"></span><a href="#step3-%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>Step3: 学習</h1>
+
+<h2>
+<span id="パラメータ" class="fragment"></span><a href="#%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>パラメータ</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">パラメータ</th>
+<th style="text-align: right">設定値</th>
+<th style="text-align: center">備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">learning rate</td>
+<td style="text-align: right">0.001</td>
+<td style="text-align: center">epochが1経過するごとに、0.97を掛ける</td>
+</tr>
+<tr>
+<td style="text-align: left">ミニバッチサイズ</td>
+<td style="text-align: right">10</td>
+<td style="text-align: center"></td>
+</tr>
+<tr>
+<td style="text-align: left">重み減衰</td>
+<td style="text-align: right">0.0001</td>
+<td style="text-align: center">epochが1経過するごとに、係数λに0.97を掛ける</td>
+</tr>
+<tr>
+<td style="text-align: left">momentum</td>
+<td style="text-align: right">0.9</td>
+<td style="text-align: center">chainerのデフォルト値</td>
+</tr>
+</tbody>
+</table>
+
+<ul>
+<li>learning rateは、誤差の変化が平坦になったら下げる、ということもやったものの、バリデーションセットに対する誤差がうまく収束しなかったので、やめました。</li>
+<li>ミニバッチサイズは、最初は100で試していたものの、トレーニングセットとバリデーションセットの誤差の乖離が大きかったので、小さくしています。</li>
+<li>重み減衰の係数は、固定でも良かったのですが、いずれlearning rateと値が逆転するのが気になったため、順次減らすようにしています。</li>
+</ul>
+
+<h2>
+<span id="環境" class="fragment"></span><a href="#%E7%92%B0%E5%A2%83"><i class="fa fa-link"></i></a>環境</h2>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left"></th>
+<th style="text-align: right">バージョンなど</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">GPU</td>
+<td style="text-align: right">GeForce GTX TITAN X</td>
+</tr>
+<tr>
+<td style="text-align: left">Python</td>
+<td style="text-align: right">Python 3.4.3</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<span id="結果" class="fragment"></span><a href="#%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>結果</h2>
+
+<h3>
+<span id="所要時間" class="fragment"></span><a href="#%E6%89%80%E8%A6%81%E6%99%82%E9%96%93"><i class="fa fa-link"></i></a>所要時間</h3>
+
+<p>全体で3時間弱かかり、訓練誤差がほぼ0になったため、epoch 30で終了しています。<br>
+画像の処理速度は、おおよそ</p>
+
+<ul>
+<li>訓練中 560枚/sec</li>
+<li>バリデーション中 780枚/sec</li>
+</ul>
+
+<p>でした。</p>
+
+<h3>
+<span id="誤差" class="fragment"></span><a href="#%E8%AA%A4%E5%B7%AE"><i class="fa fa-link"></i></a>誤差</h3>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/75199/05f67497-e4a1-fc05-7dab-91bf8d96af64.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/05f67497-e4a1-fc05-7dab-91bf8d96af64.png" alt="accuracy.png"></a><a href="https://qiita-image-store.s3.amazonaws.com/0/75199/d5d3ee6c-d5a8-99c6-e6c7-1e3e21c454dc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/d5d3ee6c-d5a8-99c6-e6c7-1e3e21c454dc.png" alt="loss.png"></a></p>
+
+<p>途中から、認識精度はほぼ収束している一方、バリデーションセットに対する誤差がやや増加しています。そのため、以降の実験では、誤差が最小だったepoch 15終了時のモデルを採用することにします。</p>
+
+<p>このモデルは、バリデーションセットに対する認識精度が、95.5%でした。<br>
+以下に、失敗しているケースの例をあげておきます。</p>
+
+<h3>
+<span id="誤認識例" class="fragment"></span><a href="#%E8%AA%A4%E8%AA%8D%E8%AD%98%E4%BE%8B"><i class="fa fa-link"></i></a>誤認識例</h3>
+
+<h4>
+<span id="誤って顔と認識しているケース" class="fragment"></span><a href="#%E8%AA%A4%E3%81%A3%E3%81%A6%E9%A1%94%E3%81%A8%E8%AA%8D%E8%AD%98%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%82%B1%E3%83%BC%E3%82%B9"><i class="fa fa-link"></i></a>誤って顔と認識しているケース</h4>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/75199/4215fa6c-4167-ccb8-6e8c-f6fa1dec864f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/4215fa6c-4167-ccb8-6e8c-f6fa1dec864f.png" alt="valid-sample-wrong-1.png"></a></p>
+
+<p>一部テストデータの不良（ラベリングミス）っぽいです。。</p>
+
+<h4>
+<span id="顔を認識できていないケース" class="fragment"></span><a href="#%E9%A1%94%E3%82%92%E8%AA%8D%E8%AD%98%E3%81%A7%E3%81%8D%E3%81%A6%E3%81%84%E3%81%AA%E3%81%84%E3%82%B1%E3%83%BC%E3%82%B9"><i class="fa fa-link"></i></a>顔を認識できていないケース</h4>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/75199/30dc39e9-c5bd-6371-125e-513fc7dc9713.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/30dc39e9-c5bd-6371-125e-513fc7dc9713.png" alt="valid-sample-wrong-0.png"></a></p>
+
+<p>綺麗に顔を切り取れていないデータもありますが、わりと堂々と間違えてくれているような感じで、やや心配・・</p>
+
+<h1>
+<span id="step4-実データ投入" class="fragment"></span><a href="#step4-%E5%AE%9F%E3%83%87%E3%83%BC%E3%82%BF%E6%8A%95%E5%85%A5"><i class="fa fa-link"></i></a>Step4: 実データ投入</h1>
+
+<p>Sliding Windowで画像を切り出して、訓練済みNetworkに投入します。<br>
+単純に切り出すと、かなりの枚数になるので、画像の幅を512まで縮小したうえで、</p>
+
+<ul>
+<li>アスペクト比 1：1</li>
+<li>(size, stride)は、(48, 16), (72, 24), (144, 48)の3パターン</li>
+</ul>
+
+<p>で切り出し、訓練時と同じ64x64のサイズにresizeしました。（手元の画像では、全部で630通り）（2015/8/8 修正）</p>
+
+<p>また、Networkに投入して、顔の候補となる領域を抽出できたら、IoU(Intersection over Union) &gt;= 30%を基準に領域をふるいに掛けて、Networkの出力の値（確率）が最大のものを選択しています。（この値の絶対値に意味があるのかは分かりませんが）<br>
+顔以外の領域とのIoUは、特に考慮していません。</p>
+
+<h2>
+<span id="実験" class="fragment"></span><a href="#%E5%AE%9F%E9%A8%93"><i class="fa fa-link"></i></a>実験</h2>
+
+<p>OpenCV + lbpcascade_animefaceで試した結果と比較で載せています。<br>
+ただし、パラメータ次第で結果が変わりうるので、必ずしもフェアな比較ではないと思います。（上がCNNで、下がOpenCVで検出した画像）<br>
+平均実行時間はCNN(GPU)が約0.8秒、OpenCV(CPU)は約0.35秒でした。</p>
+
+<p>まずは、OpenCVでも今回のCNNでも認識できた画像から。さすがにanimefaceは位置が正確に見えます。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/75199/1faa3d46-e464-a4b7-c620-99f381604e3f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/1faa3d46-e464-a4b7-c620-99f381604e3f.png" alt="test-detection-0195-small.png"></a><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/75199/6c23c598-45e5-18ca-cc2a-ee6d8f926fbe.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/6c23c598-45e5-18ca-cc2a-ee6d8f926fbe.png" alt="test-detection-opencv-0195-small.png"></a><br>
+©原悠衣・芳文社／きんいろモザイク製作委員会</p>
+
+<p>次は、今回狙っていた、横顔がある画像。枠の位置は微妙ですが、OpenCVでとれていなかった横顔が、認識できています。ただし、アリスと忍のあいだに変な枠ができてしまっていますが。。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/75199/a2234d79-8010-46fe-a123-477fa7c1526a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/a2234d79-8010-46fe-a123-477fa7c1526a.png" alt="test-detection-0199-small.png"></a><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/75199/facc4020-0655-8f46-ad44-eb4a0fcb04a0.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/facc4020-0655-8f46-ad44-eb4a0fcb04a0.png" alt="test-detection-opencv-0199-small.png"></a><br>
+©原悠衣・芳文社／きんいろモザイク製作委員会</p>
+
+<p>最後は、<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/75199/013d2b26-2773-1bce-8899-2929f7fd6db2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/013d2b26-2773-1bce-8899-2929f7fd6db2.png" alt="test-detection-0222-small.png"></a><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/75199/adda2e70-5cbc-d836-6630-48ed002f5af8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/75199/adda2e70-5cbc-d836-6630-48ed002f5af8.png" alt="test-detection-opencv-0222.png"></a><br>
+©Koi・芳文社／ご注文は製作委員会ですか？</p>
+
+<p>あー、ビンが、、やたらビンが検出されてます。。<br>
+もちろんOpenCVのほうは正確に検出していました。悲しい</p>
+
+<h1>
+<span id="総括" class="fragment"></span><a href="#%E7%B7%8F%E6%8B%AC"><i class="fa fa-link"></i></a>総括</h1>
+
+<p>感覚としては、OpenCV版よりも、拾えるケースはぐっと増えた感じなのですが、同時に顔以外の箇所を顔と誤認識する率も上がってしまった印象でした。それをふまえて・・</p>
+
+<h2>
+<span id="うまくいったこと" class="fragment"></span><a href="#%E3%81%86%E3%81%BE%E3%81%8F%E3%81%84%E3%81%A3%E3%81%9F%E3%81%93%E3%81%A8"><i class="fa fa-link"></i></a>うまくいったこと</h2>
+
+<ol>
+<li>訓練データの増殖
+
+<ul>
+<li>画像に回転を加えて、データを増殖させたところ、収束速度がぐっとあがっていました。やはりデータ量は大事なのかと実感。</li>
+</ul>
+</li>
+<li>ミニバッチサイズの調整
+
+<ul>
+<li>1回に100枚食わせてパラメータ更新をしていた時は、訓練誤差は収束するものの、validationの誤差はすぐに頭打ちになっていました。が、10枚に減らしたところ、validationのaccuracyは2pt程度増加して、それなりに効果があった印象です。</li>
+</ul>
+</li>
+</ol>
+
+<h2>
+<span id="改善点反省など" class="fragment"></span><a href="#%E6%94%B9%E5%96%84%E7%82%B9%E5%8F%8D%E7%9C%81%E3%81%AA%E3%81%A9"><i class="fa fa-link"></i></a>改善点・反省など</h2>
+
+<ol>
+<li>
+<p>検出器</p>
+
+<ul>
+<li>検出は単純なSliding Windowなので、相当時間がかかります。そこを回避するために、切り出す画像のサイズを制限していますが、この場合、画面いっぱいの顔については、検出できません。。</li>
+<li>今回は顔検出なので大きな問題にはなっていないと思いますが、アスペクト比も1対1で固定です。</li>
+<li>最初から、位置のラベル付きデータを使うべきだった気もしています。</li>
+</ul>
+</li>
+<li>
+<p>訓練データ</p>
+
+<ul>
+<li>やはり、絶対量がまだまだ少なかった感があります。</li>
+<li>不正解データ（の質）が足りてなかったかもしれないです。顔が映っていない画像からランダムにcropしたのですが、物自体がほぼ写っていない画像や、物の境界が捉えられていない画像が多く入ってしまい、やはりデータとしては弱かったように思います。誤検出率が高いのは、その影響も少なくないかと。</li>
+</ul>
+</li>
+</ol>
+
+<h2>
+<span id="次は" class="fragment"></span><a href="#%E6%AC%A1%E3%81%AF"><i class="fa fa-link"></i></a>次は・・</h2>
+
+<p>位置のラベルつきのデータで、検出器を作ってみたいかなと。今の方式だと仮に精度が出ても、速度が出ないので、<a href="http://arxiv.org/abs/1406.4729" rel="nofollow noopener" target="_blank">SPP-net</a>あたりも試してみたいです。</p>
+
+<h2>
+<span id="ソースコード" class="fragment"></span><a href="#%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>ソースコード</h2>
+
+<p>chainerのバージョンが変わって動かなくなったりしているので、修正したコードをGithubにアップしました。<br>
+<a href="https://github.com/homuler/pyon2-detector/" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/homuler/pyon2-detector/</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/homulerdora/items/9a9af1481bf63470731a" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="hhdK32lB3HrNBRsLaAKxQypC2cW8yOEvG8Q2y3jsPGLd2QflWV153RH7ybbjy5NoRli7CBSsCwMLg0STqaigiw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1444282820" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Deep Learningをやってみたいものの、Caffeだと、何か「書いている」気分もせずに悶々としていたところ、chainerが登場したので試してみることに。
+
+なにはともあれ、かねてよりやりたかった、アニメ顔認識をやってみます。
+本当は顔検出器＋顔によるキャラ分類とかをやってみたいのですが、まずは顔とそれ以外を分類することを目指します。
+
+ちなみに、アニメの顔認識というと、[OpenCV+カスケードによる検出器](http://ultraist.hatenablog.com/entry/20110718/1310965532)があったりして、かなりいい感じに認識してくれます。
+しかし、
+
+- 原則、正面からの顔以外はうまく認識できない
+- 斜めに少し傾いていても、検出されない
+
+といった問題があるので、なんとか検出精度を向上させたいところです。
+
+# Step1: テスト画像準備
+他のタスクにも使うことを考えて、自分で準備することにしました。所要時間20hぐらい。ぽよ～ん。
+
+## 方針
+1. OpenCVと[lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface)を使って、アニメのフレームから顔を切り出し。
+2. そこから誤認識された画像をのぞいて、正解集合に入れる。
+3. 再びOpenCVを使って、顔が認識されなかったフレームを抽出。
+4. 3.の画像から、実際は顔が写っているものを探して、対象の顔を切り出し、正解集合に追加。
+5. 残りは顔が映っていないフレームから、ランダムにcropして、不正解集合に追加。
+6. それぞれの画像を90度、180度、270度回転させて、データを4倍に増やす。
+7. Networkの設計上、入力サイズをそろえる必要があったため、64x64に変換。
+
+### トレーニングセット
+   - 110,525枚（顔データ34,355枚、その他画像76,170枚）
+   - AngelBeats!、キルミー・ベイベー、ごちうさ・・など
+   - 適当に絵柄が異なりそうなものを選択、したつもり。
+
+### バリデーションセット
+   - 8,525枚（顔データ3,045枚、その他画像5,480枚）
+   - きんモザ
+
+トレーニングセットとバリデーションセットの内訳の比率が揃ってないのは、嫌な感じですが、とりあえず先に進みます。
+
+## 画像サンプル
+
+- 顔画像
+
+![train-sample-36-0.png](https://qiita-image-store.s3.amazonaws.com/0/75199/c20cb67d-212e-8f79-9ea1-f8ee1acc5f47.png)
+
+- 全体
+
+![train-sample-36.png](https://qiita-image-store.s3.amazonaws.com/0/75199/f0b7fff6-8720-ac13-30a4-009d7764b471.png)
+
+
+# Step2: 学習器作成
+## CNN
+
+```py3:network/frgnet64.py
+import chainer
+import chainer.functions as F
+
+class FrgNet64(chainer.FunctionSet):
+   insize = 64
+
+   def __init__(self):
+      super(FrgNet64, self).__init__(
+         conv1 = F.Convolution2D(3, 96, 5, pad=2),
+         bn1   = F.BatchNormalization(96),
+         conv2 = F.Convolution2D(96, 128, 5, pad=2),
+         bn2   = F.BatchNormalization(128),
+         conv3 = F.Convolution2D(128, 256, 3, pad=1),
+         conv4 = F.Convolution2D(256, 384, 3, pad=1),
+         fc5 = F.Linear(18816, 2048),
+         fc6   = F.Linear(2048, 2),
+      )
+
+   def forward_but_one(self, x_data, train=True):
+      x = chainer.Variable(x_data, volatile=not train)
+
+      h = F.max_pooling_2d(F.relu(self.bn1(self.conv1(x))), 5, stride=2)
+      h = F.max_pooling_2d(F.relu(self.bn2(self.conv2(h))), 5, stride=2)
+      h = F.max_pooling_2d(F.relu(self.conv3(h)), 3, stride=2)
+      h = F.leaky_relu(self.conv4(h), slope=0.2)
+      h = F.dropout(F.leaky_relu(self.fc5(h), slope=0.2), train=train)
+      return self.fc6(h)
+
+   def calc_confidence(self, x_data):
+      h = self.forward_but_one(x_data, train=False)
+      return F.softmax(h)
+
+   def forward(self, x_data, y_data, train=True):
+      &quot;&quot;&quot; You must subtract the mean value from the data before. &quot;&quot;&quot;
+      y = chainer.Variable(y_data, volatile=not train)
+      h = self.forward_but_one(x_data, train=train)
+      return F.softmax_cross_entropy(h, y), F.accuracy(h, y)
+```
+
+※全結合層を3層にすると、精度が多少上がったりもしたのですが、処理速度が結構落ちたので、採用しませんでした。
+
+## 学習用コード
+```py3:network/manager.py
+import numpy as np
+import time
+import six
+
+from util import loader
+from chainer import cuda, optimizers
+
+class NetSet:
+   def __init__(self, meanpath, model, gpu=-1):
+      self.mean = loader.load_mean(meanpath)
+      self.model = model
+      self.gpu = gpu
+      self.insize = model.insize
+      if gpu &gt;= 0:
+         cuda.init(gpu)
+         self.model.to_gpu()
+
+   def calc_max_label(self, prob_arr):
+      h, w = prob_arr.shape
+      labels = [0] * h
+      for i in six.moves.range(0, h):
+         label = prob_arr[i].argmax()
+         labels[i] = (label, prob_arr[i][label])
+      return labels
+
+   def forward_data_seq(self, dataset, batchsize):
+      sum_loss = 0
+      sum_accuracy = 0
+      for i in range(0, len(dataset), batchsize):
+         mini_dataset = dataset[i:i+batchsize]
+         x_batch, y_batch = self.create_minibatch(mini_dataset)
+         loss, acc = self.forward_minibatch(x_batch, y_batch)
+         loss_data = loss.data
+         acc_data = acc.data
+         if self.gpu &gt;= 0:
+            loss_data = cuda.to_cpu(loss_data)
+            acc_data = cuda.to_cpu(acc_data)
+         sum_loss += float(loss_data) * len(mini_dataset)
+         sum_accuracy += float(acc_data) * len(mini_dataset)
+      return sum_loss, sum_accuracy
+
+   def forward_minibatch(self, x_batch, y_batch, train=False):
+      if self.gpu &gt;= 0:
+         x_batch = cuda.to_gpu(x_batch)
+         y_batch = cuda.to_gpu(y_batch)
+      return self.model.forward(x_batch, y_batch, train=False)
+
+   def create_minibatch(self, dataset):
+      minibatch = np.ndarray(
+         (len(dataset), 3, self.insize, self.insize), dtype=np.float32)
+      minibatch_label = np.ndarray((len(dataset),), dtype=np.int32)
+      for idx, tuple in enumerate(dataset):
+         path, label = tuple
+         minibatch[idx] = loader.load_image(path, self.mean, False)
+         minibatch_label[idx] = label
+      return minibatch, minibatch_label
+
+   def create_minibatch_random(self, dataset, batchsize):
+      if dataset is None or len(dataset) == 0:
+         return self.create_minibatch([])
+      rs = np.random.random_integers(0, high=len(dataset) - 1, size=(batchsize,))
+      minidataset = []
+      for idx in rs:
+         minidataset.append(dataset[idx])
+      return self.create_minibatch(minidataset)
+```
+
+```py3:train/batch.py
+import numpy as np
+import sys
+import time
+import six
+import six.moves.cPickle as pickle
+from util import loader, visualizer
+from chainer import cuda, optimizers
+from network.manager import NetSet
+
+class Trainer(NetSet):
+   &quot;&quot;&quot; Network utility class &quot;&quot;&quot;
+   def __init__(self, trainlist, validlist, meanpath, model, 
+                optimizer, weight_decay=0.0001, gpu=-1):
+      super(Trainer, self).__init__(meanpath, model, gpu)
+      self.trainset = loader.load_image_list(trainlist)
+      self.validset = loader.load_image_list(validlist)
+      self.optimizer = optimizer
+      self.wd_rate = weight_decay
+      if gpu &gt;= 0:
+         cuda.init(gpu)
+         self.model.to_gpu()
+      optimizer.setup(model.collect_parameters())
+
+   def train_random(self, batchsize, lr_decay=0.1, valid_interval=500, 
+                    model_interval=10, log_interval=100, max_epoch=100):
+      epoch_iter = 0
+      if batchsize &gt; 0:
+         epoch_iter = len(self.trainset) // batchsize + 1
+      begin_at = time.time()
+      for epoch in six.moves.range(1, max_epoch + 1):
+         print(&#39;epoch {} starts.&#39;.format(epoch))
+         train_duration = 0
+         sum_loss = 0
+         sum_accuracy = 0
+         N = batchsize * log_interval
+         for iter in six.moves.range(1, epoch_iter):
+            iter_begin_at = time.time()
+            x_batch, y_batch = self.create_minibatch_random(self.trainset, batchsize)
+            loss, acc = self.forward_minibatch(x_batch, y_batch)
+            train_duration += time.time() - iter_begin_at
+            if epoch == 1 and iter == 1:
+               visualizer.save_model_graph(loss, &#39;graph.dot&#39;)
+               visualizer.save_model_graph(loss, &#39;graph.split.dot&#39;, remove_split=True)
+               print(&#39;model graph is generated.&#39;)
+            sum_loss += float(cuda.to_cpu(loss.data)) * batchsize
+            sum_accuracy += float(cuda.to_cpu(acc.data)) * batchsize
+ 
+            if iter % log_interval == 0:
+               throughput = batchsize * iter / train_duration
+               print(&#39;training: iteration={:d}, mean loss={:.8f}, accuracy rate={:.6f}, learning rate={:f}, weight decay={:f}&#39;
+                  .format(iter + (epoch - 1) * epoch_iter, sum_loss / N, sum_accuracy / N, self.optimizer.lr, self.wd_rate))
+               print(&#39;epoch {}: passed time={}, throughput ({} images/sec)&#39;
+                  .format(epoch, train_duration, throughput))
+               sum_loss = 0
+               sum_accuracy = 0
+
+            if iter % valid_interval == 0:
+               N_test = len(self.validset)
+               valid_begin_at = time.time()
+               valid_sum_loss, valid_sum_accuracy = self.forward_data_seq(self.validset, batchsize, train=False)
+               valid_duration = time.time() - valid_begin_at
+               throughput = N_test / valid_duration
+               print(&#39;validation: iteration={:d}, mean loss={:.8f}, accuracy rate={:.6f}&#39;
+                  .format(iter + (epoch - 1) * epoch_iter, valid_sum_loss / N_test, valid_sum_accuracy / N_test))
+               print(&#39;validation time={}, throughput ({} images/sec)&#39;
+                  .format(valid_duration, throughput))
+
+            sys.stdout.flush()
+         self.optimizer.lr *= lr_decay
+         self.wd_rate *= lr_decay
+         if epoch % model_interval == 0:
+            print(&#39;saving model...(epoch {})&#39;.format(epoch))
+            pickle.dump(self.model, open(&#39;model-&#39; + str(epoch) + &#39;.dump&#39;, &#39;wb&#39;), -1)
+      print(&#39;train finished, total duration={} sec.&#39;
+         .format(time.time() - begin_at))
+      pickle.dump(self.model, open(&#39;model.dump&#39;, &#39;wb&#39;), -1)
+
+   def forward_data_seq(self, dataset, batchsize, train=True):
+      sum_loss = 0
+      sum_accuracy = 0
+      for i in range(0, len(dataset), batchsize):
+         mini_dataset = dataset[i:i+batchsize]
+         x_batch, y_batch = self.create_minibatch(mini_dataset)
+         loss, acc = self.forward_minibatch(x_batch, y_batch, train)
+         loss_data = loss.data
+         acc_data = acc.data
+         if self.gpu &gt;= 0:
+            loss_data = cuda.to_cpu(loss_data)
+            acc_data = cuda.to_cpu(acc_data)
+         sum_loss += float(loss_data) * len(mini_dataset)
+         sum_accuracy += float(acc_data) * len(mini_dataset)
+      return sum_loss, sum_accuracy
+      
+   def forward_minibatch(self, x_batch, y_batch, train=True):
+      if self.gpu &gt;= 0:
+         x_batch = cuda.to_gpu(x_batch)
+         y_batch = cuda.to_gpu(y_batch)
+
+      if train:
+         self.optimizer.zero_grads()
+
+      loss, acc = self.model.forward(x_batch, y_batch, train)
+
+      if train:
+         loss.backward()
+         self.optimizer.weight_decay(self.wd_rate)            
+         self.optimizer.update()
+      return loss, acc
+```
+
+```py3:util/loader.py
+import os
+import numpy as np
+import six.moves.cPickle as pickle
+
+from PIL import Image
+
+### functions to load files, such as model.dump, images, and mean file.
+
+def unpickle(filepath):
+   return pickle.load(open(filepath, &#39;rb&#39;))
+
+def load_model(filepath):
+   &quot;&quot;&quot; load trained model.
+       If the model is trained on GPU, then you must initialize cuda-driver before.
+   &quot;&quot;&quot;
+   return unpickle(filepath)
+
+
+def load_mean(filepath):
+   &quot;&quot;&quot; load mean file
+   &quot;&quot;&quot;
+   return unpickle(filepath)
+
+def load_image_list(filepath):
+   &quot;&quot;&quot; load image-file list. Image-file list file consists of filepath and the label.
+   &quot;&quot;&quot;
+   tuples = []
+   for line in open(filepath):
+      pair = line.strip().split()
+      if len(pair) == 0:
+         continue
+      elif len(pair) &gt; 2:
+         raise ValueError(&quot;list file format isn&#39;t correct: [filepath] [label]&quot;)
+      else:
+         tuples.append((pair[0], np.int32(pair[1])))
+   return tuples
+
+def image2array(img):
+   return np.asarray(img).transpose(2, 0, 1).astype(np.float32)
+
+def load_image(path, mean, flip=False):
+   image = image2array(Image.open(path))
+   image -= mean
+   if flip:
+      return image[:, :, ::-1]
+   else:
+      return image
+```
+
+main.pyはごちゃごちゃしているので、訓練部分だけ抜粋します。
+
+```py3:main.py
+### a function for training.
+def train(trainlist, validlist, meanpath, modelname, batchsize, max_epoch=100, gpu=-1):
+   model = None
+   if modelname == &quot;frg64&quot;:
+      model = FrgNet64()
+   elif modelname == &quot;frg128&quot;:
+      model = FrgNet128()
+   optimizer = optimizers.MomentumSGD(lr=0.001, momentum=0.9)
+   trainer = batch.Trainer(trainlist, validlist, meanpath, model,
+                           optimizer, 0.0001, gpu)
+
+   trainer.train_random(batchsize, lr_decay=0.97, valid_interval=1000,
+                        model_interval=5, log_interval=20, max_epoch=max_epoch)
+```
+
+学習は基本的にGPUを使い、また、画像サイズが小さいこともあって、CPU側はマルチスレッド用に書いていないです。
+
+# Step3: 学習
+## パラメータ
+| パラメータ | 設定値 | 備考 |
+|:-----------|------------:|:------------:|
+| learning rate |      0.001 | epochが1経過するごとに、0.97を掛ける |
+| ミニバッチサイズ     |      10 |        |
+| 重み減衰       |        0.0001 | epochが1経過するごとに、係数λに0.97を掛ける |
+| momentum  |          0.9 | chainerのデフォルト値 |
+
+- learning rateは、誤差の変化が平坦になったら下げる、ということもやったものの、バリデーションセットに対する誤差がうまく収束しなかったので、やめました。
+- ミニバッチサイズは、最初は100で試していたものの、トレーニングセットとバリデーションセットの誤差の乖離が大きかったので、小さくしています。
+- 重み減衰の係数は、固定でも良かったのですが、いずれlearning rateと値が逆転するのが気になったため、順次減らすようにしています。
+
+## 環境
+| | バージョンなど |
+|:-----------|------------:|
+| GPU | GeForce GTX TITAN X |
+| Python | Python 3.4.3 |
+
+## 結果
+### 所要時間
+全体で3時間弱かかり、訓練誤差がほぼ0になったため、epoch 30で終了しています。
+画像の処理速度は、おおよそ
+
+- 訓練中 560枚/sec
+- バリデーション中 780枚/sec
+
+でした。
+### 誤差
+
+![accuracy.png](https://qiita-image-store.s3.amazonaws.com/0/75199/05f67497-e4a1-fc05-7dab-91bf8d96af64.png)![loss.png](https://qiita-image-store.s3.amazonaws.com/0/75199/d5d3ee6c-d5a8-99c6-e6c7-1e3e21c454dc.png)
+
+途中から、認識精度はほぼ収束している一方、バリデーションセットに対する誤差がやや増加しています。そのため、以降の実験では、誤差が最小だったepoch 15終了時のモデルを採用することにします。
+
+このモデルは、バリデーションセットに対する認識精度が、95.5%でした。
+以下に、失敗しているケースの例をあげておきます。
+
+### 誤認識例
+#### 誤って顔と認識しているケース
+![valid-sample-wrong-1.png](https://qiita-image-store.s3.amazonaws.com/0/75199/4215fa6c-4167-ccb8-6e8c-f6fa1dec864f.png)
+
+一部テストデータの不良（ラベリングミス）っぽいです。。
+
+#### 顔を認識できていないケース
+![valid-sample-wrong-0.png](https://qiita-image-store.s3.amazonaws.com/0/75199/30dc39e9-c5bd-6371-125e-513fc7dc9713.png)
+
+綺麗に顔を切り取れていないデータもありますが、わりと堂々と間違えてくれているような感じで、やや心配・・
+
+# Step4: 実データ投入
+
+Sliding Windowで画像を切り出して、訓練済みNetworkに投入します。
+単純に切り出すと、かなりの枚数になるので、画像の幅を512まで縮小したうえで、
+
+- アスペクト比 1：1
+- (size, stride)は、(48, 16), (72, 24), (144, 48)の3パターン
+
+で切り出し、訓練時と同じ64x64のサイズにresizeしました。（手元の画像では、全部で630通り）（2015/8/8 修正）
+
+また、Networkに投入して、顔の候補となる領域を抽出できたら、IoU(Intersection over Union) &gt;= 30%を基準に領域をふるいに掛けて、Networkの出力の値（確率）が最大のものを選択しています。（この値の絶対値に意味があるのかは分かりませんが）
+顔以外の領域とのIoUは、特に考慮していません。
+
+## 実験
+OpenCV + lbpcascade_animefaceで試した結果と比較で載せています。
+ただし、パラメータ次第で結果が変わりうるので、必ずしもフェアな比較ではないと思います。（上がCNNで、下がOpenCVで検出した画像）
+平均実行時間はCNN(GPU)が約0.8秒、OpenCV(CPU)は約0.35秒でした。
+
+まずは、OpenCVでも今回のCNNでも認識できた画像から。さすがにanimefaceは位置が正確に見えます。
+![test-detection-0195-small.png](https://qiita-image-store.s3.amazonaws.com/0/75199/1faa3d46-e464-a4b7-c620-99f381604e3f.png)
+![test-detection-opencv-0195-small.png](https://qiita-image-store.s3.amazonaws.com/0/75199/6c23c598-45e5-18ca-cc2a-ee6d8f926fbe.png)
+©原悠衣・芳文社／きんいろモザイク製作委員会
+
+次は、今回狙っていた、横顔がある画像。枠の位置は微妙ですが、OpenCVでとれていなかった横顔が、認識できています。ただし、アリスと忍のあいだに変な枠ができてしまっていますが。。
+![test-detection-0199-small.png](https://qiita-image-store.s3.amazonaws.com/0/75199/a2234d79-8010-46fe-a123-477fa7c1526a.png)
+![test-detection-opencv-0199-small.png](https://qiita-image-store.s3.amazonaws.com/0/75199/facc4020-0655-8f46-ad44-eb4a0fcb04a0.png)
+©原悠衣・芳文社／きんいろモザイク製作委員会
+
+最後は、
+![test-detection-0222-small.png](https://qiita-image-store.s3.amazonaws.com/0/75199/013d2b26-2773-1bce-8899-2929f7fd6db2.png)
+![test-detection-opencv-0222.png](https://qiita-image-store.s3.amazonaws.com/0/75199/adda2e70-5cbc-d836-6630-48ed002f5af8.png)
+©Koi・芳文社／ご注文は製作委員会ですか？
+
+あー、ビンが、、やたらビンが検出されてます。。
+もちろんOpenCVのほうは正確に検出していました。悲しい
+
+
+# 総括
+感覚としては、OpenCV版よりも、拾えるケースはぐっと増えた感じなのですが、同時に顔以外の箇所を顔と誤認識する率も上がってしまった印象でした。それをふまえて・・
+
+## うまくいったこと
+1. 訓練データの増殖
+   - 画像に回転を加えて、データを増殖させたところ、収束速度がぐっとあがっていました。やはりデータ量は大事なのかと実感。
+1. ミニバッチサイズの調整
+   - 1回に100枚食わせてパラメータ更新をしていた時は、訓練誤差は収束するものの、validationの誤差はすぐに頭打ちになっていました。が、10枚に減らしたところ、validationのaccuracyは2pt程度増加して、それなりに効果があった印象です。
+
+## 改善点・反省など
+
+1. 検出器
+   - 検出は単純なSliding Windowなので、相当時間がかかります。そこを回避するために、切り出す画像のサイズを制限していますが、この場合、画面いっぱいの顔については、検出できません。。
+   - 今回は顔検出なので大きな問題にはなっていないと思いますが、アスペクト比も1対1で固定です。
+   - 最初から、位置のラベル付きデータを使うべきだった気もしています。
+
+1. 訓練データ
+   - やはり、絶対量がまだまだ少なかった感があります。
+   - 不正解データ（の質）が足りてなかったかもしれないです。顔が映っていない画像からランダムにcropしたのですが、物自体がほぼ写っていない画像や、物の境界が捉えられていない画像が多く入ってしまい、やはりデータとしては弱かったように思います。誤検出率が高いのは、その影響も少なくないかと。
+
+## 次は・・
+位置のラベルつきのデータで、検出器を作ってみたいかなと。今の方式だと仮に精度が出ても、速度が出ないので、[SPP-net](http://arxiv.org/abs/1406.4729)あたりも試してみたいです。
+
+## ソースコード
+chainerのバージョンが変わって動かなくなったりしているので、修正したコードをGithubにアップしました。
+https://github.com/homuler/pyon2-detector/
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="はじめてのアニメ顔認識 with Chainer by @eulerdora on @Qiita" data-url="http://qiita.com/homulerdora/items/9a9af1481bf63470731a" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="はじめてのアニメ顔認識 with Chainer" href="http://b.hatena.ne.jp/entry/http://qiita.com/homulerdora/items/9a9af1481bf63470731a" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/homulerdora/items/9a9af1481bf63470731a" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/homulerdora/items/9a9af1481bf63470731a" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/homulerdora"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/75199/profile-images/1473700089" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/homulerdora">homulerdora</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">148</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;homulerdora&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-df05807b-08d1-4888-a681-39732b2b7b8b"></div>
+    <div id="UserFollowButton-react-component-df05807b-08d1-4888-a681-39732b2b7b8b"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/homulerdora/items/9a9af1481bf63470731a">はじめてのアニメ顔認識 with Chainer</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/homulerdora/items/5a672f3a0d991c807a07">Coursera Machine LearningをJuliaでやる</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/beartail"><img alt="BearTail" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/728a0bf0343119ee514a33ad466506ba8bd01fc6/original.jpg?1428056033" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#step1-%E3%83%86%E3%82%B9%E3%83%88%E7%94%BB%E5%83%8F%E6%BA%96%E5%82%99\&quot;\u003eStep1: テスト画像準備\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%B9%E9%87%9D\&quot;\u003e方針\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%88%E3%83%AC%E3%83%BC%E3%83%8B%E3%83%B3%E3%82%B0%E3%82%BB%E3%83%83%E3%83%88\&quot;\u003eトレーニングセット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%90%E3%83%AA%E3%83%87%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%BB%E3%83%83%E3%83%88\&quot;\u003eバリデーションセット\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%94%BB%E5%83%8F%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB\&quot;\u003e画像サンプル\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#step2-%E5%AD%A6%E7%BF%92%E5%99%A8%E4%BD%9C%E6%88%90\&quot;\u003eStep2: 学習器作成\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#cnn\&quot;\u003eCNN\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AD%A6%E7%BF%92%E7%94%A8%E3%82%B3%E3%83%BC%E3%83%89\&quot;\u003e学習用コード\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#step3-%E5%AD%A6%E7%BF%92\&quot;\u003eStep3: 学習\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF\&quot;\u003eパラメータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%92%B0%E5%A2%83\&quot;\u003e環境\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E6%9E%9C\&quot;\u003e結果\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E8%A6%81%E6%99%82%E9%96%93\&quot;\u003e所要時間\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%A4%E5%B7%AE\&quot;\u003e誤差\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%A4%E8%AA%8D%E8%AD%98%E4%BE%8B\&quot;\u003e誤認識例\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%A4%E3%81%A3%E3%81%A6%E9%A1%94%E3%81%A8%E8%AA%8D%E8%AD%98%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%82%B1%E3%83%BC%E3%82%B9\&quot;\u003e誤って顔と認識しているケース\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%A1%94%E3%82%92%E8%AA%8D%E8%AD%98%E3%81%A7%E3%81%8D%E3%81%A6%E3%81%84%E3%81%AA%E3%81%84%E3%82%B1%E3%83%BC%E3%82%B9\&quot;\u003e顔を認識できていないケース\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#step4-%E5%AE%9F%E3%83%87%E3%83%BC%E3%82%BF%E6%8A%95%E5%85%A5\&quot;\u003eStep4: 実データ投入\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%A8%93\&quot;\u003e実験\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B7%8F%E6%8B%AC\&quot;\u003e総括\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%86%E3%81%BE%E3%81%8F%E3%81%84%E3%81%A3%E3%81%9F%E3%81%93%E3%81%A8\&quot;\u003eうまくいったこと\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%94%B9%E5%96%84%E7%82%B9%E5%8F%8D%E7%9C%81%E3%81%AA%E3%81%A9\&quot;\u003e改善点・反省など\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%AC%A1%E3%81%AF\&quot;\u003e次は・・\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89\&quot;\u003eソースコード\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-c15f7984-812b-4e39-a2b6-33ece6aa4df2"></div>
+    <div id="Toc-react-component-c15f7984-812b-4e39-a2b6-33ece6aa4df2"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:135,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;9a9af1481bf63470731a&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="marotoku"><a itemprop="url" href="/marotoku"><img alt="marotoku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64478/profile-images/1473696592" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yahihi"><a itemprop="url" href="/yahihi"><img alt="yahihi" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/c0b97f4521e0cdb6b8f835077a8f7e0f?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="abe-perorist"><a itemprop="url" href="/abe-perorist"><img alt="abe-perorist" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/58836/profile-images/1473694751" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shimo_t"><a itemprop="url" href="/shimo_t"><img alt="shimo_t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64100/profile-images/1473696475" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yukinoi"><a itemprop="url" href="/yukinoi"><img alt="yukinoi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48207/profile-images/1473691268" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="thelarch"><a itemprop="url" href="/thelarch"><img alt="thelarch" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62004/profile-images/1473695821" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kimihiro_n"><a itemprop="url" href="/kimihiro_n"><img alt="kimihiro_n" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25168/profile-images/1473684273" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="attinomikan"><a itemprop="url" href="/attinomikan"><img alt="attinomikan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74242/profile-images/1473699776" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="giwa"><a itemprop="url" href="/giwa"><img alt="giwa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/6410/profile-images/1473682855" /></a></div></div><div class="ArticleFooter__user"><a href="/homulerdora/items/9a9af1481bf63470731a/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/9a9af1481bf63470731a/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/homulerdora/items/9a9af1481bf63470731a.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/xolmon/items/0b82f4861cf93fd28e33#_reference-7364a666a6c0b73f19eb"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/64589/profile-images/1473696631" />chainerによるディープラーニングでAV女優の類似画像検索サービスをつくったノウハウを公開する</a><time class="references_datetime js-dateTimeView" datetime="2016-04-08T16:43:36+00:00">11 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="はじめてのアニメ顔認識 with Chainer by @eulerdora on @Qiita" data-url="http://qiita.com/homulerdora/items/9a9af1481bf63470731a" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="はじめてのアニメ顔認識 with Chainer" href="http://b.hatena.ne.jp/entry/http://qiita.com/homulerdora/items/9a9af1481bf63470731a" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/homulerdora/items/9a9af1481bf63470731a" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/homulerdora/items/9a9af1481bf63470731a" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e画像認識を勉強している者です。Step 4の『実データ投入』に関して質問があります。\u003c/p\u003e\n\n\u003cp\u003eSliding Windowで切り出した画像サイズは48x48,72x72,144x144の3パターンのようですが、これらの画像をどのようにして64x64の画像で訓練されたnetworkによって識別させるのでしょうか。（Sliding Windowで切り出す画像サイズを訓練時に使った画像サイズと違ったものにしてもうまく識別されるのでしょうか？ \u003ca href=\&quot;https://github.com/mitmul/chainer-imagenet-vgg\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/mitmul/chainer-imagenet-vgg\u003c/a\u003e を見ると、訓練済みnetworkによって識別を行う場合、predict.pyでは、訓練時にVGGNet.py（network modelです）で使われた224x224の大きさに画像をresizeしてからモデルに投入しているように見えます。これとは違うやり方をなされているということでしょうか？）\u003c/p\u003e\n\n\u003cp\u003e実際の識別に際しては、Sliding Windowによる切り出し画像の大きさは訓練時と変えずに（今回の場合は訓練済みネットワークに合わせて64x64で切り出す、ということになります）image pyramidによって実データ画像を段階的に縮小することで、検出したい物体に対してスケール不変な識別をする、という理解でいたので、少し混乱してしまいました。\u003c/p\u003e\n\n\u003cp\u003eお時間のある時に御教示いただければ幸いです。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-08-08T07:55:10+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:306633,&quot;is_team&quot;:false,&quot;item_id&quot;:318016,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9a9af1481bf63470731a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;画像認識を勉強している者です。Step 4の『実データ投入』に関して質問があります。\n\nSliding Windowで切り出した画像サイズは48x48,72x72,144x144の3パターンのようですが、これらの画像をどのようにして64x64の画像で訓練されたnetworkによって識別させるのでしょうか。（Sliding Windowで切り出す画像サイズを訓練時に使った画像サイズと違ったものにしてもうまく識別されるのでしょうか？ https://github.com/mitmul/chainer-imagenet-vgg を見ると、訓練済みnetworkによって識別を行う場合、predict.pyでは、訓練時にVGGNet.py（network modelです）で使われた224x224の大きさに画像をresizeしてからモデルに投入しているように見えます。これとは違うやり方をなされているということでしょうか？）\n\n実際の識別に際しては、Sliding Windowによる切り出し画像の大きさは訓練時と変えずに（今回の場合は訓練済みネットワークに合わせて64x64で切り出す、ということになります）image pyramidによって実データ画像を段階的に縮小することで、検出したい物体に対してスケール不変な識別をする、という理解でいたので、少し混乱してしまいました。\n\nお時間のある時に御教示いただければ幸いです。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/homulerdora/items/9a9af1481bf63470731a#comment-05047d25ce50065fa2d5&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2014-02-28T13:41:39+09:00&quot;,&quot;id&quot;:38668,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/38668/profile-images/1473687847&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;yutaroyamada&quot;},&quot;uuid&quot;:&quot;05047d25ce50065fa2d5&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e指摘ありがとうございます。\u003cbr\u003e\nおっしゃるとおり、使用したNetworkでは、画像サイズによって全結合層の入力サイズが変わってしまうため、入力サイズを固定にする必要があります。そのため、Sliding Windowで切り出した画像は、Networkに食わせる前に、64x64のサイズにresizeしています。\u003cbr\u003e\n言葉が足りていなかったので、追記しました。\u003c/p\u003e\n\n\u003cp\u003eちなみに、SPP-netでは、全結合層の前に１層追加することで、全結合層への入力サイズが同じになるようにしていて、この場合resizeの必要はなくなるので、こちらも試してみたいと思っています。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-08-08T08:19:30+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:306635,&quot;is_team&quot;:false,&quot;item_id&quot;:318016,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9a9af1481bf63470731a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;指摘ありがとうございます。\nおっしゃるとおり、使用したNetworkでは、画像サイズによって全結合層の入力サイズが変わってしまうため、入力サイズを固定にする必要があります。そのため、Sliding Windowで切り出した画像は、Networkに食わせる前に、64x64のサイズにresizeしています。\n言葉が足りていなかったので、追記しました。\n\nちなみに、SPP-netでは、全結合層の前に１層追加することで、全結合層への入力サイズが同じになるようにしていて、この場合resizeの必要はなくなるので、こちらも試してみたいと思っています。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/homulerdora/items/9a9af1481bf63470731a#comment-3709e50cf645c1a07845&quot;,&quot;user&quot;:{&quot;contribution&quot;:148,&quot;created_at&quot;:&quot;2015-04-11T00:44:59+09:00&quot;,&quot;id&quot;:75199,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/75199/profile-images/1473700089&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;homulerdora&quot;},&quot;uuid&quot;:&quot;3709e50cf645c1a07845&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e返信ありがとうございます。\u003cbr\u003e\n画像認識はCNN含め勉強中の身でしたので、neural netの勝手がわからずお手数おかけしました。学習している者としてはこのような記事は大変有り難いです。SPP-netの入力サイズの情報もありがとうございます。そちらの方の記事も楽しみにしています。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-08-08T09:13:24+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:306643,&quot;is_team&quot;:false,&quot;item_id&quot;:318016,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9a9af1481bf63470731a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;返信ありがとうございます。\n画像認識はCNN含め勉強中の身でしたので、neural netの勝手がわからずお手数おかけしました。学習している者としてはこのような記事は大変有り難いです。SPP-netの\b入力サイズの情報もありがとうございます。そちらの\b方の記事も楽しみにしています。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/homulerdora/items/9a9af1481bf63470731a#comment-d6d10497cbb690f7118d&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2014-02-28T13:41:39+09:00&quot;,&quot;id&quot;:38668,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/38668/profile-images/1473687847&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;yutaroyamada&quot;},&quot;uuid&quot;:&quot;d6d10497cbb690f7118d&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:318016,&quot;uuid&quot;:&quot;9a9af1481bf63470731a&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;homulerdora&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:75199,&quot;url_name&quot;:&quot;homulerdora&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/75199/profile-images/1473700089&quot;},{&quot;id&quot;:38668,&quot;url_name&quot;:&quot;yutaroyamada&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/38668/profile-images/1473687847&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-3e61a92c-8257-4286-9bbf-c4eb6381752f"></div>
+    <div id="CommentListContainer-react-component-3e61a92c-8257-4286-9bbf-c4eb6381752f"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="NnkpqbiaWA9qxTe065v73D5Go8U3aoSQKDQ1yo8hXlxtt2STiIb9qLY75QlgUtn3UlzBCJ8Obrw4c0eSXmXCtQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/homulerdora/items/9a9af1481bf63470731a" /><input type="hidden" name="item_uuid" id="item_uuid" value="9a9af1481bf63470731a" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/homulerdora/items/9a9af1481bf63470731a", "id": 318016, "uuid": "9a9af1481bf63470731a" }</script><script class="js-user" type="application/json">{&quot;id&quot;:75199,&quot;url_name&quot;:&quot;homulerdora&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/75199/profile-images/1473700089&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="SXfr1I7pAC42jhEygGBfXIJWro46KRylV5HKgRG5VNsSuabuvvWliepww48LqX137kzMQ5JN9olH1rjZwP3IMg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/homulerdora/items/9a9af1481bf63470731a" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

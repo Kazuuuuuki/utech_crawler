@@ -1,0 +1,848 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【ディープラーニング】ChainerでAutoencoderを試して結果を可視化してみる。 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="ChainerでAutoencoderを試してみる記事です。前回の記事、「【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。」の続きとなります。ディープラーニングの事前学習にも使われる技術ですね。
+本記事で使用したコードはコチラから取得できます。
+
+
+1.最初に
+
+AutoencoderとはAuto(自己) encode(符号化)er(器)で、データを2層のニューラルネットに通して、自分自身のデータと一致する出力がされるようパラメータ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Kenmatsu4" name="twitter:creator" /><meta content="【ディープラーニング】ChainerでAutoencoderを試して結果を可視化してみる。 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="ChainerでAutoencoderを試してみる記事です。前回の記事、「[【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。](http://qiita.com/kenmatsu4/items/7..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="evr7bhrGssVdIpZeusCiFsMh1896V94MMgNyGen6vDIOfV3KJsA3cD8peWa0ErInDVwIpZnj0jVQkMITcC9xpg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"kenmatsu4","type":"items","id":"99d4a54d5a57405ecaf8"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-d15b82ff-c6f8-4269-bc05-ea0b5684fef2"></div>
+    <div id="HeaderContainer-react-component-d15b82ff-c6f8-4269-bc05-ea0b5684fef2"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">【ディープラーニング】ChainerでAutoencoderを試して結果を可視化してみる。</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="126"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%87%E3%82%A3%E3%83%BC%E3%83%97%E3%83%A9%E3%83%BC%E3%83%8B%E3%83%B3%E3%82%B0"><img alt="ディープラーニング" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>ディープラーニング</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">293</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:293,&quot;uuid&quot;:&quot;99d4a54d5a57405ecaf8&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="toshi19890331"><a itemprop="url" href="/toshi19890331"><img alt="toshi19890331" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25513/profile-images/1473684349" /></a></li><li class="js-hovercard" data-hovercard-target-name="himo"><a itemprop="url" href="/himo"><img alt="himo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53186/profile-images/1473692979" /></a></li><li class="js-hovercard" data-hovercard-target-name="kseta"><a itemprop="url" href="/kseta"><img alt="kseta" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5418/profile-images/1473681967" /></a></li><li class="js-hovercard" data-hovercard-target-name="_kuni88"><a itemprop="url" href="/_kuni88"><img alt="_kuni88" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53788/profile-images/1473693161" /></a></li><li class="js-hovercard" data-hovercard-target-name="ixixi"><a itemprop="url" href="/ixixi"><img alt="ixixi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8954/profile-images/1473681204" /></a></li><li class="js-hovercard" data-hovercard-target-name="Leonhalt2714"><a itemprop="url" href="/Leonhalt2714"><img alt="Leonhalt2714" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/23418/profile-images/1473683834" /></a></li><li class="js-hovercard" data-hovercard-target-name="blackaplysia"><a itemprop="url" href="/blackaplysia"><img alt="blackaplysia" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21963/profile-images/1473683460" /></a></li><li class="js-hovercard" data-hovercard-target-name="letusfly85"><a itemprop="url" href="/letusfly85"><img alt="letusfly85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49547/profile-images/1473691769" /></a></li><li class="js-hovercard" data-hovercard-target-name="oooxxxx"><a itemprop="url" href="/oooxxxx"><img alt="oooxxxx" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15737/profile-images/1473758136" /></a></li><li class="js-hovercard" data-hovercard-target-name="miseyu"><a itemprop="url" href="/miseyu"><img alt="miseyu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5921/profile-images/1473682386" /></a></li><li><a href="/kenmatsu4/items/99d4a54d5a57405ecaf8/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/kenmatsu4"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" alt="1473692184" /></a> <a class="u-link-unstyled" href="/kenmatsu4">kenmatsu4</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-07-05T09:40:33+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-07-05">Edited at <time datetime="2015-07-17T09:06:15+09:00" itemprop="dateModified">2015-07-17</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/kenmatsu4/items/99d4a54d5a57405ecaf8/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/kenmatsu4/items/99d4a54d5a57405ecaf8/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/kenmatsu4/items/99d4a54d5a57405ecaf8.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-99d4a54d5a57405ecaf8" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>ChainerでAutoencoderを試してみる記事です。前回の記事、「<a href="http://qiita.com/kenmatsu4/items/7b8d24d4c5144a686412" id="reference-11658a87c00006139190">【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。</a>」の続きとなります。ディープラーニングの事前学習にも使われる技術ですね。<br>
+本記事で使用したコードは<a href="https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a" rel="nofollow noopener" target="_blank">コチラ</a>から取得できます。</p>
+
+<h1>
+<span id="1最初に" class="fragment"></span><a href="#1%E6%9C%80%E5%88%9D%E3%81%AB"><i class="fa fa-link"></i></a>1.最初に</h1>
+
+<p>AutoencoderとはAuto(自己) encode(符号化)er(器)で、データを2層のニューラルネットに通して、自分自身のデータと一致する出力がされるようパラメーターを学習させるものです。データだけあれば良いので、分類的には教師なし学習になります。</p>
+
+<p><strong>学習フェーズ</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/806a9f1d-4705-f4a8-4e3e-0e23dc6807c3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/806a9f1d-4705-f4a8-4e3e-0e23dc6807c3.png" alt="ae005-compressor.png"></a></p>
+
+<p>こんなことをして何が嬉しいのかというと、</p>
+
+<ul>
+<li>入力に合わせたパラメーター$w_{ji}$を設定できる。（入力データの特徴を抽出できる）</li>
+<li>その入力に合わせたパラメーターを使うことでディープなニューラルネットでの学習を可能にする（ランダム値より良い$w_{ji}$の初期値として利用）</li>
+</ul>
+
+<p>ということができるのです。</p>
+
+<p><strong>出力実行</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/e0aa1899-0582-cbb4-eb86-b0a39b9225e7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/e0aa1899-0582-cbb4-eb86-b0a39b9225e7.png" alt="ae006-compressor.png"></a></p>
+
+<p>何はともあれ、動かしてみて可視化することを試みてみます。</p>
+
+<h1>
+<span id="2幾つかのパターンで動かしてみる" class="fragment"></span><a href="#2%E5%B9%BE%E3%81%A4%E3%81%8B%E3%81%AE%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3%E3%81%A7%E5%8B%95%E3%81%8B%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a>2.幾つかのパターンで動かしてみる</h1>
+
+<p>活性化関数に何を選ぶか、中間層の数はいくつにするか、Dropoutを行うか、ノイズを付加するか（Denoising Autoencoderとするか）、の組み合わせで７つのケースで試してみました。ちなみに活性化関数 $f(\cdot)$ は中間層の$u_j$と$z_j$の間に挟まっています。<br>
+こんな感じです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/5d5bd409-3841-9caf-76fa-0391f726485f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/5d5bd409-3841-9caf-76fa-0391f726485f.png" alt="ae008-compressor.png"></a></p>
+
+<p><strong>実行したパターンの表</strong></p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center"></th>
+<th style="text-align: center">活性化関数</th>
+<th style="text-align: center">中間層数</th>
+<th style="text-align: center">Dropout</th>
+<th style="text-align: center">ノイズ付加</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center">ケース1</td>
+<td style="text-align: center">ReLu</td>
+<td style="text-align: center">1000</td>
+<td style="text-align: center">あり</td>
+<td style="text-align: center">なし</td>
+</tr>
+<tr>
+<td style="text-align: center">ケース2</td>
+<td style="text-align: center">ReLu</td>
+<td style="text-align: center">1000</td>
+<td style="text-align: center">なし</td>
+<td style="text-align: center">なし</td>
+</tr>
+<tr>
+<td style="text-align: center">ケース3</td>
+<td style="text-align: center">ReLu</td>
+<td style="text-align: center">400</td>
+<td style="text-align: center">あり</td>
+<td style="text-align: center">なし</td>
+</tr>
+<tr>
+<td style="text-align: center">ケース4</td>
+<td style="text-align: center">ReLu</td>
+<td style="text-align: center">400</td>
+<td style="text-align: center">なし</td>
+<td style="text-align: center">なし</td>
+</tr>
+<tr>
+<td style="text-align: center">ケース5</td>
+<td style="text-align: center">Sigmoid</td>
+<td style="text-align: center">1000</td>
+<td style="text-align: center">あり</td>
+<td style="text-align: center">なし</td>
+</tr>
+<tr>
+<td style="text-align: center">ケース6</td>
+<td style="text-align: center">Sigmoid</td>
+<td style="text-align: center">1000</td>
+<td style="text-align: center">あり</td>
+<td style="text-align: center">あり</td>
+</tr>
+<tr>
+<td style="text-align: center">ケース7</td>
+<td style="text-align: center">Sigmoid</td>
+<td style="text-align: center">100</td>
+<td style="text-align: center">なし</td>
+<td style="text-align: center">あり</td>
+</tr>
+</tbody>
+</table>
+
+<p>ケース6, 7はいわゆるDenoising Autoencoderです。</p>
+
+<p>今回もchinerのexample, <br>
+　<a href="https://github.com/pfnet/chainer/tree/master/examples/mnist" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/pfnet/chainer/tree/master/examples/mnist</a><br>
+　　　┗ train_mnist.py<br>
+をベースに一部手を加えて作成しています。</p>
+
+<h1>
+<span id="2-1ケース1-relu-1000ユニット-dropoutあり" class="fragment"></span><a href="#2-1%E3%82%B1%E3%83%BC%E3%82%B91-relu-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A"><i class="fa fa-link"></i></a>2-1.ケース1) ReLu, 1000ユニット, Dropoutあり</h1>
+
+<p>ケース1のコード全文は<a href="https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a" rel="nofollow noopener" target="_blank">こちら</a>からご覧ください。</p>
+
+<p>ポイントを抜き出して、その部分を中心に説明します。</p>
+
+<p>モデルは2層、入力に28x28=784個のデータ。中間層ユニット数n_unitsは1000を設定しています。出力層も同様に28x28=784個のデータです。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py</span></div>
+<div class="highlight"><pre>
+<span class="c"># 中間層の数</span>
+<span class="n">n_units</span>   <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="c"># AutoEncoderのモデルの設定</span>
+<span class="c"># 入力 784次元、出力 784次元, 2層</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">FunctionSet</span><span class="p">(</span><span class="n">l1</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="n">n_units</span><span class="p">),</span>
+                    <span class="n">l2</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">n_units</span><span class="p">,</span> <span class="mi">784</span><span class="p">))</span>
+</pre></div>
+</div>
+
+<p>活性化関数は中間層のみに適用しており、出力層は$f(\cdot)$は無し(つまり恒等関数)としています。誤差の算出には二乗誤差関数を使います。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py</span></div>
+<div class="highlight"><pre>
+<span class="c"># Neural net architecture</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="n">Variable</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span>  <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+    <span class="n">x_hat</span>  <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">l2</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>  <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+    <span class="c"># 誤差関数として二乗誤差関数を用いる</span>
+    <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">x_hat</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>n_epoch=20として20回まわした時のバッチ毎の平均誤差の推移です。（もしかしたらもうちょっと回してもよかったかも？）</p>
+
+<p><strong>誤差の推移</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/931774af-3e36-7033-ab13-33cf940d5547.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/931774af-3e36-7033-ab13-33cf940d5547.png" alt="ae009-compressor.png"></a></p>
+
+<p>入力データと出力データの比較がこちらです。上下２つずつの組で上が入力、下が出力になっています。ちょっとモヤがかかった感じですが、ほぼ再現されていることがわかります <img alt=":smile:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f604.png" title=":smile:" width="20"> </p>
+
+<p><strong>出力結果</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/62e48198-b6c7-9eb9-efb8-8f37d8752f0e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/62e48198-b6c7-9eb9-efb8-8f37d8752f0e.png" alt="ae010-compressor.png"></a></p>
+
+<p>面白いのがこのパラメーター$w_{ji}$の可視化です。7割くらいはノイズにしか見えないのですが3割くらいのパラメーターに手書き数字のストロークのようなものが浮き出ています。</p>
+
+<p><strong>1層目パラメーター$w^{(1)}_{ji}$の表示</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/db6481f5-1d78-5540-ad82-125e86235520.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/db6481f5-1d78-5540-ad82-125e86235520.png" alt="ae011-compressor.png"></a></p>
+
+<p>出力層につながるところの$(w^{(2)}_{ji})$も可視化してみます。そのまま使うと1000次元ベクトルになってしまうのですが、転置して784次元ベクトル、つまり28x28の画像として解釈すると、こちらもまた特徴が浮き出ていることがわかります。こちらの層はストロークというよりは、数字のカタチそのままのものや、複数の数字が重ね合わさったカタチになっているように思えます。</p>
+
+<p><strong>2層目パラメーター$(w^{(2)}_{ji})^{\rm T}$の表示</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/b1c04efc-0a79-0bcb-7bf8-4a1b24db1222.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/b1c04efc-0a79-0bcb-7bf8-4a1b24db1222.png" alt="ae012-compressor.png"></a></p>
+
+<h1>
+<span id="2-2ケース2-relu-1000ユニット-dropoutなし" class="fragment"></span><a href="#2-2%E3%82%B1%E3%83%BC%E3%82%B92-relu-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%AA%E3%81%97"><i class="fa fa-link"></i></a>2-2.ケース2) ReLu, 1000ユニット, Dropoutなし</h1>
+
+<p><a href="https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a" rel="nofollow noopener" target="_blank">ケース1のコード</a>に1行修正を加えるだけです。<br>
+下記のように訓練処理時にforward()関数の引数trainをFalseとすると、Dropout関数がスルーされます。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py(line.112)</span></div>
+<div class="highlight"><pre>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">forward</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>ちなみにこのケース2、一言で言うと<strong>「過学習」</strong>の臭いがします。</p>
+
+<ul>
+<li>誤差がかなり小さくなった</li>
+<li>Autoencoderの出力の一致具合がハンパない</li>
+<li>パラメーター$w$がノイズにしか見えない</li>
+<li>そもそも、入力が784次元なのに、中間層のユニット数がそれを上回る1000次元</li>
+</ul>
+
+<p>あたりが、そう思わせる根拠ですね。そう思うと、ケース1ではDropoutが上手く働いてきちんと過学習を防いでいた、と考えられるかと思います。</p>
+
+<p>では、視覚的に見ていきましょう。</p>
+
+<p><strong>誤差の推移</strong><br>
+ケース1では0.044付近でしたから、比べると誤差の桁が違うレベルで少ないです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/f3bbf358-bf92-798d-0cff-1ced19a64322.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/f3bbf358-bf92-798d-0cff-1ced19a64322.png" alt="ae013-compressor.png"></a></p>
+
+<p><strong>出力結果</strong><br>
+ものすごい適合具合です <img alt=":sweat_smile:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f605.png" title=":sweat_smile:" width="20"> 適合というか、そのものですね。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/a28fb0b1-066e-bcbc-3062-b29e9b92ce54.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/a28fb0b1-066e-bcbc-3062-b29e9b92ce54.png" alt="ae014-compressor.png"></a></p>
+
+<p><strong>1層目パラメーター$w^{(1)}_{ji}$の表示</strong></p>
+
+<p>あまり特徴的なものはみられず、稀に数字のカタチが見えるもの、なんらかドットのようなものを捉えているものがあるのみです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/0a92b40d-8a5d-a15d-783e-27d58db907e7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/0a92b40d-8a5d-a15d-783e-27d58db907e7.png" alt="ae015-compressor.png"></a></p>
+
+<p><strong>2層目パラメーター$(w^{(2)}_{ji})^{\rm T}$の表示</strong><br>
+こちらも1層目同様、うっすら数字のカタチのようなものも見えますが、非常にノイジーです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/9ecbfe3e-6e41-c551-6d64-ce7b54bdb853.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/9ecbfe3e-6e41-c551-6d64-ce7b54bdb853.png" alt="ae016-compressor.png"></a></p>
+
+<h1>
+<span id="2-3ケース3-relu-400ユニット-dropoutあり" class="fragment"></span><a href="#2-3%E3%82%B1%E3%83%BC%E3%82%B93-relu-400%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A"><i class="fa fa-link"></i></a>2-3.ケース3) ReLu, 400ユニット, Dropoutあり</h1>
+
+<p>次に、中間層のユニット数を入力データ768より下げて400にしてみます。<br>
+これも、<a href="https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a" rel="nofollow noopener" target="_blank">ケース1のコード</a>に1行修正を加えるだけです。中間層ユニット数n_unitsを400にします。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py(line.35)</span></div>
+<div class="highlight"><pre>
+<span class="c"># 中間層の数</span>
+<span class="n">n_units</span>   <span class="o">=</span> <span class="mi">400</span>
+</pre></div>
+</div>
+
+<p>結果のサマリーとしては、全体的にケース1をモヤっとさせたもの、に仕上がっています。</p>
+
+<p><strong>誤差の推移</strong><br>
+n_epoch=30で30回まわしてみましたが、20でも十分だったようです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/ec237747-2f87-4c3a-8a18-7dc98e839f24.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/ec237747-2f87-4c3a-8a18-7dc98e839f24.png" alt="ae017-compressor.png"></a></p>
+
+<p><strong>出力結果</strong><br>
+霧がかかった感じですね、でも元の数字を再現できていると言えそうです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/3efdb80f-006d-4764-0b21-7380c00d63e7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/3efdb80f-006d-4764-0b21-7380c00d63e7.png" alt="ae018-compressor.png"></a></p>
+
+<p><strong>1層目パラメーター$w^{(1)}_{ji}$の表示</strong><br>
+ストロークもちょっと薄めの出方になりました。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/dc2613a6-4ae3-9aca-8215-48b703751a4b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/dc2613a6-4ae3-9aca-8215-48b703751a4b.png" alt="ae019-compressor.png"></a></p>
+
+<p><strong>2層目パラメーター$(w^{(2)}_{ji})^{\rm T}$の表示</strong><br>
+１とか６とか８とかそのままのところもありますが、部分的な線のみ浮き出ているものもみられます。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/3c0bc173-20b7-b267-5141-4c117dac2f20.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/3c0bc173-20b7-b267-5141-4c117dac2f20.png" alt="ae020-compressor.png"></a></p>
+
+<h1>
+<span id="2-4ケース4-relu-400ユニット-dropoutなし" class="fragment"></span><a href="#2-4%E3%82%B1%E3%83%BC%E3%82%B94-relu-400%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%AA%E3%81%97"><i class="fa fa-link"></i></a>2-4.ケース4) ReLu, 400ユニット, Dropoutなし</h1>
+
+<p>次は400ユニットに減らしたものでDropoutしないものです。下記の2点を変更します。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py(line.35)</span></div>
+<div class="highlight"><pre>
+<span class="c"># 中間層の数</span>
+<span class="n">n_units</span>   <span class="o">=</span> <span class="mi">400</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py(line.112)</span></div>
+<div class="highlight"><pre>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">forward</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>やはり過学習気味で、パラメーター$w$はほとんど人間には解読不能な出力となっています。</p>
+
+<p><strong>誤差の推移</strong><br>
+overfittingのせいか、このケースも誤差は非常に少ないです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/721a7675-c789-da43-feed-2b4ef6401050.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/721a7675-c789-da43-feed-2b4ef6401050.png" alt="ae021-compressor.png"></a></p>
+
+<p><strong>出力結果</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/028dc0f1-3a14-96fe-be84-be13dbbc798a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/028dc0f1-3a14-96fe-be84-be13dbbc798a.png" alt="ae022-compressor.png"></a></p>
+
+<p><strong>1層目パラメーター$w^{(1)}_{ji}$の表示</strong><br>
+謎の模様です。入力データの特徴を反映して縁の方は平坦になっているものが多いようです。<br>
+逆にノイズのような出力は無くなりますね。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/23497b09-da28-490e-bcc9-3384c9b7a7e1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/23497b09-da28-490e-bcc9-3384c9b7a7e1.png" alt="ae023-compressor.png"></a></p>
+
+<p><strong>2層目パラメーター$(w^{(2)}_{ji})^{\rm T}$の表示</strong><br>
+２層目も謎の模様です。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/9039422b-f28d-c6ef-9a1e-3bcf4606820a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/9039422b-f28d-c6ef-9a1e-3bcf4606820a.png" alt="ae024-compressor.png"></a></p>
+
+<h1>
+<span id="2-5ケース5-sigmoid関数-1000ユニット-dropoutあり" class="fragment"></span><a href="#2-5%E3%82%B1%E3%83%BC%E3%82%B95-sigmoid%E9%96%A2%E6%95%B0-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A"><i class="fa fa-link"></i></a>2-5.ケース5) Sigmoid関数, 1000ユニット, Dropoutあり</h1>
+
+<p>次に活性化関数をSigmoid関数に変えてみます。<code>F.relu()</code>を使っていたところを<code>F.sigmoid()</code>に差し替えるだけです。2箇所あります。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py(line.74)</span></div>
+<div class="highlight"><pre>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span>  <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">02_draw_input_output.py(line.12)</span></div>
+<div class="highlight"><pre>
+    <span class="n">h1</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">l1</span><span class="p">(</span><span class="n">Variable</span><span class="p">(</span><span class="n">xxx</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">784</span><span class="p">)))),</span>  <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p><strong>誤差の推移</strong><br>
+誤差はReLuの時とほぼ同程度のようです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/1691451a-3a1d-96d2-8b61-6bea6bf9686a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/1691451a-3a1d-96d2-8b61-6bea6bf9686a.png" alt="ae031-compressor.png"></a></p>
+
+<p><strong>出力結果</strong><br>
+若干薄めですがかなりよい復元具合かと思います。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/9e3da54a-e9eb-98f1-cbcb-4edc6a7bdba6.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/9e3da54a-e9eb-98f1-cbcb-4edc6a7bdba6.png" alt="ae032-compressor.png"></a></p>
+
+<p><strong>1層目パラメーター$w^{(1)}_{ji}$の表示</strong><br>
+パラメーター$w$の特徴はReLu関数よりも捕らえられているように思います。というのも、全くのノイズしかない成分というのがかなり少ないためです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/647e928a-0873-84a0-3f39-94903ed436d2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/647e928a-0873-84a0-3f39-94903ed436d2.png" alt="ae033-compressor.png"></a></p>
+
+<p><strong>2層目パラメーター$(w^{(2)}_{ji})^{\rm T}$の表示</strong><br>
+2層目についても視覚的に意味のありそうなパターンが多く出ており有用に感じます。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/50dd35db-1c4a-272a-b1d2-dd8c2831bde2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/50dd35db-1c4a-272a-b1d2-dd8c2831bde2.png" alt="ae034-compressor.png"></a></p>
+
+<h1>
+<span id="2-6ケース6-sigmoid関数-1000ユニット-dropoutあり-ノイズ付加" class="fragment"></span><a href="#2-6%E3%82%B1%E3%83%BC%E3%82%B96-sigmoid%E9%96%A2%E6%95%B0-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A-%E3%83%8E%E3%82%A4%E3%82%BA%E4%BB%98%E5%8A%A0"><i class="fa fa-link"></i></a>2-6.ケース6) Sigmoid関数, 1000ユニット, Dropoutあり, ノイズ付加</h1>
+
+<p>入力データに10%のノイズを乗せてそれをノイズを乗せる前のデータと近くなるように学習します。ここではノイズとして0で上書きするように指定します。いわゆるDenoising Autoencoderです。</p>
+
+<p>ノイズ付加フラグを<code>True</code>にします。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py(line.38)</span></div>
+<div class="highlight"><pre>
+<span class="c"># ノイズ付加有無</span>
+<span class="n">noised</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+</div>
+
+<p>すると、学習用データに20%の割合でノイズ（0でピクセルを上書き）が加えられます。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">01_calculate.py(line.52)</span></div>
+<div class="highlight"><pre>
+<span class="c"># 学習用データを N個、検証用データを残りの個数と設定</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">60000</span>
+<span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>   <span class="p">[</span><span class="n">N</span><span class="p">])</span>
+<span class="n">N_test</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="n">noised</span><span class="p">:</span>
+    <span class="c"># Add noise</span>
+    <span class="n">noise_ratio</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">mnist</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+        <span class="n">perm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])[:</span><span class="nb">int</span><span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">noise_ratio</span><span class="p">)]</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>   <span class="p">[</span><span class="n">N</span><span class="p">])</span>
+</pre></div>
+</div>
+
+<p>ノイズが乗ったデータを見てみるとこんな感じです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/bdab44b8-e77e-21ed-f4a1-e7b625ae06a9.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/bdab44b8-e77e-21ed-f4a1-e7b625ae06a9.png" alt="noised_images-compressor.png"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Visualize noised image</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">data</span><span class="p">))[:</span><span class="mi">10</span><span class="p">]</span>   <span class="c"># sampling 10pcs of images</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
+    <span class="n">draw_digit_ae</span><span class="p">(</span><span class="n">mnist</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="s">"noised"</span><span class="p">)</span>
+</pre></div></div>
+
+<p><strong>誤差の推移</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/0e2c1480-e9ab-4667-67bd-12f9fbdb7f0f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/0e2c1480-e9ab-4667-67bd-12f9fbdb7f0f.png" alt="ae035-compressor.png"></a></p>
+
+<p><strong>出力結果</strong><br>
+入力データをノイズが乗っていないものに変更します。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">02_draw_input_output.py(line.11)</span></div>
+<div class="highlight"><pre>
+    <span class="n">xxx</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">02_draw_input_output.py(line.15)</span></div>
+<div class="highlight"><pre>
+    <span class="n">ans_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_test</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+</pre></div>
+</div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/b35a3a81-66e3-d9e8-a43b-7e79483929d6.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/b35a3a81-66e3-d9e8-a43b-7e79483929d6.png" alt="ae036-compressor.png"></a></p>
+
+<p><strong>1層目パラメーター$w^{(1)}_{ji}$の表示</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/11cb0b5f-f558-f3e4-3f28-962e6c1580ac.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/11cb0b5f-f558-f3e4-3f28-962e6c1580ac.png" alt="ae037-compressor.png"></a></p>
+
+<p><strong>2層目パラメーター$(w^{(2)}_{ji})^{\rm T}$の表示</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/2881a64c-5c2f-d180-5077-7c2ee4a90801.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/2881a64c-5c2f-d180-5077-7c2ee4a90801.png" alt="ae038-compressor.png"></a></p>
+
+<h1>
+<span id="2-7ケース7-sigmoid関数-100ユニット-dropoutなし-ノイズ付加" class="fragment"></span><a href="#2-7%E3%82%B1%E3%83%BC%E3%82%B97-sigmoid%E9%96%A2%E6%95%B0-100%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%AA%E3%81%97-%E3%83%8E%E3%82%A4%E3%82%BA%E4%BB%98%E5%8A%A0"><i class="fa fa-link"></i></a>2-7.ケース7) Sigmoid関数, 100ユニット, Dropoutなし, ノイズ付加</h1>
+
+<p>このケースが一番効率が良さそうに思います。再現性も高く、それがユニット数100で可能となっています。ただし、$w$について第2層目に特徴が現れてしまっているので、それを第1層に出せるような方法を探す事がよう検討事項です。</p>
+
+<p><strong>誤差の推移</strong><br>
+回数は多いですが、ユニット数が少ないのでひと回しに時間がかからないため、トータルでもさほど時間はかかりません。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/3d622a4c-8f66-6192-355b-ccddc39147cc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/3d622a4c-8f66-6192-355b-ccddc39147cc.png" alt="ae043-compressor.png"></a><br>
+847d-f20a-c0a4e12a2d24.png)</p>
+
+<p><strong>出力結果</strong><br>
+綺麗に再現できています。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/2b46a71f-8d3f-43ea-688f-3d27acf0951c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/2b46a71f-8d3f-43ea-688f-3d27acf0951c.png" alt="ae040-compressor.png"></a></p>
+
+<p><strong>1層目パラメーター$w^{(1)}_{ji}$の表示</strong><br>
+若干特徴薄めで、ドットらしきものがうっすら見える程度です。この層に特徴を入れたいので課題です。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/25eb4d4d-b3dd-f199-1934-9117250f6b48.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/25eb4d4d-b3dd-f199-1934-9117250f6b48.png" alt="ae041-compressor.png"></a></p>
+
+<p><strong>2層目パラメーター$(w^{(2)}_{ji})^{\rm T}$の表示</strong><br>
+この層に特徴がよく表れています。ストロークではなく、ドットのようなもので特徴があらわされています。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/5db68c67-7c00-e30a-01af-26b4e265d9cb.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/5db68c67-7c00-e30a-01af-26b4e265d9cb.png" alt="ae042-compressor.png"></a></p>
+
+<p>【参考】<br>
+先日、「深層学習」本の勉強会で畳込みニューラルネットについて説明してきましたので、<br>
+よろしければそのスライドもご覧ください。</p>
+
+<p>  </p><div> <strong> <a href="//www.slideshare.net/matsukenbook/ss-50545587" title="「深層学習」第６章 畳込みニューラルネット" target="_blank" rel="nofollow noopener">「深層学習」第６章 畳込みニューラルネット</a> </strong> from <strong><a href="//www.slideshare.net/matsukenbook" target="_blank" rel="nofollow noopener">Ken'ichi Matsui</a></strong> </div>
+
+<p>【参考書籍】<br>
+　深層学習（機械学習プロフェッショナルシリーズ） 岡谷貴之<br>
+　<br>
+【参考webサイト】<br>
+　Chainerのメインサイト<br>
+　　　<a href="http://chainer.org/" class="autolink" rel="nofollow noopener" target="_blank">http://chainer.org/</a><br>
+　ChainerのGitHubリポジトリ<br>
+　　　<a href="https://github.com/pfnet/chainer" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/pfnet/chainer</a><br>
+　Chainerのチュートリアルとリファレンス<br>
+　　　<a href="http://docs.chainer.org/en/latest/" class="autolink" rel="nofollow noopener" target="_blank">http://docs.chainer.org/en/latest/</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/kenmatsu4/items/99d4a54d5a57405ecaf8" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="ODLXfUtWI/ICKba4IlOeUYiGx7xlqrofmFJGumyahO9MtXHZd1CmR2AiWYAsgY5gRvsY1oYetib6wfaw9U9Jew==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1437091575" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+ChainerでAutoencoderを試してみる記事です。前回の記事、「[【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。](http://qiita.com/kenmatsu4/items/7b8d24d4c5144a686412)」の続きとなります。ディープラーニングの事前学習にも使われる技術ですね。
+本記事で使用したコードは[コチラ](https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a)から取得できます。
+
+#1.最初に#
+AutoencoderとはAuto(自己) encode(符号化)er(器)で、データを2層のニューラルネットに通して、自分自身のデータと一致する出力がされるようパラメーターを学習させるものです。データだけあれば良いので、分類的には教師なし学習になります。
+
+**学習フェーズ**
+![ae005-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/806a9f1d-4705-f4a8-4e3e-0e23dc6807c3.png)
+
+
+こんなことをして何が嬉しいのかというと、
+
+* 入力に合わせたパラメーター$w_{ji}$を設定できる。（入力データの特徴を抽出できる）
+* その入力に合わせたパラメーターを使うことでディープなニューラルネットでの学習を可能にする（ランダム値より良い$w_{ji}$の初期値として利用）
+
+ということができるのです。
+
+**出力実行**
+![ae006-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/e0aa1899-0582-cbb4-eb86-b0a39b9225e7.png)
+
+何はともあれ、動かしてみて可視化することを試みてみます。
+
+#2.幾つかのパターンで動かしてみる#
+
+活性化関数に何を選ぶか、中間層の数はいくつにするか、Dropoutを行うか、ノイズを付加するか（Denoising Autoencoderとするか）、の組み合わせで７つのケースで試してみました。ちなみに活性化関数 $f(\cdot)$ は中間層の$u_j$と$z_j$の間に挟まっています。
+こんな感じです。
+
+![ae008-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/5d5bd409-3841-9caf-76fa-0391f726485f.png)
+
+
+**実行したパターンの表**
+
+|            | 活性化関数 | 中間層数 |Dropout|ノイズ付加|
+|:----------:|:---------:|:-------:|:------:|:------:|
+| ケース1     | ReLu      | 1000    | あり   | なし   |
+| ケース2     | ReLu      | 1000    | なし   | なし   |
+| ケース3     | ReLu      | 400     | あり   | なし   |
+| ケース4     | ReLu      | 400     | なし   | なし   |
+| ケース5     | Sigmoid   | 1000    | あり   | なし   |
+| ケース6     | Sigmoid   | 1000    | あり   | あり   |
+| ケース7     | Sigmoid   | 100     | なし   | あり   |
+
+ケース6, 7はいわゆるDenoising Autoencoderです。
+
+今回もchinerのexample, 
+　https://github.com/pfnet/chainer/tree/master/examples/mnist
+　　　┗ train_mnist.py
+をベースに一部手を加えて作成しています。
+
+#2-1.ケース1) ReLu, 1000ユニット, Dropoutあり#
+ケース1のコード全文は[こちら](https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a)からご覧ください。
+
+ポイントを抜き出して、その部分を中心に説明します。
+
+モデルは2層、入力に28x28=784個のデータ。中間層ユニット数n_unitsは1000を設定しています。出力層も同様に28x28=784個のデータです。
+
+```py:01_calculate.py
+# 中間層の数
+n_units   = 1000
+
+# AutoEncoderのモデルの設定
+# 入力 784次元、出力 784次元, 2層
+model = FunctionSet(l1=F.Linear(784, n_units),
+                    l2=F.Linear(n_units, 784))
+```
+
+活性化関数は中間層のみに適用しており、出力層は$f(\cdot)$は無し(つまり恒等関数)としています。誤差の算出には二乗誤差関数を使います。
+
+```py:01_calculate.py
+# Neural net architecture
+def forward(x_data, y_data, train=True):
+    x, t = Variable(x_data), Variable(y_data)
+    y = F.dropout(F.relu(model.l1(x)),  train=train)
+    x_hat  = F.dropout(model.l2(y),  train=train)
+    # 誤差関数として二乗誤差関数を用いる
+    return F.mean_squared_error(x_hat, t)
+```
+
+n_epoch=20として20回まわした時のバッチ毎の平均誤差の推移です。（もしかしたらもうちょっと回してもよかったかも？）
+
+**誤差の推移**
+![ae009-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/931774af-3e36-7033-ab13-33cf940d5547.png)
+
+入力データと出力データの比較がこちらです。上下２つずつの組で上が入力、下が出力になっています。ちょっとモヤがかかった感じですが、ほぼ再現されていることがわかります :smile: 
+
+**出力結果**
+![ae010-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/62e48198-b6c7-9eb9-efb8-8f37d8752f0e.png)
+
+面白いのがこのパラメーター$w_{ji}$の可視化です。7割くらいはノイズにしか見えないのですが3割くらいのパラメーターに手書き数字のストロークのようなものが浮き出ています。
+
+**1層目パラメーター$w^{(1)}_{ji}$の表示**
+![ae011-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/db6481f5-1d78-5540-ad82-125e86235520.png)
+
+出力層につながるところの$\(w^{(2)}_{ji}\)$も可視化してみます。そのまま使うと1000次元ベクトルになってしまうのですが、転置して784次元ベクトル、つまり28x28の画像として解釈すると、こちらもまた特徴が浮き出ていることがわかります。こちらの層はストロークというよりは、数字のカタチそのままのものや、複数の数字が重ね合わさったカタチになっているように思えます。
+
+**2層目パラメーター$\(w^{(2)}_{ji}\)^{\rm T}$の表示**
+![ae012-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/b1c04efc-0a79-0bcb-7bf8-4a1b24db1222.png)
+
+
+
+
+#2-2.ケース2) ReLu, 1000ユニット, Dropoutなし#
+[ケース1のコード](https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a)に1行修正を加えるだけです。
+下記のように訓練処理時にforward()関数の引数trainをFalseとすると、Dropout関数がスルーされます。
+
+```py:01_calculate.py(line.112)
+        loss = forward(x_batch, y_batch, train=False)
+```
+
+ちなみにこのケース2、一言で言うと**「過学習」**の臭いがします。
+
+* 誤差がかなり小さくなった
+* Autoencoderの出力の一致具合がハンパない
+* パラメーター$w$がノイズにしか見えない
+* そもそも、入力が784次元なのに、中間層のユニット数がそれを上回る1000次元
+
+あたりが、そう思わせる根拠ですね。そう思うと、ケース1ではDropoutが上手く働いてきちんと過学習を防いでいた、と考えられるかと思います。
+
+では、視覚的に見ていきましょう。
+
+
+**誤差の推移**
+ケース1では0.044付近でしたから、比べると誤差の桁が違うレベルで少ないです。
+![ae013-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/f3bbf358-bf92-798d-0cff-1ced19a64322.png)
+
+**出力結果**
+ものすごい適合具合です :sweat_smile: 適合というか、そのものですね。
+![ae014-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/a28fb0b1-066e-bcbc-3062-b29e9b92ce54.png)
+
+
+**1層目パラメーター$w^{(1)}_{ji}$の表示**
+
+あまり特徴的なものはみられず、稀に数字のカタチが見えるもの、なんらかドットのようなものを捉えているものがあるのみです。
+![ae015-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/0a92b40d-8a5d-a15d-783e-27d58db907e7.png)
+
+
+**2層目パラメーター$\(w^{(2)}_{ji}\)^{\rm T}$の表示**
+こちらも1層目同様、うっすら数字のカタチのようなものも見えますが、非常にノイジーです。
+![ae016-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/9ecbfe3e-6e41-c551-6d64-ce7b54bdb853.png)
+
+
+#2-3.ケース3) ReLu, 400ユニット, Dropoutあり#
+
+次に、中間層のユニット数を入力データ768より下げて400にしてみます。
+これも、[ケース1のコード](https://gist.github.com/matsuken92/3b945f3ea4d07e9dcc0a)に1行修正を加えるだけです。中間層ユニット数n_unitsを400にします。
+
+```py:01_calculate.py(line.35)
+# 中間層の数
+n_units   = 400
+```
+
+結果のサマリーとしては、全体的にケース1をモヤっとさせたもの、に仕上がっています。
+
+**誤差の推移**
+n_epoch=30で30回まわしてみましたが、20でも十分だったようです。
+
+![ae017-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/ec237747-2f87-4c3a-8a18-7dc98e839f24.png)
+
+
+**出力結果**
+霧がかかった感じですね、でも元の数字を再現できていると言えそうです。
+![ae018-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/3efdb80f-006d-4764-0b21-7380c00d63e7.png)
+
+
+**1層目パラメーター$w^{(1)}_{ji}$の表示**
+ストロークもちょっと薄めの出方になりました。
+![ae019-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/dc2613a6-4ae3-9aca-8215-48b703751a4b.png)
+
+
+**2層目パラメーター$\(w^{(2)}_{ji}\)^{\rm T}$の表示**
+１とか６とか８とかそのままのところもありますが、部分的な線のみ浮き出ているものもみられます。
+![ae020-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/3c0bc173-20b7-b267-5141-4c117dac2f20.png)
+
+
+#2-4.ケース4) ReLu, 400ユニット, Dropoutなし#
+次は400ユニットに減らしたものでDropoutしないものです。下記の2点を変更します。
+
+```py:01_calculate.py(line.35)
+# 中間層の数
+n_units   = 400
+```
+
+```py:01_calculate.py(line.112)
+        loss = forward(x_batch, y_batch, train=False)
+```
+
+やはり過学習気味で、パラメーター$w$はほとんど人間には解読不能な出力となっています。
+
+**誤差の推移**
+overfittingのせいか、このケースも誤差は非常に少ないです。
+![ae021-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/721a7675-c789-da43-feed-2b4ef6401050.png)
+
+**出力結果**
+![ae022-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/028dc0f1-3a14-96fe-be84-be13dbbc798a.png)
+
+**1層目パラメーター$w^{(1)}_{ji}$の表示**
+謎の模様です。入力データの特徴を反映して縁の方は平坦になっているものが多いようです。
+逆にノイズのような出力は無くなりますね。
+![ae023-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/23497b09-da28-490e-bcc9-3384c9b7a7e1.png)
+
+**2層目パラメーター$\(w^{(2)}_{ji}\)^{\rm T}$の表示**
+２層目も謎の模様です。
+![ae024-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/9039422b-f28d-c6ef-9a1e-3bcf4606820a.png)
+
+
+#2-5.ケース5) Sigmoid関数, 1000ユニット, Dropoutあり#
+次に活性化関数をSigmoid関数に変えてみます。`F.relu()`を使っていたところを`F.sigmoid()`に差し替えるだけです。2箇所あります。
+
+```py:01_calculate.py(line.74)
+    y = F.dropout(F.sigmoid(model.l1(x)),  train=train)
+```
+
+```py:02_draw_input_output.py(line.12)
+    h1 = F.dropout(F.sigmoid(model.l1(Variable(xxx.reshape(1,784)))),  train=False)
+```
+
+**誤差の推移**
+誤差はReLuの時とほぼ同程度のようです。
+![ae031-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/1691451a-3a1d-96d2-8b61-6bea6bf9686a.png)
+
+**出力結果**
+若干薄めですがかなりよい復元具合かと思います。
+![ae032-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/9e3da54a-e9eb-98f1-cbcb-4edc6a7bdba6.png)
+
+**1層目パラメーター$w^{(1)}_{ji}$の表示**
+パラメーター$w$の特徴はReLu関数よりも捕らえられているように思います。というのも、全くのノイズしかない成分というのがかなり少ないためです。
+![ae033-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/647e928a-0873-84a0-3f39-94903ed436d2.png)
+
+**2層目パラメーター$\(w^{(2)}_{ji}\)^{\rm T}$の表示**
+2層目についても視覚的に意味のありそうなパターンが多く出ており有用に感じます。
+![ae034-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/50dd35db-1c4a-272a-b1d2-dd8c2831bde2.png)
+
+
+#2-6.ケース6) Sigmoid関数, 1000ユニット, Dropoutあり, ノイズ付加#
+入力データに10%のノイズを乗せてそれをノイズを乗せる前のデータと近くなるように学習します。ここではノイズとして0で上書きするように指定します。いわゆるDenoising Autoencoderです。
+
+ノイズ付加フラグを`True`にします。
+
+```py:01_calculate.py(line.38)
+# ノイズ付加有無
+noised = True
+```
+
+すると、学習用データに20%の割合でノイズ（0でピクセルを上書き）が加えられます。
+
+```py:01_calculate.py(line.52)
+# 学習用データを N個、検証用データを残りの個数と設定
+N = 60000
+y_train, y_test = np.split(mnist.data.copy(),   [N])
+N_test = y_test.shape[0]
+
+if noised:
+    # Add noise
+    noise_ratio = 0.2
+    for data in mnist.data:
+        perm = np.random.permutation(mnist.data.shape[1])[:int(mnist.data.shape[1]*noise_ratio)]
+        data[perm] = 0.0
+    
+x_train, x_test = np.split(mnist.data,   [N])
+```
+ノイズが乗ったデータを見てみるとこんな感じです。
+![noised_images-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/bdab44b8-e77e-21ed-f4a1-e7b625ae06a9.png)
+
+```py 
+# Visualize noised image
+p = np.random.permutation(len(mnist.data))[:10]   # sampling 10pcs of images
+plt.figure(figsize=(12,4))
+for i in range(len(p)):
+    draw_digit_ae(mnist.data[p[i]], i+1, 2, 5, &quot;noised&quot;)
+```
+
+
+**誤差の推移**
+
+![ae035-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/0e2c1480-e9ab-4667-67bd-12f9fbdb7f0f.png)
+
+
+**出力結果**
+入力データをノイズが乗っていないものに変更します。
+
+```py:02_draw_input_output.py(line.11)
+    xxx = y_test[idx].astype(np.float32)
+```
+
+```py:02_draw_input_output.py(line.15)
+    ans_list.append(y_test[idx])
+```
+
+![ae036-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/b35a3a81-66e3-d9e8-a43b-7e79483929d6.png)
+
+
+**1層目パラメーター$w^{(1)}_{ji}$の表示**
+
+![ae037-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/11cb0b5f-f558-f3e4-3f28-962e6c1580ac.png)
+
+
+**2層目パラメーター$\(w^{(2)}_{ji}\)^{\rm T}$の表示**
+
+![ae038-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/2881a64c-5c2f-d180-5077-7c2ee4a90801.png)
+
+
+#2-7.ケース7) Sigmoid関数, 100ユニット, Dropoutなし, ノイズ付加#
+このケースが一番効率が良さそうに思います。再現性も高く、それがユニット数100で可能となっています。ただし、$w$について第2層目に特徴が現れてしまっているので、それを第1層に出せるような方法を探す事がよう検討事項です。
+
+**誤差の推移**
+回数は多いですが、ユニット数が少ないのでひと回しに時間がかからないため、トータルでもさほど時間はかかりません。
+![ae043-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/3d622a4c-8f66-6192-355b-ccddc39147cc.png)
+847d-f20a-c0a4e12a2d24.png)
+
+
+**出力結果**
+綺麗に再現できています。
+![ae040-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/2b46a71f-8d3f-43ea-688f-3d27acf0951c.png)
+
+
+**1層目パラメーター$w^{(1)}_{ji}$の表示**
+若干特徴薄めで、ドットらしきものがうっすら見える程度です。この層に特徴を入れたいので課題です。
+![ae041-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/25eb4d4d-b3dd-f199-1934-9117250f6b48.png)
+
+
+**2層目パラメーター$\(w^{(2)}_{ji}\)^{\rm T}$の表示**
+この層に特徴がよく表れています。ストロークではなく、ドットのようなもので特徴があらわされています。
+![ae042-compressor.png](https://qiita-image-store.s3.amazonaws.com/0/50670/5db68c67-7c00-e30a-01af-26b4e265d9cb.png)
+
+【参考】
+先日、「深層学習」本の勉強会で畳込みニューラルネットについて説明してきましたので、
+よろしければそのスライドもご覧ください。
+
+&lt;iframe src=&quot;//www.slideshare.net/slideshow/embed_code/key/J1034kFmio2Tuf&quot; width=&quot;425&quot; height=&quot;355&quot; frameborder=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot; style=&quot;border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;&quot; allowfullscreen&gt; &lt;/iframe&gt; &lt;div style=&quot;margin-bottom:5px&quot;&gt; &lt;strong&gt; &lt;a href=&quot;//www.slideshare.net/matsukenbook/ss-50545587&quot; title=&quot;「深層学習」第６章 畳込みニューラルネット&quot; target=&quot;_blank&quot;&gt;「深層学習」第６章 畳込みニューラルネット&lt;/a&gt; &lt;/strong&gt; from &lt;strong&gt;&lt;a href=&quot;//www.slideshare.net/matsukenbook&quot; target=&quot;_blank&quot;&gt;Ken&amp;#x27;ichi Matsui&lt;/a&gt;&lt;/strong&gt; &lt;/div&gt;
+
+
+【参考書籍】
+　深層学習（機械学習プロフェッショナルシリーズ） 岡谷貴之
+　
+【参考webサイト】
+　Chainerのメインサイト
+　　　http://chainer.org/
+　ChainerのGitHubリポジトリ
+　　　https://github.com/pfnet/chainer
+　Chainerのチュートリアルとリファレンス
+　　　http://docs.chainer.org/en/latest/
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【ディープラーニング】ChainerでAutoencoderを試して結果を可視化してみる。 by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【ディープラーニング】ChainerでAutoencoderを試して結果を可視化してみる。" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/kenmatsu4"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/kenmatsu4">kenmatsu4</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">8840</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;kenmatsu4&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-17e7862f-dfe5-47d9-9d7c-3efe40fe9b64"></div>
+    <div id="UserFollowButton-react-component-17e7862f-dfe5-47d9-9d7c-3efe40fe9b64"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/7b8d24d4c5144a686412">【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/e6c6acb289c02609e619">【統計学】初めての「標準偏差」（統計学に挫折しないために）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/2a8573e3c878fc2da306">【数学】固有値・固有ベクトルとは何かを可視化してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/b28d1b3b3d291d0cc698">【統計学】尤度って何？をグラフィカルに説明してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/23768cbe32fe381d54a2">スタバのTwitterデータをpythonで大量に取得し、データ分析を試みる その１</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1%E6%9C%80%E5%88%9D%E3%81%AB\&quot;\u003e1.最初に\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E5%B9%BE%E3%81%A4%E3%81%8B%E3%81%AE%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3%E3%81%A7%E5%8B%95%E3%81%8B%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003e2.幾つかのパターンで動かしてみる\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-1%E3%82%B1%E3%83%BC%E3%82%B91-relu-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A\&quot;\u003e2-1.ケース1) ReLu, 1000ユニット, Dropoutあり\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-2%E3%82%B1%E3%83%BC%E3%82%B92-relu-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%AA%E3%81%97\&quot;\u003e2-2.ケース2) ReLu, 1000ユニット, Dropoutなし\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-3%E3%82%B1%E3%83%BC%E3%82%B93-relu-400%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A\&quot;\u003e2-3.ケース3) ReLu, 400ユニット, Dropoutあり\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-4%E3%82%B1%E3%83%BC%E3%82%B94-relu-400%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%AA%E3%81%97\&quot;\u003e2-4.ケース4) ReLu, 400ユニット, Dropoutなし\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-5%E3%82%B1%E3%83%BC%E3%82%B95-sigmoid%E9%96%A2%E6%95%B0-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A\&quot;\u003e2-5.ケース5) Sigmoid関数, 1000ユニット, Dropoutあり\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-6%E3%82%B1%E3%83%BC%E3%82%B96-sigmoid%E9%96%A2%E6%95%B0-1000%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%82%E3%82%8A-%E3%83%8E%E3%82%A4%E3%82%BA%E4%BB%98%E5%8A%A0\&quot;\u003e2-6.ケース6) Sigmoid関数, 1000ユニット, Dropoutあり, ノイズ付加\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-7%E3%82%B1%E3%83%BC%E3%82%B97-sigmoid%E9%96%A2%E6%95%B0-100%E3%83%A6%E3%83%8B%E3%83%83%E3%83%88-dropout%E3%81%AA%E3%81%97-%E3%83%8E%E3%82%A4%E3%82%BA%E4%BB%98%E5%8A%A0\&quot;\u003e2-7.ケース7) Sigmoid関数, 100ユニット, Dropoutなし, ノイズ付加\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-c7a7fe47-dda3-487f-b611-ff3d4d195468"></div>
+    <div id="Toc-react-component-c7a7fe47-dda3-487f-b611-ff3d4d195468"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:293,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;99d4a54d5a57405ecaf8&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="toshi19890331"><a itemprop="url" href="/toshi19890331"><img alt="toshi19890331" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25513/profile-images/1473684349" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="himo"><a itemprop="url" href="/himo"><img alt="himo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53186/profile-images/1473692979" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kseta"><a itemprop="url" href="/kseta"><img alt="kseta" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5418/profile-images/1473681967" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="_kuni88"><a itemprop="url" href="/_kuni88"><img alt="_kuni88" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/53788/profile-images/1473693161" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ixixi"><a itemprop="url" href="/ixixi"><img alt="ixixi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8954/profile-images/1473681204" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Leonhalt2714"><a itemprop="url" href="/Leonhalt2714"><img alt="Leonhalt2714" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/23418/profile-images/1473683834" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="blackaplysia"><a itemprop="url" href="/blackaplysia"><img alt="blackaplysia" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21963/profile-images/1473683460" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="letusfly85"><a itemprop="url" href="/letusfly85"><img alt="letusfly85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49547/profile-images/1473691769" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="oooxxxx"><a itemprop="url" href="/oooxxxx"><img alt="oooxxxx" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15737/profile-images/1473758136" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="miseyu"><a itemprop="url" href="/miseyu"><img alt="miseyu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5921/profile-images/1473682386" /></a></div></div><div class="ArticleFooter__user"><a href="/kenmatsu4/items/99d4a54d5a57405ecaf8/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/99d4a54d5a57405ecaf8/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/kenmatsu4/items/99d4a54d5a57405ecaf8.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 1 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/kenmatsu4/items/7b8d24d4c5144a686412#_reference-aa79f97045d03b55e63a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" />【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。</a><time class="references_datetime js-dateTimeView" datetime="2015-07-08T00:52:27+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/hogefugabar/items/c27ed578717c5e7288c0#_reference-9f2a7e2e52d07400b896"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" />深層学習でニュース記事を分類する</a><time class="references_datetime js-dateTimeView" datetime="2015-07-23T11:55:43+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmatsu4/items/623514c61166e34283bb#_reference-5ebbcc4cb67644b03004"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" />【Qiita API】[統計学•機械学習] 今までの投稿記事のまとめと分析やってみた。</a><time class="references_datetime js-dateTimeView" datetime="2015-08-10T14:36:39+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/hashiwa/items/40552579e8cb1d7aa18d#_reference-ff04137a46d2d27ad122"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/107431/profile-images/1473710249" />Deeplearning4jでAutoEncoder</a><time class="references_datetime js-dateTimeView" datetime="2016-05-17T10:53:41+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmatsu4/items/183020c058feac6a779b#_reference-adf779ad68b435965292"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" />今までの投稿記事のまとめ（統計学/機械学習/数学 etc）</a><time class="references_datetime js-dateTimeView" datetime="2016-07-09T02:34:14+00:00">8 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/trtd56/items/acf42277c29b57c05651#_reference-128ba1c0c5c3c9be1ab0"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/91517/profile-images/1473705329" />ChainerでAutoencoder(+ trainerの使い方の備忘録)</a><time class="references_datetime js-dateTimeView" datetime="2016-08-09T01:23:24+00:00">7 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【ディープラーニング】ChainerでAutoencoderを試して結果を可視化してみる。 by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【ディープラーニング】ChainerでAutoencoderを試して結果を可視化してみる。" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eわかりやすい説明ありがとうございます。\u003cbr\u003e\n質問なのですが、ファインチューニングはどのようなプログラムを書いているのでしょうか？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-04T13:32:27+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:374364,&quot;is_team&quot;:false,&quot;item_id&quot;:313622,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;99d4a54d5a57405ecaf8&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;わかりやすい説明ありがとうございます。\n質問なのですが、ファインチューニングはどのようなプログラムを書いているのでしょうか？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8#comment-e9fd26059eebe46b7181&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-11-03T16:44:07+09:00&quot;,&quot;id&quot;:99042,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99042/profile-images/1473707681&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;sonnnakotoittatte&quot;},&quot;uuid&quot;:&quot;e9fd26059eebe46b7181&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:313622,&quot;uuid&quot;:&quot;99d4a54d5a57405ecaf8&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;},{&quot;id&quot;:99042,&quot;url_name&quot;:&quot;sonnnakotoittatte&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99042/profile-images/1473707681&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-4b464622-6232-4ce5-a750-0f5b4656eca1"></div>
+    <div id="CommentListContainer-react-component-4b464622-6232-4ce5-a750-0f5b4656eca1"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="UTHM+pU4NVy7ctEO+z7EtvMllT1BLChyT9HxYjCDjogltmpeqT6w6dl5Pjb17NSHPVhKV6KYJEstQkFoqVZDHA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/99d4a54d5a57405ecaf8" /><input type="hidden" name="item_uuid" id="item_uuid" value="99d4a54d5a57405ecaf8" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/kenmatsu4/items/99d4a54d5a57405ecaf8", "id": 313622, "uuid": "99d4a54d5a57405ecaf8" }</script><script class="js-user" type="application/json">{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="BATBcJEKe0dkz/6kG5GnmVDimcSnsxMf8aeo3J+dRjxwg2fUrQz+8gbEEZwVQ7eonp9GrkQHHyaTNBjWBkiLqA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/99d4a54d5a57405ecaf8" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-60123434-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

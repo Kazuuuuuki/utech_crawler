@@ -1,0 +1,731 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>pythonでニューラルネットワーク実装 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+はじめに
+
+pythonで3層のニューラルネットワークを実装し，XNORの識別をしてみました．
+数式も載せたので，興味のある方は読んでみてください．
+教科書として『深層学習』を使いました．
+
+本記事の構成
+
+
+はじめに
+ニューラルネットワーク
+
+
+重みの更新
+誤差逆伝播
+
+
+XNOR
+pythonでの実装
+結果
+おわりに
+
+
+
+ニューラルネットワーク
+
+ニューラルネットワークとは，人間の脳の神経回路を模したモデルです．このモデルを使うことで，画像認識や音声認識が可能..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="takayamacho" name="twitter:creator" /><meta content="pythonでニューラルネットワーク実装 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# はじめに
+
+pythonで3層のニューラルネットワークを実装し，XNORの識別をしてみました．
+数式も載せたので，興味のある方は読んでみてください．
+教科書として[『深層学習』](http://www.amazon.co.jp/深..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="03VoWfa7dQjHJQ8E8+dsbQUZttginHvYah4GVAcqjQ4rkFaVYH3078xxfJKC3yt6fKCr8wWsNyyLK81aN8byog==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"ta-ka","type":"items","id":"bcdfd2d9903146c51dcb"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-8cff2759-f88c-4c3e-9ddf-4616804717f1"></div>
+    <div id="HeaderContainer-react-component-8cff2759-f88c-4c3e-9ddf-4616804717f1"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">pythonでニューラルネットワーク実装</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="92"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF"><img alt="ニューラルネットワーク" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/011823e464a9c800137e6074afd4ac7e1b55df45/medium.jpg?1480640830" /><span>ニューラルネットワーク</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">142</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:142,&quot;uuid&quot;:&quot;bcdfd2d9903146c51dcb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="kaz3284"><a itemprop="url" href="/kaz3284"><img alt="kaz3284" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26997/profile-images/1473684796" /></a></li><li class="js-hovercard" data-hovercard-target-name="nYaaJee"><a itemprop="url" href="/nYaaJee"><img alt="nYaaJee" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/121756/profile-images/1473715013" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomosooon"><a itemprop="url" href="/tomosooon"><img alt="tomosooon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63865/profile-images/1473696400" /></a></li><li class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></li><li class="js-hovercard" data-hovercard-target-name="fujikawa-h"><a itemprop="url" href="/fujikawa-h"><img alt="fujikawa-h" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/67510/profile-images/1473697548" /></a></li><li class="js-hovercard" data-hovercard-target-name="yakawa"><a itemprop="url" href="/yakawa"><img alt="yakawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64468/profile-images/1473696589" /></a></li><li class="js-hovercard" data-hovercard-target-name="chrischris0801"><a itemprop="url" href="/chrischris0801"><img alt="chrischris0801" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/71718/profile-images/1473698916" /></a></li><li class="js-hovercard" data-hovercard-target-name="YoheiEn"><a itemprop="url" href="/YoheiEn"><img alt="YoheiEn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/116025/profile-images/1473713113" /></a></li><li class="js-hovercard" data-hovercard-target-name="Tomory"><a itemprop="url" href="/Tomory"><img alt="Tomory" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83503/profile-images/1473702796" /></a></li><li><a href="/ta-ka/items/bcdfd2d9903146c51dcb/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/ta-ka"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/82527/profile-images/1473702483" alt="1473702483" /></a> <a class="u-link-unstyled" href="/ta-ka">ta-ka</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-04-25T15:13:52+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-04-25">Edited at <time datetime="2016-04-28T22:52:53+09:00" itemprop="dateModified">2016-04-28</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/ta-ka/items/bcdfd2d9903146c51dcb/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/ta-ka/items/bcdfd2d9903146c51dcb/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/ta-ka/items/bcdfd2d9903146c51dcb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-bcdfd2d9903146c51dcb" itemprop="articleBody">
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p>pythonで3層のニューラルネットワークを実装し，XNORの識別をしてみました．<br>
+数式も載せたので，興味のある方は読んでみてください．<br>
+教科書として<a href="http://www.amazon.co.jp/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92-%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%97%E3%83%AD%E3%83%95%E3%82%A7%E3%83%83%E3%82%B7%E3%83%A7%E3%83%8A%E3%83%AB%E3%82%B7%E3%83%AA%E3%83%BC%E3%82%BA-%E5%B2%A1%E8%B0%B7-%E8%B2%B4%E4%B9%8B/dp/4061529021" rel="nofollow noopener" target="_blank">『深層学習』</a>を使いました．</p>
+
+<p>本記事の構成</p>
+
+<ul>
+<li>はじめに</li>
+<li>ニューラルネットワーク
+
+<ul>
+<li>重みの更新</li>
+<li>誤差逆伝播</li>
+</ul>
+</li>
+<li>XNOR</li>
+<li>pythonでの実装</li>
+<li>結果</li>
+<li>おわりに</li>
+</ul>
+
+<h1>
+<span id="ニューラルネットワーク" class="fragment"></span><a href="#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF"><i class="fa fa-link"></i></a>ニューラルネットワーク</h1>
+
+<p>ニューラルネットワークとは，人間の脳の神経回路を模したモデルです．このモデルを使うことで，画像認識や音声認識が可能となります．<br>
+今回実装したネットワークは入力層，中間層(1層)，出力層の3層構造です．</p>
+
+<h2>
+<span id="重みの更新" class="fragment"></span><a href="#%E9%87%8D%E3%81%BF%E3%81%AE%E6%9B%B4%E6%96%B0"><i class="fa fa-link"></i></a>重みの更新</h2>
+
+<p>下の図で説明していきます．</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/82527/8fb0bd49-0068-c66e-ebb8-c7c1e91cfbdf.png" target="_blank" rel="nofollow noopener"><img width="360" alt="neu.png" src="https://qiita-image-store.s3.amazonaws.com/0/82527/8fb0bd49-0068-c66e-ebb8-c7c1e91cfbdf.png"></a></p>
+
+<p>$l-1$ 層目の $i$ 番目のユニットから $l$ 層目の $j$ 番目のユニットへの重みを $w_{ji}^{(l)}$ とします．<br>
+また，$l-1$ 層目の $i$ 番目のユニットが保持している値を $u_{i}^{(l-1)}$ とします．<br>
+活性化関数としてシグモイド関数 $g(x)$ を用います．微分値が微分する前の値を使って求められるので便利です．</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+g(x) = \frac{1}{1 + \exp(-x)} \\
+g'(x) = g(x)(1 - g(x))
+</pre></div></div>
+
+<p>2乗誤差 $E_n$ を目的関数とし，下の式で重みを更新することで最小化を図ります．$E_n$ は1サンプルによって生じる誤差で，この $E_n$ を使って重みの更新をする方法を確率的勾配降下法と呼びます．<br>
+確率的勾配降下法は，目的関数が更新されるごとに変化するため，局所解にトラップされにくくなるというメリットがあります．<br>
+$\epsilon$ は学習率と呼ばれ，学習の速度を決めるパラメータです．<br>
+偏微分の項をどのように計算するかがポイントとなります．</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{{w}_{ji}^{(l)}}_{new} = {w_{ji}^{(l)}}_{old} - \epsilon\frac{\partial E_n}{\partial {w_{ji}^{(l)}}_{old}}
+</pre></div></div>
+
+<h2>
+<span id="誤差逆伝播" class="fragment"></span><a href="#%E8%AA%A4%E5%B7%AE%E9%80%86%E4%BC%9D%E6%92%AD"><i class="fa fa-link"></i></a>誤差逆伝播</h2>
+
+<p>では，$\frac{\partial E_n}{\partial w_{ji}^{(l)}}$ の求め方を説明していきます．出力層と中間層とで求め方が若干異なるので，分けて説明していきます．</p>
+
+<p><strong>&lt; 出力層 &gt;</strong><br>
+教師を $t_j$ で表します．2乗誤差 $E_n$ を出力層の重み $w_{ji}^{(l)}$ で偏微分すると，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\frac{\partial E_n}{\partial w_{ji}^{(l)}} &amp;= \frac{\partial}{\partial w_{ji}^{(l)}}\frac{1}{2}(t_j - g(u_{j}^{(l)}))^{2} \\
+&amp;= (t_j - g(u_{j}^{(l)}))\cdot\frac{\partial}{\partial w_{ji}^{(l)}}(t_j - g(u_{j}^{(l)})) \\
+&amp;= (t_j - g(u_{j}^{(l)}))\cdot\frac{\partial}{\partial u_{j}^{(l)}}(t_j - g(u_{j}^{(l)}))\cdot\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} \\
+\\
+&amp;= (t_j - g(u_{j}^{(l)})\cdot g'(u_{j}^{(l)})\cdot g(u_{i}^{(l-1)}) \\
+\\
+&amp;= (t_j - g(u_{j}^{(l)}))g(u_{j}^{(l)})(1 - g(u_{j}^{(l)}))g(u_{i}^{(l-1)})
+\end{align}
+</pre></div></div>
+
+<p><strong>&lt; 中間層 &gt;</strong><br>
+2乗誤差 $E_n$ を中間層の重み $w_{ji}^{(l)}$ で偏微分すると，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\frac{\partial E_n}{\partial w_{ji}^{(l)}} &amp;= \frac{\partial E_n}{\partial u_{j}^{(l)}}\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} \\
+\\
+&amp;= \delta_{j}^{(l)}\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}}
+\end{align}
+</pre></div></div>
+
+<p>右辺第1項は，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\delta_{j}^{(l)} &amp;= \frac{\partial E_n}{\partial u_{j}^{(l)}} \\
+&amp;= \sum_{k}\frac{\partial E_n}{\partial u_{k}^{(l+1)}}\frac{\partial u_{k}^{(l+1)}}{\partial u_{j}^{(l)}} \\
+\\
+&amp;= \sum_{k}\delta_{k}^{(l+1)}w_{kj}^{(l+1)}g'(u_{j}^{(l)}) \\
+\\
+&amp;= \Bigl(\sum_{k}\delta_{k}^{(l+1)}w_{kj}^{(l+1)}\Bigr)g(u_{j}^{(l)})(1 - g(u_{j}^{(l)}))
+\end{align}
+</pre></div></div>
+
+<p>右辺第2項は，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} &amp;= g(u_{i}^{(l-1)})
+\end{align}
+</pre></div></div>
+
+<p>以上より，</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\frac{\partial E_n}{\partial w_{ji}^{(l)}} &amp;= \delta_{j}^{(l)}\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} \\
+\\
+&amp;= \Bigl(\sum_{k}\delta_{k}^{(l+1)}w_{kj}^{(l+1)}\Bigr)g(u_{j}^{(l)})(1 - g(u_{j}^{(l)}))g(u_{i}^{(l-1)})
+\end{align}
+</pre></div></div>
+
+<p>中間層 $l$ の重みを更新するときは，その次の層 $l+1$ の $\delta_{k}^{(l+1)}$ が必要となります．<br>
+出力層での $\delta$ は，出力値と教師の差として求めることができ，これを出力層から入力層の方向に順番に伝播させることで，中間層の重みを更新します．これが誤差逆伝播と呼ばれる所以です．</p>
+
+<h1>
+<span id="xnor" class="fragment"></span><a href="#xnor"><i class="fa fa-link"></i></a>XNOR</h1>
+
+<p>XNORは入力値が等しいとき $1$ を出力し，入力値が異なるとき $0$ を出力します．これは線形識別することができません．</p>
+
+<table>
+<thead>
+<tr>
+<th>$x_1$</th>
+<th>$x_2$</th>
+<th>$t$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/82527/afa16cf9-6af1-63ef-13fe-3306fd54f5b4.png" target="_blank" rel="nofollow noopener"><img width="360" alt="xnor.png" src="https://qiita-image-store.s3.amazonaws.com/0/82527/afa16cf9-6af1-63ef-13fe-3306fd54f5b4.png"></a></p>
+
+<h1>
+<span id="pythonでの実装" class="fragment"></span><a href="#python%E3%81%A7%E3%81%AE%E5%AE%9F%E8%A3%85"><i class="fa fa-link"></i></a>pythonでの実装</h1>
+
+<p>XNORを識別するニューラルネットワークを実装しました．<br>
+中間層の数は1つ，中間層のユニットの数は2つにしています．学習率 $\epsilon = 0.1$，モメンタムの係数 $\mu = 0.9$ としています．<br>
+(モメンタムは収束性能を向上させる方法の一つで，重みの修正量に，前回の重みの修正量に係数をかけたものを加算します．)</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">neuralnetwork.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span>
+
+<span class="k">class</span> <span class="nc">Neural</span><span class="p">:</span>
+
+    <span class="c"># constructor</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_input</span><span class="p">,</span> <span class="n">n_hidden</span><span class="p">,</span> <span class="n">n_output</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">((</span><span class="n">n_hidden</span><span class="p">,</span> <span class="n">n_input</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_weight</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">((</span><span class="n">n_output</span><span class="p">,</span> <span class="n">n_hidden</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_momentum</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_hidden</span><span class="p">,</span> <span class="n">n_input</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_momentum</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_output</span><span class="p">,</span> <span class="n">n_hidden</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+
+<span class="c"># public method</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">epo</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">__update_weight</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">mu</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">[</span><span class="n">epo</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__calc_error</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int'</span><span class="p">)</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">z</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+            <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">error_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
+        <span class="n">pyplot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="c"># private method</span>
+    <span class="k">def</span> <span class="nf">__sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)))(</span><span class="n">arr</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c"># z: output in hidden layer, y: output in output layer</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_weight</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span> <span class="n">x</span><span class="p">]))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__sigmoid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_weight</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span> <span class="n">z</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__update_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">mu</span><span class="p">):</span>
+        <span class="n">z</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c"># update output_weight</span>
+        <span class="n">output_delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">_output_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_weight</span> <span class="o">-=</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">output_delta</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span> <span class="n">z</span><span class="p">]</span> <span class="o">-</span> <span class="n">mu</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_momentum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_momentum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_weight</span> <span class="o">-</span> <span class="n">_output_weight</span>
+
+        <span class="c"># update hidden_weight</span>
+        <span class="n">hidden_delta</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_weight</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">output_delta</span><span class="p">))</span> <span class="o">*</span> <span class="n">z</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">z</span><span class="p">)</span>
+        <span class="n">_hidden_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_weight</span> <span class="o">-=</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="n">hidden_delta</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span> <span class="n">x</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_momentum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_weight</span> <span class="o">-</span> <span class="n">_hidden_weight</span>
+
+
+    <span class="k">def</span> <span class="nf">__calc_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+
+            <span class="n">z</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">err</span> <span class="o">+=</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">dot</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+        <span class="k">return</span> <span class="n">err</span>
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">main.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">neuralnetwork</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+
+    <span class="n">X</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c"># number of data</span>
+
+    <span class="n">input_size</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">hidden_size</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">output_size</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="mf">0.9</span>
+    <span class="n">epoch</span> <span class="o">=</span> <span class="mi">10000</span>
+
+    <span class="n">nn</span> <span class="o">=</span> <span class="n">Neural</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+    <span class="n">nn</span><span class="o">.</span><span class="n">error_graph</span><span class="p">()</span>
+
+    <span class="n">C</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="k">print</span> <span class="n">x</span>
+        <span class="k">print</span> <span class="n">y</span>
+        <span class="k">print</span> <span class="n">c</span>
+        <span class="k">print</span> <span class="s">""</span>
+</pre></div>
+</div>
+
+<h1>
+<span id="結果" class="fragment"></span><a href="#%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>結果</h1>
+
+<p>正しく識別できています．</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center">$x_1$</th>
+<th style="text-align: center">$x_2$</th>
+<th style="text-align: center">$t$</th>
+<th style="text-align: center">$y$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center">0</td>
+<td style="text-align: center">0</td>
+<td style="text-align: center">[ 1, 0 ]</td>
+<td style="text-align: center">[ 0.92598739, 0.07297757 ]</td>
+</tr>
+<tr>
+<td style="text-align: center">0</td>
+<td style="text-align: center">1</td>
+<td style="text-align: center">[ 0, 1 ]</td>
+<td style="text-align: center">[ 0.06824915, 0.93312514 ]</td>
+</tr>
+<tr>
+<td style="text-align: center">1</td>
+<td style="text-align: center">0</td>
+<td style="text-align: center">[ 0, 1 ]</td>
+<td style="text-align: center">[ 0.06828438, 0.93309010 ]</td>
+</tr>
+<tr>
+<td style="text-align: center">1</td>
+<td style="text-align: center">1</td>
+<td style="text-align: center">[ 1, 0 ]</td>
+<td style="text-align: center">[ 0.92610205, 0.07220633 ]</td>
+</tr>
+</tbody>
+</table>
+
+<p>誤差が減少していく様子をグラフにしました．横軸がエポック数，縦軸が誤差です．</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/82527/865e697e-2f9b-69ce-e579-e5b9e1e2e723.png" target="_blank" rel="nofollow noopener"><img width="840" alt="error.png" src="https://qiita-image-store.s3.amazonaws.com/0/82527/865e697e-2f9b-69ce-e579-e5b9e1e2e723.png"></a></p>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<p>3層のニューラルネットワークを実装し，XNORを識別することができました．<br>
+学習のトリック(重みの初期値の決定方法，学習率の決定方法，AdaGrad，モメンタム)など勉強すべきことはまだまだありますが，一旦これで終わりにします．</p>
+<div class="hidden"><form class="js-task-list-update" action="/ta-ka/items/bcdfd2d9903146c51dcb" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="k+xLDuxmMxDS1PLmv3wG8gnwAJP0xz7On5Rk2QLvCqhrCXXCeqCy99mAgXDOREHlcEkduNP3cjp+oa/XMgN1BA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1461851573" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# はじめに
+
+pythonで3層のニューラルネットワークを実装し，XNORの識別をしてみました．
+数式も載せたので，興味のある方は読んでみてください．
+教科書として[『深層学習』](http://www.amazon.co.jp/深層学習-機械学習プロフェッショナルシリーズ-岡谷-貴之/dp/4061529021)を使いました．
+
+本記事の構成
+
+* はじめに
+* ニューラルネットワーク
+    * 重みの更新
+    * 誤差逆伝播
+* XNOR
+* pythonでの実装
+* 結果
+* おわりに
+
+
+# ニューラルネットワーク
+
+ニューラルネットワークとは，人間の脳の神経回路を模したモデルです．このモデルを使うことで，画像認識や音声認識が可能となります．
+今回実装したネットワークは入力層，中間層(1層)，出力層の3層構造です．
+
+## 重みの更新
+
+下の図で説明していきます．
+
+&lt;img width=360 alt=&quot;neu.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/82527/8fb0bd49-0068-c66e-ebb8-c7c1e91cfbdf.png&quot;&gt;
+
+$l-1$ 層目の $i$ 番目のユニットから $l$ 層目の $j$ 番目のユニットへの重みを $w_{ji}^{(l)}$ とします．
+また，$l-1$ 層目の $i$ 番目のユニットが保持している値を $u_{i}^{(l-1)}$ とします．
+活性化関数としてシグモイド関数 $g(x)$ を用います．微分値が微分する前の値を使って求められるので便利です．
+
+```math
+g(x) = \frac{1}{1 + \exp(-x)} \\
+g&#39;(x) = g(x)(1 - g(x))
+```
+
+2乗誤差 $E_n$ を目的関数とし，下の式で重みを更新することで最小化を図ります．$E_n$ は1サンプルによって生じる誤差で，この $E_n$ を使って重みの更新をする方法を確率的勾配降下法と呼びます．
+確率的勾配降下法は，目的関数が更新されるごとに変化するため，局所解にトラップされにくくなるというメリットがあります．
+$\epsilon$ は学習率と呼ばれ，学習の速度を決めるパラメータです．
+偏微分の項をどのように計算するかがポイントとなります．
+
+```math
+{{w}_{ji}^{(l)}}_{new} = {w_{ji}^{(l)}}_{old} - \epsilon\frac{\partial E_n}{\partial {w_{ji}^{(l)}}_{old}}
+```
+
+## 誤差逆伝播
+
+では，$\frac{\partial E_n}{\partial w_{ji}^{(l)}}$ の求め方を説明していきます．出力層と中間層とで求め方が若干異なるので，分けて説明していきます．
+
+**&lt; 出力層 &gt;**
+教師を $t_j$ で表します．2乗誤差 $E_n$ を出力層の重み $w_{ji}^{(l)}$ で偏微分すると，
+
+```math
+\begin{align}
+\frac{\partial E_n}{\partial w_{ji}^{(l)}} &amp;= \frac{\partial}{\partial w_{ji}^{(l)}}\frac{1}{2}(t_j - g(u_{j}^{(l)}))^{2} \\
+&amp;= (t_j - g(u_{j}^{(l)}))\cdot\frac{\partial}{\partial w_{ji}^{(l)}}(t_j - g(u_{j}^{(l)})) \\
+&amp;= (t_j - g(u_{j}^{(l)}))\cdot\frac{\partial}{\partial u_{j}^{(l)}}(t_j - g(u_{j}^{(l)}))\cdot\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} \\
+\\
+&amp;= (t_j - g(u_{j}^{(l)})\cdot g&#39;(u_{j}^{(l)})\cdot g(u_{i}^{(l-1)}) \\
+\\
+&amp;= (t_j - g(u_{j}^{(l)}))g(u_{j}^{(l)})(1 - g(u_{j}^{(l)}))g(u_{i}^{(l-1)})
+\end{align}
+```
+
+**&lt; 中間層 &gt;**
+2乗誤差 $E_n$ を中間層の重み $w_{ji}^{(l)}$ で偏微分すると，
+
+```math
+\begin{align}
+\frac{\partial E_n}{\partial w_{ji}^{(l)}} &amp;= \frac{\partial E_n}{\partial u_{j}^{(l)}}\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} \\
+\\
+&amp;= \delta_{j}^{(l)}\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}}
+\end{align}
+```
+
+右辺第1項は，
+
+```math
+\begin{align}
+\delta_{j}^{(l)} &amp;= \frac{\partial E_n}{\partial u_{j}^{(l)}} \\
+&amp;= \sum_{k}\frac{\partial E_n}{\partial u_{k}^{(l+1)}}\frac{\partial u_{k}^{(l+1)}}{\partial u_{j}^{(l)}} \\
+\\
+&amp;= \sum_{k}\delta_{k}^{(l+1)}w_{kj}^{(l+1)}g&#39;(u_{j}^{(l)}) \\
+\\
+&amp;= \Bigl(\sum_{k}\delta_{k}^{(l+1)}w_{kj}^{(l+1)}\Bigr)g(u_{j}^{(l)})(1 - g(u_{j}^{(l)}))
+\end{align}
+```
+
+右辺第2項は，
+
+```math
+\begin{align}
+\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} &amp;= g(u_{i}^{(l-1)})
+\end{align}
+```
+
+以上より，
+
+```math
+\begin{align}
+\frac{\partial E_n}{\partial w_{ji}^{(l)}} &amp;= \delta_{j}^{(l)}\frac{\partial u_{j}^{(l)}}{\partial w_{ji}^{(l)}} \\
+\\
+&amp;= \Bigl(\sum_{k}\delta_{k}^{(l+1)}w_{kj}^{(l+1)}\Bigr)g(u_{j}^{(l)})(1 - g(u_{j}^{(l)}))g(u_{i}^{(l-1)})
+\end{align}
+```
+
+中間層 $l$ の重みを更新するときは，その次の層 $l+1$ の $\delta_{k}^{(l+1)}$ が必要となります．
+出力層での $\delta$ は，出力値と教師の差として求めることができ，これを出力層から入力層の方向に順番に伝播させることで，中間層の重みを更新します．これが誤差逆伝播と呼ばれる所以です．
+
+
+# XNOR
+
+XNORは入力値が等しいとき $1$ を出力し，入力値が異なるとき $0$ を出力します．これは線形識別することができません．
+
+|$x_1$|$x_2$|$t$|
+|-----|-----|---|
+|0    |0    |1  |
+|0    |1    |0  |
+|1    |0    |0  |
+|1    |1    |1  |
+
+&lt;img width=360 alt=&quot;xnor.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/82527/afa16cf9-6af1-63ef-13fe-3306fd54f5b4.png&quot;&gt;
+
+
+# pythonでの実装
+
+XNORを識別するニューラルネットワークを実装しました．
+中間層の数は1つ，中間層のユニットの数は2つにしています．学習率 $\epsilon = 0.1$，モメンタムの係数 $\mu = 0.9$ としています．
+(モメンタムは収束性能を向上させる方法の一つで，重みの修正量に，前回の重みの修正量に係数をかけたものを加算します．)
+
+```neuralnetwork.py
+import numpy
+import math
+import random
+from matplotlib import pyplot
+
+class Neural:
+
+	# constructor
+	def __init__(self, n_input, n_hidden, n_output):
+		self.hidden_weight = numpy.random.random_sample((n_hidden, n_input + 1))
+		self.output_weight = numpy.random.random_sample((n_output, n_hidden + 1))
+		self.hidden_momentum = numpy.zeros((n_hidden, n_input + 1))
+		self.output_momentum = numpy.zeros((n_output, n_hidden + 1))
+
+
+# public method
+	def train(self, X, T, epsilon, mu, epoch):
+		self.error = numpy.zeros(epoch)
+		N = X.shape[0]
+		for epo in range(epoch):
+			for i in range(N):
+				x = X[i, :]
+				t = T[i, :]
+
+				self.__update_weight(x, t, epsilon, mu)
+
+			self.error[epo] = self.__calc_error(X, T)
+
+
+	def predict(self, X):
+		N = X.shape[0]
+		C = numpy.zeros(N).astype(&#39;int&#39;)
+		Y = numpy.zeros((N, X.shape[1]))
+		for i in range(N):
+			x = X[i, :]
+			z, y = self.__forward(x)
+
+			Y[i] = y
+			C[i] = y.argmax()
+
+		return (C, Y)
+
+
+	def error_graph(self):
+		pyplot.ylim(0.0, 2.0)
+		pyplot.plot(numpy.arange(0, self.error.shape[0]), self.error)
+		pyplot.show()
+
+
+# private method
+	def __sigmoid(self, arr):
+		return numpy.vectorize(lambda x: 1.0 / (1.0 + math.exp(-x)))(arr)
+
+
+	def __forward(self, x):
+		# z: output in hidden layer, y: output in output layer
+		z = self.__sigmoid(self.hidden_weight.dot(numpy.r_[numpy.array([1]), x]))
+		y = self.__sigmoid(self.output_weight.dot(numpy.r_[numpy.array([1]), z]))
+
+		return (z, y)
+
+	def __update_weight(self, x, t, epsilon, mu):
+		z, y = self.__forward(x)
+
+		# update output_weight
+		output_delta = (y - t) * y * (1.0 - y)
+		_output_weight = self.output_weight
+		self.output_weight -= epsilon * output_delta.reshape((-1, 1)) * numpy.r_[numpy.array([1]), z] - mu * self.output_momentum
+		self.output_momentum = self.output_weight - _output_weight
+
+		# update hidden_weight
+		hidden_delta = (self.output_weight[:, 1:].T.dot(output_delta)) * z * (1.0 - z)
+		_hidden_weight = self.hidden_weight
+		self.hidden_weight -= epsilon * hidden_delta.reshape((-1, 1)) * numpy.r_[numpy.array([1]), x]
+		self.hidden_momentum = self.hidden_weight - _hidden_weight
+
+
+	def __calc_error(self, X, T):
+		N = X.shape[0]
+		err = 0.0
+		for i in range(N):
+			x = X[i, :]
+			t = T[i, :]
+
+			z, y = self.__forward(x)
+			err += (y - t).dot((y - t).reshape((-1, 1))) / 2.0
+
+		return err
+```
+
+
+```main.py
+from neuralnetwork import *
+
+if __name__ == &#39;__main__&#39;:
+
+	X = numpy.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+	T = numpy.array([[1, 0], [0, 1], [0, 1], [1, 0]])
+	N = X.shape[0] # number of data
+
+	input_size = X.shape[1]
+	hidden_size = 2
+	output_size = 2
+	epsilon = 0.1
+	mu = 0.9
+	epoch = 10000
+
+	nn = Neural(input_size, hidden_size, output_size)
+	nn.train(X, T, epsilon, mu, epoch)
+	nn.error_graph()
+
+	C, Y = nn.predict(X)
+
+	for i in range(N):
+		x = X[i, :]
+		y = Y[i, :]
+		c = C[i]
+
+		print x
+		print y
+		print c
+		print &quot;&quot;
+```
+
+
+# 結果
+
+正しく識別できています．
+
+|$x_1$|$x_2$|$t$      |$y$                        |
+|:---:|:---:|:-------:|:-------------------------:|
+|0    |0    |[ 1, 0 ] |[ 0.92598739, 0.07297757 ] |
+|0    |1    |[ 0, 1 ] |[ 0.06824915, 0.93312514 ] |
+|1    |0    |[ 0, 1 ] |[ 0.06828438, 0.93309010 ] |
+|1    |1    |[ 1, 0 ] |[ 0.92610205, 0.07220633 ] |
+
+誤差が減少していく様子をグラフにしました．横軸がエポック数，縦軸が誤差です．
+
+&lt;img width=840 alt=&quot;error.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/82527/865e697e-2f9b-69ce-e579-e5b9e1e2e723.png&quot;&gt;
+
+
+# おわりに
+
+3層のニューラルネットワークを実装し，XNORを識別することができました．
+学習のトリック(重みの初期値の決定方法，学習率の決定方法，AdaGrad，モメンタム)など勉強すべきことはまだまだありますが，一旦これで終わりにします．
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="pythonでニューラルネットワーク実装 by @takayamacho on @Qiita" data-url="http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="pythonでニューラルネットワーク実装" href="http://b.hatena.ne.jp/entry/http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/ta-ka"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/82527/profile-images/1473702483" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/ta-ka">ta-ka</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">516</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;ta-ka&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-4a84e8b5-899b-4c5f-9dec-2995505f0e34"></div>
+    <div id="UserFollowButton-react-component-4a84e8b5-899b-4c5f-9dec-2995505f0e34"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ta-ka/items/bcdfd2d9903146c51dcb">pythonでニューラルネットワーク実装</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ta-ka/items/1c588dd0559d1aad9921">numpyだけでCNN実装</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ta-ka/items/e6fd0b6fc46dbab4a651">pythonでSVM実装</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ta-ka/items/ed8eca68b5e89f6796a5">【強化学習】最良経路探索</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ta-ka/items/44f4288e8723a7bc9a75">自己符号化器と主成分分析による次元圧縮</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\&quot;\u003eニューラルネットワーク\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%87%8D%E3%81%BF%E3%81%AE%E6%9B%B4%E6%96%B0\&quot;\u003e重みの更新\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%A4%E5%B7%AE%E9%80%86%E4%BC%9D%E6%92%AD\&quot;\u003e誤差逆伝播\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#xnor\&quot;\u003eXNOR\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#python%E3%81%A7%E3%81%AE%E5%AE%9F%E8%A3%85\&quot;\u003epythonでの実装\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E6%9E%9C\&quot;\u003e結果\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-eae8b5b3-c54c-4ece-ad98-6e822ac72e3f"></div>
+    <div id="Toc-react-component-eae8b5b3-c54c-4ece-ad98-6e822ac72e3f"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:142,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;bcdfd2d9903146c51dcb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kaz3284"><a itemprop="url" href="/kaz3284"><img alt="kaz3284" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26997/profile-images/1473684796" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nYaaJee"><a itemprop="url" href="/nYaaJee"><img alt="nYaaJee" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/121756/profile-images/1473715013" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomosooon"><a itemprop="url" href="/tomosooon"><img alt="tomosooon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63865/profile-images/1473696400" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fujikawa-h"><a itemprop="url" href="/fujikawa-h"><img alt="fujikawa-h" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/67510/profile-images/1473697548" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yakawa"><a itemprop="url" href="/yakawa"><img alt="yakawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64468/profile-images/1473696589" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="chrischris0801"><a itemprop="url" href="/chrischris0801"><img alt="chrischris0801" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/71718/profile-images/1473698916" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="YoheiEn"><a itemprop="url" href="/YoheiEn"><img alt="YoheiEn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/116025/profile-images/1473713113" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Tomory"><a itemprop="url" href="/Tomory"><img alt="Tomory" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83503/profile-images/1473702796" /></a></div></div><div class="ArticleFooter__user"><a href="/ta-ka/items/bcdfd2d9903146c51dcb/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/bcdfd2d9903146c51dcb/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/ta-ka/items/bcdfd2d9903146c51dcb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/ta-ka/items/44f4288e8723a7bc9a75#_reference-8559fff3d8eed2c41d36"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/82527/profile-images/1473702483" />自己符号化器と主成分分析による次元圧縮</a><time class="references_datetime js-dateTimeView" datetime="2016-08-11T09:17:53+00:00">7 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ta-ka/items/1c588dd0559d1aad9921#_reference-99c0d35f3c85bc224512"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/82527/profile-images/1473702483" />numpyだけでCNN実装</a><time class="references_datetime js-dateTimeView" datetime="2016-10-31T10:30:41+00:00">5 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="pythonでニューラルネットワーク実装 by @takayamacho on @Qiita" data-url="http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="pythonでニューラルネットワーク実装" href="http://b.hatena.ne.jp/entry/http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e分かりやすい解説ありがとうございます。今まで様々なサイトを見ましたが、こちらの説明が一番腹落ちしました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-07-29T07:39:57+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:601994,&quot;is_team&quot;:false,&quot;item_id&quot;:387927,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;bcdfd2d9903146c51dcb&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;分かりやすい解説ありがとうございます。今まで様々なサイトを見ましたが、こちらの説明が一番腹落ちしました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb#comment-e35fd51b2759d7085b96&quot;,&quot;user&quot;:{&quot;contribution&quot;:13,&quot;created_at&quot;:&quot;2016-04-01T21:49:47+09:00&quot;,&quot;id&quot;:119667,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/119667/profile-images/1477679483&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;cesolutionsym&quot;},&quot;uuid&quot;:&quot;e35fd51b2759d7085b96&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:387927,&quot;uuid&quot;:&quot;bcdfd2d9903146c51dcb&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;ta-ka&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:82527,&quot;url_name&quot;:&quot;ta-ka&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/82527/profile-images/1473702483&quot;},{&quot;id&quot;:119667,&quot;url_name&quot;:&quot;cesolutionsym&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/119667/profile-images/1477679483&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-b299bc92-6b2f-4a9b-8c26-592cd03ca40d"></div>
+    <div id="CommentListContainer-react-component-b299bc92-6b2f-4a9b-8c26-592cd03ca40d"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="NLvPZrUCDORVXc4yA8ZbN/N0TkkTCtEzHNfO5jcu15XMXvGqI8SNA14JvaRy/hwgis1TYjQ6ncf94gXoB8KoOQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/ta-ka/items/bcdfd2d9903146c51dcb" /><input type="hidden" name="item_uuid" id="item_uuid" value="bcdfd2d9903146c51dcb" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/ta-ka/items/bcdfd2d9903146c51dcb", "id": 387927, "uuid": "bcdfd2d9903146c51dcb" }</script><script class="js-user" type="application/json">{&quot;id&quot;:82527,&quot;url_name&quot;:&quot;ta-ka&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/82527/profile-images/1473702483&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="l3L4mWO9mp3W2b4iB33vIHDdFlyHTzV2ELGZaZtbWYdvl8ZV9Xsbet2NzbR2Rag3CWQLd6B/eYLxhFJnq7cmKw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/ta-ka/items/bcdfd2d9903146c51dcb" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

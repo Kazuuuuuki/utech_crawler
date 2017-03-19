@@ -1,0 +1,708 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="掲題の件、ちょっと気になったのとちょうどいい勉強ネタということで確認してみます。
+
+
+発端
+
+Twitterで流れてきた 日本人「だけ」読めないフォント!? そんなバカなと思ったけどホントに読めそうで読めない！（http://togetter.com/li/887973） を見てふと、
+
+　「本当にカタカナ（とかそれに近い形状）に関する認識機能の有無で、読める読めない（＝判別できるできない）が変わるのだろうか？」
+
+と思ったことがきっかけで、畳み込みニューラルネットを使..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="掲題の件、ちょっと気になったのとちょうどいい勉強ネタということで確認してみます。
+
+# 発端
+
+Twitterで流れてきた [日本人「だけ」読めないフォント!? そんなバカなと思ったけどホントに読めそうで読めない！（http://to..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="JFsGA1wMu1OEJoyuDlMbrIHsYe2alozKhYMif6aDXgvbpFbY7cffeOT6qhrhHYwYQh4TM1yDNfLkqG7vexAyaw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"lazykyama","type":"items","id":"eae5851b7baaaf4cabd7"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-aafaccf4-4b5e-466c-8d5f-a92109e302ca"></div>
+    <div id="HeaderContainer-react-component-aafaccf4-4b5e-466c-8d5f-a92109e302ca"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">245</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:245,&quot;uuid&quot;:&quot;eae5851b7baaaf4cabd7&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="takei-yuya@github"><a itemprop="url" href="/takei-yuya@github"><img alt="takei-yuya@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10212/profile-images/1473681656" /></a></li><li class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></li><li class="js-hovercard" data-hovercard-target-name="saba1024"><a itemprop="url" href="/saba1024"><img alt="saba1024" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11059/profile-images/1473681903" /></a></li><li class="js-hovercard" data-hovercard-target-name="dkt"><a itemprop="url" href="/dkt"><img alt="dkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/89459/profile-images/1473704760" /></a></li><li class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></li><li class="js-hovercard" data-hovercard-target-name="valbeat"><a itemprop="url" href="/valbeat"><img alt="valbeat" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25323/profile-images/1473684309" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomo_makes"><a itemprop="url" href="/tomo_makes"><img alt="tomo_makes" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64608/profile-images/1473696640" /></a></li><li class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></li><li class="js-hovercard" data-hovercard-target-name="weakboson@github"><a itemprop="url" href="/weakboson@github"><img alt="weakboson@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14326/profile-images/1473683289" /></a></li><li><a href="/lazykyama/items/eae5851b7baaaf4cabd7/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/lazykyama"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360" alt="1473700360" /></a> <a class="u-link-unstyled" href="/lazykyama">lazykyama</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-10-19T22:25:08+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-10-19">Edited at <time datetime="2015-10-20T22:12:31+09:00" itemprop="dateModified">2015-10-20</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/lazykyama/items/eae5851b7baaaf4cabd7/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/lazykyama/items/eae5851b7baaaf4cabd7/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/lazykyama/items/eae5851b7baaaf4cabd7.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-eae5851b7baaaf4cabd7" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>掲題の件、ちょっと気になったのとちょうどいい勉強ネタということで確認してみます。</p>
+
+<h1>
+<span id="発端" class="fragment"></span><a href="#%E7%99%BA%E7%AB%AF"><i class="fa fa-link"></i></a>発端</h1>
+
+<p>Twitterで流れてきた <a href="http://togetter.com/li/887973" rel="nofollow noopener" target="_blank">日本人「だけ」読めないフォント!? そんなバカなと思ったけどホントに読めそうで読めない！（http://togetter.com/li/887973）</a> を見てふと、</p>
+
+<p>　<strong>「本当にカタカナ（とかそれに近い形状）に関する認識機能の有無で、読める読めない（＝判別できるできない）が変わるのだろうか？」</strong></p>
+
+<p>と思ったことがきっかけで、畳み込みニューラルネットを使って確認してみることにしました。<br>
+既にどこかの誰かが試しているかもしれませんが、お勉強ということでひとつ。</p>
+
+<p>なおここでは畳み込みニューラルネットの説明は割愛します。あしからず。</p>
+
+<h1>
+<span id="仮説" class="fragment"></span><a href="#%E4%BB%AE%E8%AA%AC"><i class="fa fa-link"></i></a>仮説</h1>
+
+<p>カタカナ＋英語を分類できる分類器より、英語のみの分類しかできない分類器の方が精度よく文字を当てられる</p>
+
+<h1>
+<span id="手法" class="fragment"></span><a href="#%E6%89%8B%E6%B3%95"><i class="fa fa-link"></i></a>手法</h1>
+
+<p>以下5パターンを比較することで、知っている文字の差分が精度に与える影響を評価します。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">No.</th>
+<th style="text-align: left">学習データ</th>
+<th style="text-align: left">出力クラス数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">1</td>
+<td style="text-align: left">アルファベット＋数字のみ</td>
+<td style="text-align: left">62（大文字小文字を区別）</td>
+</tr>
+<tr>
+<td style="text-align: left">2</td>
+<td style="text-align: left">No.1＋ひらがなのみ</td>
+<td style="text-align: left">62+48 = 110</td>
+</tr>
+<tr>
+<td style="text-align: left">3</td>
+<td style="text-align: left">No.1＋カタカナのみ</td>
+<td style="text-align: left">62+48 = 110</td>
+</tr>
+<tr>
+<td style="text-align: left">4</td>
+<td style="text-align: left">No.1＋ひらがな＋カタカナ</td>
+<td style="text-align: left">62+48*2 = 158</td>
+</tr>
+<tr>
+<td style="text-align: left">5</td>
+<td style="text-align: left">No.1＋ヘブライ文字</td>
+<td style="text-align: left">62+28 = 89</td>
+</tr>
+</tbody>
+</table>
+
+<p>No.5については <a href="http://dic.nicovideo.jp/a/%E3%83%98%E3%83%96%E3%83%A9%E3%82%A4%E6%96%87%E5%AD%97" class="autolink" rel="nofollow noopener" target="_blank">http://dic.nicovideo.jp/a/%E3%83%98%E3%83%96%E3%83%A9%E3%82%A4%E6%96%87%E5%AD%97</a> に記載の「文字」と「語尾形」を別クラスとして扱っています。<br>
+（そもそもなんでヘブライ文字やねん、というツッコミに対しては、togetterに「ヘブライ文字にもちょっと似てる気がする。」というコメントがあったため比較用に入れた、という程度の理由です。）</p>
+
+<h1>
+<span id="使用データ" class="fragment"></span><a href="#%E4%BD%BF%E7%94%A8%E3%83%87%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>使用データ</h1>
+
+<p>OCR向けの無料データを使わせていただこうかと思いましたが、どうもちょうどよいものがなかったので自作しています。</p>
+
+<p><a href="http://qiita.com/lazykyama/items/65bcce351f3d1cf07d8e" id="reference-02eaf897a1fbd90ec3d0">Pillow(PIL)で1文字の画像をたくさん生成する（http://qiita.com/lazykyama/items/65bcce351f3d1cf07d8e）</a> に記載のスクリプトで1文字だけの画像を対象文字数分作っておき、それにランダムなノイズを乗せてデータを水増ししました。<br>
+今回の検証では1文字あたり30枚のノイズつき画像を動的に生成し、学習データとしています。</p>
+
+<p>また、テスト用の画像は <a href="http://www.dafont.com/electroharmonix.font" class="autolink" rel="nofollow noopener" target="_blank">http://www.dafont.com/electroharmonix.font</a> のサンプル画像から手動で切り出したものを使いました。</p>
+
+<p>学習データ・テストデータとも、64x64のグレースケール画像を使用しています。</p>
+
+<h1>
+<span id="ネットワーク構造" class="fragment"></span><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E6%A7%8B%E9%80%A0"><i class="fa fa-link"></i></a>ネットワーク構造</h1>
+
+<p>分類器の構成は以下のコードの通りです。<br>
+各種パラメータなどは適当です。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="bp">self</span><span class="o">.</span><span class="n">__model</span> <span class="o">=</span> <span class="n">chainer</span><span class="o">.</span><span class="n">FunctionSet</span><span class="p">(</span>
+     <span class="n">conv1</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> 
+     <span class="n">conv2</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> 
+     <span class="n">l3</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="mi">784</span><span class="p">),</span> 
+     <span class="n">softmax4</span><span class="o">=</span><span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">784</span><span class="p">,</span> <span class="n">class_num</span><span class="p">))</span>
+
+<span class="c"># 中略</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">chainer</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+
+<span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__model</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__model</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__model</span><span class="o">.</span><span class="n">l3</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__model</span><span class="o">.</span><span class="n">softmax4</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+</pre></div></div>
+
+<p>なおご覧のとおり、今回の実装に際しては <a href="http://chainer.org/" rel="nofollow noopener" target="_blank">Chainer</a> を使っています。<br>
+（<a href="http://qiita.com/hogefugabar/items/312707a09d29632e7288" class="autolink" id="reference-7b47095ebe89d731f9e5">http://qiita.com/hogefugabar/items/312707a09d29632e7288</a> を参考にさせていただきました。ありがとうございます。）</p>
+
+<h1>
+<span id="実験結果" class="fragment"></span><a href="#%E5%AE%9F%E9%A8%93%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>実験結果</h1>
+
+<p>今回の実験は全パターン共通して、以下のパラメータを使用しています。<br>
+（他にもいろいろ試してはいます）</p>
+
+<ul>
+<li>epoch: 10</li>
+<li>mini-batch: 10</li>
+</ul>
+
+<p>この条件下での結果は以下の通りとなりました。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">No.</th>
+<th style="text-align: left">学習データ</th>
+<th style="text-align: left">正答率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">1</td>
+<td style="text-align: left">アルファベット＋数字のみ</td>
+<td style="text-align: left">46.2% (12 / 26)</td>
+</tr>
+<tr>
+<td style="text-align: left">2</td>
+<td style="text-align: left">No.1＋ひらがなのみ</td>
+<td style="text-align: left">34.6% ( 9 / 26)</td>
+</tr>
+<tr>
+<td style="text-align: left">3</td>
+<td style="text-align: left">No.1＋カタカナのみ</td>
+<td style="text-align: left">15.4% ( 4 / 26)</td>
+</tr>
+<tr>
+<td style="text-align: left">4</td>
+<td style="text-align: left">No.1＋ひらがな＋カタカナ</td>
+<td style="text-align: left">26.9% ( 7 / 26)</td>
+</tr>
+<tr>
+<td style="text-align: left">5</td>
+<td style="text-align: left">No.1＋ヘブライ文字</td>
+<td style="text-align: left">23.1% ( 6 / 26)</td>
+</tr>
+</tbody>
+</table>
+
+<p>そもそもあんまり正答率高くないですけど、それにしてもカタカナ混ざった時の精度がヒドいことになっていますね。。。<br>
+やはり日本人には読みづらいのかもしれません。</p>
+
+<p>最後にテスト時のログを以下に記載しておきます。<br>
+（ログ中、「capsV」などとなっているのは大文字であることを表します。今回対象としたelectroharmonixは大文字も小文字も同じ形状のようなので、どちらにマッチしても正解として扱っています。）</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+test models.
+[PATTERN1]: English only.
+2015-10-19 08:08:39,112 [INFO] #data: 26
+2015-10-19 08:08:39,186 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,186 [INFO] correct: g, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,186 [INFO] correct: s, answer: capsE =&gt; WRONG
+2015-10-19 08:08:39,187 [INFO] correct: o, answer: capsD =&gt; WRONG
+2015-10-19 08:08:39,187 [INFO] correct: i, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,187 [INFO] correct: r, answer: capsR =&gt; RIGHT
+2015-10-19 08:08:39,187 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,187 [INFO] correct: a, answer: capsA =&gt; RIGHT
+2015-10-19 08:08:39,187 [INFO] correct: h, answer: capsH =&gt; RIGHT
+2015-10-19 08:08:39,188 [INFO] correct: l, answer: capsD =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: k, answer: capsN =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: n, answer: capsO =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: q, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,188 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: t, answer: n =&gt; WRONG
+2015-10-19 08:08:39,189 [INFO] correct: e, answer: capsE =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: x, answer: x =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: p, answer: capsF =&gt; WRONG
+2015-10-19 08:08:39,189 [INFO] correct: w, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,189 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: y, answer: capsY =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: c, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,190 [INFO] correct: b, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,190 [INFO] correct: f, answer: capsF =&gt; RIGHT
+2015-10-19 08:08:39,190 [INFO] correct: j, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,190 [INFO] test accuracy: 0.461538461538 (12 / 26)
+[PATTERN2]: English and hiragana.
+2015-10-19 08:08:39,314 [INFO] #data: 26
+2015-10-19 08:08:39,387 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,387 [INFO] correct: g, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,387 [INFO] correct: s, answer: capsB =&gt; WRONG
+2015-10-19 08:08:39,387 [INFO] correct: o, answer: capsB =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: i, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: r, answer: ほ =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,388 [INFO] correct: a, answer: l =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: h, answer: わ =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: l, answer: capsU =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: k, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: n, answer: capsD =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: q, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,389 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,389 [INFO] correct: t, answer: す =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: e, answer: capsE =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: x, answer: x =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: p, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,390 [INFO] correct: w, answer: い =&gt; WRONG
+2015-10-19 08:08:39,390 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: y, answer: capsY =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: c, answer: capsE =&gt; WRONG
+2015-10-19 08:08:39,391 [INFO] correct: b, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,392 [INFO] correct: f, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,392 [INFO] correct: j, answer: capsJ =&gt; RIGHT
+2015-10-19 08:08:39,392 [INFO] test accuracy: 0.346153846154 (9 / 26)
+[PATTERN3]: English and katakana.
+2015-10-19 08:08:39,517 [INFO] #data: 26
+2015-10-19 08:08:39,591 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,591 [INFO] correct: g, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,591 [INFO] correct: s, answer: ラ =&gt; WRONG
+2015-10-19 08:08:39,591 [INFO] correct: o, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,591 [INFO] correct: i, answer: ヱ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: r, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,592 [INFO] correct: a, answer: ム =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: h, answer: r =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: l, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: k, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: n, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: q, answer: capsR =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: d, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: m, answer: capsO =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: t, answer: l =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: e, answer: ラ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: x, answer: メ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: p, answer: ア =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: w, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,593 [INFO] correct: y, answer: capsY =&gt; RIGHT
+2015-10-19 08:08:39,594 [INFO] correct: c, answer: capsE =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] correct: b, answer: カ =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] correct: f, answer: 5 =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] correct: j, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] test accuracy: 0.153846153846 (4 / 26)
+[PATTERN4]: English and hiragana and katakana.
+2015-10-19 08:08:39,718 [INFO] #data: 26
+2015-10-19 08:08:39,792 [INFO] correct: v, answer: ノ =&gt; WRONG
+2015-10-19 08:08:39,792 [INFO] correct: g, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,792 [INFO] correct: s, answer: ラ =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: o, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: i, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: r, answer: ア =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,793 [INFO] correct: a, answer: ム =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: h, answer: わ =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: l, answer: り =&gt; WRONG
+2015-10-19 08:08:39,794 [INFO] correct: k, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,794 [INFO] correct: n, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,794 [INFO] correct: q, answer: capsQ =&gt; RIGHT
+2015-10-19 08:08:39,794 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,795 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,795 [INFO] correct: t, answer: ナ =&gt; WRONG
+2015-10-19 08:08:39,795 [INFO] correct: e, answer: capsE =&gt; RIGHT
+2015-10-19 08:08:39,795 [INFO] correct: x, answer: メ =&gt; WRONG
+2015-10-19 08:08:39,795 [INFO] correct: p, answer: ア =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: w, answer: ロ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,796 [INFO] correct: y, answer: ノ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: c, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: b, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: f, answer: テ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: j, answer: capsJ =&gt; RIGHT
+2015-10-19 08:08:39,796 [INFO] test accuracy: 0.269230769231 (7 / 26)
+[PATTERN5]: English and Hebrew.
+2015-10-19 08:08:39,921 [INFO] #data: 26
+2015-10-19 08:08:39,994 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,995 [INFO] correct: g, answer: ם =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: s, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: o, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: i, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: r, answer: capsK =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: u, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: a, answer: capsA =&gt; RIGHT
+2015-10-19 08:08:39,996 [INFO] correct: h, answer: b =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: l, answer: ם =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: k, answer: ל =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: n, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: q, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,997 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,997 [INFO] correct: t, answer: l =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: e, answer: z =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: x, answer: capsX =&gt; RIGHT
+2015-10-19 08:08:39,997 [INFO] correct: p, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: w, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,998 [INFO] correct: y, answer: capsV =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: c, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: b, answer: capsM =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: f, answer: capsM =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: j, answer: 5 =&gt; WRONG
+2015-10-19 08:08:39,999 [INFO] test accuracy: 0.230769230769 (6 / 26)
+</pre></div></div>
+
+<p>英語のみのモデルでも「g」を「T」と間違えていたりして、なんとも言えない感じです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/76084/8b5d22dc-fefd-2c8e-f270-1de1efa2acee.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/76084/8b5d22dc-fefd-2c8e-f270-1de1efa2acee.png" alt="electroharmonics_g_img.png"></a><br>
+↑electroharmonixの「g」</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/76084/e2363621-be9a-bf25-51ab-729276404e6f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/76084/e2363621-be9a-bf25-51ab-729276404e6f.png" alt="Arial_capsT_img.png"></a><br>
+↑学習データの「T」</p>
+
+<p>とはいえ、英語＋カタカナのモデルだと「s」を「ラ」と間違えていてよりダメ…<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/76084/2e33101b-2086-c956-d094-7f1570a429e4.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/76084/2e33101b-2086-c956-d094-7f1570a429e4.png" alt="electroharmonics_s_img.png"></a><br>
+↑electroharmonixの「s」</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/76084/ea758a28-04a8-5ca3-bb2a-4a9072af0cc3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/76084/ea758a28-04a8-5ca3-bb2a-4a9072af0cc3.png" alt="Osaka_ラ_img.png"></a><br>
+↑学習データの「ラ」</p>
+
+<p>…そうでもないですね。これは間違えそう。</p>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<ul>
+<li>そもそも英語圏の人でもそこまで読みやすいフォントではないっぽい</li>
+<li>カタカナを知っていると極端に読みづらくなることが定量的に計測できた（ことにします）</li>
+<li>「似てるんでは？」といわれていたヘブライ語圏の人にも辛そう</li>
+<li>漢字入れたり、手書き文字を学習させた場合にどうなるか気にになります</li>
+</ul>
+
+<h1>
+<span id="追記" class="fragment"></span><a href="#%E8%BF%BD%E8%A8%98"><i class="fa fa-link"></i></a>追記</h1>
+
+<p>いくつか書き忘れていたので追記しときます。</p>
+
+<ul>
+<li>人間の脳は意味のある文章になるよう補完かけているフシがあるようなので、そのへん込みで確認するとどうなるかも気になっています（どなたか…）</li>
+<li>ちゃんとやるなら出力クラス数が極力近くなるようにして、かつ有意差があるかとか検定すべきでしょうね</li>
+</ul>
+
+<h1>
+<span id="備考" class="fragment"></span><a href="#%E5%82%99%E8%80%83"><i class="fa fa-link"></i></a>備考</h1>
+
+<p>ソース一式置いておきます。<br>
+<a href="https://gist.github.com/lazykyama/f586419cd72d5312288e" class="autolink" rel="nofollow noopener" target="_blank">https://gist.github.com/lazykyama/f586419cd72d5312288e</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/lazykyama/items/eae5851b7baaaf4cabd7" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="KzwTnHHe6z5vSZpAdPayRhuMtlkTqAlfLxM5ooUgvCvUw0NHwBWPFQ+VvPSbuCXy2H7Eh9W9sGdOOHUyWLPQSw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1445346751" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+掲題の件、ちょっと気になったのとちょうどいい勉強ネタということで確認してみます。
+
+# 発端
+
+Twitterで流れてきた [日本人「だけ」読めないフォント!? そんなバカなと思ったけどホントに読めそうで読めない！（http://togetter.com/li/887973）](http://togetter.com/li/887973) を見てふと、
+
+　**「本当にカタカナ（とかそれに近い形状）に関する認識機能の有無で、読める読めない（＝判別できるできない）が変わるのだろうか？」**
+
+と思ったことがきっかけで、畳み込みニューラルネットを使って確認してみることにしました。
+既にどこかの誰かが試しているかもしれませんが、お勉強ということでひとつ。
+
+なおここでは畳み込みニューラルネットの説明は割愛します。あしからず。
+
+# 仮説
+
+カタカナ＋英語を分類できる分類器より、英語のみの分類しかできない分類器の方が精度よく文字を当てられる
+
+# 手法
+
+以下5パターンを比較することで、知っている文字の差分が精度に与える影響を評価します。
+
+| No. | 学習データ | 出力クラス数 | 
+|:---|:---------|:----------|
+|  1  | アルファベット＋数字のみ  | 62（大文字小文字を区別） |
+|  2  | No.1＋ひらがなのみ      | 62+48 = 110 |
+|  3  | No.1＋カタカナのみ      | 62+48 = 110 |
+|  4  | No.1＋ひらがな＋カタカナ | 62+48*2 = 158 |
+|  5  | No.1＋ヘブライ文字      | 62+28 = 89 |
+
+No.5については http://dic.nicovideo.jp/a/%E3%83%98%E3%83%96%E3%83%A9%E3%82%A4%E6%96%87%E5%AD%97 に記載の「文字」と「語尾形」を別クラスとして扱っています。
+（そもそもなんでヘブライ文字やねん、というツッコミに対しては、togetterに「ヘブライ文字にもちょっと似てる気がする。」というコメントがあったため比較用に入れた、という程度の理由です。）
+
+# 使用データ
+
+OCR向けの無料データを使わせていただこうかと思いましたが、どうもちょうどよいものがなかったので自作しています。
+
+[Pillow(PIL)で1文字の画像をたくさん生成する（http://qiita.com/lazykyama/items/65bcce351f3d1cf07d8e）](http://qiita.com/lazykyama/items/65bcce351f3d1cf07d8e) に記載のスクリプトで1文字だけの画像を対象文字数分作っておき、それにランダムなノイズを乗せてデータを水増ししました。
+今回の検証では1文字あたり30枚のノイズつき画像を動的に生成し、学習データとしています。
+
+また、テスト用の画像は http://www.dafont.com/electroharmonix.font のサンプル画像から手動で切り出したものを使いました。
+
+学習データ・テストデータとも、64x64のグレースケール画像を使用しています。
+
+# ネットワーク構造
+
+分類器の構成は以下のコードの通りです。
+各種パラメータなどは適当です。
+
+```py3
+self.__model = chainer.FunctionSet(
+     conv1=F.Convolution2D(1, 16, 5), 
+     conv2=F.Convolution2D(16, 16, 5), 
+     l3=F.Linear(784, 784), 
+     softmax4=F.Linear(784, class_num))
+
+# 中略
+
+x = chainer.Variable(source)
+
+h = F.max_pooling_2d(F.relu(self.__model.conv1(x)), ksize=2, stride=2)
+h = F.max_pooling_2d(F.relu(self.__model.conv2(h)), ksize=3, stride=4)
+h = F.dropout(F.relu(self.__model.l3(h)), train=train)
+y = self.__model.softmax4(h)
+```
+
+なおご覧のとおり、今回の実装に際しては [Chainer](http://chainer.org/) を使っています。
+（http://qiita.com/hogefugabar/items/312707a09d29632e7288 を参考にさせていただきました。ありがとうございます。）
+
+# 実験結果
+
+今回の実験は全パターン共通して、以下のパラメータを使用しています。
+（他にもいろいろ試してはいます）
+
+* epoch: 10
+* mini-batch: 10
+
+この条件下での結果は以下の通りとなりました。
+
+| No. | 学習データ | 正答率 | 
+|:---|:---------|:----------|
+|  1  | アルファベット＋数字のみ  | 46.2% (12 / 26) |
+|  2  | No.1＋ひらがなのみ      | 34.6% ( 9 / 26) |
+|  3  | No.1＋カタカナのみ      | 15.4% ( 4 / 26) |
+|  4  | No.1＋ひらがな＋カタカナ | 26.9% ( 7 / 26) |
+|  5  | No.1＋ヘブライ文字      | 23.1% ( 6 / 26) |
+
+そもそもあんまり正答率高くないですけど、それにしてもカタカナ混ざった時の精度がヒドいことになっていますね。。。
+やはり日本人には読みづらいのかもしれません。
+
+最後にテスト時のログを以下に記載しておきます。
+（ログ中、「capsV」などとなっているのは大文字であることを表します。今回対象としたelectroharmonixは大文字も小文字も同じ形状のようなので、どちらにマッチしても正解として扱っています。）
+
+```
+test models.
+[PATTERN1]: English only.
+2015-10-19 08:08:39,112 [INFO] #data: 26
+2015-10-19 08:08:39,186 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,186 [INFO] correct: g, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,186 [INFO] correct: s, answer: capsE =&gt; WRONG
+2015-10-19 08:08:39,187 [INFO] correct: o, answer: capsD =&gt; WRONG
+2015-10-19 08:08:39,187 [INFO] correct: i, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,187 [INFO] correct: r, answer: capsR =&gt; RIGHT
+2015-10-19 08:08:39,187 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,187 [INFO] correct: a, answer: capsA =&gt; RIGHT
+2015-10-19 08:08:39,187 [INFO] correct: h, answer: capsH =&gt; RIGHT
+2015-10-19 08:08:39,188 [INFO] correct: l, answer: capsD =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: k, answer: capsN =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: n, answer: capsO =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: q, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,188 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,188 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: t, answer: n =&gt; WRONG
+2015-10-19 08:08:39,189 [INFO] correct: e, answer: capsE =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: x, answer: x =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: p, answer: capsF =&gt; WRONG
+2015-10-19 08:08:39,189 [INFO] correct: w, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,189 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: y, answer: capsY =&gt; RIGHT
+2015-10-19 08:08:39,189 [INFO] correct: c, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,190 [INFO] correct: b, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,190 [INFO] correct: f, answer: capsF =&gt; RIGHT
+2015-10-19 08:08:39,190 [INFO] correct: j, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,190 [INFO] test accuracy: 0.461538461538 (12 / 26)
+[PATTERN2]: English and hiragana.
+2015-10-19 08:08:39,314 [INFO] #data: 26
+2015-10-19 08:08:39,387 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,387 [INFO] correct: g, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,387 [INFO] correct: s, answer: capsB =&gt; WRONG
+2015-10-19 08:08:39,387 [INFO] correct: o, answer: capsB =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: i, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: r, answer: ほ =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,388 [INFO] correct: a, answer: l =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: h, answer: わ =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: l, answer: capsU =&gt; WRONG
+2015-10-19 08:08:39,388 [INFO] correct: k, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: n, answer: capsD =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: q, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,389 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,389 [INFO] correct: t, answer: す =&gt; WRONG
+2015-10-19 08:08:39,389 [INFO] correct: e, answer: capsE =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: x, answer: x =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: p, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,390 [INFO] correct: w, answer: い =&gt; WRONG
+2015-10-19 08:08:39,390 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: y, answer: capsY =&gt; RIGHT
+2015-10-19 08:08:39,390 [INFO] correct: c, answer: capsE =&gt; WRONG
+2015-10-19 08:08:39,391 [INFO] correct: b, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,392 [INFO] correct: f, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,392 [INFO] correct: j, answer: capsJ =&gt; RIGHT
+2015-10-19 08:08:39,392 [INFO] test accuracy: 0.346153846154 (9 / 26)
+[PATTERN3]: English and katakana.
+2015-10-19 08:08:39,517 [INFO] #data: 26
+2015-10-19 08:08:39,591 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,591 [INFO] correct: g, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,591 [INFO] correct: s, answer: ラ =&gt; WRONG
+2015-10-19 08:08:39,591 [INFO] correct: o, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,591 [INFO] correct: i, answer: ヱ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: r, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,592 [INFO] correct: a, answer: ム =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: h, answer: r =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: l, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: k, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,592 [INFO] correct: n, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: q, answer: capsR =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: d, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: m, answer: capsO =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: t, answer: l =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: e, answer: ラ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: x, answer: メ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: p, answer: ア =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: w, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,593 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,593 [INFO] correct: y, answer: capsY =&gt; RIGHT
+2015-10-19 08:08:39,594 [INFO] correct: c, answer: capsE =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] correct: b, answer: カ =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] correct: f, answer: 5 =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] correct: j, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,594 [INFO] test accuracy: 0.153846153846 (4 / 26)
+[PATTERN4]: English and hiragana and katakana.
+2015-10-19 08:08:39,718 [INFO] #data: 26
+2015-10-19 08:08:39,792 [INFO] correct: v, answer: ノ =&gt; WRONG
+2015-10-19 08:08:39,792 [INFO] correct: g, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,792 [INFO] correct: s, answer: ラ =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: o, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: i, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: r, answer: ア =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: u, answer: capsU =&gt; RIGHT
+2015-10-19 08:08:39,793 [INFO] correct: a, answer: ム =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: h, answer: わ =&gt; WRONG
+2015-10-19 08:08:39,793 [INFO] correct: l, answer: り =&gt; WRONG
+2015-10-19 08:08:39,794 [INFO] correct: k, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,794 [INFO] correct: n, answer: ワ =&gt; WRONG
+2015-10-19 08:08:39,794 [INFO] correct: q, answer: capsQ =&gt; RIGHT
+2015-10-19 08:08:39,794 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,795 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,795 [INFO] correct: t, answer: ナ =&gt; WRONG
+2015-10-19 08:08:39,795 [INFO] correct: e, answer: capsE =&gt; RIGHT
+2015-10-19 08:08:39,795 [INFO] correct: x, answer: メ =&gt; WRONG
+2015-10-19 08:08:39,795 [INFO] correct: p, answer: ア =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: w, answer: ロ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,796 [INFO] correct: y, answer: ノ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: c, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: b, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: f, answer: テ =&gt; WRONG
+2015-10-19 08:08:39,796 [INFO] correct: j, answer: capsJ =&gt; RIGHT
+2015-10-19 08:08:39,796 [INFO] test accuracy: 0.269230769231 (7 / 26)
+[PATTERN5]: English and Hebrew.
+2015-10-19 08:08:39,921 [INFO] #data: 26
+2015-10-19 08:08:39,994 [INFO] correct: v, answer: capsV =&gt; RIGHT
+2015-10-19 08:08:39,995 [INFO] correct: g, answer: ם =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: s, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: o, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: i, answer: capsZ =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: r, answer: capsK =&gt; WRONG
+2015-10-19 08:08:39,995 [INFO] correct: u, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: a, answer: capsA =&gt; RIGHT
+2015-10-19 08:08:39,996 [INFO] correct: h, answer: b =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: l, answer: ם =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: k, answer: ל =&gt; WRONG
+2015-10-19 08:08:39,996 [INFO] correct: n, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: q, answer: capsH =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: d, answer: capsD =&gt; RIGHT
+2015-10-19 08:08:39,997 [INFO] correct: m, answer: capsM =&gt; RIGHT
+2015-10-19 08:08:39,997 [INFO] correct: t, answer: l =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: e, answer: z =&gt; WRONG
+2015-10-19 08:08:39,997 [INFO] correct: x, answer: capsX =&gt; RIGHT
+2015-10-19 08:08:39,997 [INFO] correct: p, answer: capsT =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: w, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: z, answer: capsZ =&gt; RIGHT
+2015-10-19 08:08:39,998 [INFO] correct: y, answer: capsV =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: c, answer: capsQ =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: b, answer: capsM =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: f, answer: capsM =&gt; WRONG
+2015-10-19 08:08:39,998 [INFO] correct: j, answer: 5 =&gt; WRONG
+2015-10-19 08:08:39,999 [INFO] test accuracy: 0.230769230769 (6 / 26)
+```
+
+英語のみのモデルでも「g」を「T」と間違えていたりして、なんとも言えない感じです。
+![electroharmonics_g_img.png](https://qiita-image-store.s3.amazonaws.com/0/76084/8b5d22dc-fefd-2c8e-f270-1de1efa2acee.png)
+↑electroharmonixの「g」
+
+![Arial_capsT_img.png](https://qiita-image-store.s3.amazonaws.com/0/76084/e2363621-be9a-bf25-51ab-729276404e6f.png)
+↑学習データの「T」
+
+とはいえ、英語＋カタカナのモデルだと「s」を「ラ」と間違えていてよりダメ…
+![electroharmonics_s_img.png](https://qiita-image-store.s3.amazonaws.com/0/76084/2e33101b-2086-c956-d094-7f1570a429e4.png)
+↑electroharmonixの「s」
+
+![Osaka_ラ_img.png](https://qiita-image-store.s3.amazonaws.com/0/76084/ea758a28-04a8-5ca3-bb2a-4a9072af0cc3.png)
+↑学習データの「ラ」
+
+…そうでもないですね。これは間違えそう。
+
+# まとめ
+
+* そもそも英語圏の人でもそこまで読みやすいフォントではないっぽい
+* カタカナを知っていると極端に読みづらくなることが定量的に計測できた（ことにします）
+* 「似てるんでは？」といわれていたヘブライ語圏の人にも辛そう
+* 漢字入れたり、手書き文字を学習させた場合にどうなるか気にになります
+
+# 追記
+
+いくつか書き忘れていたので追記しときます。
+
+* 人間の脳は意味のある文章になるよう補完かけているフシがあるようなので、そのへん込みで確認するとどうなるかも気になっています（どなたか…）
+* ちゃんとやるなら出力クラス数が極力近くなるようにして、かつ有意差があるかとか検定すべきでしょうね
+
+# 備考
+
+ソース一式置いておきます。
+https://gist.github.com/lazykyama/f586419cd72d5312288e
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた on @Qiita" data-url="http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/lazykyama"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/lazykyama">lazykyama</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">278</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;lazykyama&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-97a2967c-ac5b-47ba-a8d3-8f71a50ac9bc"></div>
+    <div id="UserFollowButton-react-component-97a2967c-ac5b-47ba-a8d3-8f71a50ac9bc"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/lazykyama/items/eae5851b7baaaf4cabd7">『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/lazykyama/items/2e2fba17b6be66a3621f">話題のTensorFlowをTheanoと比べてみる（個人的メモ）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/lazykyama/items/65bcce351f3d1cf07d8e">Pillow(PIL)で1文字の画像をたくさん生成する</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/lazykyama/items/045bf9b4c6a6a3aa9c16">word2vecの速度比較について追加で確認してみた</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%99%BA%E7%AB%AF\&quot;\u003e発端\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BB%AE%E8%AA%AC\&quot;\u003e仮説\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%8B%E6%B3%95\&quot;\u003e手法\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%BF%E7%94%A8%E3%83%87%E3%83%BC%E3%82%BF\&quot;\u003e使用データ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E6%A7%8B%E9%80%A0\&quot;\u003eネットワーク構造\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%A8%93%E7%B5%90%E6%9E%9C\&quot;\u003e実験結果\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%BF%BD%E8%A8%98\&quot;\u003e追記\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%82%99%E8%80%83\&quot;\u003e備考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-f2c1fd86-46fa-4ed0-91a8-416ee501a206"></div>
+    <div id="Toc-react-component-f2c1fd86-46fa-4ed0-91a8-416ee501a206"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:245,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;eae5851b7baaaf4cabd7&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="takei-yuya@github"><a itemprop="url" href="/takei-yuya@github"><img alt="takei-yuya@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10212/profile-images/1473681656" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="saba1024"><a itemprop="url" href="/saba1024"><img alt="saba1024" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11059/profile-images/1473681903" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dkt"><a itemprop="url" href="/dkt"><img alt="dkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/89459/profile-images/1473704760" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="valbeat"><a itemprop="url" href="/valbeat"><img alt="valbeat" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25323/profile-images/1473684309" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomo_makes"><a itemprop="url" href="/tomo_makes"><img alt="tomo_makes" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64608/profile-images/1473696640" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="weakboson@github"><a itemprop="url" href="/weakboson@github"><img alt="weakboson@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14326/profile-images/1473683289" /></a></div></div><div class="ArticleFooter__user"><a href="/lazykyama/items/eae5851b7baaaf4cabd7/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/eae5851b7baaaf4cabd7/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/lazykyama/items/eae5851b7baaaf4cabd7.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた on @Qiita" data-url="http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eはじめまして。\u003c/p\u003e\n\n\u003cp\u003e私はchainerを最近勉強し始めた者です。\u003c/p\u003e\n\n\u003cp\u003elazykyama様の記事を拝見させていただき、非常に素晴らしいを行われており、私のパソコンでも実行したいと思いました。\u003c/p\u003e\n\n\u003cp\u003eしかし、私の知識不足が原因でlazykyama様のソースを実行できず困っております。\u003c/p\u003e\n\n\u003cp\u003eそこで、大変お手数ですがご教授の程お願いできませんでしょうか？\u003c/p\u003e\n\n\u003cp\u003e私の現状は普通のアルファベット「a」を「train.py」にて学習させるために「a_img.png」という画像ファイルを「train.py」と同階層に置き、コマンドポロんプトにて「python train.py --o ./model.pickle -e 15 --b 50 (a)_img.png」したところ、「ValueError:need more than 0 values to unpack」と出てしまい困っています。\u003c/p\u003e\n\n\u003cp\u003e現段階での私の疑問点は\u003cbr\u003e\n1.画像は「train.py」と同じ階層に置いておけばよろしいのでしょうか？\u003cbr\u003e\n2.画像のファイル名はどのように記述すればよろしいでしょうか？普通のアルファベット文字aの画像のファイル名は「(a)\u003cem\u003eimg.png」としておけばよろしいのでしょうか？また、読みにくいアルファベットのファイル名はどのように記述すればいいのでしょうか？\u003cbr\u003e\n3.aという「python train.py --o ./model.pickle -e 15 --b 50 (a)\u003c/em\u003eimg.png」私の書き方だとaというアルファベットしか認識できないのですが、ひらがなすべてを認識する方法などはございますでしょうか？\u003c/p\u003e\n\n\u003cp\u003e長文になってしまい申し訳ありませんが、このソースの使い方をご教授願えないでしょうか？\u003c/p\u003e\n\n\u003cp\u003e何卒宜しくお願い致します。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-10-22T12:11:23+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:364140,&quot;is_team&quot;:false,&quot;item_id&quot;:336102,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;eae5851b7baaaf4cabd7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;はじめまして。\n\n私はchainerを最近勉強し始めた者です。\n\nlazykyama様の記事を拝見させていただき、非常に素晴らしいを行われており、私のパソコンでも実行したいと思いました。\n\nしかし、私の知識不足が原因でlazykyama様のソースを実行できず困っております。\n\nそこで、大変お手数ですがご教授の程お願いできませんでしょうか？\n\n私の現状は普通のアルファベット「a」を「train.py」にて学習させるために「a_img.png」という画像ファイルを「train.py」と同階層に置き、コマンドポロんプトにて「python train.py --o ./model.pickle -e 15 --b 50 (a)_img.png」したところ、「ValueError:need more than 0 values to unpack」と出てしまい困っています。\n\n現段階での私の疑問点は\n1.画像は「train.py」と同じ階層に置いておけばよろしいのでしょうか？\n2.画像のファイル名はどのように記述すればよろしいでしょうか？普通のアルファベット文字aの画像のファイル名は「(a)_img.png」としておけばよろしいのでしょうか？また、読みにくいアルファベットのファイル名はどのように記述すればいいのでしょうか？\n3.aという「python train.py --o ./model.pickle -e 15 --b 50 (a)_img.png」私の書き方だとaというアルファベットしか認識できないのですが、ひらがなすべてを認識する方法などはございますでしょうか？\n\n長文になってしまい申し訳ありませんが、このソースの使い方をご教授願えないでしょうか？\n\n何卒宜しくお願い致します。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7#comment-a4726f393c314de639bf&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-10-22T11:17:11+09:00&quot;,&quot;id&quot;:97568,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/97568/profile-images/1473707235&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;atuy01&quot;},&quot;uuid&quot;:&quot;a4726f393c314de639bf&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/atuy01\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;atuy01\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;atuy01\&quot;\u003e@atuy01\u003c/a\u003e さん\u003c/p\u003e\n\n\u003cp\u003eはじめまして。\u003cbr\u003e\n記事に興味を持っていただいた上、実際に試してみたいとのこと大変嬉しいです！\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003e私の知識不足が原因でlazykyama様のソースを実行できず困っております。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003eよく考えなくとも、ソースだけ置いて説明なしなので追試するときなどは困りますよね…\u003cbr\u003e\nこちらこそすみません。\u003c/p\u003e\n\n\u003cp\u003e以下疑問点にお答えしつつ、使い方を記載します。\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003e1.画像は「train.py」と同じ階層に置いておけばよろしいのでしょうか？\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e画像の場所は任意のディレクトリで問題ありません。\u003cbr\u003e\n\u003ccode\u003e./train.py --help\u003c/code\u003e で表示されるusageのとおり、\u003ccode\u003e\u0026lt;INDIR\u0026gt;...\u003c/code\u003eで読み込み先ディレクトリを複数指定できるようにしています。\u003cbr\u003e\n複数指定できるようにしているのは、異なる言語などを別ディレクトリに隔離できるようにする、という意図があります。\u003cbr\u003e\n（今回の場合、「英語」、「カタカナ」、「ひらがな」、「ヘブライ文字」をそれぞれ別のところに配置してます）\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003e2.画像のファイル名はどのように記述すればよろしいでしょうか？普通のアルファベット文字aの画像のファイル名は「(a)img.png」としておけばよろしいのでしょうか？また、読みにくいアルファベットのファイル名はどのように記述すればいいのでしょうか？\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003eファイル名は\u003ccode\u003edataloader.py\u003c/code\u003e10行目の正規表現のとおり、「\u003ccode\u003e_img.png\u003c/code\u003e」で終わるようにしてください。\u003cbr\u003e\nまた、「\u003ccode\u003e_\u003c/code\u003e」の直前の文字列を画像に提示されている文字（＝クラス名）として扱うためその点もご注意ください。\u003c/p\u003e\n\n\u003cp\u003eちなみに手元では以下の様な感じにしています。\u003c/p\u003e\n\n\u003cul\u003e\n\u003cli\u003eヘブライ文字「ל」の画像\n\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003eArialHB_ל_img.png\u003c/code\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003eひらがな「あ」の画像\n\n\u003cul\u003e\n\u003cli\u003e\u003ccode\u003eOsaka_あ_img.png\u003c/code\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003cp\u003e（※ \u003ccode\u003eArialHB\u003c/code\u003e、\u003ccode\u003eOsaka\u003c/code\u003eはフォント名です）\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003e3.aという「python train.py --o ./model.pickle -e 15 --b 50 (a)img.png」私の書き方だとaというアルファベットしか認識できないのですが、ひらがなすべてを認識する方法などはございますでしょうか？\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e1.のご質問とも関連しますが、\u003ccode\u003e\u0026lt;INDIR\u0026gt;...\u003c/code\u003eとして指定したディレクトリ以下にあるファイルはすべて読み込まれ、学習対象となります。\u003cbr\u003e\nしたがいまして例えばa〜zまでの画像を学習させたい場合、以下の様なディレクトリ構成としていただき、対象ディレクトリへのパスを引数で渡して頂ければ学習されます。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nsrc/\n  └ train.py\ndata/\n  └ english/ \n       |\n       ├ font_a_img.png\n       ├ font_b_img.png\n       :\n       └ font_z_img.png \n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n$ python train.py -o ./model.pickle --epoch 15 --batch-size 50 ../data/english/\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eまた、画像の生成は面倒かと思いますので \u003ca href=\&quot;http://qiita.com/lazykyama/items/65bcce351f3d1cf07d8e\&quot; class=\&quot;autolink\&quot; id=\&quot;reference-178e376f6618d6ec4bb2\&quot;\u003ehttp://qiita.com/lazykyama/items/65bcce351f3d1cf07d8e\u003c/a\u003e のスクリプトをご活用いただければと思います。\u003cbr\u003e\n以下の例のようなJSONファイルを作成していただき、スクリプトに食わせると画像が生成されます。\u003cbr\u003e\n（実際にひらがな画像生成時に使用した内容です）\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;json\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n\u003cspan class=\&quot;p\&quot;\u003e{\u003c/span\u003e\n  \u003cspan class=\&quot;nt\&quot;\u003e\&quot;Osaka\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;あ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;い\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;う\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;え\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;お\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;か\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;き\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;く\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;け\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;こ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;さ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;し\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;す\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;せ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;そ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;た\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ち\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;つ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;て\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;と\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;な\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;に\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ぬ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ね\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;の\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;は\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ひ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ふ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;へ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ほ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ま\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;み\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;む\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;め\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;も\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;や\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ゆ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;よ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ら\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;り\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;る\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;れ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ろ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;わ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ゐ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ゑ\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;を\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n    \u003cspan class=\&quot;s2\&quot;\u003e\&quot;ん\&quot;\u003c/span\u003e\n  \u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n\u003cspan class=\&quot;p\&quot;\u003e}\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003e他にも疑問等々ありましたら、お気軽にコメントいただければと。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-10-22T22:36:52+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:364879,&quot;is_team&quot;:false,&quot;item_id&quot;:336102,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;eae5851b7baaaf4cabd7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;@atuy01 さん\n\nはじめまして。\n記事に興味を持っていただいた上、実際に試してみたいとのこと大変嬉しいです！\n\n\u003e 私の知識不足が原因でlazykyama様のソースを実行できず困っております。\n\nよく考えなくとも、ソースだけ置いて説明なしなので追試するときなどは困りますよね…\nこちらこそすみません。\n\n以下疑問点にお答えしつつ、使い方を記載します。\n\n\u003e 1.画像は「train.py」と同じ階層に置いておけばよろしいのでしょうか？\n\n画像の場所は任意のディレクトリで問題ありません。\n`./train.py --help` で表示されるusageのとおり、`\u003cINDIR\u003e...`で読み込み先ディレクトリを複数指定できるようにしています。\n複数指定できるようにしているのは、異なる言語などを別ディレクトリに隔離できるようにする、という意図があります。\n（今回の場合、「英語」、「カタカナ」、「ひらがな」、「ヘブライ文字」をそれぞれ別のところに配置してます）\n\n\u003e 2.画像のファイル名はどのように記述すればよろしいでしょうか？普通のアルファベット文字aの画像のファイル名は「(a)img.png」としておけばよろしいのでしょうか？また、読みにくいアルファベットのファイル名はどのように記述すればいいのでしょうか？\n\nファイル名は`dataloader.py`10行目の正規表現のとおり、「`_img.png`」で終わるようにしてください。\nまた、「`_`」の直前の文字列を画像に提示されている文字（＝クラス名）として扱うためその点もご注意ください。\n\nちなみに手元では以下の様な感じにしています。\n\n* ヘブライ文字「ל」の画像\n    - `ArialHB_ל_img.png`\n* ひらがな「あ」の画像\n    - `Osaka_あ_img.png`\n\n（※ `ArialHB`、`Osaka`はフォント名です）\n\n\u003e 3.aという「python train.py --o ./model.pickle -e 15 --b 50 (a)img.png」私の書き方だとaというアルファベットしか認識できないのですが、ひらがなすべてを認識する方法などはございますでしょうか？\n\n1.のご質問とも関連しますが、`\u003cINDIR\u003e...`として指定したディレクトリ以下にあるファイルはすべて読み込まれ、学習対象となります。\nしたがいまして例えばa〜zまでの画像を学習させたい場合、以下の様なディレクトリ構成としていただき、対象ディレクトリへのパスを引数で渡して頂ければ学習されます。\n\n```\nsrc/\n  └ train.py\ndata/\n  └ english/ \n       |\n       ├ font_a_img.png\n       ├ font_b_img.png\n       :\n       └ font_z_img.png \n```\n\n```\n$ python train.py -o ./model.pickle --epoch 15 --batch-size 50 ../data/english/\n```\n\nまた、画像の生成は面倒かと思いますので http://qiita.com/lazykyama/items/65bcce351f3d1cf07d8e のスクリプトをご活用いただければと思います。\n以下の例のようなJSONファイルを作成していただき、スクリプトに食わせると画像が生成されます。\n（実際にひらがな画像生成時に使用した内容です）\n\n```json\n{\n  \&quot;Osaka\&quot;: [\n    \&quot;あ\&quot;,\n    \&quot;い\&quot;,\n    \&quot;う\&quot;,\n    \&quot;え\&quot;,\n    \&quot;お\&quot;,\n    \&quot;か\&quot;,\n    \&quot;き\&quot;,\n    \&quot;く\&quot;,\n    \&quot;け\&quot;,\n    \&quot;こ\&quot;,\n    \&quot;さ\&quot;,\n    \&quot;し\&quot;,\n    \&quot;す\&quot;,\n    \&quot;せ\&quot;,\n    \&quot;そ\&quot;,\n    \&quot;た\&quot;,\n    \&quot;ち\&quot;,\n    \&quot;つ\&quot;,\n    \&quot;て\&quot;,\n    \&quot;と\&quot;,\n    \&quot;な\&quot;,\n    \&quot;に\&quot;,\n    \&quot;ぬ\&quot;,\n    \&quot;ね\&quot;,\n    \&quot;の\&quot;,\n    \&quot;は\&quot;,\n    \&quot;ひ\&quot;,\n    \&quot;ふ\&quot;,\n    \&quot;へ\&quot;,\n    \&quot;ほ\&quot;,\n    \&quot;ま\&quot;,\n    \&quot;み\&quot;,\n    \&quot;む\&quot;,\n    \&quot;め\&quot;,\n    \&quot;も\&quot;,\n    \&quot;や\&quot;,\n    \&quot;ゆ\&quot;,\n    \&quot;よ\&quot;,\n    \&quot;ら\&quot;,\n    \&quot;り\&quot;,\n    \&quot;る\&quot;,\n    \&quot;れ\&quot;,\n    \&quot;ろ\&quot;,\n    \&quot;わ\&quot;,\n    \&quot;ゐ\&quot;,\n    \&quot;ゑ\&quot;,\n    \&quot;を\&quot;,\n    \&quot;ん\&quot;\n  ]\n}\n```\n\n他にも疑問等々ありましたら、お気軽にコメントいただければと。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7#comment-c59e771478e170966c1a&quot;,&quot;user&quot;:{&quot;contribution&quot;:278,&quot;created_at&quot;:&quot;2015-04-19T11:50:44+09:00&quot;,&quot;id&quot;:76084,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;lazykyama&quot;},&quot;uuid&quot;:&quot;c59e771478e170966c1a&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003elazykyama様\u003c/p\u003e\n\n\u003cp\u003e丁寧に教えていただきありがとうございます。\u003c/p\u003e\n\n\u003cp\u003e私のパソコンでも実行することが出来ました！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-10-24T08:53:59+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:366208,&quot;is_team&quot;:false,&quot;item_id&quot;:336102,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;eae5851b7baaaf4cabd7&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;lazykyama様\n\n丁寧に教えていただきありがとうございます。\n\n私のパソコンでも実行することが出来ました！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7#comment-210bc27baefd54885899&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-10-22T11:17:11+09:00&quot;,&quot;id&quot;:97568,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/97568/profile-images/1473707235&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;atuy01&quot;},&quot;uuid&quot;:&quot;210bc27baefd54885899&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:336102,&quot;uuid&quot;:&quot;eae5851b7baaaf4cabd7&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;lazykyama&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:76084,&quot;url_name&quot;:&quot;lazykyama&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360&quot;},{&quot;id&quot;:97568,&quot;url_name&quot;:&quot;atuy01&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/97568/profile-images/1473707235&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-509c0746-76c7-4ee1-bbb1-e372843e94f2"></div>
+    <div id="CommentListContainer-react-component-509c0746-76c7-4ee1-bbb1-e372843e94f2"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="4iKTaaJDz+qW+GyaT5PEF0/Xbt5PggfdUPCkUkDq4/Id3cOyE4irwfYkSi6g3VOjjCUcAImXvuUx2+jCnXmPkg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/lazykyama/items/eae5851b7baaaf4cabd7" /><input type="hidden" name="item_uuid" id="item_uuid" value="eae5851b7baaaf4cabd7" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/lazykyama/items/eae5851b7baaaf4cabd7", "id": 336102, "uuid": "eae5851b7baaaf4cabd7" }</script><script class="js-user" type="application/json">{&quot;id&quot;:76084,&quot;url_name&quot;:&quot;lazykyama&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="pFJMTHU5Wv9Rn4k4+0Ubs/C6709PMa6gOcfyYkogrH9brRyXxPI+1DFDr4wUC4wHM0idkYkkF5hY7L7yl7PAHw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/lazykyama/items/eae5851b7baaaf4cabd7" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

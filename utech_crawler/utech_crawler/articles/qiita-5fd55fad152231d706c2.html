@@ -1,0 +1,406 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Convolutional Neural Networkとは何なのか - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="機械学習の世界において、画像といえばConvolutional Neural Network(以下CNN)というのは、うどんといえば香川くらい当たり前のこととして認識されています。しかし、そのCNNとは何なのか、という解説は意外と少なかったりします。
+
+そこで、本記事ではCNNについてその仕組みとメリットの解説を行っていきたいと思います。
+
+なお、参考文献にも記載の通り解説の内容はStanfordのCNNの講座をベースにしています。こちらの講座はNeural Netwo..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="icoxfog417" name="twitter:creator" /><meta content="Convolutional Neural Networkとは何なのか - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="機械学習の世界において、画像といえばConvolutional Neural Network(以下CNN)というのは、うどんといえば香川くらい当たり前のこととして認識されています。しかし、そのCNNとは何なのか、という解説は意外と少な..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="pz1M+Ts0MJ4+qi/HefHJMMf/MaMNSGrg1DV+RWNAho9SBqjmBf7ORqJEarM5mIYb9t85g77jd/ZwxxppDtAJvQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"icoxfog417","type":"items","id":"5fd55fad152231d706c2"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-b7ba076c-e2b5-4f85-94dc-51144c553a4b"></div>
+    <div id="HeaderContainer-react-component-b7ba076c-e2b5-4f85-94dc-51144c553a4b"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">Convolutional Neural Networkとは何なのか</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">439</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:439,&quot;uuid&quot;:&quot;5fd55fad152231d706c2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="ichiroex"><a itemprop="url" href="/ichiroex"><img alt="ichiroex" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" /></a></li><li class="js-hovercard" data-hovercard-target-name="shn"><a itemprop="url" href="/shn"><img alt="shn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43690/profile-images/1473689611" /></a></li><li class="js-hovercard" data-hovercard-target-name="kota9"><a itemprop="url" href="/kota9"><img alt="kota9" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80588/profile-images/1473701836" /></a></li><li class="js-hovercard" data-hovercard-target-name="Quasi-quant2010"><a itemprop="url" href="/Quasi-quant2010"><img alt="Quasi-quant2010" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/96204/profile-images/1473706809" /></a></li><li class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></li><li class="js-hovercard" data-hovercard-target-name="mouriman"><a itemprop="url" href="/mouriman"><img alt="mouriman" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100875/profile-images/1473708231" /></a></li><li class="js-hovercard" data-hovercard-target-name="ytakky"><a itemprop="url" href="/ytakky"><img alt="ytakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62018/profile-images/1473695825" /></a></li><li class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></li><li class="js-hovercard" data-hovercard-target-name="kndt84"><a itemprop="url" href="/kndt84"><img alt="kndt84" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48137/profile-images/1473691243" /></a></li><li class="js-hovercard" data-hovercard-target-name="koher"><a itemprop="url" href="/koher"><img alt="koher" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868" /></a></li><li><a href="/icoxfog417/items/5fd55fad152231d706c2/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/icoxfog417"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" alt="1484303516" /></a> <a class="u-link-unstyled" href="/icoxfog417">icoxfog417</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-02-16T15:45:04+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-02-16">Edited at <time datetime="2016-05-05T22:27:06+09:00" itemprop="dateModified">2016-05-05</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/icoxfog417/items/5fd55fad152231d706c2/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">2</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/icoxfog417/items/5fd55fad152231d706c2/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(2)</span></a></li><li><a href="/icoxfog417/items/5fd55fad152231d706c2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-5fd55fad152231d706c2" itemprop="articleBody"><p>機械学習の世界において、画像といえばConvolutional Neural Network(以下CNN)というのは、うどんといえば香川くらい当たり前のこととして認識されています。しかし、そのCNNとは何なのか、という解説は意外と少なかったりします。</p>
+
+<p>そこで、本記事ではCNNについてその仕組みとメリットの解説を行っていきたいと思います。</p>
+
+<p>なお、参考文献にも記載の通り解説の内容は<a href="http://cs231n.stanford.edu/index.html" rel="nofollow noopener" target="_blank">StanfordのCNNの講座</a>をベースにしています。こちらの講座はNeural NetworkからCNN、はてはTensorflowによる実装まで解説される予定なので、興味がある方はそちらもご参照ください。</p>
+
+<h1>
+<span id="convolution-neural-networkとは" class="fragment"></span><a href="#convolution-neural-network%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>Convolution Neural Networkとは</h1>
+
+<p>CNNはその名の通り通常のNeural NetworkにConvolutionを追加したものです。ここでは、Convolution、畳み込みとは一体なんなのか、という点と、なぜそれが画像認識に有効なのかについて説明していきます。</p>
+
+<p>簡単なタスクとして、書いてある図形が○か×かを判定するタスクを考えてみます。以下は、通常のNeural Networkで行う例です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/d616f4ee-3137-2f6e-e3c2-ee1e8a971661.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/d616f4ee-3137-2f6e-e3c2-ee1e8a971661.png" alt="image"></a></p>
+
+<p>画像の1ピクセルが1入力に対応していると思ってください。10x10の画像であれば、入力はサイズ100のベクトルになります(なお、RGB表現の場合ここにx3となります)。</p>
+
+<p>図中では円の淵の黒い部分が入力として渡っていく様子を示していますが、これを見ると、少し位置がずれていたりすると判定に大きな影響が出ることがわかります。下図のように位置や形が少し変わると、入力される情報もずれて認識されてしまうためです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/a5bfe7be-0951-b397-e508-c0b8d26a53d3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/a5bfe7be-0951-b397-e508-c0b8d26a53d3.png" alt="image"></a></p>
+
+<p>ただ、図の青い四角の中は概ね「右上から左下にかけて黒」という傾向があります。つまり、1ピクセルではなくある程度の広さの領域をまとめて入力にすることができれば、より精度の高い判定ができそうです。</p>
+
+<p>このアイデアを実現するのが、CNNです。</p>
+
+<p>下図のように、画像上にフィルタと呼ばれる小領域(下図では赤枠の4x4のエリア)をとり、これを1つの特徴量として圧縮し(=畳み込み)ます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/9a6d7cc6-2914-9492-08ea-ea8260c37748.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/9a6d7cc6-2914-9492-08ea-ea8260c37748.png" alt="image"></a></p>
+
+<p>この処理を、領域をスライドさせながら繰り返していきます。この結果作成されるのが、フィルタ内の情報が畳み込まれて作成されたレイヤ、Convolution Layerになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/2722f866-90a1-01d6-3b1f-03fd3ebfc39e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/2722f866-90a1-01d6-3b1f-03fd3ebfc39e.png" alt="image"></a></p>
+
+<p>先ほどのNeural Networkの図をCNNにすると以下のようなイメージになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/c51add59-558f-61c2-9d14-1bcf22550c2c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/c51add59-558f-61c2-9d14-1bcf22550c2c.png" alt="image"></a></p>
+
+<p>このフィルタを使った「畳み込む」という処理は、具体的には「フィルタ内の画像のベクトル」と「畳み込みに使用するベクトル」との間の掛け算、内積になります。<br>
+以下では、32x32x3の画像(32x32のRGB画像)に対して、5x5x3のフィルタを適用しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/9f72ff71-3dca-0050-42f6-65c63db70f2c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/9f72ff71-3dca-0050-42f6-65c63db70f2c.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p13</a></p>
+
+<p>これにより、(スライド幅が1の場合)最終的には28x28x1のレイヤが作成されます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/f1101ba0-bea2-035c-f28f-4f8897853892.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/f1101ba0-bea2-035c-f28f-4f8897853892.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p14</a></p>
+
+<p>そして、フィルタの種類を増やせばその分Convolution Layerも増えていくことになります。以下では6つのフィルタで6つのレイヤを作成しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/fe7bdaec-36a4-f64e-d521-5981a52b6765.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/fe7bdaec-36a4-f64e-d521-5981a52b6765.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p16</a></p>
+
+<p>これは、ちょうど畳み込みによって「新しい画像」を作っているとも言えます。こうして作った畳み込み層を通常のNeural Network同様、活性化関数でつないでいったものがConvolutional Neural Networkとなります(活性化関数としては、ReLUがよく使われます)。</p>
+
+<p>ここまでの話をまとめておきます。</p>
+
+<ul>
+<li>CNNは、フィルタ内の領域の情報を畳み込んで作成するConvolution Layerを導入した、Neural Networkのことである</li>
+<li>Convolution Layerはフィルタを移動させながら適用することで作成し、フィルタの数だけ作成される。これを重ねて活性化関数(ReLU等)で繋いでいくことで、ネットワークを構築する。</li>
+<li>畳み込みにより点ではなく領域ベースでの特徴抽出が可能になり、画像の移動や変形などに頑健になる。また、エッジなど領域ベースでないとわからない特徴抽出も可能になる。</li>
+</ul>
+
+<p>このCNNを特徴づけるのが、フィルタの設定とレイヤ構成になります。</p>
+
+<h2>
+<span id="フィルタの設定" class="fragment"></span><a href="#%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%81%AE%E8%A8%AD%E5%AE%9A"><i class="fa fa-link"></i></a>フィルタの設定</h2>
+
+<p>畳み込みに使用するフィルタについて、設定しなければならないパラメーターが以下4つです。</p>
+
+<ul>
+<li>フィルタの数(K): 使用するフィルタの数。大体は2の階乗の値がとられる(32, 64, 128 ...)</li>
+<li>フィルタの大きさ(F): 使用するフィルタの大きさ</li>
+<li>フィルタの移動幅(S): フィルタを移動させる幅</li>
+<li>パディング(P): 画像の端の領域をどれくらい埋めるか</li>
+</ul>
+
+<p>パディングは、以下のように画像の端の領域を0で埋める処理になります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/a96356ee-d489-7ba7-4256-f4f5f7926aa2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/a96356ee-d489-7ba7-4256-f4f5f7926aa2.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p35</a></p>
+
+<p>なぜこんなことをするかというと、普通に畳み込みを行うと端の領域はほかの領域に比べて畳み込まれる回数が少なくなってしまうためです。このように画像の端を0で埋め、そこからフィルタをかけていくことで端もほかの領域と同様に反映されるようにします。</p>
+
+<p>なお、フィルタの大きさと移動幅については、きちんと画像の大きさに適合するよう調整する必要があります。以下のように、画像をはみ出てしまうようなフィルタの大きさ・移動幅は設定できないので注意してください。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/86965360-0ad8-6048-590f-294fa5092e67.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/86965360-0ad8-6048-590f-294fa5092e67.png" alt="image"></a></p>
+
+<p>これらのパラメーターの値から、Convolutional Layerのサイズを計算することが可能です。<br>
+32x32x3の画像に5x5x3のフィルタを、移動幅1、パディング2で適用するとします。まず、パディングを加味すると画像のサイズは32+2*2=36となります。ここから幅5のフィルタを移動幅1でとる場合、36-5+1で32となります。つまり、最終的には32x32x3の層ができることになります。</p>
+
+<p>これらのパラメーターはCaffeなどのライブラリを使用する際にも設定が必要なため、その意味とサイズの計算方法を頭に入れておくとよいと思います。</p>
+
+<h2>
+<span id="レイヤ構成" class="fragment"></span><a href="#%E3%83%AC%E3%82%A4%E3%83%A4%E6%A7%8B%E6%88%90"><i class="fa fa-link"></i></a>レイヤ構成</h2>
+
+<p>CNNにおけるレイヤの種類としては、Convolutional Layerも含めて以下の3つがあります。</p>
+
+<ul>
+<li>Convolutional Layer: 特徴量の畳み込みを行う層</li>
+<li>Pooling Layer: レイヤの縮小を行い、扱いやすくするための層</li>
+<li>Fully Connected Layer: 特徴量から、最終的な判定を行う層</li>
+</ul>
+
+<p>イメージ的には、以下のようになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/3d5a3492-47c1-22c8-413c-998978bc7429.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/3d5a3492-47c1-22c8-413c-998978bc7429.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p22</a></p>
+
+<p>Convolutional Layer以外のレイヤについて、説明していきます。まずPooling Layerですが、これは画像の圧縮を行う層になります。画像サイズを圧縮して、後の層で扱いやすくできるメリットがあります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/dac49169-0fb1-190e-3a13-73bb0cc387dc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/dac49169-0fb1-190e-3a13-73bb0cc387dc.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p54</a></p>
+
+<p>このPoolingを行う手段として、Max Poolingがあります。これは、各領域内の最大値をとって圧縮を行う方法です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/51aca1ba-c7b6-9940-ee98-ea0b82642391.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/51aca1ba-c7b6-9940-ee98-ea0b82642391.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p55</a></p>
+
+<p>Fully Connected Layerは、前レイヤのすべての要素と接続するレイヤです。主に、最後の判定などを行う層で使用されます。<br>
+これらのレイヤを組み合わせることで、CNNを構築していきます。</p>
+
+<h1>
+<span id="cnnの進化" class="fragment"></span><a href="#cnn%E3%81%AE%E9%80%B2%E5%8C%96"><i class="fa fa-link"></i></a>CNNの進化</h1>
+
+<p>年が経るにつれ精度が上がってきているCNNですが、近年の構成では以下のような特徴がみられます。</p>
+
+<ul>
+<li>フィルタを小さくし、階層を深くする</li>
+<li>PoolingやFCのレイヤをなくす</li>
+</ul>
+
+<p>以下の図では、年々精度が上がるにつれレイヤが深くなっているのがわかります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/78ee9644-7901-5268-e0e7-2c8c7b724ecc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/78ee9644-7901-5268-e0e7-2c8c7b724ecc.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p78</a></p>
+
+<p>レイヤの深さについては、以下のほうがわかりやすいかもしれません。2012年に登場したAlexNetの8レイヤに対し、2015年の栄冠に輝いたResNetは152レイヤと大幅増となっています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/57e490c6-7f07-c7af-d113-9e71658c94cd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/57e490c6-7f07-c7af-d113-9e71658c94cd.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p80</a></p>
+
+<p>CNNの基本的な構成としては、以下のパターンが多いそうです。</p>
+
+<p>(Convolution * <strong>N</strong> + (Pooling)) * <strong>M</strong> + Fully Connected * <strong>K</strong></p>
+
+<p><strong>N</strong>は~5くらいで、これを<strong>M</strong>層重ねて(Mは結構大きな値)、最後に判定のためのFCを<strong>K</strong>層(0&lt;=K&lt;=2)設けるという感じです(分類問題を扱うため、これにSoftMax関数を使った層をつけることもあります)。活性化関数としてはReLUが使用されることが多いです。</p>
+
+<p>なおCNNはとても複雑そうに見えますが、重みをかけて伝播していくというNeural Networkの基本は外していないため、Neural Networkと同様Backpropagationによって学習させることが可能です。このあたりの柔軟性もNeural Networkの魅力と思います。</p>
+
+<h1>
+<span id="cnnの応用例" class="fragment"></span><a href="#cnn%E3%81%AE%E5%BF%9C%E7%94%A8%E4%BE%8B"><i class="fa fa-link"></i></a>CNNの応用例</h1>
+
+<p>CNNは当初の画像はもちろん、それ以外のタスクにも応用されてきています。この応用例については以下のスライドにとてもよくまとまっているので、興味のある方は見てみてください。</p>
+
+<p><a href="http://www.slideshare.net/sheemap/convolutional-neural-networks-wbafl2" rel="nofollow noopener" target="_blank">Convolutional Neural Networks のトレンド</a></p>
+
+<p>画像が識別できるCNNは、画像の特徴をよくとらえられる、とも言い換えることができます。つまり、識別の層を外したCNNは、入力された画像をその特徴を(識別が可能なほど)よく表すベクトルに変換するプロセスとも見ることができます。<br>
+応用例の幾つかはこの特徴を利用しており、特に画像に対してキャプションを付与するといった応用例は、CNNから抽出した画像の特徴量とテキスト情報を組み合わせています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/cc63af82-1d97-4255-9d45-67420c6f8a94.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/cc63af82-1d97-4255-9d45-67420c6f8a94.png" alt="image"></a></p>
+
+<p>今後もいろいろな応用例が出てくると思いますし、昨今の機械学習フレームワークを利用すれば自分で試してみることも可能です。本記事が、その一助となれば幸いです。</p>
+
+<h1>
+<span id="参考文献" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><i class="fa fa-link"></i></a>参考文献</h1>
+
+<ul>
+<li><a href="http://cs231n.stanford.edu/index.html" rel="nofollow noopener" target="_blank">CS231n: Convolutional Neural Networks for Visual Recognition</a></li>
+<li><a href="http://www.slideshare.net/sheemap/convolutional-neural-networks-wbafl2" rel="nofollow noopener" target="_blank">Convolutional Neural Networks のトレンド</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/icoxfog417/items/5fd55fad152231d706c2" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="pRlupHetXWMGgOA3LkgG4HJU+gTL3Mj7pY5VVXglE7VQIoq7SWeju5pupUNuIUnLQ3TyJHh31e0BfDF5FbWchw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1462454826" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+機械学習の世界において、画像といえばConvolutional Neural Network(以下CNN)というのは、うどんといえば香川くらい当たり前のこととして認識されています。しかし、そのCNNとは何なのか、という解説は意外と少なかったりします。
+
+そこで、本記事ではCNNについてその仕組みとメリットの解説を行っていきたいと思います。
+
+なお、参考文献にも記載の通り解説の内容は[StanfordのCNNの講座](http://cs231n.stanford.edu/index.html)をベースにしています。こちらの講座はNeural NetworkからCNN、はてはTensorflowによる実装まで解説される予定なので、興味がある方はそちらもご参照ください。
+
+
+# Convolution Neural Networkとは
+
+CNNはその名の通り通常のNeural NetworkにConvolutionを追加したものです。ここでは、Convolution、畳み込みとは一体なんなのか、という点と、なぜそれが画像認識に有効なのかについて説明していきます。
+
+簡単なタスクとして、書いてある図形が○か×かを判定するタスクを考えてみます。以下は、通常のNeural Networkで行う例です。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/d616f4ee-3137-2f6e-e3c2-ee1e8a971661.png)
+
+画像の1ピクセルが1入力に対応していると思ってください。10x10の画像であれば、入力はサイズ100のベクトルになります(なお、RGB表現の場合ここにx3となります)。
+
+図中では円の淵の黒い部分が入力として渡っていく様子を示していますが、これを見ると、少し位置がずれていたりすると判定に大きな影響が出ることがわかります。下図のように位置や形が少し変わると、入力される情報もずれて認識されてしまうためです。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/a5bfe7be-0951-b397-e508-c0b8d26a53d3.png)
+
+ただ、図の青い四角の中は概ね「右上から左下にかけて黒」という傾向があります。つまり、1ピクセルではなくある程度の広さの領域をまとめて入力にすることができれば、より精度の高い判定ができそうです。
+
+このアイデアを実現するのが、CNNです。
+
+下図のように、画像上にフィルタと呼ばれる小領域(下図では赤枠の4x4のエリア)をとり、これを1つの特徴量として圧縮し(=畳み込み)ます。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/9a6d7cc6-2914-9492-08ea-ea8260c37748.png)
+
+この処理を、領域をスライドさせながら繰り返していきます。この結果作成されるのが、フィルタ内の情報が畳み込まれて作成されたレイヤ、Convolution Layerになります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/2722f866-90a1-01d6-3b1f-03fd3ebfc39e.png)
+
+先ほどのNeural Networkの図をCNNにすると以下のようなイメージになります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/c51add59-558f-61c2-9d14-1bcf22550c2c.png)
+
+このフィルタを使った「畳み込む」という処理は、具体的には「フィルタ内の画像のベクトル」と「畳み込みに使用するベクトル」との間の掛け算、内積になります。
+以下では、32x32x3の画像(32x32のRGB画像)に対して、5x5x3のフィルタを適用しています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/9f72ff71-3dca-0050-42f6-65c63db70f2c.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p13](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+これにより、(スライド幅が1の場合)最終的には28x28x1のレイヤが作成されます。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/f1101ba0-bea2-035c-f28f-4f8897853892.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p14](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+そして、フィルタの種類を増やせばその分Convolution Layerも増えていくことになります。以下では6つのフィルタで6つのレイヤを作成しています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/fe7bdaec-36a4-f64e-d521-5981a52b6765.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p16](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+これは、ちょうど畳み込みによって「新しい画像」を作っているとも言えます。こうして作った畳み込み層を通常のNeural Network同様、活性化関数でつないでいったものがConvolutional Neural Networkとなります(活性化関数としては、ReLUがよく使われます)。
+
+ここまでの話をまとめておきます。
+
+* CNNは、フィルタ内の領域の情報を畳み込んで作成するConvolution Layerを導入した、Neural Networkのことである
+* Convolution Layerはフィルタを移動させながら適用することで作成し、フィルタの数だけ作成される。これを重ねて活性化関数(ReLU等)で繋いでいくことで、ネットワークを構築する。
+* 畳み込みにより点ではなく領域ベースでの特徴抽出が可能になり、画像の移動や変形などに頑健になる。また、エッジなど領域ベースでないとわからない特徴抽出も可能になる。
+
+このCNNを特徴づけるのが、フィルタの設定とレイヤ構成になります。
+
+## フィルタの設定
+
+畳み込みに使用するフィルタについて、設定しなければならないパラメーターが以下4つです。
+
+* フィルタの数(K): 使用するフィルタの数。大体は2の階乗の値がとられる(32, 64, 128 ...)
+* フィルタの大きさ(F): 使用するフィルタの大きさ
+* フィルタの移動幅(S): フィルタを移動させる幅
+* パディング(P): 画像の端の領域をどれくらい埋めるか
+
+パディングは、以下のように画像の端の領域を0で埋める処理になります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/a96356ee-d489-7ba7-4256-f4f5f7926aa2.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p35](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+なぜこんなことをするかというと、普通に畳み込みを行うと端の領域はほかの領域に比べて畳み込まれる回数が少なくなってしまうためです。このように画像の端を0で埋め、そこからフィルタをかけていくことで端もほかの領域と同様に反映されるようにします。
+
+なお、フィルタの大きさと移動幅については、きちんと画像の大きさに適合するよう調整する必要があります。以下のように、画像をはみ出てしまうようなフィルタの大きさ・移動幅は設定できないので注意してください。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/86965360-0ad8-6048-590f-294fa5092e67.png)
+
+これらのパラメーターの値から、Convolutional Layerのサイズを計算することが可能です。
+32x32x3の画像に5x5x3のフィルタを、移動幅1、パディング2で適用するとします。まず、パディングを加味すると画像のサイズは32+2*2=36となります。ここから幅5のフィルタを移動幅1でとる場合、36-5+1で32となります。つまり、最終的には32x32x3の層ができることになります。
+
+これらのパラメーターはCaffeなどのライブラリを使用する際にも設定が必要なため、その意味とサイズの計算方法を頭に入れておくとよいと思います。
+
+
+## レイヤ構成
+
+CNNにおけるレイヤの種類としては、Convolutional Layerも含めて以下の3つがあります。
+
+* Convolutional Layer: 特徴量の畳み込みを行う層
+* Pooling Layer: レイヤの縮小を行い、扱いやすくするための層
+* Fully Connected Layer: 特徴量から、最終的な判定を行う層
+
+イメージ的には、以下のようになります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/3d5a3492-47c1-22c8-413c-998978bc7429.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p22](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+
+Convolutional Layer以外のレイヤについて、説明していきます。まずPooling Layerですが、これは画像の圧縮を行う層になります。画像サイズを圧縮して、後の層で扱いやすくできるメリットがあります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/dac49169-0fb1-190e-3a13-73bb0cc387dc.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p54](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+
+このPoolingを行う手段として、Max Poolingがあります。これは、各領域内の最大値をとって圧縮を行う方法です。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/51aca1ba-c7b6-9940-ee98-ea0b82642391.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p55](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+Fully Connected Layerは、前レイヤのすべての要素と接続するレイヤです。主に、最後の判定などを行う層で使用されます。
+これらのレイヤを組み合わせることで、CNNを構築していきます。
+
+# CNNの進化
+
+年が経るにつれ精度が上がってきているCNNですが、近年の構成では以下のような特徴がみられます。
+
+* フィルタを小さくし、階層を深くする
+* PoolingやFCのレイヤをなくす
+
+以下の図では、年々精度が上がるにつれレイヤが深くなっているのがわかります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/78ee9644-7901-5268-e0e7-2c8c7b724ecc.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p78](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+レイヤの深さについては、以下のほうがわかりやすいかもしれません。2012年に登場したAlexNetの8レイヤに対し、2015年の栄冠に輝いたResNetは152レイヤと大幅増となっています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/57e490c6-7f07-c7af-d113-9e71658c94cd.png)
+[CS231n: Convolutional Neural Networks for Visual Recognition, Lecture7, p80](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)
+
+CNNの基本的な構成としては、以下のパターンが多いそうです。
+
+(Convolution * **N** + (Pooling)) * **M** + Fully Connected * **K**
+
+**N**は~5くらいで、これを**M**層重ねて(Mは結構大きな値)、最後に判定のためのFCを**K**層(0&lt;=K&lt;=2)設けるという感じです(分類問題を扱うため、これにSoftMax関数を使った層をつけることもあります)。活性化関数としてはReLUが使用されることが多いです。
+
+なおCNNはとても複雑そうに見えますが、重みをかけて伝播していくというNeural Networkの基本は外していないため、Neural Networkと同様Backpropagationによって学習させることが可能です。このあたりの柔軟性もNeural Networkの魅力と思います。
+
+# CNNの応用例
+
+CNNは当初の画像はもちろん、それ以外のタスクにも応用されてきています。この応用例については以下のスライドにとてもよくまとまっているので、興味のある方は見てみてください。
+
+[Convolutional Neural Networks のトレンド](http://www.slideshare.net/sheemap/convolutional-neural-networks-wbafl2)
+
+画像が識別できるCNNは、画像の特徴をよくとらえられる、とも言い換えることができます。つまり、識別の層を外したCNNは、入力された画像をその特徴を(識別が可能なほど)よく表すベクトルに変換するプロセスとも見ることができます。
+応用例の幾つかはこの特徴を利用しており、特に画像に対してキャプションを付与するといった応用例は、CNNから抽出した画像の特徴量とテキスト情報を組み合わせています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/cc63af82-1d97-4255-9d45-67420c6f8a94.png)
+
+今後もいろいろな応用例が出てくると思いますし、昨今の機械学習フレームワークを利用すれば自分で試してみることも可能です。本記事が、その一助となれば幸いです。
+
+# 参考文献
+
+* [CS231n: Convolutional Neural Networks for Visual Recognition](http://cs231n.stanford.edu/index.html)
+* [Convolutional Neural Networks のトレンド](http://www.slideshare.net/sheemap/convolutional-neural-networks-wbafl2)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Convolutional Neural Networkとは何なのか by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Convolutional Neural Networkとは何なのか" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/icoxfog417"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/icoxfog417">icoxfog417</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">20387</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;icoxfog417&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-d1539046-2012-4999-bdf9-ec5daa178902"></div>
+    <div id="UserFollowButton-react-component-d1539046-2012-4999-bdf9-ec5daa178902"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/e8f97a6acad07903b5b0">Pythonを書き始める前に見るべきTips</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/adbbf445d357c924b8fc">画像処理の数式を見て石になった時のための、金の針</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/242439ecd1a477ece312">ゼロからDeepまで学ぶ強化学習</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/65e800c3a2094457c3a0">はじめるDeep learning</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/5d79b3336226aa51e30d">React.js 実戦投入への道</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#convolution-neural-network%E3%81%A8%E3%81%AF\&quot;\u003eConvolution Neural Networkとは\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%81%AE%E8%A8%AD%E5%AE%9A\&quot;\u003eフィルタの設定\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AC%E3%82%A4%E3%83%A4%E6%A7%8B%E6%88%90\&quot;\u003eレイヤ構成\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#cnn%E3%81%AE%E9%80%B2%E5%8C%96\&quot;\u003eCNNの進化\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#cnn%E3%81%AE%E5%BF%9C%E7%94%A8%E4%BE%8B\&quot;\u003eCNNの応用例\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE\&quot;\u003e参考文献\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-9d0770ab-7326-47b6-8e4b-a7570aacea7e"></div>
+    <div id="Toc-react-component-9d0770ab-7326-47b6-8e4b-a7570aacea7e"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:439,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;5fd55fad152231d706c2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ichiroex"><a itemprop="url" href="/ichiroex"><img alt="ichiroex" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shn"><a itemprop="url" href="/shn"><img alt="shn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43690/profile-images/1473689611" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kota9"><a itemprop="url" href="/kota9"><img alt="kota9" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80588/profile-images/1473701836" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Quasi-quant2010"><a itemprop="url" href="/Quasi-quant2010"><img alt="Quasi-quant2010" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/96204/profile-images/1473706809" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="saicologic"><a itemprop="url" href="/saicologic"><img alt="saicologic" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2432/profile-images/1473681518" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mouriman"><a itemprop="url" href="/mouriman"><img alt="mouriman" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100875/profile-images/1473708231" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ytakky"><a itemprop="url" href="/ytakky"><img alt="ytakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62018/profile-images/1473695825" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kndt84"><a itemprop="url" href="/kndt84"><img alt="kndt84" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48137/profile-images/1473691243" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="koher"><a itemprop="url" href="/koher"><img alt="koher" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868" /></a></div></div><div class="ArticleFooter__user"><a href="/icoxfog417/items/5fd55fad152231d706c2/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/5fd55fad152231d706c2/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/icoxfog417/items/5fd55fad152231d706c2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 3 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/icoxfog417/items/5aa1b3f87bb294f84bac#_reference-1e2766fa43d0bc1f8af5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" />Convolutional Neural Networkを実装する</a><time class="references_datetime js-dateTimeView" datetime="2016-03-24T05:00:06+00:00">12 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/dsanno/items/a79a87720239f295234b#_reference-9153cfcc30ae9c2bd5ac"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/58026/profile-images/1473694517" />画像の高速スタイル変換を行う論文の紹介</a><time class="references_datetime js-dateTimeView" datetime="2016-04-10T01:49:33+00:00">11 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/Hironsan/items/4c7808db4a0f172f98a9#_reference-1611125234e790cbaaba"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" />TensorFlowを使って顔認識器を作る</a><time class="references_datetime js-dateTimeView" datetime="2016-08-24T13:52:01+00:00">7 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/S_Shimotori/items/0a983c81f766c22bebf1#_reference-c9380d6a249341a83521"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/84589/profile-images/1473703143" />Amazon DSSTNEのディープラーニング設定項目一覧</a><time class="references_datetime js-dateTimeView" datetime="2016-09-20T08:40:42+00:00">6 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/tak-o/items/499f3961b6792a71008e#_reference-230b9ea1cdd59e5d4753"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/102892/profile-images/1481260544" />TensorFlowを使ってみる その3</a><time class="references_datetime js-dateTimeView" datetime="2016-12-19T05:15:10+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kamujun/items/d6efc03ff5c8f0d53c13#_reference-08a5e8158dd45e640198"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/143285/profile-images/1480386708" />ニューラルネットワークは電気ねずみの夢を見るか？</a><time class="references_datetime js-dateTimeView" datetime="2016-12-23T19:19:13+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/jiny2001/items/e3961a009690af0c435c#_reference-97a97c0aa656b82dedc7"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/12959344?v=3" />Inside of Deep Learning （ディープラーニングの基本要素）</a><time class="references_datetime js-dateTimeView" datetime="2017-01-23T01:40:29+00:00">about 2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/18bb27e50f7c83c6c3d2#_reference-c900543f7b2b8c2f0a8e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />CNN（畳み込みニューラルネットワーク）の「チャネル」を整理してみた</a><time class="references_datetime js-dateTimeView" datetime="2017-02-17T11:08:40+00:00">30 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Convolutional Neural Networkとは何なのか by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Convolutional Neural Networkとは何なのか" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:370023,&quot;uuid&quot;:&quot;5fd55fad152231d706c2&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;icoxfog417&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-12b41473-6424-4ed9-b93e-28b524c4269b"></div>
+    <div id="CommentListContainer-react-component-12b41473-6424-4ed9-b93e-28b524c4269b"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="N0YR5U3eJ0owlvpx6bgU0orVkQ/sDO5tXkMQMY/QjbXCffX6cxTZkqx4vwWp0Vv5u/WZL1+n83v6sXQd4kAChw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/5fd55fad152231d706c2" /><input type="hidden" name="item_uuid" id="item_uuid" value="5fd55fad152231d706c2" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/icoxfog417/items/5fd55fad152231d706c2", "id": 370023, "uuid": "5fd55fad152231d706c2" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="zS7N8Fq607nMw1zeDu9zNNdsd4wca2wTD04NS4RbpVA4FSnvZHAtYVAtGapOhjwf5kx/rK/AcQWrvGln6csqYg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/5fd55fad152231d706c2" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

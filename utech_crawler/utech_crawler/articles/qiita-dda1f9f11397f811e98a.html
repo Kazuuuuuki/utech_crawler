@@ -1,0 +1,996 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Retty流『2200万ユーザを支える機械学習基盤』の作り方 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+みなさん、こんにちは。Retty CTO の樽石です。
+
+この記事は Retty Advent Calendar 25日目です。メリークリスマス。
+昨日は @ttakeoka の『MFIにむけてRettyの取り組み』でした。
+
+今年も残りわずかになりました。いかがお過ごしですか？
+
+Retty はこの １ 年でエンジニアがほぼ倍増しました。それによって、情報発信者が増え、Advent Calendar に参加出来るようになりました。みんな楽しそうにしていて、うれしい..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Retty流『2200万ユーザを支える機械学習基盤』の作り方 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/taru0216/items/dda1f9f11397f811e98a" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="![110dc22c-de0b-ad8e-9ccd-2aac4e67435f.png](https://qiita-image-store.s3.amazonaws.com/0/63371/cf786f91-a37e-7e42-706..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="bvNGTBT5dRFV12QaGPtESbwB+w8zcpc0t1BynoNNjxKrrbgE+CMH5sT5K0jkfPt8k3PB+BieTEAmcRpgqv7qYg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"taru0216","type":"items","id":"dda1f9f11397f811e98a"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-6b1993ed-c32e-4bb5-bf10-653d724c4606"></div>
+    <div id="HeaderContainer-react-component-6b1993ed-c32e-4bb5-bf10-653d724c4606"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2016/retty">Retty Inc. Advent Calendar 2016</a> Day 25</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">Retty流『2200万ユーザを支える機械学習基盤』の作り方</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="228"><a class="u-link-unstyled TagList__label" href="/tags/kubernetes"><img alt="kubernetes" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/00c3270b5715f8d70505de0bc674a1549918695a/medium.jpg?1405238932" /><span>kubernetes</span></a></li><li class="TagList__item" data-count="126"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%87%E3%82%A3%E3%83%BC%E3%83%97%E3%83%A9%E3%83%BC%E3%83%8B%E3%83%B3%E3%82%B0"><img alt="ディープラーニング" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>ディープラーニング</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">688</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:688,&quot;uuid&quot;:&quot;dda1f9f11397f811e98a&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="icoxfog417"><a itemprop="url" href="/icoxfog417"><img alt="icoxfog417" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" /></a></li><li class="js-hovercard" data-hovercard-target-name="aki"><a itemprop="url" href="/aki"><img alt="aki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/40572/profile-images/1473688483" /></a></li><li class="js-hovercard" data-hovercard-target-name="yuri_ytl"><a itemprop="url" href="/yuri_ytl"><img alt="yuri_ytl" class="thumb thumb--xs" src="https://pbs.twimg.com/profile_images/812820201276260352/v0tkNxdF_normal.jpg" /></a></li><li class="js-hovercard" data-hovercard-target-name="saku"><a itemprop="url" href="/saku"><img alt="saku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/34824/profile-images/1473686500" /></a></li><li class="js-hovercard" data-hovercard-target-name="GushiSnow"><a itemprop="url" href="/GushiSnow"><img alt="GushiSnow" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" /></a></li><li class="js-hovercard" data-hovercard-target-name="decchi"><a itemprop="url" href="/decchi"><img alt="decchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60734/profile-images/1473695315" /></a></li><li class="js-hovercard" data-hovercard-target-name="saitoxu"><a itemprop="url" href="/saitoxu"><img alt="saitoxu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/17731/profile-images/1473682242" /></a></li><li class="js-hovercard" data-hovercard-target-name="neuromance"><a itemprop="url" href="/neuromance"><img alt="neuromance" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/8761a3a5fa62be812d26b102bf54f697" /></a></li><li class="js-hovercard" data-hovercard-target-name="muff1225"><a itemprop="url" href="/muff1225"><img alt="muff1225" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/119359/profile-images/1480303582" /></a></li><li class="js-hovercard" data-hovercard-target-name="big538"><a itemprop="url" href="/big538"><img alt="big538" class="thumb thumb--xs" src="https://avatars.githubusercontent.com/u/23475692?v=3" /></a></li><li><a href="/taru0216/items/dda1f9f11397f811e98a/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/taru0216"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63371/profile-images/1473696246" alt="1473696246" /></a> <a class="u-link-unstyled" href="/taru0216">taru0216</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-12-25T09:02:32+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-12-25">Edited at <time datetime="2016-12-28T12:26:14+09:00" itemprop="dateModified">2016-12-28</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/taru0216/items/dda1f9f11397f811e98a/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">11</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__editRequest"><span class="fa fa-inbox"></span><a href="/taru0216/items/dda1f9f11397f811e98a/patches">Edit Request</a><span class="ArticleAsideHeader__editRequestCount">1</span></div><div class="ArticleAsideHeader__gist"><span class="fa fa-github"></span><a target="_blank" href="https://gist.github.com/187f50f9c85bf239dace0cd8097d43ec">Gist</a></div></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/taru0216/items/dda1f9f11397f811e98a/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(11)</span></a></li><li><a href="/taru0216/items/dda1f9f11397f811e98a.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li class="dropdown__item--mobile"><a href="/taru0216/items/dda1f9f11397f811e98a/patches"><span class="fa fa-fw fa-inbox"></span> Edit Request<span>(1)</span></a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-dda1f9f11397f811e98a" itemprop="articleBody"><p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/cf786f91-a37e-7e42-7068-5736a4da1fe8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/cf786f91-a37e-7e42-7068-5736a4da1fe8.png" alt="110dc22c-de0b-ad8e-9ccd-2aac4e67435f.png"></a></p>
+
+<p>みなさん、こんにちは。Retty CTO の樽石です。</p>
+
+<p>この記事は Retty Advent Calendar 25日目です。メリークリスマス。<br>
+昨日は <a href="/ttakeoka" class="user-mention js-hovercard" title="ttakeoka" data-hovercard-target-type="user" data-hovercard-target-name="ttakeoka">@ttakeoka</a> の<a href="http://qiita.com/ttakeoka/items/5bd1f8810c93213327ca" id="reference-232ac4f9908dca031fe0">『MFIにむけてRettyの取り組み』</a>でした。</p>
+
+<p>今年も残りわずかになりました。いかがお過ごしですか？</p>
+
+<p>Retty はこの １ 年でエンジニアがほぼ倍増しました。それによって、情報発信者が増え、Advent Calendar に参加出来るようになりました。みんな楽しそうにしていて、うれしいです。</p>
+
+<p><a href="http://qiita.com/advent-calendar/2016/retty" class="autolink">http://qiita.com/advent-calendar/2016/retty</a></p>
+
+<p>さて、今年最後の Retty Advent Calendar 記事を書くということで、はじめは １年のまとめ的内容にしようかと思いましたが、それでは平凡で面白くありません。そこで、ネタになりそうなマニアックな技術的記事で締めくくりたいと思います。</p>
+
+<p>内容は、Retty でおこなった今年のユニークな技術的取り組み「Retty 機械学習基盤を<strong>秋葉原に買い物に行って自作した</strong>話」です。</p>
+
+<p>※ この記事は機械学習の技術や歴史の記事ではありません。そちらに興味がある場合は、<a href="http://plaza.rakuten.co.jp/rakutentech/diary/201612230000/?scid=we_blg_pc_lastctgy_1_title" rel="nofollow noopener" target="_blank">楽天研究所 Moriさんのアドベントカレンダー</a>や <a href="http://qiita.com/eve_yk/items/f4b274da7042cba1ba76" id="reference-f199a4280442ac580589">まとめのまとめ</a>あたりから読み始めていただきますと幸いです。<br>
+※ 読みやすさのために図やロゴを多用しました。記事中のソフトウェア名、製品名、社名、店舗名およびロゴは各社の商標、登録商標または著作物です。<br>
+※ 内容は正確性を意識しておりますが無保証です。</p>
+
+<h1>
+<span id="retty-の機械学習基盤アーキテクチャ概要" class="fragment"></span><a href="#retty-%E3%81%AE%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>Retty の機械学習基盤アーキテクチャ概要</h1>
+
+<p>まず、はじめに Retty 機械学習基盤のアーキテクチャについて概要を説明します。</p>
+
+<p><a href="http://www.nvidia.co.jp/object/geforce_family_jp.html" rel="nofollow noopener" target="_blank">NVIDIA のコンシューマ向け GPU</a> を 2 つ搭載した Intel アーキテクチャの自作 ATX タワーマシンを 5 台並べています。</p>
+
+<p><a href="https://docs.google.com/drawings/d/19S6pw37oi50v3_1sZQ8vKfTP_ISpaiFKUaO_SYGfc58/pub?w=1402&amp;h=594" target="_blank" rel="nofollow noopener"><img src="https://docs.google.com/drawings/d/19S6pw37oi50v3_1sZQ8vKfTP_ISpaiFKUaO_SYGfc58/pub?w=1402&amp;h=594" alt="Retty 機械学習基盤概要.png"></a></p>
+
+<p>その各マシンに ssh でログインできる docker コンテナが稼働していて、ログインして <a href="https://ja.wikipedia.org/wiki/Graphics_Processing_Unit" rel="nofollow noopener" target="_blank">GPU</a> を利用します。5台のマシンの各 docker コンテナのホームディレクトリは <a href="https://ja.wikipedia.org/wiki/Network_File_System" rel="nofollow noopener" target="_blank">NFS</a> で共有されていて、どのマシンにログインしても同じデータにアクセスが出来ます。</p>
+
+<p>GPU は合計 10 個、機械学習エンジニアには「どこにログインしても同じファイルにアクセスできるプリエンプティブル・コンテナ<sup id="fnref1"><a href="#fn1" rel="footnote" title="若干堅苦しい表現ですが、つまり「基盤 PDCA のために１台ずつマシンが止まる可能性があるけど、ファイルはマシン間で共有されてるので、チェックポイントなどをきちんと実装して、他のマシンから学習が復帰可能なように作ってね」という意味です。一見乱暴な話に聞こえますが、このアーキテクチャを使いこなすことがローコストでテクノロジーのイノベーションを加速することに繋がります。こちらも参考にしてください: https://cloudplatform-jp.googleblog.com/2015/05/vm-3-vm.html">1</a></sup>」に見えます。</p>
+
+<p><a href="https://docs.google.com/drawings/d/1moLEbLRCIv5mvWshL7nX14PMpW4iHiLgxGlhVX5Nn54/pub?w=960&amp;h=720" target="_blank" rel="nofollow noopener"><img src="https://docs.google.com/drawings/d/1moLEbLRCIv5mvWshL7nX14PMpW4iHiLgxGlhVX5Nn54/pub?w=960&amp;h=720" width="480"></a></p>
+
+<h2>
+<span id="retty-機械学習基盤を使って開発された技術の活用例" class="fragment"></span><a href="#retty-%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E9%96%8B%E7%99%BA%E3%81%95%E3%82%8C%E3%81%9F%E6%8A%80%E8%A1%93%E3%81%AE%E6%B4%BB%E7%94%A8%E4%BE%8B"><i class="fa fa-link"></i></a>Retty 機械学習基盤を使って開発された技術の活用例</h2>
+
+<p>Retty 機械学習基盤を作って開発された技術の一部を紹介します。</p>
+
+<h3>
+<span id="写真のカテゴリ分類" class="fragment"></span><a href="#%E5%86%99%E7%9C%9F%E3%81%AE%E3%82%AB%E3%83%86%E3%82%B4%E3%83%AA%E5%88%86%E9%A1%9E"><i class="fa fa-link"></i></a>写真のカテゴリ分類</h3>
+
+<p>まずは機械学習の典型的な活用例である写真の分類です。Retty では、写真を「料理」「外観」「内観」「メニュー」に分けて掲載しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/1ac67a46-47d4-6355-a0a5-b0ff9bcd4af1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/1ac67a46-47d4-6355-a0a5-b0ff9bcd4af1.png" alt="2004ffc6-dc0f-f130-350f-4a5c1f516c91.png"></a></p>
+
+<p>引用: <a href="https://retty.me/area/PRE13/ARE14/SUB1401/100001178822/photos/" class="autolink" rel="nofollow noopener" target="_blank">https://retty.me/area/PRE13/ARE14/SUB1401/100001178822/photos/</a></p>
+
+<p>この分類は今まですべて手作業で行っていたのですが、CNN による料理写真の判定精度が実用レベルに達したため、本番サービスに適用しました。</p>
+
+<h3>
+<span id="料理写真のタグ付け" class="fragment"></span><a href="#%E6%96%99%E7%90%86%E5%86%99%E7%9C%9F%E3%81%AE%E3%82%BF%E3%82%B0%E4%BB%98%E3%81%91"><i class="fa fa-link"></i></a>料理写真のタグ付け</h3>
+
+<p>画像分類の応用で、写真に映っている料理を発見し、写真にタグ付けをする技術を開発しました。下は、パンケーキのタグを付けた写真を自動でお店代表写真に選出している例です。</p>
+
+<h4>
+<span id="before" class="fragment"></span><a href="#before"><i class="fa fa-link"></i></a>Before</h4>
+
+<p>検索流入キーワード: パンケーキ</p>
+
+<p><a href="https://docs.google.com/drawings/d/1_Br6otxGatvc8OMkeBkYNukfxshNiKFsT1_B9hFt9aY/pub?w=556&amp;h=413" target="_blank" rel="nofollow noopener"><img src="https://docs.google.com/drawings/d/1_Br6otxGatvc8OMkeBkYNukfxshNiKFsT1_B9hFt9aY/pub?w=556&amp;h=413" width="400"></a></p>
+
+<h4>
+<span id="after" class="fragment"></span><a href="#after"><i class="fa fa-link"></i></a>After</h4>
+
+<p>検索流入キーワード: パンケーキ</p>
+
+<p><a href="https://docs.google.com/drawings/d/1PztRxFIDzKJv0k3hOgUyx-5YAZqjSSBfPG7hfgnSuz8/pub?w=616&amp;h=456" target="_blank" rel="nofollow noopener"><img src="https://docs.google.com/drawings/d/1PztRxFIDzKJv0k3hOgUyx-5YAZqjSSBfPG7hfgnSuz8/pub?w=616&amp;h=456" width="416"></a></p>
+
+<p>引用: <a href="https://retty.me/area/PRE01/ARE164/LCAT9/CAT161/" class="autolink" rel="nofollow noopener" target="_blank">https://retty.me/area/PRE01/ARE164/LCAT9/CAT161/</a></p>
+
+<p>もともと、Rettyに掲載されているお店の代表写真はそのお店に対してひとつに決まっていました。ところが例えば上記のお店のように「オムライスとパンケーキ」の両方が名物のお店の場合、オムライスの写真が常に代表写真になってしまい、パンケーキを探しにきたユーザさんに対してもオムライスの写真を見せてしまいます。</p>
+
+<p>この写真タグ付け技術により、パンケーキを探しに来たユーザさんにはパンケーキの写真を、オムライスを探しに来たユーザさんにはオムライスの写真を見せることが可能になりました。</p>
+
+<h3>
+<span id="超解像-写真の鮮明化" class="fragment"></span><a href="#%E8%B6%85%E8%A7%A3%E5%83%8F-%E5%86%99%E7%9C%9F%E3%81%AE%E9%AE%AE%E6%98%8E%E5%8C%96"><i class="fa fa-link"></i></a>超解像 (写真の鮮明化)</h3>
+
+<p><a href="https://ja.wikipedia.org/wiki/%E8%B6%85%E8%A7%A3%E5%83%8F%E6%8A%80%E8%A1%93" rel="nofollow noopener" target="_blank">超解像</a>は、画像の解像度を高解像度化して、より鮮明な画像に変換することです。</p>
+
+<p>従来は、画像変換の標準的なアプローチをもとにエッジ調整などを加えて超解像化することが多かったのですが、近年、ディープラーニングを活用した超解像技術が大きく発展しています。</p>
+
+<p>Retty でもディープラーニングを用いた写真の超解像化を行いました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/4a12a4a1-68bf-1b7c-809f-939574f63fd7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/4a12a4a1-68bf-1b7c-809f-939574f63fd7.png" alt="27428c48-a0f1-ddf0-9acb-4b1edbbdeedd.png"></a></p>
+
+<p>(お店からの写真: <a href="https://retty.me/area/PRE13/ARE1/SUB101/100000868744/" class="autolink" rel="nofollow noopener" target="_blank">https://retty.me/area/PRE13/ARE1/SUB101/100000868744/</a>)</p>
+
+<p>差がわかりにくかもしれないので、拡大した写真も掲載します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/c643d299-5c41-6092-9517-df0e022259cd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/c643d299-5c41-6092-9517-df0e022259cd.png" alt="68e82fca-a99e-71f6-72b3-08d58959e58b.png"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/facb8efc-3b09-ef25-78ef-ece7cf148eda.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/facb8efc-3b09-ef25-78ef-ece7cf148eda.png" alt="c037db36-944e-74f3-0fbe-56f5a3a1bf4f.png"></a></p>
+
+<p>※この技術がもっと発展すれば「非可逆圧縮」の圧縮率をもっと高められるかもしれないですね。注目の技術だと思います。</p>
+
+<p>他にも、<a href="http://qiita.com/bokeneko/items/c0f0ce60a998304400c8" id="reference-a2df0cd3c68c8391ebc5">口コミをディープラーニングしてお店の特徴を抽出したり</a>、<a href="https://connpass.com/event/45252/" rel="nofollow noopener" target="_blank">一眼レフ風の写真を発見して良い写真の候補を発見したり</a>するなど、合計で 30 以上の PJ で新技術を作りました(数名で)。新技術とはいっても、次から次へと論文が出てくるのでキャッチアップと自社データでの応用という意味合いが強かったと思います。</p>
+
+<p>また、これらの技術を機械学習エンジニア以外の人でも簡単に使えるようにするために、「機械学習 Web アプリ」を作成しました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/024a148b-426a-5a66-714c-dd97258cb441.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/024a148b-426a-5a66-714c-dd97258cb441.png" alt="d93e42d6-e3b3-7ddb-f403-0829b9b348fb.png"></a></p>
+
+<p>これらは、ICACHAN(画像分類) / MICANCNN (画像変換) / TACOCNN (自然言語処理) と呼ばれ、社内で親しまれています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/079ec7e7-e9a5-0ed1-3740-7f15015fabc0.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/079ec7e7-e9a5-0ed1-3740-7f15015fabc0.png" width="128"></a><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/ebd6f7a6-d04b-122c-475b-8d8560bfc19d.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/ebd6f7a6-d04b-122c-475b-8d8560bfc19d.png" width="128"></a><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/fe66c038-3763-ff37-328b-4c5473e407d5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/fe66c038-3763-ff37-328b-4c5473e407d5.png" width="128"></a></p>
+
+<h1>
+<span id="機械学習基盤を自作した-6-つの理由" class="fragment"></span><a href="#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%82%92%E8%87%AA%E4%BD%9C%E3%81%97%E3%81%9F-6-%E3%81%A4%E3%81%AE%E7%90%86%E7%94%B1"><i class="fa fa-link"></i></a>機械学習基盤を自作した 6 つの理由</h1>
+
+<p>Rettyはサービス開始当初から昨年まで全て AWS で動いています。今年から Google の <a href="https://cloud.google.com/bigquery/?hl=ja" rel="nofollow noopener" target="_blank">BigQuery</a> や <a href="https://azure.microsoft.com/ja-jp/" rel="nofollow noopener" target="_blank">Azure</a> など複数のクラウド活用が始まったのですが、クラウド以外を使ったことはありません。</p>
+
+<p>そんな Retty が、ハードウェアを自社で購入して、独自の基盤を構築しました。主な理由は以下になります。</p>
+
+<ul>
+<li>最新の機械学習技術であるディープラーニングを行うには GPU が必須であった</li>
+<li>GPU を使いたい機械学習エンジニアが、クラウドのGPU付インスタンスの価格に驚き、利用を躊躇していた</li>
+<li>GPU の性能に関する情報が少なく、機械学習を行うのにどれぐらいの費用がかかるのかわからなかった</li>
+<li>アルゴリズムによって CPU・GPU・メモリ・IO・ネットワークのどれがボトルネックになるかが異なるため、どのインスタンスを使えば良いのかを機械学習エンジニア自身が毎回考えていて、機械学習そのものになかなか取りかかれなかった。</li>
+<li>ssh でログインする開発形態になるため、クラウドサービスとオフィスのネットワーク・レイテンシの問題で開発生産性が上がらなかった。</li>
+<li>GPUの市場価格が毎月下落していたため、必要な時期に必要な分だけGPUを増設すれば、ローコストでシステムを構築できそうと考えた。</li>
+</ul>
+
+<p>上記のように、様々な理由があったのですが、一言でいえば<strong>「エンジニアが24時間好きなだけ定額でGPUを使える環境」</strong>を用意したかったということです。この課題は解決し、今では必ず誰かが1日中、GPU を使っている状態になっています。</p>
+
+<h1>
+<span id="機械学習基盤の実現方法" class="fragment"></span><a href="#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%81%AE%E5%AE%9F%E7%8F%BE%E6%96%B9%E6%B3%95"><i class="fa fa-link"></i></a>機械学習基盤の実現方法</h1>
+
+<p>Retty 機械学習基盤を作るにあたり、今後の展開を考慮して、いくつかの要件を決めました。</p>
+
+<ul>
+<li>会社のフェーズ、機械学習の要件に応じて容易に改良・スケールできること</li>
+<li>データや環境があらかじめ用意されていて、機械学習そのものにすぐに取り掛かれること</li>
+<li>基盤の PDCA のためにマシンを再インストールしても、機械学習エンジニアの作業データが無くならないこと</li>
+<li>投資効果を最大化するため、また社内に技術を蓄積するため「市場最安値のパーツを購入し、あとはオープンソース・ソフトウェアと技術で解決」すること</li>
+</ul>
+
+<p>これらを実現するためにPDCAを回した結果、以下のようなアーキテクチャになりました。</p>
+
+<p><a href="https://docs.google.com/drawings/d/1iV7SPQZjwdRFkkpVC9tUvc5Gk45OL3TrNZqVWa1LqE8/pub?w=640&amp;h=480" target="_blank" rel="nofollow noopener"><img src="https://docs.google.com/drawings/d/1iV7SPQZjwdRFkkpVC9tUvc5Gk45OL3TrNZqVWa1LqE8/pub?w=640&amp;h=480"></a></p>
+
+<ul>
+<li>juju による構成管理</li>
+<li>MaaS による OS 自動配備 / AWS スポットインスタンス</li>
+<li>ceph を利用した分散ストレージシステム</li>
+<li>corosync / pacemaker を使った NFS サーバクラスタ</li>
+<li>機械学習に必要なすべてを詰め込んだ Docker イメージ</li>
+<li>Kubernetes を使った VXLAN 管理、および Docker コンテナ・スケジュール</li>
+</ul>
+
+<h2>
+<span id="juju-による構成管理" class="fragment"></span><a href="#juju-%E3%81%AB%E3%82%88%E3%82%8B%E6%A7%8B%E6%88%90%E7%AE%A1%E7%90%86"><i class="fa fa-link"></i></a>juju による構成管理</h2>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/cdc88e2d-8588-75c9-fcde-56fd3b7fe1ce.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/cdc88e2d-8588-75c9-fcde-56fd3b7fe1ce.png" width="128"></a></p>
+
+<p><a href="https://jujucharms.com/" rel="nofollow noopener" target="_blank">juju</a> はインフラの構成管理ツールです。 <a href="https://www.ansible.com/" rel="nofollow noopener" target="_blank">Ansible</a> や <a href="https://www.chef.io/" rel="nofollow noopener" target="_blank">Chef</a>、<a href="https://puppet.com/" rel="nofollow noopener" target="_blank">Puppet</a> と類似のツールになります。特徴は <a href="https://www.ubuntu.com/" rel="nofollow noopener" target="_blank">Ubuntu</a> の標準ツールであること、インスタンスのブートストラップが可能で後述する MaaS との相性が非常に良いこと、そしてスケールさせることが簡単なことです。例えば、48 台の機械学習マシンを追加するには以下のコマンドを実行します<sup id="fnref2"><a href="#fn2" rel="footnote" title="akiba とは Retty 機械学習基盤のロールの名前です。">2</a></sup>。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+juju add-unit -n48 akiba
+</pre></div></div>
+
+<p>※ 独断と偏見ですが、juju の使いやすさは他を圧倒すると思います。この使いやすさを徹底するアプローチは apt を開発した Debian 系ディストリビューションの文化なのかなと思います。</p>
+
+<p>なお、Retty 機械学習基盤では、Docker (Kubernetes) を多用しています。構成管理の大部分は Docker 上で行っており、juju は Docker (Kubernetes) 実行環境を構成するところに絞っております。</p>
+
+<h2>
+<span id="maas-による-os-自動配備--aws-スポットインスタンス" class="fragment"></span><a href="#maas-%E3%81%AB%E3%82%88%E3%82%8B-os-%E8%87%AA%E5%8B%95%E9%85%8D%E5%82%99--aws-%E3%82%B9%E3%83%9D%E3%83%83%E3%83%88%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%82%B9"><i class="fa fa-link"></i></a>MaaS による OS 自動配備 / AWS スポットインスタンス</h2>
+
+<p><a href="https://jujucharms.com/static/img/about-juju/maas.png" target="_blank" rel="nofollow noopener"><img src="https://jujucharms.com/static/img/about-juju/maas.png" width="192"></a></p>
+
+<p><a href="https://maas.io/" rel="nofollow noopener" target="_blank">MaaS</a> とは ベアメタル環境から OS を自動でインストール出来る Ubuntu 純正の OS 配備システムです。PXE ブートを活用することによって、素のハードウェアに自動で Ubuntuをインストールすることが出来ます。Software RAID や bonding にも対応している本格的なシステムです。Retty 機械学習基盤では、MaaS を活用することで、自作PCを自動で機械学習基盤クラスタに組み込んでいます。</p>
+
+<p>また、juju は MaaS 以外にも AWS / Azure / GCP といった様々なクラウドシステムに対応しています。Retty機械学習基盤では、スポットで GPU 計算資源が必要になった時にクラウドのスポットリソースを使ってスケールさせています<sup id="fnref3"><a href="#fn3" rel="footnote" title="例えば、AWS Tokyo リージョンにおける g2.2xlarge のスポットインスタンス価格は 2016/12/20 時点で約 $0.15/h 程度です。">3</a></sup>。</p>
+
+<h2>
+<span id="ceph-を使った分散ストーレジシステム" class="fragment"></span><a href="#ceph-%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F%E5%88%86%E6%95%A3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AC%E3%82%B8%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0"><i class="fa fa-link"></i></a>ceph を使った分散ストーレジシステム</h2>
+
+<p><a href="https://avatars2.githubusercontent.com/u/1015767?v=3&amp;s=128" target="_blank" rel="nofollow noopener"><img src="https://avatars2.githubusercontent.com/u/1015767?v=3&amp;s=128"></a></p>
+
+<p><a href="http://ceph.com/" rel="nofollow noopener" target="_blank">ceph</a> は複数のサーバに接続されているストレージを、ネットワークを使って一つのストレージに仮想化することが出来る分散ストレージ・システムです。分散ブロックデバイスとしての使い方が人気で、Retty機械学習基盤でも ceph をブロックデバイスとして利用しています。</p>
+
+<p>(最近、安定板がリリースになった cephfs も一部で利用しています)</p>
+
+<h2>
+<span id="corosync--pacemaker-を使った-nfs-サーバクラスタ" class="fragment"></span><a href="#corosync--pacemaker-%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F-nfs-%E3%82%B5%E3%83%BC%E3%83%90%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%BF"><i class="fa fa-link"></i></a>corosync / pacemaker を使った NFS サーバクラスタ</h2>
+
+<p><a href="http://clusterlabs.org/assets/Deploy-a94aabdc34126befd30840a30b672320ab74b809eae0934d65fbec280d6b8140.png" target="_blank" rel="nofollow noopener"><img src="http://clusterlabs.org/assets/Deploy-a94aabdc34126befd30840a30b672320ab74b809eae0934d65fbec280d6b8140.png" width="256"></a></p>
+
+<p>引用: <a href="http://clusterlabs.org/" class="autolink" rel="nofollow noopener" target="_blank">http://clusterlabs.org/</a></p>
+
+<p>マシンのメンテナンスを行っても止まらない NFS サーバを提供するために、ceph を使ってブロックデバイスを作成し、<a href="http://corosync.github.io/corosync/" rel="nofollow noopener" target="_blank">corosync</a> と <a href="http://clusterlabs.org/pacemaker.html" rel="nofollow noopener" target="_blank">pacemaker</a> でシングルマスタ＆フェイルオーバする NFS サーバを構築しました。</p>
+
+<h2>
+<span id="機械学習に必要なすべてを詰め込んだ-docker-イメージ" class="fragment"></span><a href="#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%81%AB%E5%BF%85%E8%A6%81%E3%81%AA%E3%81%99%E3%81%B9%E3%81%A6%E3%82%92%E8%A9%B0%E3%82%81%E8%BE%BC%E3%82%93%E3%81%A0-docker-%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8"><i class="fa fa-link"></i></a>機械学習に必要なすべてを詰め込んだ Docker イメージ</h2>
+
+<p><a href="https://www.docker.com/sites/default/files/moby.svg" target="_blank" rel="nofollow noopener"><img src="https://www.docker.com/sites/default/files/moby.svg" width="128"></a></p>
+
+<p>機械学習をするには、<a href="https://www.tensorflow.org/" rel="nofollow noopener" target="_blank">tensorflow</a> / <a href="http://chainer.org/" rel="nofollow noopener" target="_blank">chainer</a> だけでなく、<a href="https://radimrehurek.com/gensim/" rel="nofollow noopener" target="_blank">gensim</a> / <a href="http://taku910.github.io/mecab/" rel="nofollow noopener" target="_blank">mecab</a> / <a href="http://taku910.github.io/cabocha/" rel="nofollow noopener" target="_blank">cabocha</a> / <a href="https://code.google.com/archive/p/word2vec/" rel="nofollow noopener" target="_blank">word2vec</a> / <a href="https://github.com/facebookresearch/fastText" rel="nofollow noopener" target="_blank">fastText</a> / <a href="https://keras.io/ja/" rel="nofollow noopener" target="_blank">keras</a> などのいろいろなライブラリやツールが必要で準備が大変です。そこでその大変さを解消すべく、Retty で機械学習するのに必要なすべてのツールを入れた Docker イメージを作っています。ホストマシンに <a href="https://launchpad.net/%7Egraphics-drivers/+archive/ubuntu/ppa" rel="nofollow noopener" target="_blank">NVIDIA のドライバ</a>をインストールしておけば</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+docker run --privileged -it --rm 192.168.0.1/retty-runtime-anaconda
+</pre></div></div>
+
+<p>のようにするだけですぐに機械学習に取り掛かることが出来ます。なお、この Docker イメージは 10G (圧縮して5G) 以上あるため、Retty 機械学習基盤内に Private Docker Registry を用意し、そこからイメージを pull し、起動できるようにしています。これにより、従来70分ほどかかっていた docker pull の時間が 5 分程度に短縮されました。</p>
+
+<p>（↑の機械学習 docker イメージは、CPU だけでも動くので手元の Mac でも動きます)</p>
+
+<h2>
+<span id="kubernetes-を使った-vxlan-管理および-docker-コンテナスケジュール" class="fragment"></span><a href="#kubernetes-%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F-vxlan-%E7%AE%A1%E7%90%86%E3%81%8A%E3%82%88%E3%81%B3-docker-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%82%B9%E3%82%B1%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB"><i class="fa fa-link"></i></a>Kubernetes を使った VXLAN 管理、および Docker コンテナ・スケジュール</h2>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/61606/f6320a8f-34e9-f977-10da-a872a61a3ac5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/61606/f6320a8f-34e9-f977-10da-a872a61a3ac5.png" width="128"></a></p>
+
+<p>上記の Docker イメージに ssh でログインできる機能を追加した Docker (ホーム Docker) を <a href="http://kubernetes.io/" rel="nofollow noopener" target="_blank">Kubernetes</a> を使って各マシン上で動かしています。仮想ネットワークは <a href="https://github.com/coreos/flannel" rel="nofollow noopener" target="_blank">flannel</a> によるシンプルな <a href="https://tools.ietf.org/html/rfc7348" rel="nofollow noopener" target="_blank">VXLAN</a> で動いています。ホーム Docker はすべてのホストマシンで動ているため、機械学習エンジニアはすべてのマシンにログインすることができます。ホームディレクトリは上記のフェイルオーバ機能の付いたNFSサーバ上に置いてあります。これによって、どのマシンにログインしても機械学習エンジニアは同じファイルにアクセスすることができます。</p>
+
+<p>また Kubernetes 上で Docker を動かしています（Docker in Kubernetes)。これによって、このホーム Docker から docker コマンドや docker-compose などのシンプルな docker 機能を機械学習エンジニアが利用できます。</p>
+
+<h1>
+<span id="retty機械学習基盤の工夫" class="fragment"></span><a href="#retty%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%81%AE%E5%B7%A5%E5%A4%AB"><i class="fa fa-link"></i></a>Retty機械学習基盤の工夫</h1>
+
+<p>Retty 機械学習基盤のパフォーマンスや生産性を向上するために、ディスク・ネットワーク・GPU・DB にいくつかの工夫を施しています。</p>
+
+<h2>
+<span id="ディスクのパフォーマンス" class="fragment"></span><a href="#%E3%83%87%E3%82%A3%E3%82%B9%E3%82%AF%E3%81%AE%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9"><i class="fa fa-link"></i></a>ディスクのパフォーマンス</h2>
+
+<p>各マシンに６本のSSDを刺し、合計 30 本の SSD ディスクで分散ストレージを構成しています。 iotop によるパフォーマンス計測では、ceph のリバランス（データの再配置）処理で 1 ノードあたり最大 450 MB/s (3.6Gbps) 程度の書き込みスループットが出ています。ここはもう少し改良の余地があると思いますが、現状の性能要件としては十分な性能が出ています。</p>
+
+<p>ちなみに、Retty 機械学習基盤でメインで使っているマザーボード(z170チップセット)は SATA が６本しかありません。そこで、その６本をすべて ceph に割り当て、システムの起動はSSDディスクを SATA to USB アダプタを使って USB に挿して行っています。したがってディスクは１ノードあたり７本あります。このようにした理由は、ceph ブロックデバイスの利用が増え、ディスク容量が足りなくなってディスクを追加する必要が出たためです。</p>
+
+<h2>
+<span id="ネットワークのパフォーマンス" class="fragment"></span><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9"><i class="fa fa-link"></i></a>ネットワークのパフォーマンス</h2>
+
+<p>ネットワークは内蔵のイーサポートに加え、Dual ポートギガイーサ PCIe デバイスを差し、３本のボンディングを構成しています。 安価なファンレス L2 スイッチを利用したかったため、<a href="https://en.wikipedia.org/wiki/Link_aggregation" rel="nofollow noopener" target="_blank">リンクアグリゲーション</a>ではなく、<a href="https://www.kernel.org/doc/Documentation/networking/bonding.txt" rel="nofollow noopener" target="_blank">Adaptive Load Balancing</a> を使って、トラフィックの分散を行っています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/f54e0725-93b9-0712-f5ce-2be1fab20b59.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/f54e0725-93b9-0712-f5ce-2be1fab20b59.jpeg" width="480"></a></p>
+
+<p>↑のように、マシンの台数に比べてイーサケーブルの数がたくさんあります。</p>
+
+<h2>
+<span id="gpu-のベンチマーク" class="fragment"></span><a href="#gpu-%E3%81%AE%E3%83%99%E3%83%B3%E3%83%81%E3%83%9E%E3%83%BC%E3%82%AF"><i class="fa fa-link"></i></a>GPU のベンチマーク</h2>
+
+<p>tensorflow および chainer が動作する様々な種類のGPUを用意していることから、開発中にベンチマークを取りました。Maxwell アーキテクチャの一部 (GTX 750ti / 970 / 980ti) と Pascal アーキテクチャのコンシューマ向けの大半のモデル (GTX 1050ti / 1060 / 1070 / 1080) を用意しています。その結果、アルゴリズムによって、GPU 毎に性能や省エネ、コスパに差が出ることがわかりました。</p>
+
+<p>ここでは、その一部を紹介させていただきます（なお環境がそろっていないタイミングで計測したデータが多いため、若干比較が難しいところがあります。ご了承ください）。</p>
+
+<h3>
+<span id="スピード" class="fragment"></span><a href="#%E3%82%B9%E3%83%94%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>スピード</h3>
+
+<p>1 秒あたりの処理数（アルゴリズムによってバッチの意味が異なったため便宜上処理数と呼んでいます）を計測しました。グラフは train.py と char_cnn.py の２つの学習アルゴリズム毎に各GPUでどれだけのスピードが出ているかを表しています。数値が大きいほど高速です。傾向としては、型番の数字が大きいほど高速であるのですが、train.py の場合、なぜか GTX980Ti だけ非常に高速になりました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/0e603615-4c33-c595-7971-9d288eb92041.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/0e603615-4c33-c595-7971-9d288eb92041.png" alt="919b800b-8550-1d36-145d-536997c849a0.png"></a></p>
+
+<p>また、char_cnn.py において、GTX980Ti のスピードが遅くなっています。これは計測を行った当時、GTX980Tiは AMD の安価な CPU 上で動いていて、char_cnn.py が CPU センシティブなアルゴリズムであったことが原因と考えられます。train.py では CPU が AMD にもかかわらず最高速で動き、char_cnn.py では 750Ti とあまり変わらないという結果が非常に興味深いです。ここについて深堀したい人を<a href="https://www.wantedly.com/projects/75025" rel="nofollow noopener" target="_blank">募集</a>しています。</p>
+
+<h3>
+<span id="省エネ" class="fragment"></span><a href="#%E7%9C%81%E3%82%A8%E3%83%8D"><i class="fa fa-link"></i></a>省エネ</h3>
+
+<p>エネルギー効率を計測しました。１W・秒あたりの処理数です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/c19b6835-efc9-1b6a-aaec-f94e6381954e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/c19b6835-efc9-1b6a-aaec-f94e6381954e.png" alt="82731751-65eb-bd05-ea0d-67b725297b8d.png"></a></p>
+
+<p>Maxwell の 970 と比べ、Pascal アーキテクチャが全体的にエネルギー効率が良くなっていますが、GTX750Ti が補助電源不要ということもあり、非常に高効率でした。</p>
+
+<h3>
+<span id="コスパ" class="fragment"></span><a href="#%E3%82%B3%E3%82%B9%E3%83%91"><i class="fa fa-link"></i></a>コスパ</h3>
+
+<p>GPU本体価格 (2016/10月前後) と消費電力（実消費電力)からコストを計算しました。１円あたりのイテレーション数です。ただし、GPU は本体価格の変動が激しいため、あまり参考にはならないかもしれません。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/b2d7d1c5-86df-d5c5-c43c-e1762cde6980.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/b2d7d1c5-86df-d5c5-c43c-e1762cde6980.png" alt="3c49c1b6-017f-94f4-27aa-d112f09b4811.png"></a></p>
+
+<p>なお、消費電力は市販のワットモニターを用いて目視で計測しました。</p>
+
+<h3>
+<span id="その他" class="fragment"></span><a href="#%E3%81%9D%E3%81%AE%E4%BB%96"><i class="fa fa-link"></i></a>その他</h3>
+
+<p>その他の特筆すべき点として、Pascal アーキテクチャの電力効率が良くなっています。Maxwell アーキテクチャの場合、電源にかなり気を使わなければいけなかったのですが、Pascal アーキテクチャにしてからは解消しました。</p>
+
+<p>また、コスパに関して、GPUの価格変動が激しく、コスパの順位がタイミングによって大きく入れ替わっていました。例えば、980Ti は５か月で価格が半分まで下落しています。</p>
+
+<p>現状の GPU は発展途上のデバイスで、製品がすぐアウトレットになってしまい、値段が大きく変動するようです。そのため、RettyではGPUを少しずつ購入することで、価格変動リスクを軽減しました。GPU を SaaS で提供する事業者は価格設定が大変ではないでしょうか?</p>
+
+<p>最後に、Retty 機械学習基盤の形がほぼ確定してきたこともあり、あらためてベンチマークを取るフェーズかなと思います。クラウドにスケールする仕組みも作れたので、コンシューマ向け GPU とサーバ向けの GPU の性能比較を行うことも可能です。気になる方はぜひ Retty Advent Calendar を Subscribe してくれたり、または<a href="https://www.wantedly.com/projects/75025" rel="nofollow noopener" target="_blank">遊びにきてくれたり</a>、はてぶでブックマークしてくれるとうれしいです。学生さんじゃなくてもOKです。</p>
+
+<p><a href="http://qiita.com/advent-calendar/2016/ranking/subscriptions/categories/company" class="autolink">http://qiita.com/advent-calendar/2016/ranking/subscriptions/categories/company</a></p>
+
+<h2>
+<span id="自分専用データベース" class="fragment"></span><a href="#%E8%87%AA%E5%88%86%E5%B0%82%E7%94%A8%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9"><i class="fa fa-link"></i></a>自分専用データベース</h2>
+
+<p>機械学習を行うにはデータが必要です。しかも膨大な量です。Retty には公開可能な数百万件の口コミ情報や一千万件近い料理関連写真があり、それらや中間情報を保持した非常に巨大なデータベースがあります。</p>
+
+<p>実験をスムーズに行うためには、このデータベースをもとに自由にいじれる自分専用データベースある方が便利です。しかし、データベースがあまりにも巨大なため、そう簡単に用意することは出来ません。<a href="http://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html" rel="nofollow noopener" target="_blank">AWS RDS のデータベーススナップショットから自分専用のデータベースを作成する</a>には、半日近くの時間がかかってしまっていてほとんど実現出来ていませんでした。</p>
+
+<p>Retty 機械学習基盤では、<a href="http://docs.ceph.com/docs/hammer/dev/rbd-layering/" rel="nofollow noopener" target="_blank">ceph のブロックデバイス・スナップショット技術およびクローン技術</a>を活用することで、最大で半日かかっていた自分専用データベースの作成時間を 3 秒に短縮することが出来ました<sup id="fnref4"><a href="#fn4" rel="footnote" title="なお、現在のところ ceph ブロックデバイスを扱う Linux カーネルモジュールでは、スナップショットを使ったクローンブロックデバイスを扱うことが出来ないため、自分専用DBは仮想マシンを間に挟んで実現しています。">4</a></sup>。約 12,000 倍の高速化です。従来を徒歩の速度とすると、<strong>宇宙に脱出する速度</strong>に達したことになります。世界が変わりました<sup id="fnref5"><a href="#fn5" rel="footnote" title="クラウド・ネイティブな会社にいる事で、インフラ・コア技術の動向に関して若干浦島太郎な状態だったのですが、やはりコア技術の様々な選択肢を応用して、丁寧に最適化すれば、革命的な事業インパクトをおこせることがわかりました。今後も全方面に対する最新技術の応用を積極的に行い、事業を加速していきたいと思います。">5</a></sup>。</p>
+
+<h1>
+<span id="はまったところ" class="fragment"></span><a href="#%E3%81%AF%E3%81%BE%E3%81%A3%E3%81%9F%E3%81%A8%E3%81%93%E3%82%8D"><i class="fa fa-link"></i></a>はまったところ</h1>
+
+<p>Retty 機械学習基盤開発中に基盤全体がクラッシュしてしまう問題が発生しました。大きく二つの理由がありました。</p>
+
+<h2>
+<span id="cifs-への-dos-アタック" class="fragment"></span><a href="#cifs-%E3%81%B8%E3%81%AE-dos-%E3%82%A2%E3%82%BF%E3%83%83%E3%82%AF"><i class="fa fa-link"></i></a>CIFS への DoS アタック</h2>
+
+<p>開発初期に安価な市販の NAS を使って画像データを置いておいたのですが、機械学習マシンからのアクセス負荷に NAS が耐えられず、CIFS ファイルシステムカーネルモジュールがおかしくなって機械学習マシンの Linux Kernel がすべて Oops を吐いて止まってしまいました。機械学習マシンにモニターを接続しておらず、デバッグが若干大変だったため、kdump をこのタイミングで導入し、調査しました。NFS を導入し、CIFS から卒業したことで解決しました。</p>
+
+<h2>
+<span id="ネットワークセグメントが１つかしない" class="fragment"></span><a href="#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%BB%E3%82%B0%E3%83%A1%E3%83%B3%E3%83%88%E3%81%8C%EF%BC%91%E3%81%A4%E3%81%8B%E3%81%97%E3%81%AA%E3%81%84"><i class="fa fa-link"></i></a>ネットワークセグメントが１つかしない</h2>
+
+<p>現在の Retty 機械学習基盤はすべてのマシンを同じ 24 ポートファンレスハブに接続しています。これにより、時折ブロードキャストパケットが大量に発生し、その L2 セグメントが使えなくなってしまうことが起こりました（半年で2回ほど）。いまのところは二回なら良いかなという判断でいますが、ここは今後改良する可能性があるところです。</p>
+
+<p>なお、<a href="https://ja.wikipedia.org/wiki/%E5%8D%98%E4%B8%80%E9%9A%9C%E5%AE%B3%E7%82%B9" rel="nofollow noopener" target="_blank">SPOF</a> という観点では、物理ネットワークと電源（含む、オフィスの停電）があるのですが、機械学習基盤が使えなくなったときは、<a href="https://cd.zeroin.co.jp/cappy/retty/" rel="nofollow noopener" target="_blank">ランチタクシー</a>に乗ったり、<a href="https://www.wantedly.com/companies/retty/post_articles/30168" rel="nofollow noopener" target="_blank">グルメ調査費</a>を使ったりして美味しいご飯を食べに行ってるようです。コミュニケーションが活発になるので、むしろ SPOF はあったほうが良いのかもしれません。</p>
+
+<h1>
+<span id="retty機械学習基盤の開発環境" class="fragment"></span><a href="#retty%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%81%AE%E9%96%8B%E7%99%BA%E7%92%B0%E5%A2%83"><i class="fa fa-link"></i></a>Retty機械学習基盤の開発環境</h1>
+
+<p>機械学習基盤の開発当初は、機械学習基盤としてサービスを提供しながら、同時に基盤の改良を加えていました。はじめは開発者が１名だったこともあり、それでも十分に回っていたのですが、クラスタを導入し始めたあたりから、開発者が二人になったこともあいまって、改良をスムーズに行うことが難しくなってきました。そこで、「機械学習基盤そのものの開発を行う環境」を新しく用意しました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/cf786f91-a37e-7e42-7068-5736a4da1fe8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/cf786f91-a37e-7e42-7068-5736a4da1fe8.png" alt="110dc22c-de0b-ad8e-9ccd-2aac4e67435f.png"></a></p>
+
+<p>こちらは、OS自動配備まで含めた開発ができるように仮想マシンを活用しています。GPU は <a href="https://software.intel.com/en-us/articles/intel-virtualization-technology-for-directed-io-vt-d-enhancing-intel-platforms-for-efficient-virtualization-of-io-devices/?_ga=1.47457455.964393455.1469198192" rel="nofollow noopener" target="_blank">VT-d</a> によって特定の仮想マシンにデバイスそのものを割り当てる形になります。したがってGPUは一部の仮想マシンでしか使うことはできず、GPUを活用する基盤の開発には若干の制約があります。</p>
+
+<h2>
+<span id="仮想マシンの作成" class="fragment"></span><a href="#%E4%BB%AE%E6%83%B3%E3%83%9E%E3%82%B7%E3%83%B3%E3%81%AE%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>仮想マシンの作成</h2>
+
+<p><a href="http://community.redhat.com/images/software/libvirt.svg?1467296449" target="_blank" rel="nofollow noopener"><img src="http://community.redhat.com/images/software/libvirt.svg?1467296449" width="128"></a></p>
+
+<p>仮想マシン管理には <a href="https://libvirt.org/" rel="nofollow noopener" target="_blank">libvirt</a> を使っています。一番のメリットはコマンドラインでの仮想マシン管理がやりやすいことと、<a href="https://www.redhat.com/ja/global/japan" rel="nofollow noopener" target="_blank">RedHat</a> 主体で作っているため多くの Linux ディストリビューションで標準で使えることです。</p>
+
+<p>仮想マシンのプライマリ・ディスクを機械学習基盤の ceph 上に作っています。仮想マシンの作成には <a href="https://github.com/virt-manager/virt-manager" rel="nofollow noopener" target="_blank">virt-install</a> というコマンドラインを使っているのですが、ceph との対応が不十分であったため、機能追加しました。</p>
+
+<p>※ <a href="https://github.com/virt-manager/virt-manager" rel="nofollow noopener" target="_blank">virt-install のライセンスが GPL</a> ですので、こちらのパッチも GPL でのライセンスになります。</p>
+
+<div class="code-frame" data-lang="diff"><div class="highlight"><pre>
+<span class="gh">diff -ru /usr/share/virt-manager/virtinst/devicedisk.py /usr/local/share/virt-manager/virtinst/devicedisk.py</span>
+<span class="gd">--- /usr/share/virt-manager/virtinst/devicedisk.py      2015-11-30 20:47:47.000000000 +0000</span>
+<span class="gi">+++ /usr/local/share/virt-manager/virtinst/devicedisk.py        2016-11-09 05:12:36.513295726 +0000</span>
+<span class="gu">@@ -464,6 +464,7 @@</span>
+         "source_volume", "source_pool", "source_protocol", "source_name",
+         "source_host_name", "source_host_port",
+         "source_host_transport", "source_host_socket",
+<span class="gi">+        "auth_username", "auth_secret_type", "auth_secret_uuid",</span>
+         "target", "bus",
+     ]
+
+<span class="gu">@@ -744,6 +745,9 @@</span>
+
+     seclabel = XMLChildProperty(Seclabel, relative_xpath="./source")
+
+<span class="gi">+    auth_username = XMLProperty("./auth/@username")</span>
+<span class="gi">+    auth_secret_type = XMLProperty("./auth/secret/@type")</span>
+<span class="gi">+    auth_secret_uuid = XMLProperty("./auth/secret/@uuid")</span>
+
+     #################################
+     # Validation assistance methods #
+<span class="gu">@@ -867,6 +871,12 @@</span>
+         self._change_backend(None, vol_object, parent_pool)
+
+     def set_defaults(self, guest):
+<span class="gi">+        pool = self._storage_backend.get_parent_pool_xml()</span>
+<span class="gi">+        if pool.source_auth_type != "":</span>
+<span class="gi">+            self.auth_username = pool.source_auth_username</span>
+<span class="gi">+            self.auth_secret_type = pool.source_auth_type</span>
+<span class="gi">+            self.auth_secret_uuid = pool.source_auth_secret_uuid</span>
+<span class="gi">+</span>
+         if self.is_cdrom():
+             self.read_only = True
+
+<span class="gh">diff -ru /usr/share/virt-manager/virtinst/storage.py /usr/local/share/virt-manager/virtinst/storage.py</span>
+<span class="gd">--- /usr/share/virt-manager/virtinst/storage.py 2015-12-24 16:30:15.000000000 +0000</span>
+<span class="gi">+++ /usr/local/share/virt-manager/virtinst/storage.py   2016-11-05 04:29:29.270748502 +0000</span>
+<span class="gu">@@ -380,7 +380,10 @@</span>
+                        "capacity", "allocation", "available",
+                        "format", "hosts",
+                        "_source_dir", "_source_adapter", "_source_device",
+<span class="gd">-                       "source_name", "target_path",</span>
+<span class="gi">+                       "source_name",</span>
+<span class="gi">+                       "source_auth_type", "source_auth_username",</span>
+<span class="gi">+                       "source_auth_secret_uuid",</span>
+<span class="gi">+                       "target_path",</span>
+                        "permissions"]
+
+
+<span class="gu">@@ -406,6 +409,10 @@</span>
+                               default_cb=_default_source_name,
+                               doc=_("Name of the Volume Group"))
+
+<span class="gi">+    source_auth_type = XMLProperty("./source/auth/@type")</span>
+<span class="gi">+    source_auth_username = XMLProperty("./source/auth/@username")</span>
+<span class="gi">+    source_auth_secret_uuid = XMLProperty("./source/auth/secret/@uuid")</span>
+<span class="gi">+</span>
+     target_path = XMLProperty("./target/path",
+                               default_cb=_get_default_target_path)
+</pre></div></div>
+
+<p>このパッチをあてると、以下のようなコマンドライン引数で ceph のブロックデバイスを仮想マシンのプライマリディスクに割り当てることができます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+virt-install --name=hoge --vcpus=4 --memory=4096 --disk rbd:hoge/fuga ...
+</pre></div></div>
+
+<h2>
+<span id="デスクトップ化" class="fragment"></span><a href="#%E3%83%87%E3%82%B9%E3%82%AF%E3%83%88%E3%83%83%E3%83%97%E5%8C%96"><i class="fa fa-link"></i></a>デスクトップ化</h2>
+
+<p>この開発マシンをデスクトップ化して、「Retty機械学習基盤のダッシュボード」としてビジュアライズしています。開発マシンのGPUを使って、５０インチ、４Kのモニタを接続し、広大なビジュアル空間で機械学習エンジニアに現在の機械学習基盤の状況をわかるようにしています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/b3605b5b-9b46-153e-e757-9b25bbcb0d9b.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/b3605b5b-9b46-153e-e757-9b25bbcb0d9b.jpeg" width="480"></a></p>
+
+<p>また、HDMIスプリッタを活用して、基盤エンジニアの手元でもダッシュボードが見られるようになっています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63371/4306df5f-bef0-8fa6-bbfb-6d3d2187f901.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63371/4306df5f-bef0-8fa6-bbfb-6d3d2187f901.jpeg" width="480"></a></p>
+
+<p>また、それだけではもったいないため、基盤開発者がこのマシン上で基盤を直接開発できるようにしたり、機械学習エンジニアが機械学習ロジックの開発をできるようにしたりしています。</p>
+
+<p>この開発マシンはメモリが１２８Gあります。そして、機械学習基盤の各マシンと 3Gbps 帯域幅の共有バス(3ポートイーサネット)で繋がっており、あたかもひとつのマシンのようになっております。</p>
+
+<p>つまり、Rettyには<strong>「合計で４４８GBのメモリを搭載したデスクトップマシン」</strong>があります。「メモリの量=開発生産性に直結」ですから、本当に良い時代になりました。GPU も合計で 12 個、20,000コア以上を搭載したデスクトップマシンです。使ってみたいと思った方は<a href="https://www.wantedly.com/projects/39661#_=_" rel="nofollow noopener" target="_blank">こちら</a>をご覧ください。</p>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<p>最後までお読みいただきありがとうございました。</p>
+
+<p>Retty機械学習基盤は<strong>「エンジニアが24時間好きなだけ定額で 20,000 GPU コアを使えて、500 GBクラスのメモリを搭載し、ミッション・コントロール・センターとして機械学習環境をアメーバのようにクラウド中にスケールさせることが出来るデスクトップマシン」</strong>になりました。</p>
+
+<p>「GPUとはいったい何だろう？」という状態から開始したプロジェクトでしたが、「市場最安値のパーツを調達し、あとはオープンソース・ソフトウェアと技術で解決する」という制約をもうけ、様々な PDCA を回しました。機械学習基盤の作成を通して、機械学習基盤以外にも応用可能なサーバサイド技術の発明にもつながっています。Retty によるオープンソース・コミュニティ活動も動き始めました。</p>
+
+<p>学生時代に朝５時に電気屋に並んで先着１名限定のビデオデッキを９８０円で購入したり、<a href="https://codeiq.jp/magazine/2016/06/42239/" rel="nofollow noopener" target="_blank">一ヶ月のガス料金8００円</a>で生活したりしてきた、小生としても今回のローコスト開発はかなり良い結果だったのではないかと思います(この価格なら一人一セット割り当ても可能）。</p>
+
+<p>そして、その間に、Rettyの収益力も大幅に強化され、テクノロジーへの投資予算が増えてまいりました。来年はいよいよテクノロジーに対する投資をさらに何歩も進めるフェーズになります。Rettyではこの収益をテクノロジーの源泉である「エンジニア」に還元、投資強化をしていきます。</p>
+
+<p><strong>「メモリ５００GBのビッグデータ処理デスクトップマシン」</strong>を思う存分活用したい機械学習エンジニアの皆さん、そして<strong>「アメーバのようにクラウド中にスケールする機械学習基盤」</strong>にさらなるイノベーションを起こしたいサーバサイドエンジニアの皆さん。Rettyは「食を通じて世界中の人々を Happy に」というビジョンのもと、「飲食店情報の世界のインフラ」を目指して、今後もフルスロットルで技術開発を進めていきます。</p>
+
+<p>最後まで、お読み頂きましてありがとうございました。かなりマニアックなテイストに振りましたが、この記事が日本で機械学習を志す若者へのクリスマス・プレゼントになることを願っています。また少しでも当社に興味を持っていただければ幸いです。続きは<a href="http://corp.retty.me/recruit/" rel="nofollow noopener" target="_blank">こちら</a>で。それではみなさん、良いお年をお迎えください。</p>
+
+<h1>
+<span id="おまけ" class="fragment"></span><a href="#%E3%81%8A%E3%81%BE%E3%81%91"><i class="fa fa-link"></i></a>おまけ</h1>
+
+<h2>
+<span id="当社エンジニアでpcゲームマニアの-yuta-が初号機を組み立てている様子" class="fragment"></span><a href="#%E5%BD%93%E7%A4%BE%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%81%A7pc%E3%82%B2%E3%83%BC%E3%83%A0%E3%83%9E%E3%83%8B%E3%82%A2%E3%81%AE-yuta-%E3%81%8C%E5%88%9D%E5%8F%B7%E6%A9%9F%E3%82%92%E7%B5%84%E3%81%BF%E7%AB%8B%E3%81%A6%E3%81%A6%E3%81%84%E3%82%8B%E6%A7%98%E5%AD%90"><i class="fa fa-link"></i></a>当社エンジニアでPCゲームマニアの Yuta が初号機を組み立てている様子</h2>
+
+<p><a href="https://scontent.xx.fbcdn.net/v/t1.0-9/13010653_10208893082185307_1534637064309583254_n.jpg?oh=7c1af97175b44e85a146eb601927e6de&amp;oe=58D8834D" target="_blank" rel="nofollow noopener"><img src="https://scontent.xx.fbcdn.net/v/t1.0-9/13010653_10208893082185307_1534637064309583254_n.jpg?oh=7c1af97175b44e85a146eb601927e6de&amp;oe=58D8834D" width="480"></a></p>
+
+<h3>
+<span id="開封したところ" class="fragment"></span><a href="#%E9%96%8B%E5%B0%81%E3%81%97%E3%81%9F%E3%81%A8%E3%81%93%E3%82%8D"><i class="fa fa-link"></i></a>開封したところ</h3>
+
+<p><a href="https://scontent.xx.fbcdn.net/v/t1.0-9/12998637_10208893082385312_5349798730614462043_n.jpg?oh=390c60928b8441222ee9593904ff4727&amp;oe=58DC2CCC" target="_blank" rel="nofollow noopener"><img src="https://scontent.xx.fbcdn.net/v/t1.0-9/12998637_10208893082385312_5349798730614462043_n.jpg?oh=390c60928b8441222ee9593904ff4727&amp;oe=58DC2CCC" width="480"></a></p>
+
+<h3>
+<span id="完成" class="fragment"></span><a href="#%E5%AE%8C%E6%88%90"><i class="fa fa-link"></i></a>完成</h3>
+
+<p><a href="https://scontent.xx.fbcdn.net/v/t1.0-9/13012848_854533918007286_2300546070752057106_n.jpg?oh=36e99ed65bfd5e11a75dd8e788536902&amp;oe=58DD56AD" target="_blank" rel="nofollow noopener"><img src="https://scontent.xx.fbcdn.net/v/t1.0-9/13012848_854533918007286_2300546070752057106_n.jpg?oh=36e99ed65bfd5e11a75dd8e788536902&amp;oe=58DD56AD" width="480"></a></p>
+
+<h2>
+<span id="gtx-1080-抽選会で抽選に外れ悔しがってる社員エンジニアインターン生機械学習もくもく会参加者" class="fragment"></span><a href="#gtx-1080-%E6%8A%BD%E9%81%B8%E4%BC%9A%E3%81%A7%E6%8A%BD%E9%81%B8%E3%81%AB%E5%A4%96%E3%82%8C%E6%82%94%E3%81%97%E3%81%8C%E3%81%A3%E3%81%A6%E3%82%8B%E7%A4%BE%E5%93%A1%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%B3%E7%94%9F%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%82%82%E3%81%8F%E3%82%82%E3%81%8F%E4%BC%9A%E5%8F%82%E5%8A%A0%E8%80%85"><i class="fa fa-link"></i></a>GTX 1080 抽選会で抽選に外れ、悔しがってる社員エンジニア、インターン生、機械学習もくもく会参加者</h2>
+
+<p><a href="https://scontent.xx.fbcdn.net/v/t1.0-9/13230246_1116747005048666_6750295834565256011_n.jpg?oh=617dd2e20af6cdecfa3d1e37f0eb507c&amp;oe=58F40060" target="_blank" rel="nofollow noopener"><img src="https://scontent.xx.fbcdn.net/v/t1.0-9/13230246_1116747005048666_6750295834565256011_n.jpg?oh=617dd2e20af6cdecfa3d1e37f0eb507c&amp;oe=58F40060" width="480"></a></p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+2016/12/25 12:41: 画像が見えなくなっていた問題を修正しました。
+</pre></div></div>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>若干堅苦しい表現ですが、つまり「基盤 PDCA のために１台ずつマシンが止まる可能性があるけど、ファイルはマシン間で共有されてるので、チェックポイントなどをきちんと実装して、他のマシンから学習が復帰可能なように作ってね」という意味です。一見乱暴な話に聞こえますが、このアーキテクチャを使いこなすことがローコストでテクノロジーのイノベーションを加速することに繋がります。こちらも参考にしてください: <a href="https://cloudplatform-jp.googleblog.com/2015/05/vm-3-vm.html" class="autolink" rel="nofollow noopener" target="_blank">https://cloudplatform-jp.googleblog.com/2015/05/vm-3-vm.html</a> <a href="#fnref1">↩</a></p>
+</li>
+
+<li id="fn2">
+<p>akiba とは Retty 機械学習基盤のロールの名前です。 <a href="#fnref2">↩</a></p>
+</li>
+
+<li id="fn3">
+<p>例えば、AWS Tokyo リージョンにおける g2.2xlarge のスポットインスタンス価格は 2016/12/20 時点で約 $0.15/h 程度です。 <a href="#fnref3">↩</a></p>
+</li>
+
+<li id="fn4">
+<p>なお、現在のところ ceph ブロックデバイスを扱う Linux カーネルモジュールでは、スナップショットを使ったクローンブロックデバイスを扱うことが出来ないため、自分専用DBは仮想マシンを間に挟んで実現しています。 <a href="#fnref4">↩</a></p>
+</li>
+
+<li id="fn5">
+<p>クラウド・ネイティブな会社にいる事で、インフラ・コア技術の動向に関して若干浦島太郎な状態だったのですが、やはりコア技術の様々な選択肢を応用して、丁寧に最適化すれば、革命的な事業インパクトをおこせることがわかりました。今後も全方面に対する最新技術の応用を積極的に行い、事業を加速していきたいと思います。 <a href="#fnref5">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/taru0216/items/dda1f9f11397f811e98a" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="eVvJEowjBhrGqiVxkK6pocrXPLVwQmxVn6o/1xm3wJG8BTdaYPl07VeEaiNsKRaU5aUGQluutyEOi1cpMASl4Q==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1482895574" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+![110dc22c-de0b-ad8e-9ccd-2aac4e67435f.png](https://qiita-image-store.s3.amazonaws.com/0/63371/cf786f91-a37e-7e42-7068-5736a4da1fe8.png)
+
+みなさん、こんにちは。Retty CTO の樽石です。
+
+この記事は Retty Advent Calendar 25日目です。メリークリスマス。
+昨日は @ttakeoka の[『MFIにむけてRettyの取り組み』](http://qiita.com/ttakeoka/items/5bd1f8810c93213327ca)でした。
+
+今年も残りわずかになりました。いかがお過ごしですか？
+
+Retty はこの １ 年でエンジニアがほぼ倍増しました。それによって、情報発信者が増え、Advent Calendar に参加出来るようになりました。みんな楽しそうにしていて、うれしいです。
+
+http://qiita.com/advent-calendar/2016/retty
+
+さて、今年最後の Retty Advent Calendar 記事を書くということで、はじめは １年のまとめ的内容にしようかと思いましたが、それでは平凡で面白くありません。そこで、ネタになりそうなマニアックな技術的記事で締めくくりたいと思います。
+
+内容は、Retty でおこなった今年のユニークな技術的取り組み「Retty 機械学習基盤を**秋葉原に買い物に行って自作した**話」です。
+
+※ この記事は機械学習の技術や歴史の記事ではありません。そちらに興味がある場合は、[楽天研究所 Moriさんのアドベントカレンダー](http://plaza.rakuten.co.jp/rakutentech/diary/201612230000/?scid=we_blg_pc_lastctgy_1_title)や [まとめのまとめ](http://qiita.com/eve_yk/items/f4b274da7042cba1ba76)あたりから読み始めていただきますと幸いです。
+※ 読みやすさのために図やロゴを多用しました。記事中のソフトウェア名、製品名、社名、店舗名およびロゴは各社の商標、登録商標または著作物です。
+※ 内容は正確性を意識しておりますが無保証です。
+
+# Retty の機械学習基盤アーキテクチャ概要
+
+まず、はじめに Retty 機械学習基盤のアーキテクチャについて概要を説明します。
+
+[NVIDIA のコンシューマ向け GPU](http://www.nvidia.co.jp/object/geforce_family_jp.html) を 2 つ搭載した Intel アーキテクチャの自作 ATX タワーマシンを 5 台並べています。
+
+![Retty 機械学習基盤概要.png](https://docs.google.com/drawings/d/19S6pw37oi50v3_1sZQ8vKfTP_ISpaiFKUaO_SYGfc58/pub?w=1402&amp;h=594 )
+
+その各マシンに ssh でログインできる docker コンテナが稼働していて、ログインして [GPU](https://ja.wikipedia.org/wiki/Graphics_Processing_Unit) を利用します。5台のマシンの各 docker コンテナのホームディレクトリは [NFS](https://ja.wikipedia.org/wiki/Network_File_System) で共有されていて、どのマシンにログインしても同じデータにアクセスが出来ます。
+
+GPU は合計 10 個、機械学習エンジニアには「どこにログインしても同じファイルにアクセスできるプリエンプティブル・コンテナ[^1]」に見えます。
+
+&lt;img src=&quot;https://docs.google.com/drawings/d/1moLEbLRCIv5mvWshL7nX14PMpW4iHiLgxGlhVX5Nn54/pub?w=960&amp;h=720&quot; width=480&gt;
+
+[^1]: 若干堅苦しい表現ですが、つまり「基盤 PDCA のために１台ずつマシンが止まる可能性があるけど、ファイルはマシン間で共有されてるので、チェックポイントなどをきちんと実装して、他のマシンから学習が復帰可能なように作ってね」という意味です。一見乱暴な話に聞こえますが、このアーキテクチャを使いこなすことがローコストでテクノロジーのイノベーションを加速することに繋がります。こちらも参考にしてください: https://cloudplatform-jp.googleblog.com/2015/05/vm-3-vm.html
+
+## Retty 機械学習基盤を使って開発された技術の活用例
+
+Retty 機械学習基盤を作って開発された技術の一部を紹介します。
+
+### 写真のカテゴリ分類
+
+まずは機械学習の典型的な活用例である写真の分類です。Retty では、写真を「料理」「外観」「内観」「メニュー」に分けて掲載しています。
+
+![2004ffc6-dc0f-f130-350f-4a5c1f516c91.png](https://qiita-image-store.s3.amazonaws.com/0/63371/1ac67a46-47d4-6355-a0a5-b0ff9bcd4af1.png)
+
+引用: https://retty.me/area/PRE13/ARE14/SUB1401/100001178822/photos/
+
+この分類は今まですべて手作業で行っていたのですが、CNN による料理写真の判定精度が実用レベルに達したため、本番サービスに適用しました。
+
+### 料理写真のタグ付け
+
+画像分類の応用で、写真に映っている料理を発見し、写真にタグ付けをする技術を開発しました。下は、パンケーキのタグを付けた写真を自動でお店代表写真に選出している例です。
+
+#### Before
+
+検索流入キーワード: パンケーキ
+
+&lt;img src=&quot;https://docs.google.com/drawings/d/1_Br6otxGatvc8OMkeBkYNukfxshNiKFsT1_B9hFt9aY/pub?w=556&amp;h=413&quot; width=400&gt;&lt;/img&gt;
+
+#### After
+
+検索流入キーワード: パンケーキ
+
+&lt;img src=&quot;https://docs.google.com/drawings/d/1PztRxFIDzKJv0k3hOgUyx-5YAZqjSSBfPG7hfgnSuz8/pub?w=616&amp;h=456&quot; width=416&gt;
+
+引用: https://retty.me/area/PRE01/ARE164/LCAT9/CAT161/
+
+もともと、Rettyに掲載されているお店の代表写真はそのお店に対してひとつに決まっていました。ところが例えば上記のお店のように「オムライスとパンケーキ」の両方が名物のお店の場合、オムライスの写真が常に代表写真になってしまい、パンケーキを探しにきたユーザさんに対してもオムライスの写真を見せてしまいます。
+
+この写真タグ付け技術により、パンケーキを探しに来たユーザさんにはパンケーキの写真を、オムライスを探しに来たユーザさんにはオムライスの写真を見せることが可能になりました。
+
+### 超解像 (写真の鮮明化)
+
+[超解像](https://ja.wikipedia.org/wiki/%E8%B6%85%E8%A7%A3%E5%83%8F%E6%8A%80%E8%A1%93)は、画像の解像度を高解像度化して、より鮮明な画像に変換することです。
+
+従来は、画像変換の標準的なアプローチをもとにエッジ調整などを加えて超解像化することが多かったのですが、近年、ディープラーニングを活用した超解像技術が大きく発展しています。
+
+Retty でもディープラーニングを用いた写真の超解像化を行いました。
+
+![27428c48-a0f1-ddf0-9acb-4b1edbbdeedd.png](https://qiita-image-store.s3.amazonaws.com/0/63371/4a12a4a1-68bf-1b7c-809f-939574f63fd7.png)
+
+(お店からの写真: https://retty.me/area/PRE13/ARE1/SUB101/100000868744/)
+
+差がわかりにくかもしれないので、拡大した写真も掲載します。
+
+![68e82fca-a99e-71f6-72b3-08d58959e58b.png](https://qiita-image-store.s3.amazonaws.com/0/63371/c643d299-5c41-6092-9517-df0e022259cd.png)
+
+![c037db36-944e-74f3-0fbe-56f5a3a1bf4f.png](https://qiita-image-store.s3.amazonaws.com/0/63371/facb8efc-3b09-ef25-78ef-ece7cf148eda.png)
+
+※この技術がもっと発展すれば「非可逆圧縮」の圧縮率をもっと高められるかもしれないですね。注目の技術だと思います。
+
+他にも、[口コミをディープラーニングしてお店の特徴を抽出したり](http://qiita.com/bokeneko/items/c0f0ce60a998304400c8)、[一眼レフ風の写真を発見して良い写真の候補を発見したり](https://connpass.com/event/45252/)するなど、合計で 30 以上の PJ で新技術を作りました(数名で)。新技術とはいっても、次から次へと論文が出てくるのでキャッチアップと自社データでの応用という意味合いが強かったと思います。
+
+また、これらの技術を機械学習エンジニア以外の人でも簡単に使えるようにするために、「機械学習 Web アプリ」を作成しました。
+
+![d93e42d6-e3b3-7ddb-f403-0829b9b348fb.png](https://qiita-image-store.s3.amazonaws.com/0/63371/024a148b-426a-5a66-714c-dd97258cb441.png)
+
+これらは、ICACHAN(画像分類) / MICANCNN (画像変換) / TACOCNN (自然言語処理) と呼ばれ、社内で親しまれています。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/079ec7e7-e9a5-0ed1-3740-7f15015fabc0.png&quot; width=128&gt;&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/ebd6f7a6-d04b-122c-475b-8d8560bfc19d.png&quot; width=128&gt;&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/fe66c038-3763-ff37-328b-4c5473e407d5.png&quot; width=128&gt;
+
+# 機械学習基盤を自作した 6 つの理由
+
+Rettyはサービス開始当初から昨年まで全て AWS で動いています。今年から Google の [BigQuery](https://cloud.google.com/bigquery/?hl=ja) や [Azure](https://azure.microsoft.com/ja-jp/) など複数のクラウド活用が始まったのですが、クラウド以外を使ったことはありません。
+
+そんな Retty が、ハードウェアを自社で購入して、独自の基盤を構築しました。主な理由は以下になります。
+
+ * 最新の機械学習技術であるディープラーニングを行うには GPU が必須であった
+ * GPU を使いたい機械学習エンジニアが、クラウドのGPU付インスタンスの価格に驚き、利用を躊躇していた
+ * GPU の性能に関する情報が少なく、機械学習を行うのにどれぐらいの費用がかかるのかわからなかった
+ * アルゴリズムによって CPU・GPU・メモリ・IO・ネットワークのどれがボトルネックになるかが異なるため、どのインスタンスを使えば良いのかを機械学習エンジニア自身が毎回考えていて、機械学習そのものになかなか取りかかれなかった。
+ * ssh でログインする開発形態になるため、クラウドサービスとオフィスのネットワーク・レイテンシの問題で開発生産性が上がらなかった。
+ * GPUの市場価格が毎月下落していたため、必要な時期に必要な分だけGPUを増設すれば、ローコストでシステムを構築できそうと考えた。
+
+上記のように、様々な理由があったのですが、一言でいえば**「エンジニアが24時間好きなだけ定額でGPUを使える環境」**を用意したかったということです。この課題は解決し、今では必ず誰かが1日中、GPU を使っている状態になっています。
+
+# 機械学習基盤の実現方法
+
+Retty 機械学習基盤を作るにあたり、今後の展開を考慮して、いくつかの要件を決めました。
+
+ * 会社のフェーズ、機械学習の要件に応じて容易に改良・スケールできること
+ * データや環境があらかじめ用意されていて、機械学習そのものにすぐに取り掛かれること
+ * 基盤の PDCA のためにマシンを再インストールしても、機械学習エンジニアの作業データが無くならないこと
+ * 投資効果を最大化するため、また社内に技術を蓄積するため「市場最安値のパーツを購入し、あとはオープンソース・ソフトウェアと技術で解決」すること
+
+これらを実現するためにPDCAを回した結果、以下のようなアーキテクチャになりました。
+
+&lt;img src=&quot;https://docs.google.com/drawings/d/1iV7SPQZjwdRFkkpVC9tUvc5Gk45OL3TrNZqVWa1LqE8/pub?w=640&amp;h=480&quot;&gt;
+
+ * juju による構成管理
+ * MaaS による OS 自動配備 / AWS スポットインスタンス
+ * ceph を利用した分散ストレージシステム
+ * corosync / pacemaker を使った NFS サーバクラスタ
+ * 機械学習に必要なすべてを詰め込んだ Docker イメージ
+ * Kubernetes を使った VXLAN 管理、および Docker コンテナ・スケジュール
+
+## juju による構成管理
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/cdc88e2d-8588-75c9-fcde-56fd3b7fe1ce.png&quot; width=128&gt;
+
+[juju](https://jujucharms.com/) はインフラの構成管理ツールです。 [Ansible](https://www.ansible.com/) や [Chef](https://www.chef.io/)、[Puppet](https://puppet.com/) と類似のツールになります。特徴は [Ubuntu](https://www.ubuntu.com/) の標準ツールであること、インスタンスのブートストラップが可能で後述する MaaS との相性が非常に良いこと、そしてスケールさせることが簡単なことです。例えば、48 台の機械学習マシンを追加するには以下のコマンドを実行します[^akiba]。
+
+```
+juju add-unit -n48 akiba
+```
+
+[^akiba]: akiba とは Retty 機械学習基盤のロールの名前です。
+
+※ 独断と偏見ですが、juju の使いやすさは他を圧倒すると思います。この使いやすさを徹底するアプローチは apt を開発した Debian 系ディストリビューションの文化なのかなと思います。
+
+なお、Retty 機械学習基盤では、Docker (Kubernetes) を多用しています。構成管理の大部分は Docker 上で行っており、juju は Docker (Kubernetes) 実行環境を構成するところに絞っております。
+
+## MaaS による OS 自動配備 / AWS スポットインスタンス
+
+&lt;img src=&quot;https://jujucharms.com/static/img/about-juju/maas.png&quot; width=192&gt;
+
+[MaaS](https://maas.io/) とは ベアメタル環境から OS を自動でインストール出来る Ubuntu 純正の OS 配備システムです。PXE ブートを活用することによって、素のハードウェアに自動で Ubuntuをインストールすることが出来ます。Software RAID や bonding にも対応している本格的なシステムです。Retty 機械学習基盤では、MaaS を活用することで、自作PCを自動で機械学習基盤クラスタに組み込んでいます。
+
+また、juju は MaaS 以外にも AWS / Azure / GCP といった様々なクラウドシステムに対応しています。Retty機械学習基盤では、スポットで GPU 計算資源が必要になった時にクラウドのスポットリソースを使ってスケールさせています[^2]。
+
+[^2]: 例えば、AWS Tokyo リージョンにおける g2.2xlarge のスポットインスタンス価格は 2016/12/20 時点で約 $0.15/h 程度です。
+
+## ceph を使った分散ストーレジシステム
+
+&lt;img src=&quot;https://avatars2.githubusercontent.com/u/1015767?v=3&amp;s=128&quot;&gt;
+
+[ceph](http://ceph.com/) は複数のサーバに接続されているストレージを、ネットワークを使って一つのストレージに仮想化することが出来る分散ストレージ・システムです。分散ブロックデバイスとしての使い方が人気で、Retty機械学習基盤でも ceph をブロックデバイスとして利用しています。
+
+(最近、安定板がリリースになった cephfs も一部で利用しています)
+
+## corosync / pacemaker を使った NFS サーバクラスタ
+
+&lt;img src=&quot;http://clusterlabs.org/assets/Deploy-a94aabdc34126befd30840a30b672320ab74b809eae0934d65fbec280d6b8140.png&quot; width=256&gt;
+
+引用: http://clusterlabs.org/
+
+マシンのメンテナンスを行っても止まらない NFS サーバを提供するために、ceph を使ってブロックデバイスを作成し、[corosync](http://corosync.github.io/corosync/) と [pacemaker](http://clusterlabs.org/pacemaker.html) でシングルマスタ＆フェイルオーバする NFS サーバを構築しました。
+
+## 機械学習に必要なすべてを詰め込んだ Docker イメージ
+
+&lt;img src=&quot;https://www.docker.com/sites/default/files/moby.svg&quot; width=128&gt;
+
+
+機械学習をするには、[tensorflow](https://www.tensorflow.org/) / [chainer](http://chainer.org/) だけでなく、[gensim](https://radimrehurek.com/gensim/) / [mecab](http://taku910.github.io/mecab/) / [cabocha](http://taku910.github.io/cabocha/) / [word2vec](https://code.google.com/archive/p/word2vec/) / [fastText](https://github.com/facebookresearch/fastText) / [keras](https://keras.io/ja/) などのいろいろなライブラリやツールが必要で準備が大変です。そこでその大変さを解消すべく、Retty で機械学習するのに必要なすべてのツールを入れた Docker イメージを作っています。ホストマシンに [NVIDIA のドライバ](https://launchpad.net/~graphics-drivers/+archive/ubuntu/ppa)をインストールしておけば
+
+```
+docker run --privileged -it --rm 192.168.0.1/retty-runtime-anaconda
+```
+
+のようにするだけですぐに機械学習に取り掛かることが出来ます。なお、この Docker イメージは 10G (圧縮して5G) 以上あるため、Retty 機械学習基盤内に Private Docker Registry を用意し、そこからイメージを pull し、起動できるようにしています。これにより、従来70分ほどかかっていた docker pull の時間が 5 分程度に短縮されました。
+
+（↑の機械学習 docker イメージは、CPU だけでも動くので手元の Mac でも動きます)
+
+## Kubernetes を使った VXLAN 管理、および Docker コンテナ・スケジュール
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/61606/f6320a8f-34e9-f977-10da-a872a61a3ac5.png&quot; width=128&gt;
+
+上記の Docker イメージに ssh でログインできる機能を追加した Docker (ホーム Docker) を [Kubernetes](http://kubernetes.io/) を使って各マシン上で動かしています。仮想ネットワークは [flannel](https://github.com/coreos/flannel) によるシンプルな [VXLAN](https://tools.ietf.org/html/rfc7348) で動いています。ホーム Docker はすべてのホストマシンで動ているため、機械学習エンジニアはすべてのマシンにログインすることができます。ホームディレクトリは上記のフェイルオーバ機能の付いたNFSサーバ上に置いてあります。これによって、どのマシンにログインしても機械学習エンジニアは同じファイルにアクセスすることができます。
+
+また Kubernetes 上で Docker を動かしています（Docker in Kubernetes)。これによって、このホーム Docker から docker コマンドや docker-compose などのシンプルな docker 機能を機械学習エンジニアが利用できます。
+
+# Retty機械学習基盤の工夫
+
+Retty 機械学習基盤のパフォーマンスや生産性を向上するために、ディスク・ネットワーク・GPU・DB にいくつかの工夫を施しています。
+
+## ディスクのパフォーマンス
+
+各マシンに６本のSSDを刺し、合計 30 本の SSD ディスクで分散ストレージを構成しています。 iotop によるパフォーマンス計測では、ceph のリバランス（データの再配置）処理で 1 ノードあたり最大 450 MB/s (3.6Gbps) 程度の書き込みスループットが出ています。ここはもう少し改良の余地があると思いますが、現状の性能要件としては十分な性能が出ています。
+
+ちなみに、Retty 機械学習基盤でメインで使っているマザーボード(z170チップセット)は SATA が６本しかありません。そこで、その６本をすべて ceph に割り当て、システムの起動はSSDディスクを SATA to USB アダプタを使って USB に挿して行っています。したがってディスクは１ノードあたり７本あります。このようにした理由は、ceph ブロックデバイスの利用が増え、ディスク容量が足りなくなってディスクを追加する必要が出たためです。
+
+## ネットワークのパフォーマンス
+
+ネットワークは内蔵のイーサポートに加え、Dual ポートギガイーサ PCIe デバイスを差し、３本のボンディングを構成しています。 安価なファンレス L2 スイッチを利用したかったため、[リンクアグリゲーション](https://en.wikipedia.org/wiki/Link_aggregation)ではなく、[Adaptive Load Balancing](https://www.kernel.org/doc/Documentation/networking/bonding.txt) を使って、トラフィックの分散を行っています。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/f54e0725-93b9-0712-f5ce-2be1fab20b59.jpeg&quot; width=480&gt;
+
+↑のように、マシンの台数に比べてイーサケーブルの数がたくさんあります。
+
+## GPU のベンチマーク
+
+tensorflow および chainer が動作する様々な種類のGPUを用意していることから、開発中にベンチマークを取りました。Maxwell アーキテクチャの一部 (GTX 750ti / 970 / 980ti) と Pascal アーキテクチャのコンシューマ向けの大半のモデル (GTX 1050ti / 1060 / 1070 / 1080) を用意しています。その結果、アルゴリズムによって、GPU 毎に性能や省エネ、コスパに差が出ることがわかりました。
+
+ここでは、その一部を紹介させていただきます（なお環境がそろっていないタイミングで計測したデータが多いため、若干比較が難しいところがあります。ご了承ください）。
+
+### スピード
+
+1 秒あたりの処理数（アルゴリズムによってバッチの意味が異なったため便宜上処理数と呼んでいます）を計測しました。グラフは train.py と char_cnn.py の２つの学習アルゴリズム毎に各GPUでどれだけのスピードが出ているかを表しています。数値が大きいほど高速です。傾向としては、型番の数字が大きいほど高速であるのですが、train.py の場合、なぜか GTX980Ti だけ非常に高速になりました。
+
+![919b800b-8550-1d36-145d-536997c849a0.png](https://qiita-image-store.s3.amazonaws.com/0/63371/0e603615-4c33-c595-7971-9d288eb92041.png)
+
+また、char_cnn.py において、GTX980Ti のスピードが遅くなっています。これは計測を行った当時、GTX980Tiは AMD の安価な CPU 上で動いていて、char_cnn.py が CPU センシティブなアルゴリズムであったことが原因と考えられます。train.py では CPU が AMD にもかかわらず最高速で動き、char_cnn.py では 750Ti とあまり変わらないという結果が非常に興味深いです。ここについて深堀したい人を[募集](https://www.wantedly.com/projects/75025)しています。
+
+### 省エネ
+
+エネルギー効率を計測しました。１W・秒あたりの処理数です。
+
+![82731751-65eb-bd05-ea0d-67b725297b8d.png](https://qiita-image-store.s3.amazonaws.com/0/63371/c19b6835-efc9-1b6a-aaec-f94e6381954e.png)
+
+Maxwell の 970 と比べ、Pascal アーキテクチャが全体的にエネルギー効率が良くなっていますが、GTX750Ti が補助電源不要ということもあり、非常に高効率でした。
+
+### コスパ
+
+GPU本体価格 (2016/10月前後) と消費電力（実消費電力)からコストを計算しました。１円あたりのイテレーション数です。ただし、GPU は本体価格の変動が激しいため、あまり参考にはならないかもしれません。
+
+![3c49c1b6-017f-94f4-27aa-d112f09b4811.png](https://qiita-image-store.s3.amazonaws.com/0/63371/b2d7d1c5-86df-d5c5-c43c-e1762cde6980.png)
+
+なお、消費電力は市販のワットモニターを用いて目視で計測しました。
+
+### その他
+
+その他の特筆すべき点として、Pascal アーキテクチャの電力効率が良くなっています。Maxwell アーキテクチャの場合、電源にかなり気を使わなければいけなかったのですが、Pascal アーキテクチャにしてからは解消しました。
+
+また、コスパに関して、GPUの価格変動が激しく、コスパの順位がタイミングによって大きく入れ替わっていました。例えば、980Ti は５か月で価格が半分まで下落しています。
+
+現状の GPU は発展途上のデバイスで、製品がすぐアウトレットになってしまい、値段が大きく変動するようです。そのため、RettyではGPUを少しずつ購入することで、価格変動リスクを軽減しました。GPU を SaaS で提供する事業者は価格設定が大変ではないでしょうか?
+
+最後に、Retty 機械学習基盤の形がほぼ確定してきたこともあり、あらためてベンチマークを取るフェーズかなと思います。クラウドにスケールする仕組みも作れたので、コンシューマ向け GPU とサーバ向けの GPU の性能比較を行うことも可能です。気になる方はぜひ Retty Advent Calendar を Subscribe してくれたり、または[遊びにきてくれたり](https://www.wantedly.com/projects/75025)、はてぶでブックマークしてくれるとうれしいです。学生さんじゃなくてもOKです。
+
+http://qiita.com/advent-calendar/2016/ranking/subscriptions/categories/company
+
+## 自分専用データベース
+
+機械学習を行うにはデータが必要です。しかも膨大な量です。Retty には公開可能な数百万件の口コミ情報や一千万件近い料理関連写真があり、それらや中間情報を保持した非常に巨大なデータベースがあります。
+
+実験をスムーズに行うためには、このデータベースをもとに自由にいじれる自分専用データベースある方が便利です。しかし、データベースがあまりにも巨大なため、そう簡単に用意することは出来ません。[AWS RDS のデータベーススナップショットから自分専用のデータベースを作成する](http://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html)には、半日近くの時間がかかってしまっていてほとんど実現出来ていませんでした。
+
+Retty 機械学習基盤では、[ceph のブロックデバイス・スナップショット技術およびクローン技術](http://docs.ceph.com/docs/hammer/dev/rbd-layering/)を活用することで、最大で半日かかっていた自分専用データベースの作成時間を 3 秒に短縮することが出来ました[^3]。約 12,000 倍の高速化です。従来を徒歩の速度とすると、**宇宙に脱出する速度**に達したことになります。世界が変わりました[^インフラ]。
+
+[^3]: なお、現在のところ ceph ブロックデバイスを扱う Linux カーネルモジュールでは、スナップショットを使ったクローンブロックデバイスを扱うことが出来ないため、自分専用DBは仮想マシンを間に挟んで実現しています。
+
+[^インフラ]: クラウド・ネイティブな会社にいる事で、インフラ・コア技術の動向に関して若干浦島太郎な状態だったのですが、やはりコア技術の様々な選択肢を応用して、丁寧に最適化すれば、革命的な事業インパクトをおこせることがわかりました。今後も全方面に対する最新技術の応用を積極的に行い、事業を加速していきたいと思います。
+
+# はまったところ
+
+Retty 機械学習基盤開発中に基盤全体がクラッシュしてしまう問題が発生しました。大きく二つの理由がありました。
+
+## CIFS への DoS アタック
+
+開発初期に安価な市販の NAS を使って画像データを置いておいたのですが、機械学習マシンからのアクセス負荷に NAS が耐えられず、CIFS ファイルシステムカーネルモジュールがおかしくなって機械学習マシンの Linux Kernel がすべて Oops を吐いて止まってしまいました。機械学習マシンにモニターを接続しておらず、デバッグが若干大変だったため、kdump をこのタイミングで導入し、調査しました。NFS を導入し、CIFS から卒業したことで解決しました。
+
+## ネットワークセグメントが１つかしない
+
+現在の Retty 機械学習基盤はすべてのマシンを同じ 24 ポートファンレスハブに接続しています。これにより、時折ブロードキャストパケットが大量に発生し、その L2 セグメントが使えなくなってしまうことが起こりました（半年で2回ほど）。いまのところは二回なら良いかなという判断でいますが、ここは今後改良する可能性があるところです。
+
+なお、[SPOF](https://ja.wikipedia.org/wiki/%E5%8D%98%E4%B8%80%E9%9A%9C%E5%AE%B3%E7%82%B9) という観点では、物理ネットワークと電源（含む、オフィスの停電）があるのですが、機械学習基盤が使えなくなったときは、[ランチタクシー](https://cd.zeroin.co.jp/cappy/retty/)に乗ったり、[グルメ調査費](https://www.wantedly.com/companies/retty/post_articles/30168)を使ったりして美味しいご飯を食べに行ってるようです。コミュニケーションが活発になるので、むしろ SPOF はあったほうが良いのかもしれません。
+
+# Retty機械学習基盤の開発環境
+
+機械学習基盤の開発当初は、機械学習基盤としてサービスを提供しながら、同時に基盤の改良を加えていました。はじめは開発者が１名だったこともあり、それでも十分に回っていたのですが、クラスタを導入し始めたあたりから、開発者が二人になったこともあいまって、改良をスムーズに行うことが難しくなってきました。そこで、「機械学習基盤そのものの開発を行う環境」を新しく用意しました。
+
+![110dc22c-de0b-ad8e-9ccd-2aac4e67435f.png](https://qiita-image-store.s3.amazonaws.com/0/63371/cf786f91-a37e-7e42-7068-5736a4da1fe8.png)
+
+こちらは、OS自動配備まで含めた開発ができるように仮想マシンを活用しています。GPU は [VT-d](https://software.intel.com/en-us/articles/intel-virtualization-technology-for-directed-io-vt-d-enhancing-intel-platforms-for-efficient-virtualization-of-io-devices/?_ga=1.47457455.964393455.1469198192) によって特定の仮想マシンにデバイスそのものを割り当てる形になります。したがってGPUは一部の仮想マシンでしか使うことはできず、GPUを活用する基盤の開発には若干の制約があります。
+
+## 仮想マシンの作成
+
+&lt;img src=&quot;http://community.redhat.com/images/software/libvirt.svg?1467296449&quot; width=128&gt;
+
+仮想マシン管理には [libvirt](https://libvirt.org/) を使っています。一番のメリットはコマンドラインでの仮想マシン管理がやりやすいことと、[RedHat](https://www.redhat.com/ja/global/japan) 主体で作っているため多くの Linux ディストリビューションで標準で使えることです。
+
+仮想マシンのプライマリ・ディスクを機械学習基盤の ceph 上に作っています。仮想マシンの作成には [virt-install](https://github.com/virt-manager/virt-manager) というコマンドラインを使っているのですが、ceph との対応が不十分であったため、機能追加しました。
+
+※ [virt-install のライセンスが GPL](https://github.com/virt-manager/virt-manager) ですので、こちらのパッチも GPL でのライセンスになります。
+
+```diff
+diff -ru /usr/share/virt-manager/virtinst/devicedisk.py /usr/local/share/virt-manager/virtinst/devicedisk.py
+--- /usr/share/virt-manager/virtinst/devicedisk.py      2015-11-30 20:47:47.000000000 +0000
++++ /usr/local/share/virt-manager/virtinst/devicedisk.py        2016-11-09 05:12:36.513295726 +0000
+@@ -464,6 +464,7 @@
+         &quot;source_volume&quot;, &quot;source_pool&quot;, &quot;source_protocol&quot;, &quot;source_name&quot;,
+         &quot;source_host_name&quot;, &quot;source_host_port&quot;,
+         &quot;source_host_transport&quot;, &quot;source_host_socket&quot;,
++        &quot;auth_username&quot;, &quot;auth_secret_type&quot;, &quot;auth_secret_uuid&quot;,
+         &quot;target&quot;, &quot;bus&quot;,
+     ]
+ 
+@@ -744,6 +745,9 @@
+ 
+     seclabel = XMLChildProperty(Seclabel, relative_xpath=&quot;./source&quot;)
+ 
++    auth_username = XMLProperty(&quot;./auth/@username&quot;)
++    auth_secret_type = XMLProperty(&quot;./auth/secret/@type&quot;)
++    auth_secret_uuid = XMLProperty(&quot;./auth/secret/@uuid&quot;)
+ 
+     #################################
+     # Validation assistance methods #
+@@ -867,6 +871,12 @@
+         self._change_backend(None, vol_object, parent_pool)
+ 
+     def set_defaults(self, guest):
++        pool = self._storage_backend.get_parent_pool_xml()
++        if pool.source_auth_type != &quot;&quot;:
++            self.auth_username = pool.source_auth_username
++            self.auth_secret_type = pool.source_auth_type
++            self.auth_secret_uuid = pool.source_auth_secret_uuid
++
+         if self.is_cdrom():
+             self.read_only = True
+ 
+diff -ru /usr/share/virt-manager/virtinst/storage.py /usr/local/share/virt-manager/virtinst/storage.py
+--- /usr/share/virt-manager/virtinst/storage.py 2015-12-24 16:30:15.000000000 +0000
++++ /usr/local/share/virt-manager/virtinst/storage.py   2016-11-05 04:29:29.270748502 +0000
+@@ -380,7 +380,10 @@
+                        &quot;capacity&quot;, &quot;allocation&quot;, &quot;available&quot;,
+                        &quot;format&quot;, &quot;hosts&quot;,
+                        &quot;_source_dir&quot;, &quot;_source_adapter&quot;, &quot;_source_device&quot;,
+-                       &quot;source_name&quot;, &quot;target_path&quot;,
++                       &quot;source_name&quot;,
++                       &quot;source_auth_type&quot;, &quot;source_auth_username&quot;,
++                       &quot;source_auth_secret_uuid&quot;,
++                       &quot;target_path&quot;,
+                        &quot;permissions&quot;]
+ 
+ 
+@@ -406,6 +409,10 @@
+                               default_cb=_default_source_name,
+                               doc=_(&quot;Name of the Volume Group&quot;))
+ 
++    source_auth_type = XMLProperty(&quot;./source/auth/@type&quot;)
++    source_auth_username = XMLProperty(&quot;./source/auth/@username&quot;)
++    source_auth_secret_uuid = XMLProperty(&quot;./source/auth/secret/@uuid&quot;)
++
+     target_path = XMLProperty(&quot;./target/path&quot;,
+                               default_cb=_get_default_target_path)
+```
+
+このパッチをあてると、以下のようなコマンドライン引数で ceph のブロックデバイスを仮想マシンのプライマリディスクに割り当てることができます。
+
+```
+virt-install --name=hoge --vcpus=4 --memory=4096 --disk rbd:hoge/fuga ...
+```
+
+## デスクトップ化
+
+この開発マシンをデスクトップ化して、「Retty機械学習基盤のダッシュボード」としてビジュアライズしています。開発マシンのGPUを使って、５０インチ、４Kのモニタを接続し、広大なビジュアル空間で機械学習エンジニアに現在の機械学習基盤の状況をわかるようにしています。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/b3605b5b-9b46-153e-e757-9b25bbcb0d9b.jpeg&quot; width=480&gt;
+
+また、HDMIスプリッタを活用して、基盤エンジニアの手元でもダッシュボードが見られるようになっています。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/4306df5f-bef0-8fa6-bbfb-6d3d2187f901.jpeg&quot; width=480&gt;
+
+また、それだけではもったいないため、基盤開発者がこのマシン上で基盤を直接開発できるようにしたり、機械学習エンジニアが機械学習ロジックの開発をできるようにしたりしています。
+
+この開発マシンはメモリが１２８Gあります。そして、機械学習基盤の各マシンと 3Gbps 帯域幅の共有バス(3ポートイーサネット)で繋がっており、あたかもひとつのマシンのようになっております。
+
+つまり、Rettyには**「合計で４４８GBのメモリを搭載したデスクトップマシン」**があります。「メモリの量=開発生産性に直結」ですから、本当に良い時代になりました。GPU も合計で 12 個、20,000コア以上を搭載したデスクトップマシンです。使ってみたいと思った方は[こちら]
+(https://www.wantedly.com/projects/39661#_=_)をご覧ください。
+
+# まとめ
+
+最後までお読みいただきありがとうございました。
+
+Retty機械学習基盤は**「エンジニアが24時間好きなだけ定額で 20,000 GPU コアを使えて、500 GBクラスのメモリを搭載し、ミッション・コントロール・センターとして機械学習環境をアメーバのようにクラウド中にスケールさせることが出来るデスクトップマシン」**になりました。
+
+「GPUとはいったい何だろう？」という状態から開始したプロジェクトでしたが、「市場最安値のパーツを調達し、あとはオープンソース・ソフトウェアと技術で解決する」という制約をもうけ、様々な PDCA を回しました。機械学習基盤の作成を通して、機械学習基盤以外にも応用可能なサーバサイド技術の発明にもつながっています。Retty によるオープンソース・コミュニティ活動も動き始めました。
+
+学生時代に朝５時に電気屋に並んで先着１名限定のビデオデッキを９８０円で購入したり、[一ヶ月のガス料金8００円](https://codeiq.jp/magazine/2016/06/42239/)で生活したりしてきた、小生としても今回のローコスト開発はかなり良い結果だったのではないかと思います(この価格なら一人一セット割り当ても可能）。
+
+そして、その間に、Rettyの収益力も大幅に強化され、テクノロジーへの投資予算が増えてまいりました。来年はいよいよテクノロジーに対する投資をさらに何歩も進めるフェーズになります。Rettyではこの収益をテクノロジーの源泉である「エンジニア」に還元、投資強化をしていきます。
+
+**「メモリ５００GBのビッグデータ処理デスクトップマシン」**を思う存分活用したい機械学習エンジニアの皆さん、そして**「アメーバのようにクラウド中にスケールする機械学習基盤」**にさらなるイノベーションを起こしたいサーバサイドエンジニアの皆さん。Rettyは「食を通じて世界中の人々を Happy に」というビジョンのもと、「飲食店情報の世界のインフラ」を目指して、今後もフルスロットルで技術開発を進めていきます。
+
+最後まで、お読み頂きましてありがとうございました。かなりマニアックなテイストに振りましたが、この記事が日本で機械学習を志す若者へのクリスマス・プレゼントになることを願っています。また少しでも当社に興味を持っていただければ幸いです。続きは[こちら](http://corp.retty.me/recruit/)で。それではみなさん、良いお年をお迎えください。
+
+# おまけ
+
+## 当社エンジニアでPCゲームマニアの Yuta が初号機を組み立てている様子
+
+&lt;img src=&quot;https://scontent.xx.fbcdn.net/v/t1.0-9/13010653_10208893082185307_1534637064309583254_n.jpg?oh=7c1af97175b44e85a146eb601927e6de&amp;oe=58D8834D&quot; width=480&gt;
+
+### 開封したところ
+
+&lt;img src=&quot;https://scontent.xx.fbcdn.net/v/t1.0-9/12998637_10208893082385312_5349798730614462043_n.jpg?oh=390c60928b8441222ee9593904ff4727&amp;oe=58DC2CCC&quot; width=480&gt;
+
+### 完成
+
+&lt;img src=&quot;https://scontent.xx.fbcdn.net/v/t1.0-9/13012848_854533918007286_2300546070752057106_n.jpg?oh=36e99ed65bfd5e11a75dd8e788536902&amp;oe=58DD56AD&quot; width=480&gt;
+
+## GTX 1080 抽選会で抽選に外れ、悔しがってる社員エンジニア、インターン生、機械学習もくもく会参加者
+
+&lt;img src=&quot;https://scontent.xx.fbcdn.net/v/t1.0-9/13230246_1116747005048666_6750295834565256011_n.jpg?oh=617dd2e20af6cdecfa3d1e37f0eb507c&amp;oe=58F40060&quot; width=480&gt;
+
+```
+2016/12/25 12:41: 画像が見えなくなっていた問題を修正しました。
+```
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Retty流『2200万ユーザを支える機械学習基盤』の作り方 on @Qiita" data-url="http://qiita.com/taru0216/items/dda1f9f11397f811e98a" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Retty流『2200万ユーザを支える機械学習基盤』の作り方" href="http://b.hatena.ne.jp/entry/http://qiita.com/taru0216/items/dda1f9f11397f811e98a" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/taru0216/items/dda1f9f11397f811e98a" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/taru0216/items/dda1f9f11397f811e98a" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/taru0216"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/63371/profile-images/1473696246" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/taru0216">taru0216</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">689</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;taru0216&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-b4c5cc88-09a1-4698-b51f-d61c90ded1e2"></div>
+    <div id="UserFollowButton-react-component-b4c5cc88-09a1-4698-b51f-d61c90ded1e2"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/taru0216/items/dda1f9f11397f811e98a">Retty流『2200万ユーザを支える機械学習基盤』の作り方</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/retty"><img alt="Retty株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/8ab1f06a36c303a3982b94a0d866b178b86b6514/original.jpg?1434414654" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#retty-%E3%81%AE%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E6%A6%82%E8%A6%81\&quot;\u003eRetty の機械学習基盤アーキテクチャ概要\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#retty-%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E9%96%8B%E7%99%BA%E3%81%95%E3%82%8C%E3%81%9F%E6%8A%80%E8%A1%93%E3%81%AE%E6%B4%BB%E7%94%A8%E4%BE%8B\&quot;\u003eRetty 機械学習基盤を使って開発された技術の活用例\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%99%E7%9C%9F%E3%81%AE%E3%82%AB%E3%83%86%E3%82%B4%E3%83%AA%E5%88%86%E9%A1%9E\&quot;\u003e写真のカテゴリ分類\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%96%99%E7%90%86%E5%86%99%E7%9C%9F%E3%81%AE%E3%82%BF%E3%82%B0%E4%BB%98%E3%81%91\&quot;\u003e料理写真のタグ付け\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#before\&quot;\u003eBefore\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#after\&quot;\u003eAfter\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%B6%85%E8%A7%A3%E5%83%8F-%E5%86%99%E7%9C%9F%E3%81%AE%E9%AE%AE%E6%98%8E%E5%8C%96\&quot;\u003e超解像 (写真の鮮明化)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%82%92%E8%87%AA%E4%BD%9C%E3%81%97%E3%81%9F-6-%E3%81%A4%E3%81%AE%E7%90%86%E7%94%B1\&quot;\u003e機械学習基盤を自作した 6 つの理由\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%81%AE%E5%AE%9F%E7%8F%BE%E6%96%B9%E6%B3%95\&quot;\u003e機械学習基盤の実現方法\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#juju-%E3%81%AB%E3%82%88%E3%82%8B%E6%A7%8B%E6%88%90%E7%AE%A1%E7%90%86\&quot;\u003ejuju による構成管理\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#maas-%E3%81%AB%E3%82%88%E3%82%8B-os-%E8%87%AA%E5%8B%95%E9%85%8D%E5%82%99--aws-%E3%82%B9%E3%83%9D%E3%83%83%E3%83%88%E3%82%A4%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%82%B9\&quot;\u003eMaaS による OS 自動配備 / AWS スポットインスタンス\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#ceph-%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F%E5%88%86%E6%95%A3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AC%E3%82%B8%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0\&quot;\u003eceph を使った分散ストーレジシステム\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#corosync--pacemaker-%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F-nfs-%E3%82%B5%E3%83%BC%E3%83%90%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%BF\&quot;\u003ecorosync / pacemaker を使った NFS サーバクラスタ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%81%AB%E5%BF%85%E8%A6%81%E3%81%AA%E3%81%99%E3%81%B9%E3%81%A6%E3%82%92%E8%A9%B0%E3%82%81%E8%BE%BC%E3%82%93%E3%81%A0-docker-%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8\&quot;\u003e機械学習に必要なすべてを詰め込んだ Docker イメージ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#kubernetes-%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F-vxlan-%E7%AE%A1%E7%90%86%E3%81%8A%E3%82%88%E3%81%B3-docker-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%82%B9%E3%82%B1%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB\&quot;\u003eKubernetes を使った VXLAN 管理、および Docker コンテナ・スケジュール\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#retty%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%81%AE%E5%B7%A5%E5%A4%AB\&quot;\u003eRetty機械学習基盤の工夫\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%82%A3%E3%82%B9%E3%82%AF%E3%81%AE%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9\&quot;\u003eディスクのパフォーマンス\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9\&quot;\u003eネットワークのパフォーマンス\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#gpu-%E3%81%AE%E3%83%99%E3%83%B3%E3%83%81%E3%83%9E%E3%83%BC%E3%82%AF\&quot;\u003eGPU のベンチマーク\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B9%E3%83%94%E3%83%BC%E3%83%89\&quot;\u003eスピード\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%9C%81%E3%82%A8%E3%83%8D\&quot;\u003e省エネ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B3%E3%82%B9%E3%83%91\&quot;\u003eコスパ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%9D%E3%81%AE%E4%BB%96\&quot;\u003eその他\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%87%AA%E5%88%86%E5%B0%82%E7%94%A8%E3%83%87%E3%83%BC%E3%82%BF%E3%83%99%E3%83%BC%E3%82%B9\&quot;\u003e自分専用データベース\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%BE%E3%81%A3%E3%81%9F%E3%81%A8%E3%81%93%E3%82%8D\&quot;\u003eはまったところ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#cifs-%E3%81%B8%E3%81%AE-dos-%E3%82%A2%E3%82%BF%E3%83%83%E3%82%AF\&quot;\u003eCIFS への DoS アタック\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%BB%E3%82%B0%E3%83%A1%E3%83%B3%E3%83%88%E3%81%8C%EF%BC%91%E3%81%A4%E3%81%8B%E3%81%97%E3%81%AA%E3%81%84\&quot;\u003eネットワークセグメントが１つかしない\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#retty%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E5%9F%BA%E7%9B%A4%E3%81%AE%E9%96%8B%E7%99%BA%E7%92%B0%E5%A2%83\&quot;\u003eRetty機械学習基盤の開発環境\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BB%AE%E6%83%B3%E3%83%9E%E3%82%B7%E3%83%B3%E3%81%AE%E4%BD%9C%E6%88%90\&quot;\u003e仮想マシンの作成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%82%B9%E3%82%AF%E3%83%88%E3%83%83%E3%83%97%E5%8C%96\&quot;\u003eデスクトップ化\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%81%BE%E3%81%91\&quot;\u003eおまけ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%BD%93%E7%A4%BE%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%81%A7pc%E3%82%B2%E3%83%BC%E3%83%A0%E3%83%9E%E3%83%8B%E3%82%A2%E3%81%AE-yuta-%E3%81%8C%E5%88%9D%E5%8F%B7%E6%A9%9F%E3%82%92%E7%B5%84%E3%81%BF%E7%AB%8B%E3%81%A6%E3%81%A6%E3%81%84%E3%82%8B%E6%A7%98%E5%AD%90\&quot;\u003e当社エンジニアでPCゲームマニアの Yuta が初号機を組み立てている様子\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%96%8B%E5%B0%81%E3%81%97%E3%81%9F%E3%81%A8%E3%81%93%E3%82%8D\&quot;\u003e開封したところ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%8C%E6%88%90\&quot;\u003e完成\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#gtx-1080-%E6%8A%BD%E9%81%B8%E4%BC%9A%E3%81%A7%E6%8A%BD%E9%81%B8%E3%81%AB%E5%A4%96%E3%82%8C%E6%82%94%E3%81%97%E3%81%8C%E3%81%A3%E3%81%A6%E3%82%8B%E7%A4%BE%E5%93%A1%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%B3%E7%94%9F%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%82%82%E3%81%8F%E3%82%82%E3%81%8F%E4%BC%9A%E5%8F%82%E5%8A%A0%E8%80%85\&quot;\u003eGTX 1080 抽選会で抽選に外れ、悔しがってる社員エンジニア、インターン生、機械学習もくもく会参加者\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-e3bff9e9-e02c-4633-84dc-d30f6fba7faa"></div>
+    <div id="Toc-react-component-e3bff9e9-e02c-4633-84dc-d30f6fba7faa"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:688,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;dda1f9f11397f811e98a&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="icoxfog417"><a itemprop="url" href="/icoxfog417"><img alt="icoxfog417" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="aki"><a itemprop="url" href="/aki"><img alt="aki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/40572/profile-images/1473688483" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yuri_ytl"><a itemprop="url" href="/yuri_ytl"><img alt="yuri_ytl" class="thumb thumb--xs" src="https://pbs.twimg.com/profile_images/812820201276260352/v0tkNxdF_normal.jpg" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="saku"><a itemprop="url" href="/saku"><img alt="saku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/34824/profile-images/1473686500" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="GushiSnow"><a itemprop="url" href="/GushiSnow"><img alt="GushiSnow" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="decchi"><a itemprop="url" href="/decchi"><img alt="decchi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60734/profile-images/1473695315" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="saitoxu"><a itemprop="url" href="/saitoxu"><img alt="saitoxu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/17731/profile-images/1473682242" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="neuromance"><a itemprop="url" href="/neuromance"><img alt="neuromance" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/8761a3a5fa62be812d26b102bf54f697" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="muff1225"><a itemprop="url" href="/muff1225"><img alt="muff1225" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/119359/profile-images/1480303582" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="big538"><a itemprop="url" href="/big538"><img alt="big538" class="thumb thumb--xs" src="https://avatars.githubusercontent.com/u/23475692?v=3" /></a></div></div><div class="ArticleFooter__user"><a href="/taru0216/items/dda1f9f11397f811e98a/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/dda1f9f11397f811e98a/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/taru0216/items/dda1f9f11397f811e98a.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.25</span> article of <a class="title" href="/advent-calendar/2016/retty">Retty Inc. Advent Calendar 2016</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 24:</span><span class="itemsShowBody_adventCalendar_title"><img alt="ttakeoka" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/25787/profile-images/1473684409" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/ttakeoka/items/5bd1f8810c93213327ca">MFIにむけてRettyの取り組み</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/keigohtr/items/ef5d1268284d0f910130#_reference-34f44f32b6aefc501518"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/113163/profile-images/1473712165" />色んなサイトのTF-IDFを調べてみた（APIも公開したよ）</a><time class="references_datetime js-dateTimeView" datetime="2016-12-26T12:12:29+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/keigohtr/items/a4b8ef256d6fe89e9383#_reference-ba7d9bb146caf69097aa"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/113163/profile-images/1473712165" />ウェブページの構成単語をword2vecしてkmeansしてみた（APIもあるよ）</a><time class="references_datetime js-dateTimeView" datetime="2016-12-27T12:05:54+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/cvusk/items/d4de2c5f9eb2d0fa52ca#_reference-e7c538f22a1bce80283d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/55384/profile-images/1486270624" />【参加レポ】TFUG #3</a><time class="references_datetime js-dateTimeView" datetime="2017-02-22T12:40:36+00:00">25 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Retty流『2200万ユーザを支える機械学習基盤』の作り方 on @Qiita" data-url="http://qiita.com/taru0216/items/dda1f9f11397f811e98a" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Retty流『2200万ユーザを支える機械学習基盤』の作り方" href="http://b.hatena.ne.jp/entry/http://qiita.com/taru0216/items/dda1f9f11397f811e98a" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/taru0216/items/dda1f9f11397f811e98a" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/taru0216/items/dda1f9f11397f811e98a" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e冒頭の画像2枚がリンクエラーになっているようです。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-26T12:13:02+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:706983,&quot;is_team&quot;:false,&quot;item_id&quot;:454952,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;dda1f9f11397f811e98a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;冒頭の画像2枚がリンクエラーになっているようです。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/taru0216/items/dda1f9f11397f811e98a#comment-60f41ebbf8c96d52c43d&quot;,&quot;user&quot;:{&quot;contribution&quot;:86,&quot;created_at&quot;:&quot;2013-05-15T23:02:48+09:00&quot;,&quot;id&quot;:22858,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/22858/profile-images/1473683663&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;yohei1126@github&quot;},&quot;uuid&quot;:&quot;60f41ebbf8c96d52c43d&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eRettyユーザーでもあり、写真の仕分けについて中の人が手でやってるのかなぁ…って気になっていたこともあり楽しく拝読しました。なお、若干本題とはずれますが、いつもRettyにデジイチで撮影した写真を\&quot;元に\&quot;投稿はしているものの、Rettyのアップローダーがデジイチ撮影した写真（JPEG版）を10枚とか20枚とか一度には容量都合でアップロードできない制限があるのでLightroomで3MB/fileに落とす一手間が掛かっており、そのあたりも単純ながらユーザビリティー向上としてご検討頂けるとデジイチ写真上げ系ユーザーとして嬉しいです。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-26T12:47:24+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:707011,&quot;is_team&quot;:false,&quot;item_id&quot;:454952,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;dda1f9f11397f811e98a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:2,&quot;raw_body&quot;:&quot;Rettyユーザーでもあり、写真の仕分けについて中の人が手でやってるのかなぁ…って気になっていたこともあり楽しく拝読しました。なお、若干本題とはずれますが、いつもRettyにデジイチで撮影した写真を\&quot;元に\&quot;投稿はしているものの、Rettyのアップローダーがデジイチ撮影した写真（JPEG版）を10枚とか20枚とか一度には容量都合でアップロードできない制限があるのでLightroomで3MB/fileに落とす一手間が掛かっており、そのあたりも単純ながらユーザビリティー向上としてご検討頂けるとデジイチ写真上げ系ユーザーとして嬉しいです。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/taru0216/items/dda1f9f11397f811e98a#comment-9c01b32b7565e049d701&quot;,&quot;user&quot;:{&quot;contribution&quot;:369,&quot;created_at&quot;:&quot;2013-12-06T22:37:49+09:00&quot;,&quot;id&quot;:33891,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/33891/profile-images/1473686220&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;usagi&quot;},&quot;uuid&quot;:&quot;9c01b32b7565e049d701&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eコメントありがとうございます!\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003e冒頭の画像2枚がリンクエラーになっているようです。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003eこちら、画像を置いているサイトの制限によりブラウザ上で画像を直接表示することが出来ないようです。ダウンロードはできますので、ダウンロード後に画像ビューアアプリなどを用いてご覧いただけますと幸いです。\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003eRettyユーザーでもあり、写真の仕分けについて中の人が手でやってるのかなぁ…って気になっていたこともあり楽しく拝読しました。なお、若干本題とはずれますが、いつもRettyにデジイチで撮影した写真を\&quot;元に\&quot;投稿はしているものの、Rettyのアップローダーがデジイチ撮影した写真（JPEG版）を10枚とか20枚とか一度には容量都合でアップロードできない制限があるのでLightroomで3MB/fileに落とす一手間が掛かっており、そのあたりも単純ながらユーザビリティー向上としてご検討頂けるとデジイチ写真上げ系ユーザーとして嬉しいです。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003eRetty をご利用いただきましてありがとうございます。上記ご要望の件、社内で共有させていただきました。今後ともご愛顧の程、よろしくお願い申し上げます。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-27T16:57:52+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:707930,&quot;is_team&quot;:false,&quot;item_id&quot;:454952,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;dda1f9f11397f811e98a&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:2,&quot;raw_body&quot;:&quot;コメントありがとうございます!\n\n\u003e 冒頭の画像2枚がリンクエラーになっているようです。\n\nこちら、画像を置いているサイトの制限によりブラウザ上で画像を直接表示することが出来ないようです。ダウンロードはできますので、ダウンロード後に画像ビューアアプリなどを用いてご覧いただけますと幸いです。\n\n\u003e Rettyユーザーでもあり、写真の仕分けについて中の人が手でやってるのかなぁ…って気になっていたこともあり楽しく拝読しました。なお、若干本題とはずれますが、いつもRettyにデジイチで撮影した写真を\&quot;元に\&quot;投稿はしているものの、Rettyのアップローダーがデジイチ撮影した写真（JPEG版）を10枚とか20枚とか一度には容量都合でアップロードできない制限があるのでLightroomで3MB/fileに落とす一手間が掛かっており、そのあたりも単純ながらユーザビリティー向上としてご検討頂けるとデジイチ写真上げ系ユーザーとして嬉しいです。\n\nRetty をご利用いただきましてありがとうございます。上記ご要望の件、社内で共有させていただきました。今後ともご愛顧の程、よろしくお願い申し上げます。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/taru0216/items/dda1f9f11397f811e98a#comment-04f204ae69cd6cb348a3&quot;,&quot;user&quot;:{&quot;contribution&quot;:689,&quot;created_at&quot;:&quot;2014-12-18T14:28:57+09:00&quot;,&quot;id&quot;:63371,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/profile-images/1473696246&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;taru0216&quot;},&quot;uuid&quot;:&quot;04f204ae69cd6cb348a3&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:454952,&quot;uuid&quot;:&quot;dda1f9f11397f811e98a&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;taru0216&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:63371,&quot;url_name&quot;:&quot;taru0216&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/profile-images/1473696246&quot;},{&quot;id&quot;:22858,&quot;url_name&quot;:&quot;yohei1126@github&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/22858/profile-images/1473683663&quot;},{&quot;id&quot;:33891,&quot;url_name&quot;:&quot;usagi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/33891/profile-images/1473686220&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-697a383d-c411-4d75-a5d2-59a6db463114"></div>
+    <div id="CommentListContainer-react-component-697a383d-c411-4d75-a5d2-59a6db463114"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="KQ84di6N7iNnVZADPoHDrY8hs+daHl7hHE7jFSaNoEDsUcY+wlec1PZ731HCBnyYoFOJEHHyhZWNb4vrDz7FMA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/taru0216/items/dda1f9f11397f811e98a" /><input type="hidden" name="item_uuid" id="item_uuid" value="dda1f9f11397f811e98a" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/taru0216/items/dda1f9f11397f811e98a", "id": 454952, "uuid": "dda1f9f11397f811e98a" }</script><script class="js-user" type="application/json">{&quot;id&quot;:63371,&quot;url_name&quot;:&quot;taru0216&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63371/profile-images/1473696246&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="TP/NmSroaENANlybMGWHq1mZyzJTTWExXzg1LfzP28uJoTPRxjIatNEYE8nM4jieduvxxXihukXOGV3T1Xy+uw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/taru0216/items/dda1f9f11397f811e98a" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

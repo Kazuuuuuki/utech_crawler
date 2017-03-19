@@ -1,0 +1,512 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>声優の声を分類してみた - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="機械学習の練習に声優の声を識別させてみた。その手順をメモ書きとして記しておく。
+
+
+やりたいこと
+
+まずは声優の素の声（ラジオとかの声の事）を学習させて、テストデータとしても素の声を入れてどれくらいの精度で判別できるかを確かめる。
+次に、声優の素の声からアニメの声が予測できるのかどうかを試したい。
+
+
+1.まず、データを集める
+
+今回はLadyGo声優５人について、ニコニコ動画でラジオの動画をダウンロードした。
+このままでは.mp4なのでこれをwavに変換する。
+
+
+f..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="a1234224576a" name="twitter:creator" /><meta content="声優の声を分類してみた - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/1234224576/items/f785eef6eed68271be64" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+機械学習の練習に声優の声を識別させてみた。その手順をメモ書きとして記しておく。
+###やりたいこと
+まずは声優の素の声（ラジオとかの声の事）を学習させて、テストデータとしても素の声を入れてどれくらいの精度で判別できるかを確かめる。
+..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="LzTGdTU6Epwo5lWkoBfXg7MJ8wNgU07fbSSQmubPVUh0+otPBSa3O/QYhxkr3vWo3xORzsg3pPN9Y+LCN4vJoQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"1234224576","type":"items","id":"f785eef6eed68271be64"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-5dda9408-dd57-4f8b-aaba-5adec68975f4"></div>
+    <div id="HeaderContainer-react-component-5dda9408-dd57-4f8b-aaba-5adec68975f4"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">声優の声を分類してみた</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="200"><a class="u-link-unstyled TagList__label" href="/tags/scikit-learn"><img alt="scikit-learn" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a8f42cdd69b8012fd27ded92fb31674b9f9cae05/medium.jpg?1481535975" /><span>scikit-learn</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">241</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:241,&quot;uuid&quot;:&quot;f785eef6eed68271be64&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="kencoba"><a itemprop="url" href="/kencoba"><img alt="kencoba" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2059/profile-images/1473680648" /></a></li><li class="js-hovercard" data-hovercard-target-name="ytakky"><a itemprop="url" href="/ytakky"><img alt="ytakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62018/profile-images/1473695825" /></a></li><li class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></li><li class="js-hovercard" data-hovercard-target-name="ay65535"><a itemprop="url" href="/ay65535"><img alt="ay65535" class="thumb thumb--xs" src="https://gravatar.com/avatar/49e4bee864b1e68beca7645c2fcb8ae3?d=https%3A%2F%2Fidenticons.github.com%2Fd8abbd3c328ce07a709ab31ad99eb6dc.png&amp;r=x" /></a></li><li class="js-hovercard" data-hovercard-target-name="Neos21"><a itemprop="url" href="/Neos21"><img alt="Neos21" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43455/profile-images/1473689538" /></a></li><li class="js-hovercard" data-hovercard-target-name="tq_jappy"><a itemprop="url" href="/tq_jappy"><img alt="tq_jappy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26316/profile-images/1473684561" /></a></li><li class="js-hovercard" data-hovercard-target-name="trkbt10"><a itemprop="url" href="/trkbt10"><img alt="trkbt10" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74461/profile-images/1473699844" /></a></li><li class="js-hovercard" data-hovercard-target-name="uri"><a itemprop="url" href="/uri"><img alt="uri" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19462/profile-images/1473682719" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomoyu"><a itemprop="url" href="/tomoyu"><img alt="tomoyu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76389/profile-images/1473700470" /></a></li><li class="js-hovercard" data-hovercard-target-name="chloe_chat"><a itemprop="url" href="/chloe_chat"><img alt="chloe_chat" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18809/profile-images/1476936488" /></a></li><li><a href="/1234224576/items/f785eef6eed68271be64/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/1234224576"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44218/profile-images/1473689813" alt="1473689813" /></a> <a class="u-link-unstyled" href="/1234224576">1234224576</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-06-23T03:32:27+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-06-23">Edited at <time datetime="2015-06-23T03:57:50+09:00" itemprop="dateModified">2015-06-23</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/1234224576/items/f785eef6eed68271be64/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">14</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/1234224576/items/f785eef6eed68271be64/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(14)</span></a></li><li><a href="/1234224576/items/f785eef6eed68271be64.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-f785eef6eed68271be64" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>機械学習の練習に声優の声を識別させてみた。その手順をメモ書きとして記しておく。</p>
+
+<h3>
+<span id="やりたいこと" class="fragment"></span><a href="#%E3%82%84%E3%82%8A%E3%81%9F%E3%81%84%E3%81%93%E3%81%A8"><i class="fa fa-link"></i></a>やりたいこと</h3>
+
+<p>まずは声優の素の声（ラジオとかの声の事）を学習させて、テストデータとしても素の声を入れてどれくらいの精度で判別できるかを確かめる。<br>
+次に、声優の素の声からアニメの声が予測できるのかどうかを試したい。</p>
+
+<h3>
+<span id="1まずデータを集める" class="fragment"></span><a href="#1%E3%81%BE%E3%81%9A%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E9%9B%86%E3%82%81%E3%82%8B"><i class="fa fa-link"></i></a>1.まず、データを集める</h3>
+
+<p>今回はLadyGo声優５人について、ニコニコ動画でラジオの動画をダウンロードした。<br>
+このままでは.mp4なのでこれをwavに変換する。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+ffmpeg -i hoge.mp4 -map 0:1 hoge.wav 
+</pre></div></div>
+
+<p>これでOK！</p>
+
+<p>そして、このwavファイルを30秒ずつに分割した。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+sox hoge.wav hogehoge.wav trim 0 30 : newfile : restart
+</pre></div></div>
+
+<p>まだ終わらない。<br>
+ここから手作業でコーナーの切り替わりシーンの部分とか、音楽流すコーナーとか、他の人の声が入ってる部分とかを手作業で削除していった。<br>
+ただ、バックで小さな音楽が常に流れているのはもうどうしようもないので無視。<br>
+このバックの音の影響を最小限、もしくは無くすにはどうすればいいんだろうか・・。</p>
+
+<p>とりあえず、これでデータ収集は完了！</p>
+
+<h3>
+<span id="2データから特徴量を抽出する" class="fragment"></span><a href="#2%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E7%89%B9%E5%BE%B4%E9%87%8F%E3%82%92%E6%8A%BD%E5%87%BA%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>2.データから特徴量を抽出する</h3>
+
+<p>周波数強度を特徴量にしたらいいんじゃない？高速フーリエ変換だ！となるが、<br>
+オライリーから出てる実践機械学習システムにはそれよりメル周波数ケプストラム係数(MFCC)ってやつを使った方がいいよ！と書いてたので今回はそっちを使うことにする。</p>
+
+<p>色々見てみたところ、現在の音声認識ではMFCCが代表的な特徴量として用いられていて、人間の音声知覚の特徴を考慮してるらしい。<br>
+しかし、MFCCにはピッチの情報が含まれないようだ。<br>
+ケプストラムならピッチ成分を抽出できるみたいなのでもしかしたらこっちの方が特徴量としてはいいのかもしれない、が取り敢えずMFCCを使うことにする。</p>
+
+<p>MFCCを計算するにはTaklbox Scikitというライブラリを用いる。<br>
+計算した結果をキャッシュとして保存して、それを使いまわしする。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">scikits.talkbox.features</span> <span class="kn">import</span> <span class="n">mfcc</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">io</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">wavfile</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">def</span> <span class="nf">write_ceps</span><span class="p">(</span><span class="n">ceps</span><span class="p">,</span><span class="n">fn</span><span class="p">):</span>
+    <span class="n">base_fn</span><span class="p">,</span><span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">data_fn</span> <span class="o">=</span> <span class="n">base_fn</span> <span class="o">+</span> <span class="s">".ceps"</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">data_fn</span><span class="p">,</span><span class="n">ceps</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_ceps</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+    <span class="n">sample_rate</span><span class="p">,</span><span class="n">X</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="n">ceps</span><span class="p">,</span><span class="n">mspec</span><span class="p">,</span><span class="n">spec</span> <span class="o">=</span> <span class="n">mfcc</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">isNan</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">ceps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">num</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">isNan</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">isNan</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="n">write_ceps</span><span class="p">(</span><span class="n">ceps</span><span class="p">,</span><span class="n">fn</span><span class="p">)</span>
+
+</pre></div></div>
+
+<p>なんか、io.wavfile.read(fn)でうまく読み込めないwavファイルがあるよう、原因はよくわからなかった。。<br>
+うまく読み込めないままMFCCを計算すると結果がNanになるのでこれを無視するようにしている。</p>
+
+<p>セーブしたデータを読み込むコードは以下。name_listはディレクトリ名のリスト。今回はLadyGo声優5人の名前のディレクトリを作成してそこにデータを保存してある。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">read_ceps</span><span class="p">(</span><span class="n">name_list</span><span class="p">,</span><span class="n">base_dir</span> <span class="o">=</span> <span class="n">BASE_DIRE</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="p">[],[]</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span><span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">name_list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="s">"*.ceps.npy"</span><span class="p">)):</span>
+            <span class="n">ceps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+            <span class="n">num_ceps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ceps</span><span class="p">)</span>
+            <span class="n">X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ceps</span><span class="p">[:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">X</span><span class="p">),</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+</pre></div></div>
+
+<h3>
+<span id="3学習させて予測する" class="fragment"></span><a href="#3%E5%AD%A6%E7%BF%92%E3%81%95%E3%81%9B%E3%81%A6%E4%BA%88%E6%B8%AC%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>3.学習させて予測する</h3>
+
+<p>2で作成した特徴量を用いて学習させる、今回はサポートベクターマシン(SVM)を用いて分類した。<br>
+コードは以下。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">MFCC</span> <span class="c">#これは2で作ったもの</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">specgram</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">resample</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pylab</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">name_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">"Uesaka_Sumire"</span><span class="p">,</span><span class="s">"Komatsu_Mikako"</span><span class="p">,</span><span class="s">"Okubo_Rumi"</span><span class="p">,</span><span class="s">"Takamori_Natsumi"</span><span class="p">,</span><span class="s">"Mikami_Shiori"</span><span class="p">]</span>
+
+<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">MFCC</span><span class="o">.</span><span class="n">read_ceps</span><span class="p">(</span><span class="n">name_list</span><span class="p">)</span>
+<span class="n">svc</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">resample</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">n_samples</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+<span class="n">svc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">150</span><span class="p">:],</span><span class="n">y</span><span class="p">[</span><span class="mi">150</span><span class="p">:])</span>
+<span class="n">prediction</span> <span class="o">=</span> <span class="n">svc</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">[:</span><span class="mi">150</span><span class="p">])</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y</span><span class="p">[:</span><span class="mi">150</span><span class="p">],</span><span class="n">prediction</span><span class="p">)</span>
+</pre></div></div>
+
+<p>データを読み込んできた後、それらをresample()によってシャッフルし、151個目以降のデータを教師データ、150個目までのデータをテストデータとしてみた。</p>
+
+<p>confusion_matrixっていうのは混合行列。<br>
+テストデータに対して予測した結果のラベルごとの分布を示している。<br>
+これを用いてグラフをプロットしてみる。</p>
+
+<h3>
+<span id="4グラフをプロットしてみる" class="fragment"></span><a href="#4%E3%82%B0%E3%83%A9%E3%83%95%E3%82%92%E3%83%97%E3%83%AD%E3%83%83%E3%83%88%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a>4.グラフをプロットしてみる</h3>
+
+<p>3で得た予測結果の混合行列を用いて正答率をプロットしてみる。<br>
+正答率を出すために、混合行列の値を正規化する。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">normalisation</span><span class="p">(</span><span class="n">cm</span><span class="p">):</span>
+    <span class="n">new_cm</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cm</span><span class="p">:</span>
+        <span class="n">sum_val</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">new_array</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">num</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">sum_val</span><span class="p">)</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">line</span><span class="p">]</span>
+        <span class="n">new_cm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_cm</span>
+</pre></div></div>
+
+<p>グラフをプロットする。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">plot_confusion_matrix</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span><span class="n">name_list</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">title</span><span class="p">):</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">matshow</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span><span class="n">fignum</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="s">'Blues'</span><span class="p">,</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">pylab</span><span class="o">.</span><span class="n">axes</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">name_list</span><span class="p">)))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">name_list</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s">"bottom"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">name_list</span><span class="p">)))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">name_list</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'Predict class'</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'True class'</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">pylab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div></div>
+
+<p>結果。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/44218/0274e4ba-4b62-2826-a862-d874502f7b7b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/44218/0274e4ba-4b62-2826-a862-d874502f7b7b.png" alt="スクリーンショット 2015-06-23 1.34.50.png" title="スクリーンショット 2015-06-23 1.34.50.png"></a></p>
+
+<p>正答率100％、何度やってもほぼ100％だった。</p>
+
+<p>次にアニメ声をテストデータとして試してみる。<br>
+ただ、データを集めるのが難しく、各声優に対して1キャラもしくは2キャラくらいしか集められなかった、データ数自体も少ない（5人合わせて90パターンくらい）。</p>
+
+<p>結果は以下。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/44218/8a233309-e7b1-fe00-88e9-10150057b079.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/44218/8a233309-e7b1-fe00-88e9-10150057b079.png" alt="素の声からアニメの声を予測.png" title="素の声からアニメの声を予測.png"></a></p>
+
+<p>全然ダメだった！</p>
+
+<p>更に、アニメの声を教師データとして素の声をテストしてみた。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/44218/5ecf2b31-bc97-5a10-1ca7-706b8769dee6.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/44218/5ecf2b31-bc97-5a10-1ca7-706b8769dee6.png" alt="アニメの声から素の声を予測.png" title="アニメの声から素の声を予測.png"></a></p>
+
+<p>勿論これもダメ。</p>
+
+<h3>
+<span id="5考察と検証" class="fragment"></span><a href="#5%E8%80%83%E5%AF%9F%E3%81%A8%E6%A4%9C%E8%A8%BC"><i class="fa fa-link"></i></a>5.考察と検証</h3>
+
+<p>アニメ声を判別した際に非常に精度が悪くなった理由として、過学習が思いつく。<br>
+mfcc()関数のデフォルトでは13個の係数が音声のフレーム個だけある、これでは非常に多いので全フレームで各係数を平均した値を特徴量としている。<br>
+つまり、特徴ベクトルの数は13個、これが原因で過学習したとは考えにくい。</p>
+
+<p>そこで、利用したデータに偏りがあったのが汎化能力の低下に繋がったのではないだろうか、と考えた。<br>
+利用したデータは全てラジオ内の声である為、各声優において含まれる周波数成分に差があまり見られず、それが汎化能力の低下に繋がったのではないだろうか。</p>
+
+<p>そこで、適当なアニメ声の一部を教師データに加えて、残りのアニメ声に対してテストしてみた。<br>
+教師データは2/3がラジオの声、1/3がアニメの声程度の割合。</p>
+
+<p>まずはラジオの声をテストしてみた。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/44218/e817c752-9404-0574-180e-e609ab99f530.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/44218/e817c752-9404-0574-180e-e609ab99f530.png" alt="スクリーンショット 2015-06-23 2.40.45.png" title="スクリーンショット 2015-06-23 2.40.45.png"></a></p>
+
+<p>認識精度は前回と同様ほぼ100％、これも何度やっても大体これくらいになる。</p>
+
+<p>次に、アニメの声をテストしてみる。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/44218/07a6f83e-b84f-db81-8b3d-b0b8496151bd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/44218/07a6f83e-b84f-db81-8b3d-b0b8496151bd.png" alt="スクリーンショット 2015-06-23 2.40.59.png" title="スクリーンショット 2015-06-23 2.40.59.png"></a></p>
+
+<p>認識精度が飛躍的に高まった！<br>
+やはりラジオの声のみで学習していたせいで、汎化能力が非常に低下してしまっていたようだ。</p>
+
+<h3>
+<span id="6結論" class="fragment"></span><a href="#6%E7%B5%90%E8%AB%96"><i class="fa fa-link"></i></a>6.結論</h3>
+
+<p>機械学習においては、過学習の危険性について常に考えなければならない事がわかった。<br>
+そしてその上で、汎化能力を正確に測定する必要がある。<br>
+そういう面では今回、正答率だけで分類器を評価してしまっているのはよくない。<br>
+クラス分類器を評価するには適合率ー再現率曲線やROC曲線を用いれば良い（って本に書いてあった）</p>
+
+<h3>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h3>
+
+<p>オライリージャパン 実践機械学習システム</p>
+<div class="hidden"><form class="js-task-list-update" action="/1234224576/items/f785eef6eed68271be64" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="i3Q3RzYBhHPDKYr40khYHsz/emWSlc0txxIFOV8Y4szQunp9Bh0h1B/XWEVZgXo1oOUYqDrxJwHXVXdhjlx+JQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1434999470" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+機械学習の練習に声優の声を識別させてみた。その手順をメモ書きとして記しておく。
+###やりたいこと
+まずは声優の素の声（ラジオとかの声の事）を学習させて、テストデータとしても素の声を入れてどれくらいの精度で判別できるかを確かめる。
+次に、声優の素の声からアニメの声が予測できるのかどうかを試したい。
+###1.まず、データを集める
+今回はLadyGo声優５人について、ニコニコ動画でラジオの動画をダウンロードした。
+このままでは.mp4なのでこれをwavに変換する。
+
+```
+ffmpeg -i hoge.mp4 -map 0:1 hoge.wav 
+```
+
+これでOK！
+
+そして、このwavファイルを30秒ずつに分割した。
+
+```
+sox hoge.wav hogehoge.wav trim 0 30 : newfile : restart
+```
+
+まだ終わらない。
+ここから手作業でコーナーの切り替わりシーンの部分とか、音楽流すコーナーとか、他の人の声が入ってる部分とかを手作業で削除していった。
+ただ、バックで小さな音楽が常に流れているのはもうどうしようもないので無視。
+このバックの音の影響を最小限、もしくは無くすにはどうすればいいんだろうか・・。
+
+とりあえず、これでデータ収集は完了！
+###2.データから特徴量を抽出する
+周波数強度を特徴量にしたらいいんじゃない？高速フーリエ変換だ！となるが、
+オライリーから出てる実践機械学習システムにはそれよりメル周波数ケプストラム係数(MFCC)ってやつを使った方がいいよ！と書いてたので今回はそっちを使うことにする。
+
+色々見てみたところ、現在の音声認識ではMFCCが代表的な特徴量として用いられていて、人間の音声知覚の特徴を考慮してるらしい。
+しかし、MFCCにはピッチの情報が含まれないようだ。
+ケプストラムならピッチ成分を抽出できるみたいなのでもしかしたらこっちの方が特徴量としてはいいのかもしれない、が取り敢えずMFCCを使うことにする。
+
+MFCCを計算するにはTaklbox Scikitというライブラリを用いる。
+計算した結果をキャッシュとして保存して、それを使いまわしする。
+
+```python
+from scikits.talkbox.features import mfcc
+import scipy
+from scipy import io
+from scipy.io import wavfile
+import glob
+import numpy as np
+import os
+
+def write_ceps(ceps,fn):
+	base_fn,ext = os.path.splitext(fn)
+	data_fn = base_fn + &quot;.ceps&quot;
+	np.save(data_fn,ceps)
+
+def create_ceps(fn):
+	sample_rate,X = io.wavfile.read(fn)
+	ceps,mspec,spec = mfcc(X)
+	isNan = False
+	for num in ceps:
+		if np.isnan(num[1]):
+			isNan = True
+	if isNan == False:
+		write_ceps(ceps,fn)
+
+```
+
+なんか、io.wavfile.read(fn)でうまく読み込めないwavファイルがあるよう、原因はよくわからなかった。。
+うまく読み込めないままMFCCを計算すると結果がNanになるのでこれを無視するようにしている。
+
+セーブしたデータを読み込むコードは以下。name_listはディレクトリ名のリスト。今回はLadyGo声優5人の名前のディレクトリを作成してそこにデータを保存してある。
+
+```python
+def read_ceps(name_list,base_dir = BASE_DIRE):
+	X,y = [],[]
+	for label,name in enumerate(name_list):
+		for fn in glob.glob(os.path.join(base_dir,name,&quot;*.ceps.npy&quot;)):
+			ceps = np.load(fn)
+			num_ceps = len(ceps)
+			X.append(np.mean(ceps[:],axis=0))
+			y.append(label)
+	return np.array(X),np.array(y)
+
+```
+###3.学習させて予測する
+2で作成した特徴量を用いて学習させる、今回はサポートベクターマシン(SVM)を用いて分類した。
+コードは以下。
+
+```python
+import MFCC #これは2で作ったもの
+from matplotlib.pyplot import specgram
+from sklearn.metrics import confusion_matrix
+from sklearn.svm import LinearSVC
+from sklearn.utils import resample
+from matplotlib import pylab
+import numpy as np
+
+name_list = [&quot;Uesaka_Sumire&quot;,&quot;Komatsu_Mikako&quot;,&quot;Okubo_Rumi&quot;,&quot;Takamori_Natsumi&quot;,&quot;Mikami_Shiori&quot;]
+
+x,y = MFCC.read_ceps(name_list)
+svc = LinearSVC(C=1.0)
+x,y = resample(x,y,n_samples=len(y))
+svc.fit(x[150:],y[150:])
+prediction = svc.predict(x[:150])
+cm = confusion_matrix(y[:150],prediction)
+```
+
+データを読み込んできた後、それらをresample()によってシャッフルし、151個目以降のデータを教師データ、150個目までのデータをテストデータとしてみた。
+
+confusion_matrixっていうのは混合行列。
+テストデータに対して予測した結果のラベルごとの分布を示している。
+これを用いてグラフをプロットしてみる。
+###4.グラフをプロットしてみる
+3で得た予測結果の混合行列を用いて正答率をプロットしてみる。
+正答率を出すために、混合行列の値を正規化する。
+
+```python
+def normalisation(cm):
+	new_cm = []
+	for line in cm:
+		sum_val = sum(line)
+		new_array = [float(num)/float(sum_val) for num in line]
+		new_cm.append(new_array)
+	return new_cm
+```
+
+グラフをプロットする。
+
+```python
+def plot_confusion_matrix(cm,name_list,name,title):
+	pylab.clf()
+	pylab.matshow(cm,fignum=False,cmap=&#39;Blues&#39;,vmin=0,vmax=1.0)
+	ax = pylab.axes()
+	ax.set_xticks(range(len(name_list)))
+	ax.set_xticklabels(name_list)
+	ax.xaxis.set_ticks_position(&quot;bottom&quot;)
+	ax.set_yticks(range(len(name_list)))
+	ax.set_yticklabels(name_list)
+	pylab.title(title)
+	pylab.colorbar()
+	pylab.grid(False)
+	pylab.xlabel(&#39;Predict class&#39;)
+	pylab.ylabel(&#39;True class&#39;)
+	pylab.grid(False)
+	pylab.show()
+```
+結果。
+
+![スクリーンショット 2015-06-23 1.34.50.png](https://qiita-image-store.s3.amazonaws.com/0/44218/0274e4ba-4b62-2826-a862-d874502f7b7b.png &quot;スクリーンショット 2015-06-23 1.34.50.png&quot;)
+
+正答率100％、何度やってもほぼ100％だった。
+
+次にアニメ声をテストデータとして試してみる。
+ただ、データを集めるのが難しく、各声優に対して1キャラもしくは2キャラくらいしか集められなかった、データ数自体も少ない（5人合わせて90パターンくらい）。
+
+結果は以下。
+
+![素の声からアニメの声を予測.png](https://qiita-image-store.s3.amazonaws.com/0/44218/8a233309-e7b1-fe00-88e9-10150057b079.png &quot;素の声からアニメの声を予測.png&quot;)
+
+全然ダメだった！
+
+更に、アニメの声を教師データとして素の声をテストしてみた。
+
+![アニメの声から素の声を予測.png](https://qiita-image-store.s3.amazonaws.com/0/44218/5ecf2b31-bc97-5a10-1ca7-706b8769dee6.png &quot;アニメの声から素の声を予測.png&quot;)
+
+勿論これもダメ。
+
+###5.考察と検証
+アニメ声を判別した際に非常に精度が悪くなった理由として、過学習が思いつく。
+mfcc()関数のデフォルトでは13個の係数が音声のフレーム個だけある、これでは非常に多いので全フレームで各係数を平均した値を特徴量としている。
+つまり、特徴ベクトルの数は13個、これが原因で過学習したとは考えにくい。
+
+そこで、利用したデータに偏りがあったのが汎化能力の低下に繋がったのではないだろうか、と考えた。
+利用したデータは全てラジオ内の声である為、各声優において含まれる周波数成分に差があまり見られず、それが汎化能力の低下に繋がったのではないだろうか。
+
+そこで、適当なアニメ声の一部を教師データに加えて、残りのアニメ声に対してテストしてみた。
+教師データは2/3がラジオの声、1/3がアニメの声程度の割合。
+
+まずはラジオの声をテストしてみた。
+![スクリーンショット 2015-06-23 2.40.45.png](https://qiita-image-store.s3.amazonaws.com/0/44218/e817c752-9404-0574-180e-e609ab99f530.png &quot;スクリーンショット 2015-06-23 2.40.45.png&quot;)
+
+認識精度は前回と同様ほぼ100％、これも何度やっても大体これくらいになる。
+
+次に、アニメの声をテストしてみる。
+
+![スクリーンショット 2015-06-23 2.40.59.png](https://qiita-image-store.s3.amazonaws.com/0/44218/07a6f83e-b84f-db81-8b3d-b0b8496151bd.png &quot;スクリーンショット 2015-06-23 2.40.59.png&quot;)
+
+認識精度が飛躍的に高まった！
+やはりラジオの声のみで学習していたせいで、汎化能力が非常に低下してしまっていたようだ。
+
+###6.結論
+機械学習においては、過学習の危険性について常に考えなければならない事がわかった。
+そしてその上で、汎化能力を正確に測定する必要がある。
+そういう面では今回、正答率だけで分類器を評価してしまっているのはよくない。
+クラス分類器を評価するには適合率ー再現率曲線やROC曲線を用いれば良い（って本に書いてあった）
+
+###参考
+オライリージャパン 実践機械学習システム
+
+
+
+
+
+
+
+
+
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="声優の声を分類してみた by @a1234224576a on @Qiita" data-url="http://qiita.com/1234224576/items/f785eef6eed68271be64" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="声優の声を分類してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/1234224576/items/f785eef6eed68271be64" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/1234224576/items/f785eef6eed68271be64" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/1234224576/items/f785eef6eed68271be64" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/1234224576"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/44218/profile-images/1473689813" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/1234224576">1234224576</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">527</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;1234224576&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-f1eb348c-aa6a-4a5b-bb30-5a794fa870df"></div>
+    <div id="UserFollowButton-react-component-f1eb348c-aa6a-4a5b-bb30-5a794fa870df"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/1234224576/items/f785eef6eed68271be64">声優の声を分類してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/1234224576/items/0ecee5ce877e99ac3647">WKWebViewに関する調査メモ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/1234224576/items/2241266f7d307cd25ba9">【Swift】ハマりがちな循環参照について</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/1234224576/items/11ad3509fe4b0a9a33ed">pyenv globalで切り替わらない！</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/1234224576/items/7d26b98d5731a8e7af93">Objective-CのBlocksとSwiftのクロージャでは変数のキャプチャが違う</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%84%E3%82%8A%E3%81%9F%E3%81%84%E3%81%93%E3%81%A8\&quot;\u003eやりたいこと\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1%E3%81%BE%E3%81%9A%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E9%9B%86%E3%82%81%E3%82%8B\&quot;\u003e1.まず、データを集める\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2%E3%83%87%E3%83%BC%E3%82%BF%E3%81%8B%E3%82%89%E7%89%B9%E5%BE%B4%E9%87%8F%E3%82%92%E6%8A%BD%E5%87%BA%E3%81%99%E3%82%8B\&quot;\u003e2.データから特徴量を抽出する\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3%E5%AD%A6%E7%BF%92%E3%81%95%E3%81%9B%E3%81%A6%E4%BA%88%E6%B8%AC%E3%81%99%E3%82%8B\&quot;\u003e3.学習させて予測する\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#4%E3%82%B0%E3%83%A9%E3%83%95%E3%82%92%E3%83%97%E3%83%AD%E3%83%83%E3%83%88%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003e4.グラフをプロットしてみる\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#5%E8%80%83%E5%AF%9F%E3%81%A8%E6%A4%9C%E8%A8%BC\&quot;\u003e5.考察と検証\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#6%E7%B5%90%E8%AB%96\&quot;\u003e6.結論\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-b4c32d73-07f1-4459-a588-53c71d6b6464"></div>
+    <div id="Toc-react-component-b4c32d73-07f1-4459-a588-53c71d6b6464"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:241,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;f785eef6eed68271be64&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kencoba"><a itemprop="url" href="/kencoba"><img alt="kencoba" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2059/profile-images/1473680648" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ytakky"><a itemprop="url" href="/ytakky"><img alt="ytakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62018/profile-images/1473695825" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ay65535"><a itemprop="url" href="/ay65535"><img alt="ay65535" class="thumb thumb--xs" src="https://gravatar.com/avatar/49e4bee864b1e68beca7645c2fcb8ae3?d=https%3A%2F%2Fidenticons.github.com%2Fd8abbd3c328ce07a709ab31ad99eb6dc.png&amp;r=x" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Neos21"><a itemprop="url" href="/Neos21"><img alt="Neos21" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43455/profile-images/1473689538" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tq_jappy"><a itemprop="url" href="/tq_jappy"><img alt="tq_jappy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26316/profile-images/1473684561" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="trkbt10"><a itemprop="url" href="/trkbt10"><img alt="trkbt10" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74461/profile-images/1473699844" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="uri"><a itemprop="url" href="/uri"><img alt="uri" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19462/profile-images/1473682719" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomoyu"><a itemprop="url" href="/tomoyu"><img alt="tomoyu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76389/profile-images/1473700470" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="chloe_chat"><a itemprop="url" href="/chloe_chat"><img alt="chloe_chat" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18809/profile-images/1476936488" /></a></div></div><div class="ArticleFooter__user"><a href="/1234224576/items/f785eef6eed68271be64/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/f785eef6eed68271be64/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/1234224576/items/f785eef6eed68271be64.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/nonbiri15/items/f6ac396f5a7cbe96aa8a#_reference-6e22bc9a1dcecf5baeec"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/83761/profile-images/1473702877" />「じゃあ、他の手法と比べてみたときにどうなんだ？」</a><time class="references_datetime js-dateTimeView" datetime="2016-03-27T12:59:30+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/0d1cbde1c0bd0d60203b#_reference-65055c9b8d4c96db6c4e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />R言語でウェーブレット変換 ～時系列データの各波長成分の含有濃度が、時間推移とともにどう変化するかを視覚化する方法</a><time class="references_datetime js-dateTimeView" datetime="2016-04-07T02:18:06+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/7e2be24083b7e8549b61#_reference-32146a37174ccbbbd455"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />Scilab でウェーブレット変換 （手習い）～ ウェブサイト上のプログラム・コードを写経して実行してみる</a><time class="references_datetime js-dateTimeView" datetime="2016-04-07T02:20:33+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/809783e0266a2609f8e2#_reference-d0f44c1834e25baf7ce4"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />【 参考サイト まとめ 】音声解析手法 の 整理 と 音声処理エンジンへの活用事例 〜 ① 高速フーリエ変換、② 短時間フーリエ変換、③ ウェーブレット変換、④ ディープ・ラーニング</a><time class="references_datetime js-dateTimeView" datetime="2016-04-07T05:21:26+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/nonbiri15/items/b29fe079d359d531bf85#_reference-5bd6c0717fcd43f0ac31"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/83761/profile-images/1473702877" />機械学習のデータセットの重要性</a><time class="references_datetime js-dateTimeView" datetime="2016-06-19T11:41:36+00:00">9 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="声優の声を分類してみた by @a1234224576a on @Qiita" data-url="http://qiita.com/1234224576/items/f785eef6eed68271be64" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="声優の声を分類してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/1234224576/items/f785eef6eed68271be64" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/1234224576/items/f785eef6eed68271be64" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/1234224576/items/f785eef6eed68271be64" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eこの発送は面白いです！！\u003cbr\u003e\n自分もやってみたいです！！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-06-28T22:58:10+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:273695,&quot;is_team&quot;:false,&quot;item_id&quot;:311143,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;f785eef6eed68271be64&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;この発送は面白いです！！\n自分もやってみたいです！！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/1234224576/items/f785eef6eed68271be64#comment-7a00336e284a80c89b84&quot;,&quot;user&quot;:{&quot;contribution&quot;:946,&quot;created_at&quot;:&quot;2013-03-26T22:27:49+09:00&quot;,&quot;id&quot;:18783,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/18783/profile-images/1473682525&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;PlanetMeron&quot;},&quot;uuid&quot;:&quot;7a00336e284a80c89b84&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:311143,&quot;uuid&quot;:&quot;f785eef6eed68271be64&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;1234224576&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:44218,&quot;url_name&quot;:&quot;1234224576&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/44218/profile-images/1473689813&quot;},{&quot;id&quot;:18783,&quot;url_name&quot;:&quot;PlanetMeron&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/18783/profile-images/1473682525&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-6b9c89c8-58f2-4960-8cd6-6faf6c84fe4a"></div>
+    <div id="CommentListContainer-react-component-6b9c89c8-58f2-4960-8cd6-6faf6c84fe4a"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="Kd7nEHDpfbxIh+6r75TCHmfJWSbz/m51rmt68n81o2lyEKoqQPXYG5R5PBZkXeA1C9M761uahFm+LAiqrnE/gA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/1234224576/items/f785eef6eed68271be64" /><input type="hidden" name="item_uuid" id="item_uuid" value="f785eef6eed68271be64" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/1234224576/items/f785eef6eed68271be64", "id": 311143, "uuid": "f785eef6eed68271be64" }</script><script class="js-user" type="application/json">{&quot;id&quot;:44218,&quot;url_name&quot;:&quot;1234224576&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/44218/profile-images/1473689813&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="/WCsXrk9VKqkty+IGjV2minivvUx6vbk66Kiz2X8Z5amruFkiSHxDXhJ/TWR/FSxRfjcOJmOHMj75dCXtLj7fw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/1234224576/items/f785eef6eed68271be64" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

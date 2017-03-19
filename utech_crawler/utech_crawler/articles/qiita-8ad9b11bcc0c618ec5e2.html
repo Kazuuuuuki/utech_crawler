@@ -1,0 +1,519 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>DeepLearningで上司を認識して画面を隠す - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+背景
+
+仕事をしているとき、業務に関係ない情報を閲覧していることって誰でもありますよね？
+
+そんなときに背後にボスが忍び寄っていると気まずい思いをします。もちろん急いで画面を切り替えれば良いのですが、そういう動作は逆に怪しまれることになりますし、集中しているときは気がつかないこともあります。そこで怪しまれずに画面を切り替えるために、ボスが近づいてきたことを自動的に認識して画面を隠すシステムを作ってみました。
+
+具体的にはKerasを用いてボスの顔を機械学習し、カメラ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Hironsan13" name="twitter:creator" /><meta content="DeepLearningで上司を認識して画面を隠す - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# 背景
+仕事をしているとき、業務に関係ない情報を閲覧していることって誰でもありますよね？
+
+そんなときに**背後にボスが忍び寄っている**と気まずい思いをします。もちろん急いで画面を切り替えれば良いのですが、そういう動作は逆に怪しま..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="Y2t5TK5RAh4W20AfXNlBi9om7yrvBLiGRJ6rdfIXvIB948Ci+5tNfGnsSl//eI0VpLHOSU26VhnU+e+mcgW9vQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"Hironsan","type":"items","id":"8ad9b11bcc0c618ec5e2"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-bf985dd8-e0bf-4260-892b-7b4bd00036be"></div>
+    <div id="HeaderContainer-react-component-bf985dd8-e0bf-4260-892b-7b4bd00036be"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">DeepLearningで上司を認識して画面を隠す</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="322"><a class="u-link-unstyled TagList__label" href="/tags/%E7%94%BB%E5%83%8F%E5%87%A6%E7%90%86"><img alt="画像処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/4c43dc9a30e781489de25e68c0325ddb3279016e/medium.jpg?1422923133" /><span>画像処理</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="121"><a class="u-link-unstyled TagList__label" href="/tags/Keras"><img alt="Keras" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/45122f523cfcb2afd15e6e3054b41f5d34f7a558/medium.jpg?1460351964" /><span>Keras</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">850</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="2 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>2</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:850,&quot;uuid&quot;:&quot;8ad9b11bcc0c618ec5e2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="Noboruhi"><a itemprop="url" href="/Noboruhi"><img alt="Noboruhi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5748/profile-images/1473682236" /></a></li><li class="js-hovercard" data-hovercard-target-name="ana_jp1"><a itemprop="url" href="/ana_jp1"><img alt="ana_jp1" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108577/profile-images/1473710597" /></a></li><li class="js-hovercard" data-hovercard-target-name="keigodasu"><a itemprop="url" href="/keigodasu"><img alt="keigodasu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48330/profile-images/1473691315" /></a></li><li class="js-hovercard" data-hovercard-target-name="knmk"><a itemprop="url" href="/knmk"><img alt="knmk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/117101/profile-images/1473713475" /></a></li><li class="js-hovercard" data-hovercard-target-name="kesuzuki"><a itemprop="url" href="/kesuzuki"><img alt="kesuzuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/16917/profile-images/1473682003" /></a></li><li class="js-hovercard" data-hovercard-target-name="akira31204"><a itemprop="url" href="/akira31204"><img alt="akira31204" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/137940/profile-images/1473720443" /></a></li><li class="js-hovercard" data-hovercard-target-name="naga3"><a itemprop="url" href="/naga3"><img alt="naga3" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32030/profile-images/1473685819" /></a></li><li class="js-hovercard" data-hovercard-target-name="tkimuranet"><a itemprop="url" href="/tkimuranet"><img alt="tkimuranet" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22267/profile-images/1473758861" /></a></li><li class="js-hovercard" data-hovercard-target-name="haccht"><a itemprop="url" href="/haccht"><img alt="haccht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/16560/profile-images/1483137351" /></a></li><li class="js-hovercard" data-hovercard-target-name="fromkk"><a itemprop="url" href="/fromkk"><img alt="fromkk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2846/profile-images/1473682170" /></a></li><li><a href="/Hironsan/items/8ad9b11bcc0c618ec5e2/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/Hironsan"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" alt="1473700709" /></a> <a class="u-link-unstyled" href="/Hironsan">Hironsan</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-09-16T08:58:44+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-09-16">Edited at <time datetime="2016-09-16T21:07:12+09:00" itemprop="dateModified">2016-09-16</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/Hironsan/items/8ad9b11bcc0c618ec5e2/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">3</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/Hironsan/items/8ad9b11bcc0c618ec5e2/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(3)</span></a></li><li><a href="/Hironsan/items/8ad9b11bcc0c618ec5e2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-8ad9b11bcc0c618ec5e2" itemprop="articleBody">
+<h1>
+<span id="背景" class="fragment"></span><a href="#%E8%83%8C%E6%99%AF"><i class="fa fa-link"></i></a>背景</h1>
+
+<p>仕事をしているとき、業務に関係ない情報を閲覧していることって誰でもありますよね？</p>
+
+<p>そんなときに<strong>背後にボスが忍び寄っている</strong>と気まずい思いをします。もちろん急いで画面を切り替えれば良いのですが、そういう動作は逆に怪しまれることになりますし、集中しているときは気がつかないこともあります。そこで怪しまれずに画面を切り替えるために、ボスが近づいてきたことを自動的に認識して画面を隠すシステムを作ってみました。</p>
+
+<p>具体的には<font color="red">Keras</font>を用いてボスの顔を機械学習し、カメラを用いて近づいてきたことを認識して画面を切り替えています。</p>
+
+<h1>
+<span id="ミッション" class="fragment"></span><a href="#%E3%83%9F%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3"><i class="fa fa-link"></i></a>ミッション</h1>
+
+<p>ミッションはボスが近づいてきたら自動的に画面を切り替えることです。<br>
+状況は以下のような感じです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/9dce0918-5df3-9f87-dfa9-8713ce781168.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/9dce0918-5df3-9f87-dfa9-8713ce781168.png" alt="situation.png"></a></p>
+
+<p>ボスの席から私の席まではだいたい6,7mくらいです。ボスが席をたってから、4,5秒で私の席に到達します。したがって、この間に画面を隠す必要があるわけです。時間的余裕はあまりありません。</p>
+
+<h1>
+<span id="戦略-如何にして画面を隠すか" class="fragment"></span><a href="#%E6%88%A6%E7%95%A5-%E5%A6%82%E4%BD%95%E3%81%AB%E3%81%97%E3%81%A6%E7%94%BB%E9%9D%A2%E3%82%92%E9%9A%A0%E3%81%99%E3%81%8B"><i class="fa fa-link"></i></a>戦略 〜如何にして画面を隠すか?〜</h1>
+
+<p>さまざまな戦略が考えられると思いますが、私の考えた戦略はこうです。<br>
+まず、機械学習を使ってコンピュータにあらかじめボスの顔を学習させておきます。そして、自席にWebカメラを設置し、Webカメラがボスの顔を捉えたら画面を切り替えます。完璧な戦略です。このすばらしいシステムのことを「<strong>ボスセンサ</strong>」と名付けましょう。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/49b077d3-b64f-53ad-c3a7-a080eb5f30fc.png" target="_blank" rel="nofollow noopener"><img width="674" alt="スクリーンショット 2016-07-05 16.16.06.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/49b077d3-b64f-53ad-c3a7-a080eb5f30fc.png"></a></p>
+
+<h2>
+<span id="ボスセンサのシステム構成" class="fragment"></span><a href="#%E3%83%9C%E3%82%B9%E3%82%BB%E3%83%B3%E3%82%B5%E3%81%AE%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%88%90"><i class="fa fa-link"></i></a>ボスセンサのシステム構成</h2>
+
+<p>ボスセンサの超簡単なシステム構成は以下の通りです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/9ff9ee99-77f3-149c-4f32-97400ed10469.png" target="_blank" rel="nofollow noopener"><img width="791" alt="スクリーンショット 2016-07-05 16.24.23.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/9ff9ee99-77f3-149c-4f32-97400ed10469.png"></a></p>
+
+<ul>
+<li>Webカメラを使ってリアルタイムに画像を取得します。</li>
+<li>取得した画像に対して学習モデルを用いて顔検知&amp;顔認識を行います。</li>
+<li>認識結果がボスだったら画面を切り替えます。</li>
+</ul>
+
+<p>これらを行うために以下の技術が必要になります:</p>
+
+<ul>
+<li>顔画像の取得</li>
+<li>顔画像の認識</li>
+<li>画面の切り替え</li>
+</ul>
+
+<p>それでは一つずつ検証し、最後に統合しましょう。</p>
+
+<h1>
+<span id="顔画像の取得" class="fragment"></span><a href="#%E9%A1%94%E7%94%BB%E5%83%8F%E3%81%AE%E5%8F%96%E5%BE%97"><i class="fa fa-link"></i></a>顔画像の取得</h1>
+
+<p>まずはWebカメラから画像を取得します。<br>
+今回使用するWebカメラは<a href="https://www.amazon.co.jp/%E3%83%90%E3%83%83%E3%83%95%E3%82%A1%E3%83%AD%E3%83%BC-BSW20KM11BK-iBUFFALO-%E3%83%9E%E3%82%A4%E3%82%AF%E5%86%85%E8%94%B5200%E4%B8%87%E7%94%BB%E7%B4%A0WEB%E3%82%AB%E3%83%A1%E3%83%A9-120%C2%B0%E5%BA%83%E8%A7%92%E3%82%AC%E3%83%A9%E3%82%B9%E3%83%AC%E3%83%B3%E3%82%BA%E6%90%AD%E8%BC%89%E3%83%A2%E3%83%87%E3%83%AB/dp/B008AO4KXQ" rel="nofollow noopener" target="_blank">BUFFALOのBSW20KM11BK</a>です。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/00d9202e-e5fb-0d8d-16ca-649798f3151c.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/00d9202e-e5fb-0d8d-16ca-649798f3151c.jpeg" alt="s_DSC_0081.JPG"></a></p>
+
+<p>Webカメラはある程度の性能があればなんでも良いと思います。</p>
+
+<p>カメラから画像を取得するのは付属のソフトでもできますが、後の処理の事を考えるとプログラムから取得できた方がいいです。また、このあとの処理で顔認識を行うので顔画像だけを切り出す必要があります。というわけで、PythonとOpenCVを使って顔画像を取得することにします。そのためのコードがこちら:</p>
+
+<ul>
+<li><a href="https://github.com/Hironsan/BossSensor/blob/master/camera_reader.py" rel="nofollow noopener" target="_blank">BossSensor/camera_reader.py</a></li>
+</ul>
+
+<p>思っていたよりきれいに顔画像を取得することができました。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/7ff6c5f1-9621-ffa5-031a-aa75cfe83494.png" target="_blank" rel="nofollow noopener"><img width="252" alt="スクリーンショット 2016-09-15 9.49.32.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/7ff6c5f1-9621-ffa5-031a-aa75cfe83494.png"></a></p>
+
+<h1>
+<span id="ボスの顔の学習と認識" class="fragment"></span><a href="#%E3%83%9C%E3%82%B9%E3%81%AE%E9%A1%94%E3%81%AE%E5%AD%A6%E7%BF%92%E3%81%A8%E8%AA%8D%E8%AD%98"><i class="fa fa-link"></i></a>ボスの顔の学習と認識</h1>
+
+<p>次に、機械学習を使ってコンピュータにボスの顔を認識できるようにします。<br>
+以下の３点がざっくりとした手順です:</p>
+
+<ol>
+<li>画像の収集</li>
+<li>画像の加工</li>
+<li>機械学習モデルの構築</li>
+</ol>
+
+<p>これらについても一つずつ見ていきましょう。</p>
+
+<h2>
+<span id="画像の収集" class="fragment"></span><a href="#%E7%94%BB%E5%83%8F%E3%81%AE%E5%8F%8E%E9%9B%86"><i class="fa fa-link"></i></a>画像の収集</h2>
+
+<p>まずは、学習用の画像を入手する必要があります。収集方法としては以下のような方法を使いました:</p>
+
+<ul>
+<li>Google画像検索</li>
+<li>Facebookで画像収集</li>
+<li>カメラで撮影</li>
+</ul>
+
+<p>最初はWeb検索とFacebookから画像を収集したのですが、十分な数の画像が集まりませんでした。そのため、ビデオカメラを使って動画を撮影し、動画を画像に分解するということを行いました。</p>
+
+<h2>
+<span id="画像の加工" class="fragment"></span><a href="#%E7%94%BB%E5%83%8F%E3%81%AE%E5%8A%A0%E5%B7%A5"><i class="fa fa-link"></i></a>画像の加工</h2>
+
+<p>さて、顔が写った画像は大量に取得できましたが、このままでは学習器にかけられません。顔と関係のない部分が画像のかなりの部分を占めているからです。そこで顔画像だけを切り出してあげます。</p>
+
+<p>切り出しには主にImageMagickを使いました。ImageMagickを使って切り出すことで顔画像だけを手に入れることができます。</p>
+
+<ul>
+<li><a href="http://www.imagemagick.org/script/index.php" rel="nofollow noopener" target="_blank">ImageMagick</a></li>
+</ul>
+
+<p>こんな感じで大量の顔画像が集まりました:<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/a6c5293d-118d-6867-00a4-7dd0bc85f06e.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/a6c5293d-118d-6867-00a4-7dd0bc85f06e.jpeg" alt="s_many_bosses.jpg"></a></p>
+
+<p>おそらく私は世界で最も上司の顔画像を所持している人間でしょう。親より持っているに違いない。</p>
+
+<p>これで学習のための準備はできました。</p>
+
+<h2>
+<span id="機械学習モデルの構築" class="fragment"></span><a href="#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E6%A7%8B%E7%AF%89"><i class="fa fa-link"></i></a>機械学習モデルの構築</h2>
+
+<p>学習はKerasで畳み込みニューラルネットワーク(CNN)を構築して行います。KerasのバックエンドにはTensorFlowを使用しています。顔認識するだけなら画像認識のWeb APIを叩いてもできますが、今回はリアルタイム性を考慮して自分で作ることにしました。</p>
+
+<p>ネットワークは以下のような構成にしています。Kerasだと構成を簡単に出力できるので便利です。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">Layer (type)                     Output Shape          Param #     Connected to                     </span>
+<span class="go">====================================================================================================</span>
+<span class="go">convolution2d_1 (Convolution2D)  (None, 32, 64, 64)    896         convolution2d_input_1[0][0]      </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">activation_1 (Activation)        (None, 32, 64, 64)    0           convolution2d_1[0][0]            </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">convolution2d_2 (Convolution2D)  (None, 32, 62, 62)    9248        activation_1[0][0]               </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">activation_2 (Activation)        (None, 32, 62, 62)    0           convolution2d_2[0][0]            </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">maxpooling2d_1 (MaxPooling2D)    (None, 32, 31, 31)    0           activation_2[0][0]               </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">dropout_1 (Dropout)              (None, 32, 31, 31)    0           maxpooling2d_1[0][0]             </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">convolution2d_3 (Convolution2D)  (None, 64, 31, 31)    18496       dropout_1[0][0]                  </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">activation_3 (Activation)        (None, 64, 31, 31)    0           convolution2d_3[0][0]            </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">convolution2d_4 (Convolution2D)  (None, 64, 29, 29)    36928       activation_3[0][0]               </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">activation_4 (Activation)        (None, 64, 29, 29)    0           convolution2d_4[0][0]            </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">maxpooling2d_2 (MaxPooling2D)    (None, 64, 14, 14)    0           activation_4[0][0]               </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">dropout_2 (Dropout)              (None, 64, 14, 14)    0           maxpooling2d_2[0][0]             </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">flatten_1 (Flatten)              (None, 12544)         0           dropout_2[0][0]                  </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">dense_1 (Dense)                  (None, 512)           6423040     flatten_1[0][0]                  </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">activation_5 (Activation)        (None, 512)           0           dense_1[0][0]                    </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">dropout_3 (Dropout)              (None, 512)           0           activation_5[0][0]               </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">dense_2 (Dense)                  (None, 2)             1026        dropout_3[0][0]                  </span>
+<span class="go">____________________________________________________________________________________________________</span>
+<span class="go">activation_6 (Activation)        (None, 2)             0           dense_2[0][0]                    </span>
+<span class="go">====================================================================================================</span>
+<span class="go">Total params: 6489634</span>
+</pre></div></div>
+
+<p>そのコードがこちら:</p>
+
+<ul>
+<li><a href="https://github.com/Hironsan/BossSensor/blob/master/boss_train.py" rel="nofollow noopener" target="_blank">BossSensor/boss_train.py</a></li>
+</ul>
+
+<p>ここまでできるとカメラにボスが映った時にボスだと認識することができます。</p>
+
+<h1>
+<span id="画面の切り替え" class="fragment"></span><a href="#%E7%94%BB%E9%9D%A2%E3%81%AE%E5%88%87%E3%82%8A%E6%9B%BF%E3%81%88"><i class="fa fa-link"></i></a>画面の切り替え</h1>
+
+<p>さて、学習したモデルを使ってボスの顔を認識したら画面を切り替える必要があります。今回はシンプルに、仕事してる風の画像を用意して表示することにしましょう。<br>
+私はプログラマなので以下の画像を用意しました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/77079/7f416d9b-231b-7926-fe93-7a42cf579fe2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/7f416d9b-231b-7926-fe93-7a42cf579fe2.png" alt="s_pycharm.png"></a></p>
+
+<p>いかにも仕事をしている風です。あとはこの画像を表示してやるだけです。</p>
+
+<p>画像はフルスクリーンで表示したいので、PyQtを使って表示することにします。そのためのコードがこちら:</p>
+
+<ul>
+<li><a href="https://github.com/Hironsan/BossSensor/blob/master/image_show.py" rel="nofollow noopener" target="_blank">BossSensor/image_show.py</a></li>
+</ul>
+
+<p>さぁ、これですべての準備が整いました。</p>
+
+<h1>
+<span id="完成" class="fragment"></span><a href="#%E5%AE%8C%E6%88%90"><i class="fa fa-link"></i></a>完成</h1>
+
+<p>これまでに検証した技術を統合したら完成です。実際に試してみました。</p>
+
+<p>「ボスが席を立ちました。私の席に近づいてきます。」<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/fee7467f-b124-31c1-068b-5f22570b0ba4.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/fee7467f-b124-31c1-068b-5f22570b0ba4.jpeg" alt="standup.jpg"></a></p>
+
+<p>「OpenCVが顔検知をしました。画像を学習モデルに投げます。」<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/73e1aeca-d72c-fd15-9f49-2d0de8c63314.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/73e1aeca-d72c-fd15-9f49-2d0de8c63314.jpeg" alt="approach.jpg"></a></p>
+
+<p>「無事、ボスだと認識して画面が切り替わりました。ヽ(‘ ∇‘ )ノ ﾜｰｲ」<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/805aacd8-62de-15a1-29bf-384e48560e4c.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/805aacd8-62de-15a1-29bf-384e48560e4c.jpeg" alt="s_editor.jpg"></a></p>
+
+<h1>
+<span id="反省" class="fragment"></span><a href="#%E5%8F%8D%E7%9C%81"><i class="fa fa-link"></i></a>反省</h1>
+
+<p>自戒を込めて。</p>
+
+<p>テストセットの画像に対しては高い精度なのに、Webカメラで取得した画像はなかなか認識できないことがありました。光の当たり具合だとか画像のブレが関係していたようです。きちんと画像の正規化とかしないといけないんだなぁー。</p>
+
+<p>分類がボスか別の人かの２値分類だったが、顔画像以外の画像を入力した時に、ボスに分類されることがあった。どちらかといえばボスだよねーということだったのだろう。２値分類より、ボスである確率を使って認識した方がよかったかもしれない。</p>
+
+<p>画像処理難しい。</p>
+
+<h1>
+<span id="ソースコード" class="fragment"></span><a href="#%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>ソースコード</h1>
+
+<p>以下のリポジトリからソースコードをダウンロードできます。</p>
+
+<ul>
+<li><a href="https://github.com/Hironsan/BossSensor" rel="nofollow noopener" target="_blank">BossSensor</a></li>
+</ul>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<p>今回はWebカメラからリアルタイムの画像取得とKerasを用いた顔認識を組み合わせることで、上司を認識して画面を隠してみました。</p>
+
+<p>現在はOpenCVで顔検知をしていますが、OpenCVでの顔検知の精度がいまいちな気がするので、Dlib使ったりしてその辺りを改善してみたいと考えています。自分で訓練した顔検出モデルを使ったりしてみたい。</p>
+
+<p>あと仕事している風画像の表示にPyQt使っていたんですが、命令してから表示されるまでに結構時間がかかるので、その辺りの改善が必要になります。</p>
+
+<p>Webカメラから取得した画像の認識精度がいまいちなので、ちょこちょこと改善していきたいと思います。</p>
+
+<p>現実は甘くはなかった</p>
+<div class="hidden"><form class="js-task-list-update" action="/Hironsan/items/8ad9b11bcc0c618ec5e2" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="blab5Ct+ewRX2BIukOHlKlhQ9l/zq8jSVImpCZ838qJw3iIKfrQ0ZijvGG4zQCm0JsfXPFEVJk3E7u3aHyXznw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1474027632" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# 背景
+仕事をしているとき、業務に関係ない情報を閲覧していることって誰でもありますよね？
+
+そんなときに**背後にボスが忍び寄っている**と気まずい思いをします。もちろん急いで画面を切り替えれば良いのですが、そういう動作は逆に怪しまれることになりますし、集中しているときは気がつかないこともあります。そこで怪しまれずに画面を切り替えるために、ボスが近づいてきたことを自動的に認識して画面を隠すシステムを作ってみました。
+
+具体的には&lt;font color=&quot;red&quot;&gt;Keras&lt;/font&gt;を用いてボスの顔を機械学習し、カメラを用いて近づいてきたことを認識して画面を切り替えています。
+
+
+# ミッション
+ミッションはボスが近づいてきたら自動的に画面を切り替えることです。
+状況は以下のような感じです。
+![situation.png](https://qiita-image-store.s3.amazonaws.com/0/77079/9dce0918-5df3-9f87-dfa9-8713ce781168.png)
+
+ボスの席から私の席まではだいたい6,7mくらいです。ボスが席をたってから、4,5秒で私の席に到達します。したがって、この間に画面を隠す必要があるわけです。時間的余裕はあまりありません。
+
+# 戦略 〜如何にして画面を隠すか?〜
+さまざまな戦略が考えられると思いますが、私の考えた戦略はこうです。
+まず、機械学習を使ってコンピュータにあらかじめボスの顔を学習させておきます。そして、自席にWebカメラを設置し、Webカメラがボスの顔を捉えたら画面を切り替えます。完璧な戦略です。このすばらしいシステムのことを「**ボスセンサ**」と名付けましょう。
+&lt;img width=&quot;674&quot; alt=&quot;スクリーンショット 2016-07-05 16.16.06.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/49b077d3-b64f-53ad-c3a7-a080eb5f30fc.png&quot;&gt;
+
+## ボスセンサのシステム構成
+ボスセンサの超簡単なシステム構成は以下の通りです。
+&lt;img width=&quot;791&quot; alt=&quot;スクリーンショット 2016-07-05 16.24.23.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/9ff9ee99-77f3-149c-4f32-97400ed10469.png&quot;&gt;
+
+* Webカメラを使ってリアルタイムに画像を取得します。
+* 取得した画像に対して学習モデルを用いて顔検知&amp;顔認識を行います。
+* 認識結果がボスだったら画面を切り替えます。
+
+これらを行うために以下の技術が必要になります:
+
+* 顔画像の取得
+* 顔画像の認識
+* 画面の切り替え
+
+それでは一つずつ検証し、最後に統合しましょう。
+
+# 顔画像の取得
+まずはWebカメラから画像を取得します。
+今回使用するWebカメラは[BUFFALOのBSW20KM11BK](https://www.amazon.co.jp/%E3%83%90%E3%83%83%E3%83%95%E3%82%A1%E3%83%AD%E3%83%BC-BSW20KM11BK-iBUFFALO-%E3%83%9E%E3%82%A4%E3%82%AF%E5%86%85%E8%94%B5200%E4%B8%87%E7%94%BB%E7%B4%A0WEB%E3%82%AB%E3%83%A1%E3%83%A9-120%C2%B0%E5%BA%83%E8%A7%92%E3%82%AC%E3%83%A9%E3%82%B9%E3%83%AC%E3%83%B3%E3%82%BA%E6%90%AD%E8%BC%89%E3%83%A2%E3%83%87%E3%83%AB/dp/B008AO4KXQ)です。
+![s_DSC_0081.JPG](https://qiita-image-store.s3.amazonaws.com/0/77079/00d9202e-e5fb-0d8d-16ca-649798f3151c.jpeg)
+
+
+Webカメラはある程度の性能があればなんでも良いと思います。
+
+カメラから画像を取得するのは付属のソフトでもできますが、後の処理の事を考えるとプログラムから取得できた方がいいです。また、このあとの処理で顔認識を行うので顔画像だけを切り出す必要があります。というわけで、PythonとOpenCVを使って顔画像を取得することにします。そのためのコードがこちら:
+
+* [BossSensor/camera_reader.py](https://github.com/Hironsan/BossSensor/blob/master/camera_reader.py)
+
+思っていたよりきれいに顔画像を取得することができました。
+&lt;img width=&quot;252&quot; alt=&quot;スクリーンショット 2016-09-15 9.49.32.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/7ff6c5f1-9621-ffa5-031a-aa75cfe83494.png&quot;&gt;
+
+
+
+
+# ボスの顔の学習と認識
+次に、機械学習を使ってコンピュータにボスの顔を認識できるようにします。
+以下の３点がざっくりとした手順です:
+
+1. 画像の収集
+2. 画像の加工
+3. 機械学習モデルの構築
+
+これらについても一つずつ見ていきましょう。
+
+## 画像の収集
+まずは、学習用の画像を入手する必要があります。収集方法としては以下のような方法を使いました:
+
+* Google画像検索
+* Facebookで画像収集
+* カメラで撮影
+
+最初はWeb検索とFacebookから画像を収集したのですが、十分な数の画像が集まりませんでした。そのため、ビデオカメラを使って動画を撮影し、動画を画像に分解するということを行いました。
+
+
+
+## 画像の加工
+さて、顔が写った画像は大量に取得できましたが、このままでは学習器にかけられません。顔と関係のない部分が画像のかなりの部分を占めているからです。そこで顔画像だけを切り出してあげます。
+
+切り出しには主にImageMagickを使いました。ImageMagickを使って切り出すことで顔画像だけを手に入れることができます。
+
+* [ImageMagick](http://www.imagemagick.org/script/index.php)
+
+
+こんな感じで大量の顔画像が集まりました:
+![s_many_bosses.jpg](https://qiita-image-store.s3.amazonaws.com/0/77079/a6c5293d-118d-6867-00a4-7dd0bc85f06e.jpeg)
+
+
+おそらく私は世界で最も上司の顔画像を所持している人間でしょう。親より持っているに違いない。
+
+これで学習のための準備はできました。
+
+## 機械学習モデルの構築
+学習はKerasで畳み込みニューラルネットワーク(CNN)を構築して行います。KerasのバックエンドにはTensorFlowを使用しています。顔認識するだけなら画像認識のWeb APIを叩いてもできますが、今回はリアルタイム性を考慮して自分で作ることにしました。
+
+
+ネットワークは以下のような構成にしています。Kerasだと構成を簡単に出力できるので便利です。
+
+```shell-session
+____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+convolution2d_1 (Convolution2D)  (None, 32, 64, 64)    896         convolution2d_input_1[0][0]      
+____________________________________________________________________________________________________
+activation_1 (Activation)        (None, 32, 64, 64)    0           convolution2d_1[0][0]            
+____________________________________________________________________________________________________
+convolution2d_2 (Convolution2D)  (None, 32, 62, 62)    9248        activation_1[0][0]               
+____________________________________________________________________________________________________
+activation_2 (Activation)        (None, 32, 62, 62)    0           convolution2d_2[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_1 (MaxPooling2D)    (None, 32, 31, 31)    0           activation_2[0][0]               
+____________________________________________________________________________________________________
+dropout_1 (Dropout)              (None, 32, 31, 31)    0           maxpooling2d_1[0][0]             
+____________________________________________________________________________________________________
+convolution2d_3 (Convolution2D)  (None, 64, 31, 31)    18496       dropout_1[0][0]                  
+____________________________________________________________________________________________________
+activation_3 (Activation)        (None, 64, 31, 31)    0           convolution2d_3[0][0]            
+____________________________________________________________________________________________________
+convolution2d_4 (Convolution2D)  (None, 64, 29, 29)    36928       activation_3[0][0]               
+____________________________________________________________________________________________________
+activation_4 (Activation)        (None, 64, 29, 29)    0           convolution2d_4[0][0]            
+____________________________________________________________________________________________________
+maxpooling2d_2 (MaxPooling2D)    (None, 64, 14, 14)    0           activation_4[0][0]               
+____________________________________________________________________________________________________
+dropout_2 (Dropout)              (None, 64, 14, 14)    0           maxpooling2d_2[0][0]             
+____________________________________________________________________________________________________
+flatten_1 (Flatten)              (None, 12544)         0           dropout_2[0][0]                  
+____________________________________________________________________________________________________
+dense_1 (Dense)                  (None, 512)           6423040     flatten_1[0][0]                  
+____________________________________________________________________________________________________
+activation_5 (Activation)        (None, 512)           0           dense_1[0][0]                    
+____________________________________________________________________________________________________
+dropout_3 (Dropout)              (None, 512)           0           activation_5[0][0]               
+____________________________________________________________________________________________________
+dense_2 (Dense)                  (None, 2)             1026        dropout_3[0][0]                  
+____________________________________________________________________________________________________
+activation_6 (Activation)        (None, 2)             0           dense_2[0][0]                    
+====================================================================================================
+Total params: 6489634
+```
+
+
+
+そのコードがこちら:
+
+* [BossSensor/boss_train.py](https://github.com/Hironsan/BossSensor/blob/master/boss_train.py)
+
+
+ここまでできるとカメラにボスが映った時にボスだと認識することができます。
+
+# 画面の切り替え
+さて、学習したモデルを使ってボスの顔を認識したら画面を切り替える必要があります。今回はシンプルに、仕事してる風の画像を用意して表示することにしましょう。
+私はプログラマなので以下の画像を用意しました。
+
+![s_pycharm.png](https://qiita-image-store.s3.amazonaws.com/0/77079/7f416d9b-231b-7926-fe93-7a42cf579fe2.png)
+
+
+いかにも仕事をしている風です。あとはこの画像を表示してやるだけです。
+
+画像はフルスクリーンで表示したいので、PyQtを使って表示することにします。そのためのコードがこちら:
+
+* [BossSensor/image_show.py](https://github.com/Hironsan/BossSensor/blob/master/image_show.py)
+
+さぁ、これですべての準備が整いました。
+
+# 完成
+これまでに検証した技術を統合したら完成です。実際に試してみました。
+
+「ボスが席を立ちました。私の席に近づいてきます。」
+![standup.jpg](https://qiita-image-store.s3.amazonaws.com/0/77079/fee7467f-b124-31c1-068b-5f22570b0ba4.jpeg)
+
+「OpenCVが顔検知をしました。画像を学習モデルに投げます。」
+![approach.jpg](https://qiita-image-store.s3.amazonaws.com/0/77079/73e1aeca-d72c-fd15-9f49-2d0de8c63314.jpeg)
+
+「無事、ボスだと認識して画面が切り替わりました。ヽ(‘ ∇‘ )ノ ﾜｰｲ」
+![s_editor.jpg](https://qiita-image-store.s3.amazonaws.com/0/77079/805aacd8-62de-15a1-29bf-384e48560e4c.jpeg)
+
+# 反省
+自戒を込めて。
+
+テストセットの画像に対しては高い精度なのに、Webカメラで取得した画像はなかなか認識できないことがありました。光の当たり具合だとか画像のブレが関係していたようです。きちんと画像の正規化とかしないといけないんだなぁー。
+
+分類がボスか別の人かの２値分類だったが、顔画像以外の画像を入力した時に、ボスに分類されることがあった。どちらかといえばボスだよねーということだったのだろう。２値分類より、ボスである確率を使って認識した方がよかったかもしれない。
+
+画像処理難しい。
+
+
+# ソースコード
+以下のリポジトリからソースコードをダウンロードできます。
+
+* [BossSensor](https://github.com/Hironsan/BossSensor)
+
+# おわりに
+今回はWebカメラからリアルタイムの画像取得とKerasを用いた顔認識を組み合わせることで、上司を認識して画面を隠してみました。
+
+現在はOpenCVで顔検知をしていますが、OpenCVでの顔検知の精度がいまいちな気がするので、Dlib使ったりしてその辺りを改善してみたいと考えています。自分で訓練した顔検出モデルを使ったりしてみたい。
+
+あと仕事している風画像の表示にPyQt使っていたんですが、命令してから表示されるまでに結構時間がかかるので、その辺りの改善が必要になります。
+
+Webカメラから取得した画像の認識精度がいまいちなので、ちょこちょこと改善していきたいと思います。
+
+現実は甘くはなかった
+
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="DeepLearningで上司を認識して画面を隠す by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="DeepLearningで上司を認識して画面を隠す" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/Hironsan"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/Hironsan">Hironsan</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">4816</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;Hironsan&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-725fb2d5-897a-4f7c-bca7-2419c45e12ed"></div>
+    <div id="UserFollowButton-react-component-725fb2d5-897a-4f7c-bca7-2419c45e12ed"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/6425787ccbee75dfae36">機械学習を使って作る対話システム</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/8ad9b11bcc0c618ec5e2">DeepLearningで上司を認識して画面を隠す</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/20951116a2650f45fea5">学年ビリのアホが1年半でTOEICスコアを300点から840点に上げた英語勉強法の話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/326b66711eb4196aa9d4">【チュートリアル】機械学習を使って30分で固有表現抽出器を作る</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/ca0b176fd859490dde08">まだ機械学習の論文を追うのに消耗してるの？それBotで解決したよ</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%83%8C%E6%99%AF\&quot;\u003e背景\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9F%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3\&quot;\u003eミッション\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%88%A6%E7%95%A5-%E5%A6%82%E4%BD%95%E3%81%AB%E3%81%97%E3%81%A6%E7%94%BB%E9%9D%A2%E3%82%92%E9%9A%A0%E3%81%99%E3%81%8B\&quot;\u003e戦略 〜如何にして画面を隠すか?〜\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9C%E3%82%B9%E3%82%BB%E3%83%B3%E3%82%B5%E3%81%AE%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%88%90\&quot;\u003eボスセンサのシステム構成\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%A1%94%E7%94%BB%E5%83%8F%E3%81%AE%E5%8F%96%E5%BE%97\&quot;\u003e顔画像の取得\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9C%E3%82%B9%E3%81%AE%E9%A1%94%E3%81%AE%E5%AD%A6%E7%BF%92%E3%81%A8%E8%AA%8D%E8%AD%98\&quot;\u003eボスの顔の学習と認識\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%94%BB%E5%83%8F%E3%81%AE%E5%8F%8E%E9%9B%86\&quot;\u003e画像の収集\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%94%BB%E5%83%8F%E3%81%AE%E5%8A%A0%E5%B7%A5\&quot;\u003e画像の加工\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E6%A7%8B%E7%AF%89\&quot;\u003e機械学習モデルの構築\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%94%BB%E9%9D%A2%E3%81%AE%E5%88%87%E3%82%8A%E6%9B%BF%E3%81%88\&quot;\u003e画面の切り替え\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%8C%E6%88%90\&quot;\u003e完成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%8D%E7%9C%81\&quot;\u003e反省\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89\&quot;\u003eソースコード\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-b2468bc3-e6cf-47ab-b728-c8a03f69a94e"></div>
+    <div id="Toc-react-component-b2468bc3-e6cf-47ab-b728-c8a03f69a94e"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:850,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;8ad9b11bcc0c618ec5e2&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Noboruhi"><a itemprop="url" href="/Noboruhi"><img alt="Noboruhi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5748/profile-images/1473682236" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ana_jp1"><a itemprop="url" href="/ana_jp1"><img alt="ana_jp1" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108577/profile-images/1473710597" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="keigodasu"><a itemprop="url" href="/keigodasu"><img alt="keigodasu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48330/profile-images/1473691315" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="knmk"><a itemprop="url" href="/knmk"><img alt="knmk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/117101/profile-images/1473713475" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kesuzuki"><a itemprop="url" href="/kesuzuki"><img alt="kesuzuki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/16917/profile-images/1473682003" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="akira31204"><a itemprop="url" href="/akira31204"><img alt="akira31204" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/137940/profile-images/1473720443" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="naga3"><a itemprop="url" href="/naga3"><img alt="naga3" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32030/profile-images/1473685819" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tkimuranet"><a itemprop="url" href="/tkimuranet"><img alt="tkimuranet" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22267/profile-images/1473758861" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="haccht"><a itemprop="url" href="/haccht"><img alt="haccht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/16560/profile-images/1483137351" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fromkk"><a itemprop="url" href="/fromkk"><img alt="fromkk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2846/profile-images/1473682170" /></a></div></div><div class="ArticleFooter__user"><a href="/Hironsan/items/8ad9b11bcc0c618ec5e2/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/8ad9b11bcc0c618ec5e2/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/Hironsan/items/8ad9b11bcc0c618ec5e2.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/nonbiri15/items/b29fe079d359d531bf85#_reference-40e15f5ec8545d63fa11"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/83761/profile-images/1473702877" />機械学習のデータセットの重要性</a><time class="references_datetime js-dateTimeView" datetime="2016-09-17T14:35:14+00:00">6 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/r_okamoto/items/3733c78263bcd570ce56#_reference-6005c6c8917b134fd23d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/48624/profile-images/1473691415" />【テクニカルトピック】9月28日号</a><time class="references_datetime js-dateTimeView" datetime="2016-10-12T02:05:23+00:00">5 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/hiroyuki_hon/items/3fc18e1d849450294cb0#_reference-ccae4b2cb13a628198bc"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/26030/profile-images/1473684475" />クリスマス・イヴに読みたい機械学習系記事</a><time class="references_datetime js-dateTimeView" datetime="2016-12-22T15:01:28+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="DeepLearningで上司を認識して画面を隠す by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="DeepLearningで上司を認識して画面を隠す" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e上司のトレーニングデータを集めるのが大変そうですね \u003cimg alt=\&quot;:scream:\&quot; class=\&quot;emoji\&quot; height=\&quot;20\&quot; src=\&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png\&quot; title=\&quot;:scream:\&quot; width=\&quot;20\&quot;\u003e\u003c/p\u003e\n\n\u003cblockquote\u003e\n\u003cp\u003eおそらく私は世界で最も上司の顔画像を所持している人間でしょう。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003eすごい…。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-09-16T20:33:25+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:638263,&quot;is_team&quot;:false,&quot;item_id&quot;:423313,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;8ad9b11bcc0c618ec5e2&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:2,&quot;raw_body&quot;:&quot;上司のトレーニングデータを集めるのが大変そうですね :scream:\n\n\u003e おそらく私は世界で最も上司の顔画像を所持している人間でしょう。\n\nすごい…。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2#comment-ab33186c2ebf43977deb&quot;,&quot;user&quot;:{&quot;contribution&quot;:2258,&quot;created_at&quot;:&quot;2012-06-18T17:37:54+09:00&quot;,&quot;id&quot;:6697,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/6697/profile-images/1477315374&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;QUANON&quot;},&quot;uuid&quot;:&quot;ab33186c2ebf43977deb&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e「ボスが来た」が DeepLearning で進歩するというのが、なんともいえずおもしろい。\u003cbr\u003e\n私の場合は、「妻が来た！」になりますが、つくってみようかな (^0^;) \u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-09-21T11:31:36+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:640053,&quot;is_team&quot;:false,&quot;item_id&quot;:423313,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;8ad9b11bcc0c618ec5e2&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;「ボスが来た」が DeepLearning で進歩するというのが、なんともいえずおもしろい。\n私の場合は、「妻が来た！」になりますが、つくってみようかな (^0^;) \n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2#comment-71761845ca07d7b1fe93&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2016-08-30T20:01:42+09:00&quot;,&quot;id&quot;:139009,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/139009/profile-images/1473720794&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kat_cyan&quot;},&quot;uuid&quot;:&quot;71761845ca07d7b1fe93&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:423313,&quot;uuid&quot;:&quot;8ad9b11bcc0c618ec5e2&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;Hironsan&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;},{&quot;id&quot;:6697,&quot;url_name&quot;:&quot;QUANON&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/6697/profile-images/1477315374&quot;},{&quot;id&quot;:139009,&quot;url_name&quot;:&quot;kat_cyan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/139009/profile-images/1473720794&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-a4cc1bed-8896-4e06-9bfe-01c8e82e57aa"></div>
+    <div id="CommentListContainer-react-component-a4cc1bed-8896-4e06-9bfe-01c8e82e57aa"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="ALSMfReA69+oGDQBu2ELfuKb8oDNUIBVFsDemvMApd4ePDWTQkqkvdcvPkEYwMfgnAzT42/ubsqGp5pJcxKk4w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/8ad9b11bcc0c618ec5e2" /><input type="hidden" name="item_uuid" id="item_uuid" value="8ad9b11bcc0c618ec5e2" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/Hironsan/items/8ad9b11bcc0c618ec5e2", "id": 423313, "uuid": "8ad9b11bcc0c618ec5e2" }</script><script class="js-user" type="application/json">{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="tTVPWIB68AO/V7KagTIdMfpEbdoWjIZ47g/uzRtEW6mrvfa21bC/YcBguNoik9GvhNNMubQyaOd+aKoem1ZalA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/8ad9b11bcc0c618ec5e2" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

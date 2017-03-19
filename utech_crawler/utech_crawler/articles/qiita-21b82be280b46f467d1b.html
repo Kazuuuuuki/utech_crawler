@@ -1,0 +1,1174 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>わかるLSTM ～ 最近の動向と共に - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Machine Learning Advent Calendar 2015 第14日です。去年のAdvent Calendarで味をしめたので今年も書きました。質問、指摘等歓迎です。
+
+
+この記事の目的
+
+　ここ2～3年のDeep Learningブームに合わせて、リカレントニューラルネットワークの一種であるLong short-term memory(LSTM)の存在感が増してきています。LSTMは現在Google Voiceの基盤技術をはじめとした最先端の分野でも利..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="t_Signull" name="twitter:creator" /><meta content="わかるLSTM ～ 最近の動向と共に - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Machine Learning Advent Calendar 2015 第14日です。去年のAdvent Calendarで味をしめたので今年も書きました。質問、指摘等歓迎です。
+
+# この記事の目的
+
+　ここ2～3年のDeep ..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="ck+6i62ZmhzBSePWmGy9i2hgpNpMcFyHuw+QV3yFXeEGyBwvkZ8fqaNCDO6Wvq26ph17sK/EUL7ZnCBd5VCQdQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"t_Signull","type":"items","id":"21b82be280b46f467d1b"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-d4d30f4b-b2ad-47d8-8411-3f49fd2b91ab"></div>
+    <div id="HeaderContainer-react-component-d4d30f4b-b2ad-47d8-8411-3f49fd2b91ab"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/MachineLearning",        "name": "MachineLearning"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2015/machinelearning">Machine Learning Advent Calendar 2015</a> Day 14</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">わかるLSTM ～ 最近の動向と共に</h1><ul class="TagList"><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="20"><a class="u-link-unstyled TagList__label" href="/tags/LSTM"><img alt="LSTM" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>LSTM</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">895</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="4 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>4</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:895,&quot;uuid&quot;:&quot;21b82be280b46f467d1b&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="drstkng"><a itemprop="url" href="/drstkng"><img alt="drstkng" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81593/profile-images/1473702165" /></a></li><li class="js-hovercard" data-hovercard-target-name="madobon"><a itemprop="url" href="/madobon"><img alt="madobon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9760/profile-images/1473681539" /></a></li><li class="js-hovercard" data-hovercard-target-name="TomokIshii"><a itemprop="url" href="/TomokIshii"><img alt="TomokIshii" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a></li><li class="js-hovercard" data-hovercard-target-name="sora0077@github"><a itemprop="url" href="/sora0077@github"><img alt="sora0077@github" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/5010388ffe9101a3dfce88ef8816efc6?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></li><li class="js-hovercard" data-hovercard-target-name="doorda"><a itemprop="url" href="/doorda"><img alt="doorda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/97858/profile-images/1473707325" /></a></li><li class="js-hovercard" data-hovercard-target-name="DandyMania"><a itemprop="url" href="/DandyMania"><img alt="DandyMania" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31791/profile-images/1473760592" /></a></li><li class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></li><li class="js-hovercard" data-hovercard-target-name="yokoji"><a itemprop="url" href="/yokoji"><img alt="yokoji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3785/profile-images/1473683527" /></a></li><li class="js-hovercard" data-hovercard-target-name="Mukku8730"><a itemprop="url" href="/Mukku8730"><img alt="Mukku8730" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10215/profile-images/1473757235" /></a></li><li><a href="/t_Signull/items/21b82be280b46f467d1b/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/t_Signull"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60969/profile-images/1473695400" alt="1473695400" /></a> <a class="u-link-unstyled" href="/t_Signull">t_Signull</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-14T23:24:11+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-14">Edited at <time datetime="2016-06-17T23:59:26+09:00" itemprop="dateModified">2016-06-17</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/t_Signull/items/21b82be280b46f467d1b/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">8</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/t_Signull/items/21b82be280b46f467d1b/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(8)</span></a></li><li><a href="/t_Signull/items/21b82be280b46f467d1b.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-21b82be280b46f467d1b" itemprop="articleBody"><p>Machine Learning Advent Calendar 2015 第14日です。去年のAdvent Calendarで味をしめたので今年も書きました。質問、指摘等歓迎です。</p>
+
+<h1>
+<span id="この記事の目的" class="fragment"></span><a href="#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%AE%E7%9B%AE%E7%9A%84"><i class="fa fa-link"></i></a>この記事の目的</h1>
+
+<p>　ここ2～3年のDeep Learningブームに合わせて、リカレントニューラルネットワークの一種であるLong short-term memory(LSTM)の存在感が増してきています。LSTMは現在Google Voiceの基盤技術をはじめとした最先端の分野でも利用されていますが、その登場は1995年とそのイメージとは裏腹に歴史のあるモデルでもあります。ところがLSTMについて使ってみた記事はあれど、詳しく解説された日本語文献はあまり見当たらない。はて、どういうことでしょうか。<br>
+　本記事では<strong>LSTMの基礎をさらいつつ、一体全体LSTMとは何者なのか、LSTMはどこに向かうのか、その中身をまとめて追っていこう</strong>と思います。実装とか華々しいものはないんですが、お付き合いください。付録的に、ILSVRC2015の優勝モデルであるResidual Networksの解説も付けました(第4部)。</p>
+
+<h1>
+<span id="目次" class="fragment"></span><a href="#%E7%9B%AE%E6%AC%A1"><i class="fa fa-link"></i></a>目次</h1>
+
+<p>本記事は以下のように構成されています。最初の2つが基礎、それ以降は少し込み入った事例になります。お好きなところからどうぞ。あと、長いところは<strong>太字を読めばだいたいなんとかなります</strong>。</p>
+
+<ul>
+<li>第1部：LSTMの基礎</li>
+<li>第2部：LSTMの構造と学習</li>
+<li>第3部：応用事例から見るLSTMとその派生アーキテクチャ</li>
+<li>第4部：RNN≒真に深いネットワーク？</li>
+<li>第5部：汎用コンピュータとしてのLSTM</li>
+<li>終章：LSTMを超えて</li>
+<li>まとめと参考文献</li>
+</ul>
+
+<p>本記事は可能な限りわかりやすく説明したつもりですが、通常のニューラルネットワークの誤差逆伝播法による学習について知っているとスムーズです。</p>
+
+<h1>
+<span id="第1部long-short-term-memorylstmの基礎" class="fragment"></span><a href="#%E7%AC%AC1%E9%83%A8long-short-term-memorylstm%E3%81%AE%E5%9F%BA%E7%A4%8E"><i class="fa fa-link"></i></a>第1部：Long short-term memory(LSTM)の基礎</h1>
+
+<h2>
+<span id="時系列データとその問題" class="fragment"></span><a href="#%E6%99%82%E7%B3%BB%E5%88%97%E3%83%87%E3%83%BC%E3%82%BF%E3%81%A8%E3%81%9D%E3%81%AE%E5%95%8F%E9%A1%8C"><i class="fa fa-link"></i></a>時系列データとその問題</h2>
+
+<p>本題に入る前に、時系列データの定義を簡単に述べておきましょう。時系列データとは、ある要素が順番に</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+x_1, x_2, x_3, ..., x_T
+</pre></div></div>
+
+<p>のように並んでいるデータのことを言います。このデータの添え字は通常tで表されますが、このtはデータの種類によって若干意味合いが異なります。時系列データの代表例として音声の波形、動画、文章(単語列)などがありますが、音声の波形なら一定の時間間隔(数ms)でのサンプル時間になりますし、文章なら単語を前から並べたときの番号になります。</p>
+
+<p>　時系列データに対する伝統的な問題をいくつか挙げると、<br>
+(1) 文章・対話の生成<br>
+(2) 音素・音声認識<br>
+(3) 映像認識<br>
+などが挙げられます。</p>
+
+<p>　分量の都合で、ここで詳細を述べるのは避けますが、(1)の文章生成ならば、<strong>「今までの単語列を入力として、もっともらしい次の単語を予測する」</strong>ことをLSTMが担います。正しい文章を繰り返しLSTMに覚えさせる(重みベクトルを更新する)ことで、このLSTMは<strong>"this"の後に"is"が来るようなルールを「事実上」学習します</strong>。このシチュエーションにおいては、入力と出力の形式は共に同じです。一方で、(2)の音素・音声認識の場合、<strong>「今までの音声波形(orその特徴量)を入力として、その時点で発話されている音素を予測する」</strong>タスクになります。この場合、入力の波形と出力の音素列の形式に直接の関係性はありません。</p>
+
+<h2>
+<span id="lstmとは" class="fragment"></span><a href="#lstm%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>LSTMとは？</h2>
+
+<p><strong>LSTM(Long short-term memory)は、RNN(Recurrent Neural Network)の拡張として1995年に登場した、時系列データ(sequential data)に対するモデル、あるいは構造(architecture)の1種です。</strong>その名は、Long term memory(長期記憶)とShort term memory(短期記憶)という神経科学における用語から取られています。LSTMは<strong>RNNの中間層のユニットをLSTM blockと呼ばれるメモリと3つのゲートを持つブロックに置き換える</strong>ことで実現されています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/91876b7a-bf2a-5585-a0bf-c6600c6d638e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/91876b7a-bf2a-5585-a0bf-c6600c6d638e.png" alt="lstm_arch.png"></a></p>
+
+<p>　LSTMのその最も大きな特長は、従来のRNNでは学習できなかった<strong>長期依存(long-term dependencies)を学習可能</strong>であるところにあります。その最も単純な一例を以下に示します。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+( x, a_1, a_2, \cdots , a_{p-1}, x ) \\
+( y, a_1, a_2, \cdots , a_{p-1}, y )
+</pre></div></div>
+
+<p>例えば、上図のような入力系列を受け取り、次のステップの入力を予測するような学習器を考えます。今回学習する系列は、「$x$または$y$が入力されたのち非常に長いシンボル$a_1, \cdots, a_{p-1} $が続き、その後最初の$x$または$y$が出現する」というものです。この系列を正しく学習するためには、<strong>最初の要素の情報を少なくとも$p$ステップ維持する機能</strong>を持つようにNNの重みを更新する必要があります。通常のRNNでも数十ステップの短期依存(short-term dependencies)には対応できるのですが、1000ステップのような長期の系列は学習することができませんでした。LSTMはこのような系列に対しても適切な出力を行うことができます。以下に[Hochreiter &amp; Schmidhuber 97]の結果を示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/c8d7beb8-9291-9aa8-f292-9f311b414944.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/c8d7beb8-9291-9aa8-f292-9f311b414944.png" alt="lstm_result_01.png"></a><br>
+([Hochreiter &amp; Schmidhuber 97]より引用)</p>
+
+<p>上記の実験では100ステップのdelayを学習させていますが、既存のRNN(RTRL、BPTT法を用いた学習)が全く成功していない一方、LSTMでは短い学習時間で確実に学習できています。</p>
+
+<h2>
+<span id="背景hochreiterの勾配消失問題91年" class="fragment"></span><a href="#%E8%83%8C%E6%99%AFhochreiter%E3%81%AE%E5%8B%BE%E9%85%8D%E6%B6%88%E5%A4%B1%E5%95%8F%E9%A1%8C91%E5%B9%B4"><i class="fa fa-link"></i></a>背景：Hochreiterの勾配消失問題(91年)</h2>
+
+<p>　LSTMの構造に深入りする前に、LSTMが考案される前にHochreiterが指摘した勾配消滅(爆発)問題について述べる必要があります。<br>
+　当時のRNNの学習方法は、BPTT(Back-Propagation Through Time)法とRTRL(Real-Time Recurrent Learning)法の2つが主流でしたが、その2つとも完全な勾配(Complete Gradient)を用いたアルゴリズムでした。しかし、このような勾配を逆方向(時間をさかのぼる方向)に伝播させるアルゴリズムは、多くの状況において「爆発」または「消滅」することがあり、結果として長期依存の系列の学習が全く正しく行われないといいう欠点が指摘されてきました。Hochreiterは自身の修士論文(91年)において、時間をまたいだユニット間の重みの絶対値が指定の(ごくゆるい)条件を満たすとき、その勾配はタイムステップtに指数関数的に比例して消滅または発散することを示しました。これはRNNだけではなく、勾配が複数段に渡って伝播する深いニューラルネットにおいてもほぼ共通する問題でした。LSTMはこの問題に対する有効な対処法の1つとして発明され生き残ってきた、という背景があります。<br>
+　例えば、単体のユニット$u$から$v$への誤差の伝播について解析してみましょう。ステップ$t$における任意のユニット$u$で発生した誤差が$q$ステップ前のユニット$v$に伝播する状況を考えます。すると、誤差は以下に示すような係数でスケールします。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\frac{\partial v_v (t-q)}{\partial v_u (t)} = 
+\Biggl\{
+\begin{array}{ll}
+f'_v(net_v (t-1)) w_{uv} &amp; q = 1 \\
+f'_v(net_v (t-q)) \sum_{l=1}^{n} \frac{\partial v_v (t-q+1)}{\partial v_u (t)}w_{lv} &amp; q &gt; 1
+\end{array}
+</pre></div></div>
+
+<p>$l_q = v$と$l_0 = u$を使用して、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\frac{\partial v_v (t-q)}{\partial v_u (t)} = \sum_{l_1 = 1}^{n} \cdots　\sum_{l_{q-1} = 1}^{n} \prod_{m=1}^q f'_{l_m} (net_{l_m} (t - m)) w_{l_m l_{m-1}}
+</pre></div></div>
+
+<p>上式を見ればわかるように、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{array}{ll}
+| f'_{l_m}(net_{l_m} (t - m)) w_{l_m l_{m-1}} | \;  &gt; 1.0 &amp; for\; all\; m
+\end{array}
+</pre></div></div>
+
+<p>の時、スケール係数は発散し、その結果としてユニット$v$に到着する誤差の不安定性により学習が困難になります。一方、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{array}{ll}
+| f'_{l_m}(net_{l_m} (t - m)) w_{l_m l_{m-1}} | \;  &lt; 1.0 &amp; for\; all\; m
+\end{array}
+</pre></div></div>
+
+<p>の時、スケール係数はqに関して指数関数的に減少します。上式の状況はRNNにおいて頻発し、正しい学習を妨げてきました。この議論は容易に全ユニットの誤差の伝播についても拡張することができます。<br>
+　この問題の詳細は2001年の総説[Hochreiter+ 01]、Hochreiterの元論文[Hochreiter 91](ドイツ語)、Bengioのより突っ込んだ解析[Bengio+ 94]で扱われています。</p>
+
+<h1>
+<span id="第2部lstmの構造と学習" class="fragment"></span><a href="#%E7%AC%AC2%E9%83%A8lstm%E3%81%AE%E6%A7%8B%E9%80%A0%E3%81%A8%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>第2部：LSTMの構造と学習</h1>
+
+<p>LSTMは一見複雑で得体のしれない物体に見えますが、その構造は決して難しすぎるものではありません。ただし、複数回の拡張に伴い様々なバージョンが混在しています。今回は、[Greff+ 15]に従い、次の4つの代表形に分けて紹介します。</p>
+
+<p>(1) オリジナル(95,97年)[Hochreiter &amp; Schmidhuber, 95;97]<br>
+(2) Forget Gateの導入(99年)[Gers &amp; Schmidhuber, 99]<br>
+(3) Peephole Connectionの導入(00年)[Gers &amp; Schmidhuber, 00]<br>
+(4) Full Gradientの導入(05年)[Graves &amp; Schmidhuber, 05]</p>
+
+<h2>
+<span id="第一世代lstm9597年" class="fragment"></span><a href="#%E7%AC%AC%E4%B8%80%E4%B8%96%E4%BB%A3lstm9597%E5%B9%B4"><i class="fa fa-link"></i></a>第一世代LSTM(95,97年)</h2>
+
+<p>　以下に最初のLSTM Blockの構造を示します。オリジナルのLSTMは、上節の勾配消滅問題を強く意識した構造をしています。1つ1つの要素を見ていきましょう。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/ad3d229e-3dda-e8ad-eeff-4a8b447e22d3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/ad3d229e-3dda-e8ad-eeff-4a8b447e22d3.png" alt="lstm_97.png"></a></p>
+
+<p>まず、<strong>入力層の出力及び中間層の1ステップ前の(RNNのループ部)の出力は、それぞれ3か所に同時に入力として供給されます</strong>。実線が入力層の出力、<strong>点線が中間層の1ステップ前の出力</strong>を表します。この3か所のうち、下からの入力が実際の入力値として使われ、その他2つは下から「入力ゲート(Input Gate)」、「出力ゲート(Output Gate)」と呼ばれ、入力値及びメモリセル内の状態(State)の制御に使用されます。各入力は重み行列$w_{z, in, out}, R_{z, in, out}$と乗算されたのち加算され、各ゲートの活性化関数を通します。下図の活性化関数の色はその種類を表しており、2つのゲートに関しては常にシグモイド関数が使われます。</p>
+
+<h3>
+<span id="constant-error-carousel-cec" class="fragment"></span><a href="#constant-error-carousel-cec"><i class="fa fa-link"></i></a>Constant Error Carousel (CEC)</h3>
+
+<p>　CECは、誤差消滅問題に対応するために導入された非常にシンプルなアプローチです。上記の解析から、誤差消滅問題に対応するためには、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+f'_{l_m}(net_{l_m} (t - m)) w_{l_m l_{m-1}} = 1.0
+</pre></div></div>
+
+<p>を満たせば、事実上無限時間であっても誤差は正しく伝播します。途中の式変形は省きますが、結果として、中央のメモリセルの状態$s_{c_j}(t)$は、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+s_{c_j}(0) = 0, \; s_{c_j}(t) = s_{c_j}(t-1) + y^{in_j}(t) g(net_{c_j}(t)) &amp; \; for \; t &gt; 0
+\end{align}
+</pre></div></div>
+
+<p>という重み係数1(線形)による和によって簡単に表現されます。これがCECのミソです。</p>
+
+<h3>
+<span id="入力ゲートと出力ゲートの意味" class="fragment"></span><a href="#%E5%85%A5%E5%8A%9B%E3%82%B2%E3%83%BC%E3%83%88%E3%81%A8%E5%87%BA%E5%8A%9B%E3%82%B2%E3%83%BC%E3%83%88%E3%81%AE%E6%84%8F%E5%91%B3"><i class="fa fa-link"></i></a>入力ゲートと出力ゲートの意味</h3>
+
+<p>　CECが誤差消失問題を解決することはわかりました。では、同時に導入された入力ゲートと出力ゲートはどのような意味を持つのでしょうか。これは、定性的な分析から導き出すことができます。</p>
+
+<h3>
+<span id="入力重み衝突input-weight-conflict" class="fragment"></span><a href="#%E5%85%A5%E5%8A%9B%E9%87%8D%E3%81%BF%E8%A1%9D%E7%AA%81input-weight-conflict"><i class="fa fa-link"></i></a>入力重み衝突(input weight conflict)</h3>
+
+<p>　一般のRNNを考えたとき、ユニット$i$からの入力は、重み$w_{ji}$を与えられてユニット$j$に入力されます。誤差逆伝播法を用いる場合誤差信号がユニットを遡り、必要な場合重み$w_{ji}$を更新します。ところが、時系列データを学習する場合$w_{ji}$は次の矛盾する重み更新を同時に受ける場合があります。</p>
+
+<ol>
+<li>ユニットjを活性化されることによる<strong>入力信号の伝達</strong>
+</li>
+<li>ユニットiからの無関係な入力によってユニットjの値が消去されることを防ぐ<strong>入力信号の保護</strong>
+</li>
+</ol>
+
+<p>1.は例えば、先の例に挙げた系列において、$x$が入力されたことを示す情報を次々に未来のユニットに伝達するために$w_{ji}$の値を大きくする場合を指します。一方で$a_1, \cdots, a_{p-1}$といった無関係な入力を受けてユニットの値が更新されても困るので、2.のように$w_{ji}$の値を小さくしたい場合もあります。従来型のRNNではこのような矛盾する重み更新が頻発し、学習を遅らせる主要な要因となっていました。<br>
+　そこで、LSTMでは入力ゲートを導入し、追加の重みパラメタを持たせることで、「前のユニット(1つ前の時間のユニット)の入力を受け取るか否か」を判断させるようにしました。そうすることで必要に応じて誤差信号の伝播をゲート部で止め、<strong>必要な誤差信号だけが適切に伝播するようにゲートを開いたり閉じたりする</strong>のです。これが入力ゲートと呼ばれたる由縁です。</p>
+
+<h3>
+<span id="出力重み衝突output-weight-conflict" class="fragment"></span><a href="#%E5%87%BA%E5%8A%9B%E9%87%8D%E3%81%BF%E8%A1%9D%E7%AA%81output-weight-conflict"><i class="fa fa-link"></i></a>出力重み衝突(output weight conflict)</h3>
+
+<p>　出力ゲートも入力ゲートと同様に、以下の理由による重みの衝突を防ぐために導入されています。ユニット$j$の情報が重み$w_{kj}$に従いユニット$k$に出力を行うことを考えると、次の2つの衝突が起きます。簡単ですね。</p>
+
+<ol>
+<li>ユニットkを活性化されることによる<strong>出力信号の受信</strong>
+</li>
+<li>ユニットjからの無関係な出力によってユニットkの値が消去されることを防ぐ<strong>出力信号の保護</strong>
+</li>
+</ol>
+
+<p>ここまでが第一世代LSTMの概要になります。他にもRNNにまつわるさまざまなとその対処が述べられているのですが、それについては元論文や次の記事を参照してください。</p>
+
+<p>  </p><div> <strong> <a href="//www.slideshare.net/nishio/long-shortterm-memory" title="Long Short-term Memory" target="_blank" rel="nofollow noopener">Long Short-term Memory</a> </strong> from <strong><a href="//www.slideshare.net/nishio" target="_blank" rel="nofollow noopener">nishio</a></strong> </div>
+
+<h2>
+<span id="forget-gateの導入99年" class="fragment"></span><a href="#forget-gate%E3%81%AE%E5%B0%8E%E5%85%A599%E5%B9%B4"><i class="fa fa-link"></i></a>Forget Gateの導入(99年)</h2>
+
+<p>　さて、複数の時系列タスクにおいて目覚ましい成果を上げた初代LSTMですが、内部メモリセルの更新は線形で、その入力を貯め込む構造であったため、例えば、入力系列のパターンががらりと変わったとき、セルの状態を一気に更新する術がありませんでした。そこで、99年の拡張で忘却ゲート(Forget Gate)が導入されました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/06eb2f78-b6fd-556c-c285-c8c7dc7ab5a9.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/06eb2f78-b6fd-556c-c285-c8c7dc7ab5a9.png" alt="lstm_99.png"></a></p>
+
+<p>忘却ゲートは、誤差信号を受け取ることで、一度メモリセルで記憶した内容を一気に「忘れる」ことを学習します。そうすることで、状態遷移が起こり、今までの記憶が不必要になった時点で素早くセルを初期化することを可能にしました。忘却ゲート部の数式はこれで</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+s_{c_j}(t) = y^{forget_j}(t)s_{c_j}(t-1) + y^{in_j}(t) g(net_{c_j}(t))
+</pre></div></div>
+
+<p>のように書き表すことができます。</p>
+
+<p>忘却ゲートを導入した元論文[Gers+ 99]の解説を発見したので、併せて参照ください。<br>
+  </p><div> <strong> <a href="//www.slideshare.net/FujimotoKeisuke/learning-to-forget-continual-prediction-with-lstm" title="Learning to forget continual prediction with lstm" target="_blank" rel="nofollow noopener">Learning to forget continual prediction with lstm</a> </strong> from <strong><a href="//www.slideshare.net/FujimotoKeisuke" target="_blank" rel="nofollow noopener">Fujimoto Keisuke</a></strong> </div>
+
+<h2>
+<span id="peephole-connectionの導入00年" class="fragment"></span><a href="#peephole-connection%E3%81%AE%E5%B0%8E%E5%85%A500%E5%B9%B4"><i class="fa fa-link"></i></a>Peephole Connectionの導入(00年)</h2>
+
+<p>　忘却ゲートを導入して一見完成に見えたLSTMですが、ゲートの制御に関して次の致命的な問題を抱えていました。<br>
+　そもそも、3つの制御ゲートの役割は、<strong>「メモリセルの内容を書き換えるか/忘れるか/出力するか」</strong>ということにありました。ところがこれまでのLSTMでは、そのゲートの制御はLSTMの外側と呼べる(1)入力層の出力(2)中間層の1ステップ前の出力をベースとして行われており、<strong>制御対象であるメモリセル自身の内部状態は制御に利用されていない状態</strong>でした。例えば、一見すると中間層出力である$y^(t-1)$がメモリセルの情報をすべて含んでいるように見えますが、出力ゲートが出力を遮断している($\simeq 0$)場合メモリセルの真の状態は隠ぺいされてしまいます。そこで<strong>peephole connectionと呼ばれる接続をメモリセルから各ゲートに流し込むこと</strong>で解決を図りました。下図の青い矢印に注目してください。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/485f634d-9bd2-2ee3-99b2-09694e831f55.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/485f634d-9bd2-2ee3-99b2-09694e831f55.png" alt="lstm_00.png"></a></p>
+
+<p>　また、中央上側のOutput Activation Functionは、性能に明確な影響を及ぼさないという理由で排除されることがあります。現在はこのバージョンが<strong>事実上LSTMの標準形</strong>とみなされていますが、タスクによって細かい修正は適宜行われています。</p>
+
+<h3>
+<span id="補足chainerはどのlstmを使っている151214時点" class="fragment"></span><a href="#%E8%A3%9C%E8%B6%B3chainer%E3%81%AF%E3%81%A9%E3%81%AElstm%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B151214%E6%99%82%E7%82%B9"><i class="fa fa-link"></i></a>補足：chainerはどのLSTMを使っている？(15/12/14時点)</h3>
+
+<p>　PFI発のNNフレームワークであるchainerには1行で追加できる非常に便利なLSTMが提供されていますが、このLSTMはどのバージョンにあたるのでしょうか？実装を見てみましょう：</p>
+
+<p><a href="https://github.com/pfnet/chainer/blob/master/chainer/functions/activation/lstm.py" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/pfnet/chainer/blob/master/chainer/functions/activation/lstm.py</a></p>
+
+<p>見ると、chainerのLSTMは<strong>99年版の忘却ゲート付きのLSTMを採用しているようです。Peephole Connectionは導入されていません</strong>。また、学習方法も後述のFull BPTTではなく、01年時点での方法であるBPTT法とRTRL法のミックスになっています。後述の検証では、Peephole Connectionの導入によるパフォーマンスには大きな影響はないとされていますが、使用にあたってはやや注意が必要と思われます。</p>
+
+<h2>
+<span id="full-bpttによる学習05年" class="fragment"></span><a href="#full-bptt%E3%81%AB%E3%82%88%E3%82%8B%E5%AD%A6%E7%BF%9205%E5%B9%B4"><i class="fa fa-link"></i></a>Full BPTTによる学習(05年)</h2>
+
+<p>　LSTMの構造は00年にひとまずの完成を見ましたが、その学習方法は昔ながらの手法であるRTRL法とBPTT法を混合し、時間方向への誤差逆伝播には一部の変数の勾配しか使用しないという、<strong>やや特殊な学習方法</strong>でした。[Graves &amp; Schmidhuber, 05] では学習を<strong>BPTT(Back-Propagation Through TIme)法の枠組みに沿って統一的に定式化</strong>することでより明快で実装しやすいものになりました。次節では05年バージョンに沿ってLSTMの具体的な数式を見ていきます。</p>
+
+<h2>
+<span id="lstmの順伝播計算" class="fragment"></span><a href="#lstm%E3%81%AE%E9%A0%86%E4%BC%9D%E6%92%AD%E8%A8%88%E7%AE%97"><i class="fa fa-link"></i></a>LSTMの順伝播計算</h2>
+
+<p>　さて、長々と説明を書いてきてようやくLSTMを定式化できるようになりました。00年版の図を見ながら式を見ていってください。順伝播の計算は以下のようになります：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\bar{z}^t &amp;= W_z x^t + R_z y^{(t-1)} + b_z \\
+z^t &amp;= g(\bar{z}^t) \\
+\bar{i}^t &amp;= W_{in} x^t + R_{in} y^{(t-1)} + p_{in} \odot c^{t-1} + b_{in} \\
+i^t &amp;= \sigma(\bar{i}^t) \\
+\bar{f}^t &amp;= W_{for} x^t + R_{for} y^{(t-1)} + p_{for} \odot c^{t-1} + b_{for} \\
+f^t &amp;= \sigma(\bar{f}^t) \\
+c^t &amp;= i^t \odot z^t + f^t \odot c^{t-1} \\
+\bar{o}^t &amp;= \sigma(W_{out} x^t + R_{out} y^{(t-1)} + p_{out} \odot c^t + b_{out}) \\
+o^t &amp;= \sigma(\bar{o}^t) \\
+y^t &amp;= o^t \odot h(c^t) \\ \\
+但し、\ \  \sigma(x) &amp;= sigmoid(x) = \frac{1}{1 + e^{-x}}, \\ g(x) &amp;= h(x) = tanh(x)
+\end{align}
+</pre></div></div>
+
+<p>後半の式の計算には前半の式の計算結果が要る場合があるので計算順には注意が必要です。また、$\odot$はpointwise multiplication(要素ごとの積)を意味します。<br>
+また、peephole connectionへの入力は、<strong>入力・忘却ゲートに関しては1ステップ前、出力ゲートのみ現在のステップ</strong>の状態が供給されるところにも注意してください。<br>
+最適化したい<strong>重みは15変数</strong>になります。</p>
+
+<ul>
+<li>入力重み：$W_z, W_{in}, W_{for}, W_{out} \in R^{N×M}$</li>
+<li>リカレント重み：$R_z, R_{in}, R_{for}, R_{out} \in R^{N×N}$</li>
+<li>peephole重み：$p_{in}, p_{for}, p_{out} \in R^N$</li>
+<li>バイアス重み：$b_z, b_{in}, b_{for}, b_{out} \in R^N$</li>
+</ul>
+
+<h2>
+<span id="lstmの逆伝播計算" class="fragment"></span><a href="#lstm%E3%81%AE%E9%80%86%E4%BC%9D%E6%92%AD%E8%A8%88%E7%AE%97"><i class="fa fa-link"></i></a>LSTMの逆伝播計算</h2>
+
+<p>　LSTMの逆伝播が難しく見えるのには、(1)1ステップ未来のループから誤差信号が来る(2)複数のゲートがあり、伝播の順番がわかりにくい という2つの理由がありますが、これも丁寧に数式を追っていけば難しくありません。<br>
+　まず、LSTMの中身は忘れて、ステップ(時間)tにおける入力$x_t$、出力$y_t$を考えましょう。まず、出力層で得た誤差信号が遡ってきて、$\Delta^t = \frac{\partial E}{\partial y^t}$が与えられます。LSTM内部ではこの$\Delta^t$を元手に誤差が伝播して、最終的に$\delta x^t = \frac{\partial E}{\partial x^t}$を計算して入力層へ遡ります。このような$\delta ?^t$を計算するには、<strong>順伝播の時にその中身を伝播させたすべての接続からの誤差信号の和</strong>を計算していきます。式を見ていきましょう。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\delta y^t &amp;= \Delta^t + R_z^T \delta z^{t+1} + R_{in}^T \delta i^{t+1} + R_{for}^T \delta f^{t+1} + R_{out}^T \delta o^{t+1} \\
+\delta o^t &amp;= \delta y^t \odot h(c^t) \odot \sigma'(\bar{o}^t) \\
+\delta c^t &amp;= \delta y^t \odot o^t \odot h'(c^t) + p_{out} \odot \delta o^t + p_{in} \odot \delta i^{t+1} + p_{for} \odot \delta f^{t+1} + \delta c^{t+1} \odot f^{t+1} \\
+\delta f^t &amp;= \delta c^t \odot c^{t-1} \odot \sigma'(\bar{f}^t) \\
+\delta i^t &amp;= \delta c^t \odot z^t \odot \sigma'(\bar{i}^t) \\
+\delta z^t &amp;= \delta c^t \odot i^t \odot g'(\bar{z}^t) \\
+\end{align}
+</pre></div></div>
+
+<p>式だけではなんともわかりにくいですね。中央のメモリセルのデルタである$\delta c^t$に絞って見てみましょう。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/bbc17c05-4979-2941-8667-4cf0f0235fc3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/bbc17c05-4979-2941-8667-4cf0f0235fc3.png" alt="lstm_bp.png"></a></p>
+
+<p>中央のメモリセルに向かって、5か所の赤い矢印が進んできています。これが順伝播させた項からやってきた$c^t$への誤差信号です。内訳は第1項から順に</p>
+
+<ul>
+<li>LSTM Blockの出力$y^t$からの誤差</li>
+<li>出力ゲートからの誤差</li>
+<li>
+<strong>未来</strong>の入力ゲートからの誤差</li>
+<li>
+<strong>未来</strong>の忘却ゲートからの誤差</li>
+<li>
+<strong>未来</strong>のセル自身からの誤差</li>
+</ul>
+
+<p>となります。そして、計算済みの各デルタは次の操作によって計算されます。</p>
+
+<ul>
+<li>通常の乗算を通るたびに<strong>その項で乗算</strong>(例えば、第1項の$o^t$)</li>
+<li>非線形関数を通るたびに<strong>その微分を乗算</strong>(例えば、第1項の$h'(c^t)$)</li>
+</ul>
+
+<p>あとは簡単ですね。式を追っていけばわかると思います。<br>
+最終的に、上記のデルタが得られたところで、入力層へのデルタ及び実際に更新したい重みの勾配$W_\star, p_\star, R_\star, b_\star$を計算します($\star$にはz, in, out, forのいずれかが入る)。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\delta x^t &amp;= W_z^T \delta z^t + W_{in}^T \delta i^t + W_{for}^T f^t + W_{out}^T \delta o^t \\
+\delta W_{\star} &amp;= \sum_{t=0}^T \delta \star^t \times x^t \\
+\delta R_{\star} &amp;= \sum_{t=0}^{T-1} \delta \star^{t+1} \times y^t \\
+\delta b_{\star} &amp;= \sum_{t=0}^T \delta \star^t \\
+\delta p_i &amp;= \sum_{t=0}^{T-1} \delta c^t \odot \delta i^{t+1} \\
+\delta p_f &amp;= \sum_{t=0}^{T-1} \delta c^t \odot \delta f^{t+1} \\
+\delta p_o &amp;= \sum_{t=0}^T \delta c^t \odot \delta o^t
+\end{align}
+</pre></div></div>
+
+<p>ふー長かった。$\times$は外積を表します。</p>
+
+<h2>
+<span id="lstmの学習のコツ" class="fragment"></span><a href="#lstm%E3%81%AE%E5%AD%A6%E7%BF%92%E3%81%AE%E3%82%B3%E3%83%84"><i class="fa fa-link"></i></a>LSTMの学習のコツ</h2>
+
+<p>　LSTMを標準的なSGD(Stochastic Gradient Descent、確率的勾配降下法)で学習することを考えましょう。すると、以下のパラメータの設定が必要になります。</p>
+
+<ul>
+<li>隠れ層のLSTM Blockの個数</li>
+<li>学習率</li>
+<li>モーメンタム</li>
+<li>BPTTの打ち切りステップ数(Truncated BPTT)</li>
+<li>勾配の絶対値のクリッピング(Gradient Clip)</li>
+</ul>
+
+<p>LSTMは先に述べた計算安定性ゆえに適当なパラメタでも学習してるように見えてしまうのですが、実際どのようにパラメタを決めるのが良いのでしょうか？[Greff+ 15]の詳細な分析を少しだけかじって紹介します。下図は3つのタスクにおいて、「学習率」「隠れ層のブロック数」「入力に対するノイズの添加」のパラメタの変化に応じた予測誤差・実行時間の推移を表します。ノイズ添加以外の2つについて、列毎(パラメータ毎)に見てみましょう。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/aadb996a-0f94-5682-06cd-b660ef1c9681.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/aadb996a-0f94-5682-06cd-b660ef1c9681.png" alt="lstm_hyper.png"></a><br>
+([Greff+ 15]より引用)</p>
+
+<p>まず、<strong>学習率の設定は何においても重要になります</strong>。データセットによって大きく傾向が異なりますが、<strong>予測誤差が一気に改善する特異な地点が存在する</strong>ことがわかります。論文中では<strong>まず高い学習率(1程度)から始めて、性能の改善が停止するたびに10で割る</strong>大雑把な探索が推奨されています。<br>
+一方で、隠れ層の数については非常にわかりやすい傾向が出ています。期待通り、<strong>隠れ層の数を増やせば増やすほど性能は改善します</strong>が、そのトレードオフとして実行時間が増加します。なお、図表に示されてはいませんが、<strong>モーメンタムの値は今回の解析では値の設定による性能の変化はなかった</strong>と報告されています。BPTTの打ち切りステップ数についての言及はこの論文ではありませんでしたが、直感的には獲得したい長期依存の長さとタスクの実行時間とのバランスを取るのが標準的な戦略だと思われます。</p>
+
+<h2>
+<span id="rnnと勾配のクリッピングgradient-cliping" class="fragment"></span><a href="#rnn%E3%81%A8%E5%8B%BE%E9%85%8D%E3%81%AE%E3%82%AF%E3%83%AA%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0gradient-cliping"><i class="fa fa-link"></i></a>RNNと勾配のクリッピング(Gradient Cliping)</h2>
+
+<p>　LSTMはゲートの導入によって勾配「消滅」問題に対応しましたが、厳密には<strong>勾配「爆発」問題には対応していませんでした</strong>。そこで、2010年頃から勾配のノルムに対して一定の制約値(hard constraint)を設け、ミニバッチの学習毎に大きくなりすぎた勾配のノルムを補正するという方法が取られるようになりました。[Pascanu+ 12]において、Bengioらのチームは<strong>RNN($\neq$ LSTM)における勾配爆発問題が起こる必要条件がリカレント重み行列$W_{rec}$の最大の特異値にあることを証明</strong>し、その明快な回避方法として以下のアルゴリズムに従う勾配クリッピングを正式に提案しました。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+1. \quad &amp; \hat{g} \leftarrow \frac{\partial \epsilon}{\partial \theta} \\
+2. \quad &amp; if \quad ||\hat{g}|| \geqq threshold \quad then \\
+&amp; \qquad \hat{g} \leftarrow \frac{threshold}{||\hat{g}||} \hat{g} \\
+&amp;   end if
+\end{align}
+</pre></div></div>
+
+<p>一瞬おっかなく見えますが、平たく言えば<strong>更新の度に $-threshold &lt; ||gradient|| &lt; threshold$ を保証すればよい</strong>ということです。[Pascanu+ 13]ではthresholdの値についても緩い提案を行っており、<strong>多数の更新が行われたときの重み$W_{\star}$のノルムの平均を観察すること</strong>を推奨しています。彼らは、得られた平均の0.5倍～10倍の値を設定することで(収束速度の差はあれど)大よそ収束すると報告しています。興味深いのは、この提案は<strong>BPTT法によって学習する一般のRNNに適用できる勾配消失/爆発問題への対処法を提示している</strong>ということです。興味のある方は原論文を参照ください。</p>
+
+<h2>
+<span id="lstmのどの部分が重要なのか" class="fragment"></span><a href="#lstm%E3%81%AE%E3%81%A9%E3%81%AE%E9%83%A8%E5%88%86%E3%81%8C%E9%87%8D%E8%A6%81%E3%81%AA%E3%81%AE%E3%81%8B"><i class="fa fa-link"></i></a>LSTMのどの部分が重要なのか？</h2>
+
+<p>　[Greff+ 15]の分析では<strong>LSTMのどの部分が性能向上に寄与しているかの仔細な分析</strong>を行っています。その手法自体は明快で、入力/忘却/出力ゲート・活性化関数・peepholeなど8種類の要素をそれぞれ取り除いた場合の性能低下を計算し、比較することで実現しています。実験の結果、</p>
+
+<ul>
+<li>忘却ゲート、出力時の活性化関数の排除による性能低下が最も大きい</li>
+<li>音楽・言語モデリングにおいては入力ゲートの排除、入力時の活性化関数の排除による影響も大きい</li>
+</ul>
+
+<p>ことが主に示されています。</p>
+
+<h2>
+<span id="connectionist-temporal-classificationctc法graves-06" class="fragment"></span><a href="#connectionist-temporal-classificationctc%E6%B3%95graves-06"><i class="fa fa-link"></i></a>Connectionist Temporal Classification(CTC)法[Graves+ 06]</h2>
+
+<p>　これは概要のみを述べるに留めます。詳しくは機械学習プロフェッショナルシリーズの<a href="http://www.amazon.co.jp/dp/4061529021" rel="nofollow noopener" target="_blank">『深層学習』</a>などを参照してください。<br>
+　<br>
+　LSTMには、<strong>1つの入力に対して必ず1つの出力がある</strong>という強い制約があります。しかしながら、音声認識などでは、<strong>(1)音声信号の系列数と(2)取り出したい音素の系列数は全く異なります</strong>。特に、音声認識のように<strong>出力の区切りが事前知識から得にくい</strong>場合は単純な方法では解決できません。これを解決するのがConnectionist Temporal Classification(CTC)法です。<br>
+　CTC法は、目標出力ラベル(例えば、"a","i","u"など)に加えて空白ラベル"_"を導入し、出力したい系列("aui")に対して同義の長い冗長な入力("a____u___i__")を対応させることで入力の長さと出力の長さの整合性を取ります。素朴に計算すると計算量が非常に大きくなりますが、HMM(隠れマルコフモデル)の前向き・後ろ向きアルゴリズムと同様のアプローチでこの問題を解決しています。<br>
+　また、自然言語処理の分野ではsequence to sequence learningと呼ばれる方法があり、入力文の単語数と出力の単語数が一致していなくても対応できるような学習法がよく使われています(後述)。</p>
+
+<h1>
+<span id="第3部応用事例から見るlstmとその派生アーキテクチャ" class="fragment"></span><a href="#%E7%AC%AC3%E9%83%A8%E5%BF%9C%E7%94%A8%E4%BA%8B%E4%BE%8B%E3%81%8B%E3%82%89%E8%A6%8B%E3%82%8Blstm%E3%81%A8%E3%81%9D%E3%81%AE%E6%B4%BE%E7%94%9F%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3"><i class="fa fa-link"></i></a>第3部：応用事例から見るLSTMとその派生アーキテクチャ</h1>
+
+<p>95年時点で既に洗練されたアーキテクチャを持っていたLSTMですが、限られたマシンパワーに加えてNN冬の時代にぶち当たって当時はあまり注目されませんでした。実タスクに適用されはじめるのは登場から10年経った05年ごろからになります。初めは音素認識・手書き文字認識でのプロトタイピングが中心でしたが、Deep Learningのブームと共にあっという間に実用レベルの研究が進展し、現在では</p>
+
+<ul>
+<li>大規模音声認識(Google)[Sak+ 14]</li>
+<li>英語-フランス語翻訳(Google)[Sutskever+ 14]</li>
+<li>テキスト読み上げ(Microsoft)[Fan+ 14]</li>
+<li>Google Voice[Sak+ 15]</li>
+<li>画像からのキャプション生成(Google)[Vinyals+ 14]</li>
+<li>and more...</li>
+</ul>
+
+<p>など多くの領域・企業で利用されています。しかしこれらの学習器の多くはLSTMをそのまま使ってはいません。LSTMの大きな特長として、<strong>LSTM blockの改変や積み上げが容易</strong>ということがあります。そのため、タスクに応じてLSTMの派生形ともいえる様々な形態が存在します。そのうちのいくつかを眺めてみましょう。</p>
+
+<h2>
+<span id="音素音声認識とbidirectional-lstmblstmgraves--schmidhuber-05graves-13" class="fragment"></span><a href="#%E9%9F%B3%E7%B4%A0%E9%9F%B3%E5%A3%B0%E8%AA%8D%E8%AD%98%E3%81%A8bidirectional-lstmblstmgraves--schmidhuber-05graves-13"><i class="fa fa-link"></i></a>音素・音声認識とBidirectional LSTM(BLSTM)[Graves &amp; Schmidhuber 05][Graves+ 13]</h2>
+
+<p>　SchmidhuberらはLSTMの初期の応用例の1つとして「フレーム単位音素認識」を選択しました。これは、先のCTC法において指摘した「入力長と出力長の不一致」を認めつつ、まずはフレーム毎の予測を行ってみようという現在の水準から見るとやや難易度の低いタスクです。しかし当時は挑戦的な課題として音素認識は挙げられており、この論文ではその課題を<strong>Bidirectional(双方向) LSTM(BLSTM)</strong>と呼ばれる方法で解決しました。<br>
+　BLSTMの発想は至って単純です。LSTMは、通常「現在までの入力から未来の出力を予測する」モデルですが、これに「未来の入力から過去の出力を予測する」逆方向のモデルを考え、その出力を同一の出力層に統合します。下図にBLSTMの模式図を示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/966fcbd2-970f-d45e-5475-dabe81a9d978.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/966fcbd2-970f-d45e-5475-dabe81a9d978.png" alt="blstm.png"></a><br>
+([Graves+ 13]より引用)</p>
+
+<p>この構造の効用は明快です。前提として「認識前にすべての系列情報が手に入っている」という条件がありますが、その分増したコンテクストをより明快に掴むことができます。[Graves &amp; Schmidhuber 05]では、有名なコーパスであるTIMITコーパスを用いて184発話を訓練、BLSTM、LSTM、RNNに関して比較を行いました。その結果を以下に示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/ecdb7f47-9087-58c3-8d78-17b32267acfd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/ecdb7f47-9087-58c3-8d78-17b32267acfd.png" alt="blstm_result.png"></a><br>
+([Graves &amp; Schmidhuber 05]より引用、赤丸・青丸は筆者注)</p>
+
+<p>この論文では僅差となっていますが、RNNに対してLSTM、それもBLSTMの方が結果が高いと出ています。この数字をどう捉えるかは難しいところですが、論文中ではLSTMの方が学習速度が速く、訓練データに対する適応度はRNNを大きくしのいでいた(つまり、データ量を増やせば精度がさらに上がる)ことを僅差の理由として挙げています。この時点ではまだ音声認識の主流モデルであったHMMとの比較はなされていませんが、近年は<strong>HMMを大きく凌ぐ成果が多数出ています</strong>。</p>
+
+<h2>
+<span id="sequence-to-sequence-learningによる機械翻訳sutskever-14" class="fragment"></span><a href="#sequence-to-sequence-learning%E3%81%AB%E3%82%88%E3%82%8B%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3sutskever-14"><i class="fa fa-link"></i></a>Sequence-to-sequence learningによる機械翻訳[Sutskever+ 14]</h2>
+
+<p>　LSTMの応用事例として最も面白いのはやはり機械翻訳だと思われます。Sutskeverらは、今までのLSTMの視点に留まらない新しい学習の枠組みを考えました。<br>
+　上で紹介したCTC法は、確かに入力と出力の長さが違うような一般的な問題設定の解決をもたらしました。しかし、強い制約として、<strong>入力列と出力列の順番に単調な順序関係を要求する</strong>という性質がありました。英語と日本語の語順が異なるのは周知のとおり、機械翻訳の問題はCTC法では解決されませんでいた。そこで、Sutskeverは以下のような系列を予測する問題としてLSTMを用いた定式化を行いました：</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/15785165-48b4-b961-2145-8ae45f562d35.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/15785165-48b4-b961-2145-8ae45f562d35.png" alt="mt.png"></a><br>
+([Sutskever+ 14]より引用)</p>
+
+<p>　上図はRNNを時間展開したような模式図です。中央の四角がLSTMを表すと考えて差支えありません。まず、翻訳元の言語ABCを入力して、<strong>翻訳元の文章の表現を一括学習</strong>します。そして、そののちにこのLSTMは翻訳先の言語の<strong>「次の単語」を予測するタスク</strong>を解きます。予測した結果は次のステップの入力として供給されます。こうすることで、機械翻訳のような、入力と出力の長さ及びその語順すらも異なるようなモデルを効率よく学習することができるようになりました。<br>
+　また、本モデルではLSTMを多段に(4層)積み上げています。そうすることで、文章間の<strong>短い相関関係、長い相関関係を別々のレイヤーで掌握することができる</strong>と考えられています。LSTMを積み上げる(Stacked LSTM)発想は現在ではごく当たり前に用いられています。結果として、本論文のモデルは従来のモデルの最高性能に匹敵する結果(翻訳の良さの指標であるBLEUで36.5)をたたき出しました。<br>
+　<br>
+尚、機械翻訳については以下の記事で実装まで含めて非常にわかりやすく紹介されているので、詳しくは以下を参照ください。<br>
+<a href="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" id="reference-25c77cd0e1ae0b242faf">ChainerとRNNと機械翻訳</a></p>
+
+<h1>
+<span id="第4部rnn真に深いネットワーク" class="fragment"></span><a href="#%E7%AC%AC4%E9%83%A8rnn%E7%9C%9F%E3%81%AB%E6%B7%B1%E3%81%84%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF"><i class="fa fa-link"></i></a>第4部：RNN≒真に深いネットワーク？</h1>
+
+<p>　現在、Deep Neural Networkと言えば、3層の多層パーセプトロンに対して、4層以上の多数の層を組み合わせたフィードフォワードネットワークのことを指すことが多いようです。画像認識分野においては、性能向上を目的として、Alexnet(8層、2012年)、VGGNet(16または19層、2014年)、GoogLeNet(22層、2014年)、と年を追うごとにその層数を増加させてきました。しかし、層をやみくもに増やせば学習精度が向上するわけではなく、緻密なアーキテクチャの構築によって層数の増加、精度向上が図られました。<br>
+　一方でRNNを振り返ってみましょう。RNNそのものの構造は自己への閉ループを1つ持つだけの単純な構造をしていますが、これを時系列方向に展開するとその総数は時系列の長さ$T$に比例します。当然多くの時系列データは1000ステップ以上の長期のステップを扱うわけなので、<strong>素朴には昔ながらのRNNの方が深い層数を扱っている</strong>と言えます。<br>
+ LSTMは、解釈によっては非常に深い層数のネットワークともとれるRNNに対して勾配が消失しない方法を考え、深いネットワークにおける問題を克服しました。今年、そんなLSTMにインスパイアされたようなモデルが立て続けに提案されました。LSTMからいったん離れて、これらのモデルを見ていきましょう。</p>
+
+<h2>
+<span id="highway-networkssrivastava-15" class="fragment"></span><a href="#highway-networkssrivastava-15"><i class="fa fa-link"></i></a>Highway Networks[Srivastava+ 15]</h2>
+
+<p>　Highway Networks(以下、HN)は、LSTMの重要な要素技術であるゲートを導入することで100層以上の深いネットワークを学習可能であることを示しました。著者にはLSTMの生みの親であるSchumidhuberが入っており、LSTMの影響を強く受けています。<br>
+　下図にHNの1レイヤーの構造を示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/4c838da4-def3-26aa-48bc-89ad7fe40718.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/4c838da4-def3-26aa-48bc-89ad7fe40718.png" alt="highway.png"></a></p>
+
+<p>　通常のフィードフォワードネットワークでは、1レイヤーの入力と出力は本質的には下式のように表されます(バイアス項などは省略)：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+y = H(x, W_H)
+</pre></div></div>
+
+<p>この変換Hは通常の非線形変換でも、CNNにおける畳み込み、リカレント構造などでも構いません。一方、HNでは、<strong>Transform GateとCarry Gate</strong>の2つのゲートを新たに導入し、以下のような計算を行います。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+y = H(x, W_H)・T(x, W_T) + x・C(x, W_C)
+</pre></div></div>
+
+<p>　見て分かるように、Transform gateは変換された出力をどれだけ伝播するか、Carry gateは未変換の入力をどれだけ運ぶかを表します。簡単のために、論文中では$C=1-T$として、学習時には$H$と$T$2つの変換の最適化を行うことで学習します。T、C共に非線形のシグモイド関数による変換を挟んで、0～1の間の数値を取るようになっています。<br>
+　通常、深いネットワークの重みを変更したい場合、100層なら100層先まで順番に重みを変化させていくしかありません。すると、少ない層数の時と比べて必ずその伝播は遅くなり、層数の増加につれてその影響は深刻になります。しかし、Carry Gateによる"Information Highway"を用意することでHNでは高速な情報の伝播を実現しました。</p>
+
+<h2>
+<span id="highway-networksの初期化と学習" class="fragment"></span><a href="#highway-networks%E3%81%AE%E5%88%9D%E6%9C%9F%E5%8C%96%E3%81%A8%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>Highway Networksの初期化と学習</h2>
+
+<p>　HNの学習は非常にシンプルです。まず、Transform Gateのパラメータの初期値$T(x) = \sigma (W_T^T x + b_T)$の$b_T$の値には負の値(-1, -3など)を与えておきます。これはCarry Gate(恒等変換)の方に初期の重要度を与えることを意味し、これにより初期の誤差が速く浅い層に伝播するとされています。最適化はシンプルにSGD(確率的勾配降下法)及びmomentum(モーメンタム)を使用していますが、1000層のネットワークでも破たんすることなく学習したとされています。<br>
+　特筆すべきは深いネットワークにおけるその収束の速さで、下図からは20層以上のネットワークにおいて高速に、よく汎化していることが確認できます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/87ebeb7b-488a-7cec-d45c-65b1b967515a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/87ebeb7b-488a-7cec-d45c-65b1b967515a.png" alt="highway2.png"></a><br>
+([Sharma+ 15]より引用)</p>
+
+<h2>
+<span id="deep-residual-networkshe-15" class="fragment"></span><a href="#deep-residual-networkshe-15"><i class="fa fa-link"></i></a>Deep Residual Networks[He+ 15]</h2>
+
+<p>　つい先日ILSVRC 2015で優勝を飾った最新のモデルです。2位以下を大きく突き放してImageNetのTest Setにおいて<strong>エラー率3.57%</strong>を叩き出しました。さらには、そのネットワークが152層にも及んでいることが判明し、大きなインパクトを与えました。このモデルの中身を見てみましょう。</p>
+
+<h2>
+<span id="residual-learning" class="fragment"></span><a href="#residual-learning"><i class="fa fa-link"></i></a>Residual Learning</h2>
+
+<p>　Deep Residual Newtorks(ResNet)の発想はHNのそれと非常に似ています。が、その中身はHNよりさらにシンプルな構成となっています。HNではゲートの開閉により変換を挟んだ出力と無変換の出力の土合を調整したのに対し、ResNetでは各レイヤーにレイヤーの変換を飛び越すような恒等変換を加算します。以下にその模式図を示します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/d003e42c-378f-c25a-0ab8-198d97673072.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/d003e42c-378f-c25a-0ab8-198d97673072.png" alt="residual.png"></a></p>
+
+<p>　ResNetのレイヤーは、入力として$x$を受け取り、出力として恒等変換された$x$と変換が施された$H(x)$の和である$x+H(x)$が返されます。そのため、ある変換$H(x)$を学習することは、所望の出力$F(x)$と入力$x$の残差(Residual)を目的の値に近づけることと解釈することができます。論文中ではこの$F(x)$をResidual Functionと呼んでいます。一見何とでもない変換に見えますが、これがDNNにおいて避けられない事象であるdegradation problemを解決する突破口となります。<br>
+　DNNは、NNの層を増やし段階的に特徴を取り出すことによって圧倒的な表現力を達成してきましたが、層を追加するにつれ、その学習は難しくなります。現在ではそのような認識は当たり前に見えますが、理想的には<strong>深いネットワークは浅いネットワークの上位互換</strong>であるべきです。なぜそれが達成できないのか。解析の結果、層数を増やすとかえってエラー率が上がる有力な原因として、"degradation problem"という現象が発見されました。この問題は、深いネットワークが、<strong>余計な(これ以上の精度向上を望めない)レイヤーに関して恒等写像を学習するのが難しい</strong>という状況を引き起こすことで起こります。数多くの非線形変換を組み合わせるDNNでは、恒等写像を再現する方がかえってネックになっていたのです。<br>
+　そこでResNetでは恒等写像を学習する過程を非常に簡単に行う方法を考えました。入力そのものとの残差を取るのです。すると、今まで$H(x)=x$となるような最適化が必要だったところ、<strong>$H(x)=0$を学習するだけで済む</strong>ようになりました。もちろん、ネットワーク全体としては必ずしも恒等写像を学習することが目標ではありませんが、この変換によってネットワーク全体の最適化が容易になったと報告されています。</p>
+
+<h2>
+<span id="deep-residual-networksの構成と学習" class="fragment"></span><a href="#deep-residual-networks%E3%81%AE%E6%A7%8B%E6%88%90%E3%81%A8%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>Deep Residual Networksの構成と学習</h2>
+
+<p>　ResNetの構成もHNの構成と同様、GoogLeNetなどと比べると非常にすっきりしています。ImageNetの画像入力サイズは224×224ですが、これに5種類の大きさの畳み込み層(conv)＋バッチ正規化(Batch Normalization)を用意したうえで、それらを合計の層数によって数を変えて構成しています。以下の図は18, 32,4, 50, 101, 152層のアーキテクチャを示しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/20697e62-1e2c-f519-c894-cbc78d5799bb.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/20697e62-1e2c-f519-c894-cbc78d5799bb.png" alt="residual_arch.png"></a><br>
+([He+ 15]より引用)</p>
+
+<p>ImageNetで使われた実際のResidual Functionの具体形は以下のようになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/ccdccdc5-8e09-3383-bcfb-8de43081b5a4.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/ccdccdc5-8e09-3383-bcfb-8de43081b5a4.png" alt="residual_func.png"></a><br>
+([He+ 15]より引用)</p>
+
+<p><strong>RNの学習においても最適化にはSGD(+荷重減衰、モーメンタム)が使われています</strong>。Adagrad、Adam、RMSPropなどの半自動制御より細やかな手動制御の方がやはり精度向上に寄与するようです。最終的に、ILSVRC2015においては<strong>152層(!)のモデル単体でtop-5エラー率4.49%(この時点で既存のモデル全てを上回る)、異なる深さの6つのモデルのアンサンブルで冒頭のエラー率3.57%</strong>を達成しています。</p>
+
+<p>このモデル自体がRNNの最適化にヒントを得たかどうかは全く定かではありませんが、先行的に行われたRNNの解析によって得られた知見が現在のDNNに還元されている面は否定できないと思われます。</p>
+
+<h1>
+<span id="第5部汎用コンピュータとしてのlstm" class="fragment"></span><a href="#%E7%AC%AC5%E9%83%A8%E6%B1%8E%E7%94%A8%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%A8%E3%81%97%E3%81%A6%E3%81%AElstm"><i class="fa fa-link"></i></a>第5部：汎用コンピュータとしてのLSTM</h1>
+
+<p>　上節で、RNNは真に深いネットワークであるという解釈を紹介しましたが、LSTMの生みの親であるSchmidhuberはさらに突っ込んで、「RNNは汎用コンピュータである」という旨の発言をしています。RNNは可変長の入力を受け取るため、原理的に任意のプログラムを入力することができます。RNNは内部に重み(状態)を持ち、次々に入ってくる入力に応じてその重み(状態)を変化させる、強く解釈すれば自己の状態を変える作業を行っています。これは命令を受けて内部状態(メモリ)を書き換えるノイマン型コンピュータと同じであると考えることができます。Schmidhuberは、RNNはHMM(隠れマルコフモデル)やSVM(Support Vector Machine)が連続的な内部状態を持たないことを根拠に、RNNはそれらのモデルよりも強力で、生物学的に尤もらしいモデルであると主張しています<a href="http://people.idsia.ch/%7Ejuergen/rnn.html" rel="nofollow noopener" target="_blank">Jürgen Schmidhuber's page on Recurrent Neural Networks</a>。<br>
+　迷路探索などのタスクにRNN(+強化学習)を用いる研究は90年代より為されていましたが、近年は観念的な話に留まらず、実際にRNNやLSTMに命令(Instruction)を解釈・実行させ、汎用性が求められると思われるタスクを解決する取り組みが多数行われています。今回はその中から新しめの事例を1つ紹介します。</p>
+
+<h2>
+<span id="誤差逆伝播法強化学習による簡単なアルゴリズムの学習zaremba-15" class="fragment"></span><a href="#%E8%AA%A4%E5%B7%AE%E9%80%86%E4%BC%9D%E6%92%AD%E6%B3%95%E5%BC%B7%E5%8C%96%E5%AD%A6%E7%BF%92%E3%81%AB%E3%82%88%E3%82%8B%E7%B0%A1%E5%8D%98%E3%81%AA%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0%E3%81%AE%E5%AD%A6%E7%BF%92zaremba-15"><i class="fa fa-link"></i></a>誤差逆伝播法＆強化学習による簡単なアルゴリズムの学習[Zaremba+ 15]</h2>
+
+<p>　この論文では、数字列のコピー、複数桁の数字の足し算、数値の掛け算などの簡単なタスクを、<strong>入力列の周りを適当に探索して、計算そのものに留まらず計算に至るまでの走査自体も同時に学習する</strong>という挑戦的な設定で解くことを目指しています。まずは以下の動画を見ると何をやっているのか何となくわかると思います：</p>
+
+<p><a href="https://www.youtube.com/watch?v=GVe6kfJnRAw" rel="nofollow noopener" target="_blank">Learning Simple Algorithms from Examples</a></p>
+
+<p>　まず、システムはControllerと呼ばれる制御機能を持ったユニットを中心に構成されます。ここにはLSTMや後述のGRU(Gated Recurrent Unit)などのNNが配置されています。今回のタスクは次のような設定でタスクを解くことを要求されます：</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/43ec3c7e-c8b2-3bcf-14ea-060f1a71ca53.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/43ec3c7e-c8b2-3bcf-14ea-060f1a71ca53.png" alt="lstm_rl.png"></a><br>
+([Zaremba+ 15]より引用)</p>
+
+<p>まず、入力と出力は</p>
+
+<ul>
+<li>Input Tape(Grid): 問題で使用する数字列が書かれている1次元の数列または2次元のグリッド</li>
+<li>Output Action: ある場所の数字を受け取った後、グリッド(数列)上のどこに移動するかを判断する</li>
+<li>Output Tape：ある場所の数字を受け取った後、数字またはNOP(Φ)を出力する</li>
+</ul>
+
+<p>の3つから成ります。Controllerは、Input Tapeの現在の値を読み取った後、次のどこのマスに移動するかを判断し、同時に数字またはNOPを出力します。例えば、「ABCDr」(rは終端文字)という文字の反転を行いたければ、ControllerはAの位置にいる状態から計算を開始して、</p>
+
+<ul>
+<li>Input Tape内の移動：<strong>Right Right Right Right Left Left Left Left</strong>
+</li>
+<li>Output Tapeの出力：<strong>NOP NOP NOP NOP D C B A</strong>
+</li>
+</ul>
+
+<p>という<strong>制御と出力を同時に行う</strong>必要があります。本論文ではこれらの制御と出力の学習を<strong>誤差逆伝播法と強化学習のアンサンブル</strong>で行っています。</p>
+
+<ul>
+<li>制御(Action)の学習…出力シンボルが正解であるとき1、不正解であるとき0の報酬を得て強化学習を行う(注：正解は入力列に「埋め込まれている」)</li>
+<li>出力(Output)の学習…正解と出力シンボルの確率(softmax)とのクロスエントロピー誤差を用いて誤差逆伝播法を行う</li>
+</ul>
+
+<p>　このタスクは非常に難しく、例えば3つの数列の足し算などになるとControllerはどこを動き回ればよいのかまったくわかりません。本論文では今日強化学習で広く使われているQ-Learningを改良することで、これらのタスクを<strong>「数列の長さ・問題の複雑さとは関係なく、かつ初見の問題も解けるように」</strong>多大なる苦労を以て解決しています(やはり相当苦しかったようで、直接的な正解ではないが、ヒントとなるような知識をQ-Learningの実行時に与えています)。Controllerの部品には200または400個のユニットを持つLSTMが用いられ、LSTMは<strong>ある特定のアルゴリズムを表すオートマトンを構成するようなメモリ付きのプロセッサ</strong>としての役割を果たしています。これは音声認識などで用いられたときの使い方と似ているようで、その目的は大きく異なっています。</p>
+
+<h2>
+<span id="curriculum-learning" class="fragment"></span><a href="#curriculum-learning"><i class="fa fa-link"></i></a>Curriculum Learning</h2>
+
+<p>　Deep Learningが脚光を浴びた直接のきっかけは「猫の概念を学習した」などでおなじみの画像認識分野でした。しかし、画像認識に比べRNNによる汎用コンピューティングはさらに難しく、教師となるデータを単純に与えただけではうまくいきません。そこで、Curriculum Learning(カリキュラムラーニング)[Bengio+ 09]と呼ばれる<strong>簡単な問題から難しい問題を徐々に覚えさせる</strong>というアプローチが本論文をはじめ同様のタスクで用いられています。<br>
+　例えば、3つの数列の足し算であれば、最初のタスクは「1桁の3つの数字の足し算」になります。そして、モデルがうまくそれらの問題を探索・計算できるようになったところで2桁、3桁と徐々に問題の複雑度を上げていきます。しかし、これも一筋縄ではいかず、<strong>ある特定の長さの問題に特化してしまう</strong>という過学習の特殊形に陥る事例が数多く見られました。</p>
+
+<h2>
+<span id="rnnは汎用コンピュータへの道筋となるか" class="fragment"></span><a href="#rnn%E3%81%AF%E6%B1%8E%E7%94%A8%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%B8%E3%81%AE%E9%81%93%E7%AD%8B%E3%81%A8%E3%81%AA%E3%82%8B%E3%81%8B"><i class="fa fa-link"></i></a>RNNは汎用コンピュータへの道筋となるか？</h2>
+
+<p>　この論文に留まらず、今現在も多数のRNN(+強化学習)を用いた汎用学習モデルが研究されています。現在はまだ地味に見えますが、数年後に驚くような成果を以て我々の前に現れるかもしれません。しかし間違えてはいけないのは、人間が期待するような<strong>様々な問題に対して適切な応答を返す汎用性、あるいは創造性は、適当に多くのデータを与えただけでは達成されない</strong>ということです。RNN・LSTMを使えば簡単に文章を生成できますが、<strong>そのような出力自体には何ら意味はなく</strong>、真に汎用的な出力が行われているかどうか慎重な検証が必要となります。</p>
+
+<p>これ以上のCurriculum Learningの詳細については以下を参照してください。<br>
+  </p><div> <strong> <a href="//www.slideshare.net/YoshitakaUshiku/20150530-kantocv-curriculumlearning" title="Curriculum Learning （関東CV勉強会）" target="_blank" rel="nofollow noopener">Curriculum Learning （関東CV勉強会）</a> </strong> from <strong><a href="//www.slideshare.net/YoshitakaUshiku" target="_blank" rel="nofollow noopener">祥孝 牛久</a></strong> </div>
+
+<h1>
+<span id="終章lstmを超えて" class="fragment"></span><a href="#%E7%B5%82%E7%AB%A0lstm%E3%82%92%E8%B6%85%E3%81%88%E3%81%A6"><i class="fa fa-link"></i></a>終章：LSTMを超えて</h1>
+
+<h2>
+<span id="lstm以外の構造の模索gated-recurrent-unitgrucho-14" class="fragment"></span><a href="#lstm%E4%BB%A5%E5%A4%96%E3%81%AE%E6%A7%8B%E9%80%A0%E3%81%AE%E6%A8%A1%E7%B4%A2gated-recurrent-unitgrucho-14"><i class="fa fa-link"></i></a>LSTM以外の構造の模索：Gated Recurrent Unit(GRU)[Cho+ 14]</h2>
+
+<p>　登場から20年が経ち、上で紹介したようにLSTMがどのような性質を持つのか、どのようなタスクに使えるのか、徐々にその性能が見えてくるようになりました。しかし、LSTM以外に同等またはそれ以上の能力を持つ学習器は存在しないのでしょうか？興味深い提案として、ChoらがGated Recurrent Unitと呼ばれるLSTMを簡略化したモデルを提案しています。<br>
+　GRUの構造は以下の通りです。ゲート数が3つから2つに減って、<strong>Update GateとReset Gate</strong>の2つのゲートによってメモリセルの中身の維持・出力を制御しています。GRUは機械翻訳のタスクにおいて、LSTMと遜色のない性能を出したことが報告されています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/60969/f4f84fc7-ac4a-882b-26de-b2588accd3b7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/60969/f4f84fc7-ac4a-882b-26de-b2588accd3b7.png" alt="gru_14.png"></a></p>
+
+<p>そこで、[Chung+ 15]においてBengioらのチームはGRUとLSTM、どちらが良いのかどうか判断するべく性能比較を行いました。しかしもどかしいことに、この報告ではLSTMとGRUとの間に明確な優劣をつけることはできなかったとされています。<strong>LSTMそのものの解析は進みましたが、LSTMとそれ以外の構造の比較</strong>はこれからの課題となりそうです。</p>
+
+<h2>
+<span id="lstmの限界" class="fragment"></span><a href="#lstm%E3%81%AE%E9%99%90%E7%95%8C"><i class="fa fa-link"></i></a>LSTMの限界</h2>
+
+<p>　最後に、LSTMの限界について簡単にコメントしたいと思います。<br>
+　ここまで紹介してきたとおり、LSTMは勾配消失問題に対応するために発明され、潤沢な計算リソースと合わせて音声認識・機械翻訳などで目覚ましい性能を見出してきました。しかし、LSTMの重大な欠点として<strong>LSTMの構造自体からは、どのような問題が解けるのか・なぜ解けない問題があるのか判断できない</strong>ことが挙げられます。例えば、Seq-to-Seq Learningによる機械翻訳モデルでは、LSTMが文章の内部表現を獲得していることは示唆されましたが、木構造などによる人間が理解可能な分析は非常に難しくなっています。LSTMを使うときはこの欠点を理解したうえで使う必要があります。</p>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<ul>
+<li>LSTMは時系列データに対する強力な予測モデルである</li>
+<li>Hochreiterの勾配消失問題を解決し、長期の時系列を学習可能になった</li>
+<li>現在LSTMは単体での使用に留まらず、双方向、複数段の組み合わせによってその表現力を拡大している</li>
+<li>RNNベースで、任意のアルゴリズムを学習させる研究も始まっている</li>
+<li>LSTM以外の有効なアーキテクチャの分析が始まっているが、モデルの構造自体の評価は未だ難しい</li>
+<li>LSTMは強力なモデルだが、やみくもに動かしても意味のある出力を得ることは不可能に近い、緻密な問題設定が必要</li>
+</ul>
+
+<p>LSTMの活躍はまだ始まったばかりです。今後の動きに注目していきましょう。</p>
+
+<h2>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h2>
+
+<p>結構頑張って書きました。もう少し洗練させたら印税とか入らないでしょうか。</p>
+
+<h1>
+<span id="参考文献" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><i class="fa fa-link"></i></a>参考文献</h1>
+
+<p>大変多くなったので外部リンクにまとめてあります：<br>
+<a href="https://docs.google.com/document/d/1O4Qwkfi4w6-sz81BbgiJb6rHaci_wZ_CSAoVuPrOl08/edit?usp=sharing" rel="nofollow noopener" target="_blank">わかるLSTM ～ 最近の動向と共に：参考文献リスト</a></p>
+
+<h1>
+<span id="参考webページ" class="fragment"></span><a href="#%E5%8F%82%E8%80%83web%E3%83%9A%E3%83%BC%E3%82%B8"><i class="fa fa-link"></i></a>参考Webページ</h1>
+
+<p><a href="http://lstm.iupr.com/" rel="nofollow noopener" target="_blank">LSTM Tutorial</a><br>
+<a href="http://www.slideshare.net/beam2d/pfi-seminar-20141030rnn" rel="nofollow noopener" target="_blank">Recurrent Neural Networks(PFIセミナー)</a><br>
+<a href="http://www.slideshare.net/FujimotoKeisuke/learning-to-forget-continual-prediction-with-lstm" rel="nofollow noopener" target="_blank">Learning to forget continual prediction with lstm(CV勉強会@関東)</a><br>
+<a href="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e">ChainerとRNNと機械翻訳</a><br>
+<a href="http://www.slideshare.net/YoshitakaUshiku/20150530-kantocv-curriculumlearning" rel="nofollow noopener" target="_blank">Curriculum Learning （関東CV勉強会）</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/t_Signull/items/21b82be280b46f467d1b" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="wT36OMR6TyimcRDXfIs6gUyP0yJ8dGhV/n0fQBbdU5m1ulyc+HzKncR6/+9yWSqwgvIMSJ/AZGyc7q9KjwieDQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1466175566" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Machine Learning Advent Calendar 2015 第14日です。去年のAdvent Calendarで味をしめたので今年も書きました。質問、指摘等歓迎です。
+
+# この記事の目的
+
+　ここ2～3年のDeep Learningブームに合わせて、リカレントニューラルネットワークの一種であるLong short-term memory(LSTM)の存在感が増してきています。LSTMは現在Google Voiceの基盤技術をはじめとした最先端の分野でも利用されていますが、その登場は1995年とそのイメージとは裏腹に歴史のあるモデルでもあります。ところがLSTMについて使ってみた記事はあれど、詳しく解説された日本語文献はあまり見当たらない。はて、どういうことでしょうか。
+　本記事では**LSTMの基礎をさらいつつ、一体全体LSTMとは何者なのか、LSTMはどこに向かうのか、その中身をまとめて追っていこう**と思います。実装とか華々しいものはないんですが、お付き合いください。付録的に、ILSVRC2015の優勝モデルであるResidual Networksの解説も付けました(第4部)。
+
+# 目次
+
+本記事は以下のように構成されています。最初の2つが基礎、それ以降は少し込み入った事例になります。お好きなところからどうぞ。あと、長いところは**太字を読めばだいたいなんとかなります**。
+
+- 第1部：LSTMの基礎
+- 第2部：LSTMの構造と学習
+- 第3部：応用事例から見るLSTMとその派生アーキテクチャ
+- 第4部：RNN≒真に深いネットワーク？
+- 第5部：汎用コンピュータとしてのLSTM
+- 終章：LSTMを超えて
+- まとめと参考文献
+
+本記事は可能な限りわかりやすく説明したつもりですが、通常のニューラルネットワークの誤差逆伝播法による学習について知っているとスムーズです。
+
+# 第1部：Long short-term memory(LSTM)の基礎
+
+## 時系列データとその問題
+
+本題に入る前に、時系列データの定義を簡単に述べておきましょう。時系列データとは、ある要素が順番に
+
+```math
+x_1, x_2, x_3, ..., x_T
+```
+
+のように並んでいるデータのことを言います。このデータの添え字は通常tで表されますが、このtはデータの種類によって若干意味合いが異なります。時系列データの代表例として音声の波形、動画、文章(単語列)などがありますが、音声の波形なら一定の時間間隔(数ms)でのサンプル時間になりますし、文章なら単語を前から並べたときの番号になります。
+
+　時系列データに対する伝統的な問題をいくつか挙げると、
+(1) 文章・対話の生成
+(2) 音素・音声認識
+(3) 映像認識
+などが挙げられます。
+
+　分量の都合で、ここで詳細を述べるのは避けますが、(1)の文章生成ならば、**「今までの単語列を入力として、もっともらしい次の単語を予測する」**ことをLSTMが担います。正しい文章を繰り返しLSTMに覚えさせる(重みベクトルを更新する)ことで、このLSTMは**&quot;this&quot;の後に&quot;is&quot;が来るようなルールを「事実上」学習します**。このシチュエーションにおいては、入力と出力の形式は共に同じです。一方で、(2)の音素・音声認識の場合、**「今までの音声波形(orその特徴量)を入力として、その時点で発話されている音素を予測する」**タスクになります。この場合、入力の波形と出力の音素列の形式に直接の関係性はありません。
+
+## LSTMとは？
+
+**LSTM(Long short-term memory)は、RNN(Recurrent Neural Network)の拡張として1995年に登場した、時系列データ(sequential data)に対するモデル、あるいは構造(architecture)の1種です。**その名は、Long term memory(長期記憶)とShort term memory(短期記憶)という神経科学における用語から取られています。LSTMは**RNNの中間層のユニットをLSTM blockと呼ばれるメモリと3つのゲートを持つブロックに置き換える**ことで実現されています。
+
+![lstm_arch.png](https://qiita-image-store.s3.amazonaws.com/0/60969/91876b7a-bf2a-5585-a0bf-c6600c6d638e.png)
+
+　LSTMのその最も大きな特長は、従来のRNNでは学習できなかった**長期依存(long-term dependencies)を学習可能**であるところにあります。その最も単純な一例を以下に示します。
+
+```math
+( x, a_1, a_2, \cdots , a_{p-1}, x ) \\
+( y, a_1, a_2, \cdots , a_{p-1}, y )
+```
+
+例えば、上図のような入力系列を受け取り、次のステップの入力を予測するような学習器を考えます。今回学習する系列は、「$x$または$y$が入力されたのち非常に長いシンボル$a_1, \cdots, a_{p-1} $が続き、その後最初の$x$または$y$が出現する」というものです。この系列を正しく学習するためには、**最初の要素の情報を少なくとも$p$ステップ維持する機能**を持つようにNNの重みを更新する必要があります。通常のRNNでも数十ステップの短期依存(short-term dependencies)には対応できるのですが、1000ステップのような長期の系列は学習することができませんでした。LSTMはこのような系列に対しても適切な出力を行うことができます。以下に[Hochreiter &amp; Schmidhuber 97]の結果を示します。
+
+![lstm_result_01.png](https://qiita-image-store.s3.amazonaws.com/0/60969/c8d7beb8-9291-9aa8-f292-9f311b414944.png)
+([Hochreiter &amp; Schmidhuber 97]より引用)
+
+上記の実験では100ステップのdelayを学習させていますが、既存のRNN(RTRL、BPTT法を用いた学習)が全く成功していない一方、LSTMでは短い学習時間で確実に学習できています。
+
+## 背景：Hochreiterの勾配消失問題(91年)
+　LSTMの構造に深入りする前に、LSTMが考案される前にHochreiterが指摘した勾配消滅(爆発)問題について述べる必要があります。
+　当時のRNNの学習方法は、BPTT(Back-Propagation Through Time)法とRTRL(Real-Time Recurrent Learning)法の2つが主流でしたが、その2つとも完全な勾配(Complete Gradient)を用いたアルゴリズムでした。しかし、このような勾配を逆方向(時間をさかのぼる方向)に伝播させるアルゴリズムは、多くの状況において「爆発」または「消滅」することがあり、結果として長期依存の系列の学習が全く正しく行われないといいう欠点が指摘されてきました。Hochreiterは自身の修士論文(91年)において、時間をまたいだユニット間の重みの絶対値が指定の(ごくゆるい)条件を満たすとき、その勾配はタイムステップtに指数関数的に比例して消滅または発散することを示しました。これはRNNだけではなく、勾配が複数段に渡って伝播する深いニューラルネットにおいてもほぼ共通する問題でした。LSTMはこの問題に対する有効な対処法の1つとして発明され生き残ってきた、という背景があります。
+　例えば、単体のユニット$u$から$v$への誤差の伝播について解析してみましょう。ステップ$t$における任意のユニット$u$で発生した誤差が$q$ステップ前のユニット$v$に伝播する状況を考えます。すると、誤差は以下に示すような係数でスケールします。
+
+```math
+\frac{\partial v_v (t-q)}{\partial v_u (t)} = 
+\Biggl\{
+\begin{array}{ll}
+f&#39;_v(net_v (t-1)) w_{uv} &amp; q = 1 \\
+f&#39;_v(net_v (t-q)) \sum_{l=1}^{n} \frac{\partial v_v (t-q+1)}{\partial v_u (t)}w_{lv} &amp; q &gt; 1
+\end{array}
+```
+
+$l_q = v$と$l_0 = u$を使用して、
+
+```math
+\frac{\partial v_v (t-q)}{\partial v_u (t)} = \sum_{l_1 = 1}^{n} \cdots　\sum_{l_{q-1} = 1}^{n} \prod_{m=1}^q f&#39;_{l_m} (net_{l_m} (t - m)) w_{l_m l_{m-1}}
+```
+
+上式を見ればわかるように、
+
+```math
+\begin{array}{ll}
+| f&#39;_{l_m}(net_{l_m} (t - m)) w_{l_m l_{m-1}} | \;  &gt; 1.0 &amp; for\; all\; m
+\end{array}
+```
+
+の時、スケール係数は発散し、その結果としてユニット$v$に到着する誤差の不安定性により学習が困難になります。一方、
+
+```math
+\begin{array}{ll}
+| f&#39;_{l_m}(net_{l_m} (t - m)) w_{l_m l_{m-1}} | \;  &lt; 1.0 &amp; for\; all\; m
+\end{array}
+```
+
+の時、スケール係数はqに関して指数関数的に減少します。上式の状況はRNNにおいて頻発し、正しい学習を妨げてきました。この議論は容易に全ユニットの誤差の伝播についても拡張することができます。
+　この問題の詳細は2001年の総説[Hochreiter+ 01]、Hochreiterの元論文[Hochreiter 91]\(ドイツ語\)、Bengioのより突っ込んだ解析[Bengio+ 94]で扱われています。
+
+# 第2部：LSTMの構造と学習
+
+LSTMは一見複雑で得体のしれない物体に見えますが、その構造は決して難しすぎるものではありません。ただし、複数回の拡張に伴い様々なバージョンが混在しています。今回は、[Greff+ 15]に従い、次の4つの代表形に分けて紹介します。
+
+(1) オリジナル(95,97年)\[Hochreiter &amp; Schmidhuber, 95;97]
+(2) Forget Gateの導入(99年)\[Gers &amp; Schmidhuber, 99]
+(3) Peephole Connectionの導入(00年)\[Gers &amp; Schmidhuber, 00]
+(4) Full Gradientの導入(05年)\[Graves &amp; Schmidhuber, 05]
+
+## 第一世代LSTM(95,97年)
+　以下に最初のLSTM Blockの構造を示します。オリジナルのLSTMは、上節の勾配消滅問題を強く意識した構造をしています。1つ1つの要素を見ていきましょう。
+
+![lstm_97.png](https://qiita-image-store.s3.amazonaws.com/0/60969/ad3d229e-3dda-e8ad-eeff-4a8b447e22d3.png)
+
+まず、**入力層の出力及び中間層の1ステップ前の(RNNのループ部)の出力は、それぞれ3か所に同時に入力として供給されます**。実線が入力層の出力、**点線が中間層の1ステップ前の出力**を表します。この3か所のうち、下からの入力が実際の入力値として使われ、その他2つは下から「入力ゲート(Input Gate)」、「出力ゲート(Output Gate)」と呼ばれ、入力値及びメモリセル内の状態(State)の制御に使用されます。各入力は重み行列$w_{z, in, out}, R_{z, in, out}$と乗算されたのち加算され、各ゲートの活性化関数を通します。下図の活性化関数の色はその種類を表しており、2つのゲートに関しては常にシグモイド関数が使われます。
+
+### Constant Error Carousel (CEC)
+　CECは、誤差消滅問題に対応するために導入された非常にシンプルなアプローチです。上記の解析から、誤差消滅問題に対応するためには、
+
+```math
+f&#39;_{l_m}(net_{l_m} (t - m)) w_{l_m l_{m-1}} = 1.0
+```
+
+を満たせば、事実上無限時間であっても誤差は正しく伝播します。途中の式変形は省きますが、結果として、中央のメモリセルの状態$s_{c_j}(t)$は、
+
+```math
+\begin{align}
+s_{c_j}(0) = 0, \; s_{c_j}(t) = s_{c_j}(t-1) + y^{in_j}(t) g(net_{c_j}(t)) &amp; \; for \; t &gt; 0
+\end{align}
+```
+
+という重み係数1(線形)による和によって簡単に表現されます。これがCECのミソです。
+
+### 入力ゲートと出力ゲートの意味
+　CECが誤差消失問題を解決することはわかりました。では、同時に導入された入力ゲートと出力ゲートはどのような意味を持つのでしょうか。これは、定性的な分析から導き出すことができます。
+
+### 入力重み衝突(input weight conflict)
+　一般のRNNを考えたとき、ユニット$i$からの入力は、重み$w_{ji}$を与えられてユニット$j$に入力されます。誤差逆伝播法を用いる場合誤差信号がユニットを遡り、必要な場合重み$w_{ji}$を更新します。ところが、時系列データを学習する場合$w_{ji}$は次の矛盾する重み更新を同時に受ける場合があります。
+
+1. ユニットjを活性化されることによる**入力信号の伝達**
+2. ユニットiからの無関係な入力によってユニットjの値が消去されることを防ぐ**入力信号の保護**
+
+1.は例えば、先の例に挙げた系列において、$x$が入力されたことを示す情報を次々に未来のユニットに伝達するために$w_{ji}$の値を大きくする場合を指します。一方で$a_1, \cdots, a_{p-1}$といった無関係な入力を受けてユニットの値が更新されても困るので、2.のように$w_{ji}$の値を小さくしたい場合もあります。従来型のRNNではこのような矛盾する重み更新が頻発し、学習を遅らせる主要な要因となっていました。
+　そこで、LSTMでは入力ゲートを導入し、追加の重みパラメタを持たせることで、「前のユニット(1つ前の時間のユニット)の入力を受け取るか否か」を判断させるようにしました。そうすることで必要に応じて誤差信号の伝播をゲート部で止め、**必要な誤差信号だけが適切に伝播するようにゲートを開いたり閉じたりする**のです。これが入力ゲートと呼ばれたる由縁です。
+
+### 出力重み衝突(output weight conflict)
+　出力ゲートも入力ゲートと同様に、以下の理由による重みの衝突を防ぐために導入されています。ユニット$j$の情報が重み$w_{kj}$に従いユニット$k$に出力を行うことを考えると、次の2つの衝突が起きます。簡単ですね。
+
+1. ユニットkを活性化されることによる**出力信号の受信**
+2. ユニットjからの無関係な出力によってユニットkの値が消去されることを防ぐ**出力信号の保護**
+
+ここまでが第一世代LSTMの概要になります。他にもRNNにまつわるさまざまなとその対処が述べられているのですが、それについては元論文や次の記事を参照してください。
+
+&lt;iframe src=&quot;//www.slideshare.net/slideshow/embed_code/key/KwRPWEFQvwhlCK&quot; width=&quot;340&quot; height=&quot;290&quot; frameborder=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot; style=&quot;border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;&quot; allowfullscreen&gt; &lt;/iframe&gt; &lt;div style=&quot;margin-bottom:5px&quot;&gt; &lt;strong&gt; &lt;a href=&quot;//www.slideshare.net/nishio/long-shortterm-memory&quot; title=&quot;Long Short-term Memory&quot; target=&quot;_blank&quot;&gt;Long Short-term Memory&lt;/a&gt; &lt;/strong&gt; from &lt;strong&gt;&lt;a href=&quot;//www.slideshare.net/nishio&quot; target=&quot;_blank&quot;&gt;nishio&lt;/a&gt;&lt;/strong&gt; &lt;/div&gt;
+
+## Forget Gateの導入(99年)
+　さて、複数の時系列タスクにおいて目覚ましい成果を上げた初代LSTMですが、内部メモリセルの更新は線形で、その入力を貯め込む構造であったため、例えば、入力系列のパターンががらりと変わったとき、セルの状態を一気に更新する術がありませんでした。そこで、99年の拡張で忘却ゲート(Forget Gate)が導入されました。
+
+![lstm_99.png](https://qiita-image-store.s3.amazonaws.com/0/60969/06eb2f78-b6fd-556c-c285-c8c7dc7ab5a9.png)
+
+忘却ゲートは、誤差信号を受け取ることで、一度メモリセルで記憶した内容を一気に「忘れる」ことを学習します。そうすることで、状態遷移が起こり、今までの記憶が不必要になった時点で素早くセルを初期化することを可能にしました。忘却ゲート部の数式はこれで
+
+```math
+s_{c_j}(t) = y^{forget_j}(t)s_{c_j}(t-1) + y^{in_j}(t) g(net_{c_j}(t))
+```
+
+のように書き表すことができます。
+
+忘却ゲートを導入した元論文[Gers+ 99]の解説を発見したので、併せて参照ください。
+&lt;iframe src=&quot;//www.slideshare.net/slideshow/embed_code/key/iWYiJB2C2P5wCl&quot; width=&quot;340&quot; height=&quot;290&quot; frameborder=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot; style=&quot;border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;&quot; allowfullscreen&gt; &lt;/iframe&gt; &lt;div style=&quot;margin-bottom:5px&quot;&gt; &lt;strong&gt; &lt;a href=&quot;//www.slideshare.net/FujimotoKeisuke/learning-to-forget-continual-prediction-with-lstm&quot; title=&quot;Learning to forget continual prediction with lstm&quot; target=&quot;_blank&quot;&gt;Learning to forget continual prediction with lstm&lt;/a&gt; &lt;/strong&gt; from &lt;strong&gt;&lt;a href=&quot;//www.slideshare.net/FujimotoKeisuke&quot; target=&quot;_blank&quot;&gt;Fujimoto Keisuke&lt;/a&gt;&lt;/strong&gt; &lt;/div&gt;
+
+## Peephole Connectionの導入(00年)
+　忘却ゲートを導入して一見完成に見えたLSTMですが、ゲートの制御に関して次の致命的な問題を抱えていました。
+　そもそも、3つの制御ゲートの役割は、**「メモリセルの内容を書き換えるか/忘れるか/出力するか」**ということにありました。ところがこれまでのLSTMでは、そのゲートの制御はLSTMの外側と呼べる(1)入力層の出力(2)中間層の1ステップ前の出力をベースとして行われており、**制御対象であるメモリセル自身の内部状態は制御に利用されていない状態**でした。例えば、一見すると中間層出力である$y^(t-1)$がメモリセルの情報をすべて含んでいるように見えますが、出力ゲートが出力を遮断している($\simeq 0$)場合メモリセルの真の状態は隠ぺいされてしまいます。そこで**peephole connectionと呼ばれる接続をメモリセルから各ゲートに流し込むこと**で解決を図りました。下図の青い矢印に注目してください。
+
+![lstm_00.png](https://qiita-image-store.s3.amazonaws.com/0/60969/485f634d-9bd2-2ee3-99b2-09694e831f55.png)
+
+　また、中央上側のOutput Activation Functionは、性能に明確な影響を及ぼさないという理由で排除されることがあります。現在はこのバージョンが**事実上LSTMの標準形**とみなされていますが、タスクによって細かい修正は適宜行われています。
+
+### 補足：chainerはどのLSTMを使っている？(15/12/14時点)
+　PFI発のNNフレームワークであるchainerには1行で追加できる非常に便利なLSTMが提供されていますが、このLSTMはどのバージョンにあたるのでしょうか？実装を見てみましょう：
+
+https://github.com/pfnet/chainer/blob/master/chainer/functions/activation/lstm.py
+
+見ると、chainerのLSTMは**99年版の忘却ゲート付きのLSTMを採用しているようです。Peephole Connectionは導入されていません**。また、学習方法も後述のFull BPTTではなく、01年時点での方法であるBPTT法とRTRL法のミックスになっています。後述の検証では、Peephole Connectionの導入によるパフォーマンスには大きな影響はないとされていますが、使用にあたってはやや注意が必要と思われます。
+
+## Full BPTTによる学習(05年)
+　LSTMの構造は00年にひとまずの完成を見ましたが、その学習方法は昔ながらの手法であるRTRL法とBPTT法を混合し、時間方向への誤差逆伝播には一部の変数の勾配しか使用しないという、**やや特殊な学習方法**でした。[Graves &amp; Schmidhuber, 05] では学習を**BPTT(Back-Propagation Through TIme)法の枠組みに沿って統一的に定式化**することでより明快で実装しやすいものになりました。次節では05年バージョンに沿ってLSTMの具体的な数式を見ていきます。
+
+## LSTMの順伝播計算
+　さて、長々と説明を書いてきてようやくLSTMを定式化できるようになりました。00年版の図を見ながら式を見ていってください。順伝播の計算は以下のようになります：
+
+```math
+\begin{align}
+\bar{z}^t &amp;= W_z x^t + R_z y^{(t-1)} + b_z \\
+z^t &amp;= g(\bar{z}^t) \\
+\bar{i}^t &amp;= W_{in} x^t + R_{in} y^{(t-1)} + p_{in} \odot c^{t-1} + b_{in} \\
+i^t &amp;= \sigma(\bar{i}^t) \\
+\bar{f}^t &amp;= W_{for} x^t + R_{for} y^{(t-1)} + p_{for} \odot c^{t-1} + b_{for} \\
+f^t &amp;= \sigma(\bar{f}^t) \\
+c^t &amp;= i^t \odot z^t + f^t \odot c^{t-1} \\
+\bar{o}^t &amp;= \sigma(W_{out} x^t + R_{out} y^{(t-1)} + p_{out} \odot c^t + b_{out}) \\
+o^t &amp;= \sigma(\bar{o}^t) \\
+y^t &amp;= o^t \odot h(c^t) \\ \\
+但し、\ \  \sigma(x) &amp;= sigmoid(x) = \frac{1}{1 + e^{-x}}, \\ g(x) &amp;= h(x) = tanh(x)
+\end{align}
+```
+
+後半の式の計算には前半の式の計算結果が要る場合があるので計算順には注意が必要です。また、$\odot$はpointwise multiplication(要素ごとの積)を意味します。
+また、peephole connectionへの入力は、**入力・忘却ゲートに関しては1ステップ前、出力ゲートのみ現在のステップ**の状態が供給されるところにも注意してください。
+最適化したい**重みは15変数**になります。
+
+- 入力重み：$W_z, W_{in}, W_{for}, W_{out} \in R^{N×M}$
+- リカレント重み：$R_z, R_{in}, R_{for}, R_{out} \in R^{N×N}$
+- peephole重み：$p_{in}, p_{for}, p_{out} \in R^N$
+- バイアス重み：$b_z, b_{in}, b_{for}, b_{out} \in R^N$
+
+## LSTMの逆伝播計算
+　LSTMの逆伝播が難しく見えるのには、(1)1ステップ未来のループから誤差信号が来る(2)複数のゲートがあり、伝播の順番がわかりにくい という2つの理由がありますが、これも丁寧に数式を追っていけば難しくありません。
+　まず、LSTMの中身は忘れて、ステップ(時間)tにおける入力$x_t$、出力$y_t$を考えましょう。まず、出力層で得た誤差信号が遡ってきて、$\Delta^t = \frac{\partial E}{\partial y^t}$が与えられます。LSTM内部ではこの$\Delta^t$を元手に誤差が伝播して、最終的に$\delta x^t = \frac{\partial E}{\partial x^t}$を計算して入力層へ遡ります。このような$\delta ?^t$を計算するには、**順伝播の時にその中身を伝播させたすべての接続からの誤差信号の和**を計算していきます。式を見ていきましょう。
+
+```math
+\begin{align}
+\delta y^t &amp;= \Delta^t + R_z^T \delta z^{t+1} + R_{in}^T \delta i^{t+1} + R_{for}^T \delta f^{t+1} + R_{out}^T \delta o^{t+1} \\
+\delta o^t &amp;= \delta y^t \odot h(c^t) \odot \sigma&#39;(\bar{o}^t) \\
+\delta c^t &amp;= \delta y^t \odot o^t \odot h&#39;(c^t) + p_{out} \odot \delta o^t + p_{in} \odot \delta i^{t+1} + p_{for} \odot \delta f^{t+1} + \delta c^{t+1} \odot f^{t+1} \\
+\delta f^t &amp;= \delta c^t \odot c^{t-1} \odot \sigma&#39;(\bar{f}^t) \\
+\delta i^t &amp;= \delta c^t \odot z^t \odot \sigma&#39;(\bar{i}^t) \\
+\delta z^t &amp;= \delta c^t \odot i^t \odot g&#39;(\bar{z}^t) \\
+\end{align}
+```
+
+式だけではなんともわかりにくいですね。中央のメモリセルのデルタである$\delta c^t$に絞って見てみましょう。
+
+![lstm_bp.png](https://qiita-image-store.s3.amazonaws.com/0/60969/bbc17c05-4979-2941-8667-4cf0f0235fc3.png)
+
+中央のメモリセルに向かって、5か所の赤い矢印が進んできています。これが順伝播させた項からやってきた$c^t$への誤差信号です。内訳は第1項から順に
+
+- LSTM Blockの出力$y^t$からの誤差
+- 出力ゲートからの誤差
+- **未来**の入力ゲートからの誤差
+- **未来**の忘却ゲートからの誤差
+- **未来**のセル自身からの誤差
+
+となります。そして、計算済みの各デルタは次の操作によって計算されます。
+
+- 通常の乗算を通るたびに**その項で乗算**(例えば、第1項の$o^t$)
+- 非線形関数を通るたびに**その微分を乗算**(例えば、第1項の$h&#39;(c^t)$)
+
+あとは簡単ですね。式を追っていけばわかると思います。
+最終的に、上記のデルタが得られたところで、入力層へのデルタ及び実際に更新したい重みの勾配$W_\star, p_\star, R_\star, b_\star$を計算します($\star$にはz, in, out, forのいずれかが入る)。
+
+```math
+\begin{align}
+\delta x^t &amp;= W_z^T \delta z^t + W_{in}^T \delta i^t + W_{for}^T f^t + W_{out}^T \delta o^t \\
+\delta W_{\star} &amp;= \sum_{t=0}^T \delta \star^t \times x^t \\
+\delta R_{\star} &amp;= \sum_{t=0}^{T-1} \delta \star^{t+1} \times y^t \\
+\delta b_{\star} &amp;= \sum_{t=0}^T \delta \star^t \\
+\delta p_i &amp;= \sum_{t=0}^{T-1} \delta c^t \odot \delta i^{t+1} \\
+\delta p_f &amp;= \sum_{t=0}^{T-1} \delta c^t \odot \delta f^{t+1} \\
+\delta p_o &amp;= \sum_{t=0}^T \delta c^t \odot \delta o^t
+\end{align}
+```
+
+ふー長かった。$\times$は外積を表します。
+
+## LSTMの学習のコツ
+　LSTMを標準的なSGD(Stochastic Gradient Descent、確率的勾配降下法)で学習することを考えましょう。すると、以下のパラメータの設定が必要になります。
+
+- 隠れ層のLSTM Blockの個数
+- 学習率
+- モーメンタム
+- BPTTの打ち切りステップ数(Truncated BPTT)
+- 勾配の絶対値のクリッピング(Gradient Clip)
+
+LSTMは先に述べた計算安定性ゆえに適当なパラメタでも学習してるように見えてしまうのですが、実際どのようにパラメタを決めるのが良いのでしょうか？[Greff+ 15]の詳細な分析を少しだけかじって紹介します。下図は3つのタスクにおいて、「学習率」「隠れ層のブロック数」「入力に対するノイズの添加」のパラメタの変化に応じた予測誤差・実行時間の推移を表します。ノイズ添加以外の2つについて、列毎(パラメータ毎)に見てみましょう。
+
+![lstm_hyper.png](https://qiita-image-store.s3.amazonaws.com/0/60969/aadb996a-0f94-5682-06cd-b660ef1c9681.png)
+([Greff+ 15]より引用)
+
+まず、**学習率の設定は何においても重要になります**。データセットによって大きく傾向が異なりますが、**予測誤差が一気に改善する特異な地点が存在する**ことがわかります。論文中では**まず高い学習率(1程度)から始めて、性能の改善が停止するたびに10で割る**大雑把な探索が推奨されています。
+一方で、隠れ層の数については非常にわかりやすい傾向が出ています。期待通り、**隠れ層の数を増やせば増やすほど性能は改善します**が、そのトレードオフとして実行時間が増加します。なお、図表に示されてはいませんが、**モーメンタムの値は今回の解析では値の設定による性能の変化はなかった**と報告されています。BPTTの打ち切りステップ数についての言及はこの論文ではありませんでしたが、直感的には獲得したい長期依存の長さとタスクの実行時間とのバランスを取るのが標準的な戦略だと思われます。
+
+## RNNと勾配のクリッピング(Gradient Cliping)
+　LSTMはゲートの導入によって勾配「消滅」問題に対応しましたが、厳密には**勾配「爆発」問題には対応していませんでした**。そこで、2010年頃から勾配のノルムに対して一定の制約値(hard constraint)を設け、ミニバッチの学習毎に大きくなりすぎた勾配のノルムを補正するという方法が取られるようになりました。[Pascanu+ 12]において、Bengioらのチームは**RNN($\neq$ LSTM)における勾配爆発問題が起こる必要条件がリカレント重み行列$W_{rec}$の最大の特異値にあることを証明**し、その明快な回避方法として以下のアルゴリズムに従う勾配クリッピングを正式に提案しました。
+
+```math
+\begin{align}
+1. \quad &amp; \hat{g} \leftarrow \frac{\partial \epsilon}{\partial \theta} \\
+2. \quad &amp; if \quad ||\hat{g}|| \geqq threshold \quad then \\
+&amp; \qquad \hat{g} \leftarrow \frac{threshold}{||\hat{g}||} \hat{g} \\
+&amp;   end if
+\end{align}
+```
+
+一瞬おっかなく見えますが、平たく言えば**更新の度に $-threshold &lt; ||gradient|| &lt; threshold$ を保証すればよい**ということです。[Pascanu+ 13]ではthresholdの値についても緩い提案を行っており、**多数の更新が行われたときの重み$W_{\star}$のノルムの平均を観察すること**を推奨しています。彼らは、得られた平均の0.5倍～10倍の値を設定することで(収束速度の差はあれど)大よそ収束すると報告しています。興味深いのは、この提案は**BPTT法によって学習する一般のRNNに適用できる勾配消失/爆発問題への対処法を提示している**ということです。興味のある方は原論文を参照ください。
+
+## LSTMのどの部分が重要なのか？
+　[Greff+ 15]の分析では**LSTMのどの部分が性能向上に寄与しているかの仔細な分析**を行っています。その手法自体は明快で、入力/忘却/出力ゲート・活性化関数・peepholeなど8種類の要素をそれぞれ取り除いた場合の性能低下を計算し、比較することで実現しています。実験の結果、
+
+- 忘却ゲート、出力時の活性化関数の排除による性能低下が最も大きい
+- 音楽・言語モデリングにおいては入力ゲートの排除、入力時の活性化関数の排除による影響も大きい
+
+ことが主に示されています。
+
+## Connectionist Temporal Classification(CTC)法[Graves+ 06]
+　これは概要のみを述べるに留めます。詳しくは機械学習プロフェッショナルシリーズの[『深層学習』](http://www.amazon.co.jp/dp/4061529021)などを参照してください。
+　
+　LSTMには、**1つの入力に対して必ず1つの出力がある**という強い制約があります。しかしながら、音声認識などでは、**(1)音声信号の系列数と(2)取り出したい音素の系列数は全く異なります**。特に、音声認識のように**出力の区切りが事前知識から得にくい**場合は単純な方法では解決できません。これを解決するのがConnectionist Temporal Classification(CTC)法です。
+　CTC法は、目標出力ラベル(例えば、&quot;a&quot;,&quot;i&quot;,&quot;u&quot;など)に加えて空白ラベル&quot;\_&quot;を導入し、出力したい系列(&quot;aui&quot;)に対して同義の長い冗長な入力(&quot;a\_\_\_\_u\_\_\_i\_\_&quot;)を対応させることで入力の長さと出力の長さの整合性を取ります。素朴に計算すると計算量が非常に大きくなりますが、HMM(隠れマルコフモデル)の前向き・後ろ向きアルゴリズムと同様のアプローチでこの問題を解決しています。
+　また、自然言語処理の分野ではsequence to sequence learningと呼ばれる方法があり、入力文の単語数と出力の単語数が一致していなくても対応できるような学習法がよく使われています(後述)。
+
+# 第3部：応用事例から見るLSTMとその派生アーキテクチャ
+ 95年時点で既に洗練されたアーキテクチャを持っていたLSTMですが、限られたマシンパワーに加えてNN冬の時代にぶち当たって当時はあまり注目されませんでした。実タスクに適用されはじめるのは登場から10年経った05年ごろからになります。初めは音素認識・手書き文字認識でのプロトタイピングが中心でしたが、Deep Learningのブームと共にあっという間に実用レベルの研究が進展し、現在では
+
+- 大規模音声認識(Google)[Sak+ 14]
+- 英語-フランス語翻訳(Google)[Sutskever+ 14]
+- テキスト読み上げ(Microsoft)[Fan+ 14]
+- Google Voice[Sak+ 15]
+- 画像からのキャプション生成(Google)[Vinyals+ 14]
+- and more...
+
+など多くの領域・企業で利用されています。しかしこれらの学習器の多くはLSTMをそのまま使ってはいません。LSTMの大きな特長として、**LSTM blockの改変や積み上げが容易**ということがあります。そのため、タスクに応じてLSTMの派生形ともいえる様々な形態が存在します。そのうちのいくつかを眺めてみましょう。
+
+## 音素・音声認識とBidirectional LSTM(BLSTM)[Graves &amp; Schmidhuber 05][Graves+ 13]
+　SchmidhuberらはLSTMの初期の応用例の1つとして「フレーム単位音素認識」を選択しました。これは、先のCTC法において指摘した「入力長と出力長の不一致」を認めつつ、まずはフレーム毎の予測を行ってみようという現在の水準から見るとやや難易度の低いタスクです。しかし当時は挑戦的な課題として音素認識は挙げられており、この論文ではその課題を**Bidirectional(双方向) LSTM(BLSTM)**と呼ばれる方法で解決しました。
+　BLSTMの発想は至って単純です。LSTMは、通常「現在までの入力から未来の出力を予測する」モデルですが、これに「未来の入力から過去の出力を予測する」逆方向のモデルを考え、その出力を同一の出力層に統合します。下図にBLSTMの模式図を示します。
+
+![blstm.png](https://qiita-image-store.s3.amazonaws.com/0/60969/966fcbd2-970f-d45e-5475-dabe81a9d978.png)
+([Graves+ 13]より引用)
+
+この構造の効用は明快です。前提として「認識前にすべての系列情報が手に入っている」という条件がありますが、その分増したコンテクストをより明快に掴むことができます。[Graves &amp; Schmidhuber 05]では、有名なコーパスであるTIMITコーパスを用いて184発話を訓練、BLSTM、LSTM、RNNに関して比較を行いました。その結果を以下に示します。
+
+![blstm_result.png](https://qiita-image-store.s3.amazonaws.com/0/60969/ecdb7f47-9087-58c3-8d78-17b32267acfd.png)
+([Graves &amp; Schmidhuber 05]より引用、赤丸・青丸は筆者注)
+
+この論文では僅差となっていますが、RNNに対してLSTM、それもBLSTMの方が結果が高いと出ています。この数字をどう捉えるかは難しいところですが、論文中ではLSTMの方が学習速度が速く、訓練データに対する適応度はRNNを大きくしのいでいた(つまり、データ量を増やせば精度がさらに上がる)ことを僅差の理由として挙げています。この時点ではまだ音声認識の主流モデルであったHMMとの比較はなされていませんが、近年は**HMMを大きく凌ぐ成果が多数出ています**。
+
+## Sequence-to-sequence learningによる機械翻訳[Sutskever+ 14]
+　LSTMの応用事例として最も面白いのはやはり機械翻訳だと思われます。Sutskeverらは、今までのLSTMの視点に留まらない新しい学習の枠組みを考えました。
+　上で紹介したCTC法は、確かに入力と出力の長さが違うような一般的な問題設定の解決をもたらしました。しかし、強い制約として、**入力列と出力列の順番に単調な順序関係を要求する**という性質がありました。英語と日本語の語順が異なるのは周知のとおり、機械翻訳の問題はCTC法では解決されませんでいた。そこで、Sutskeverは以下のような系列を予測する問題としてLSTMを用いた定式化を行いました：
+
+![mt.png](https://qiita-image-store.s3.amazonaws.com/0/60969/15785165-48b4-b961-2145-8ae45f562d35.png)
+([Sutskever+ 14]より引用)
+
+　上図はRNNを時間展開したような模式図です。中央の四角がLSTMを表すと考えて差支えありません。まず、翻訳元の言語ABCを入力して、**翻訳元の文章の表現を一括学習**します。そして、そののちにこのLSTMは翻訳先の言語の**「次の単語」を予測するタスク**を解きます。予測した結果は次のステップの入力として供給されます。こうすることで、機械翻訳のような、入力と出力の長さ及びその語順すらも異なるようなモデルを効率よく学習することができるようになりました。
+　また、本モデルではLSTMを多段に(4層)積み上げています。そうすることで、文章間の**短い相関関係、長い相関関係を別々のレイヤーで掌握することができる**と考えられています。LSTMを積み上げる(Stacked LSTM)発想は現在ではごく当たり前に用いられています。結果として、本論文のモデルは従来のモデルの最高性能に匹敵する結果(翻訳の良さの指標であるBLEUで36.5)をたたき出しました。
+　
+尚、機械翻訳については以下の記事で実装まで含めて非常にわかりやすく紹介されているので、詳しくは以下を参照ください。
+[ChainerとRNNと機械翻訳](http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e)
+
+# 第4部：RNN≒真に深いネットワーク？
+　現在、Deep Neural Networkと言えば、3層の多層パーセプトロンに対して、4層以上の多数の層を組み合わせたフィードフォワードネットワークのことを指すことが多いようです。画像認識分野においては、性能向上を目的として、Alexnet(8層、2012年)、VGGNet(16または19層、2014年)、GoogLeNet(22層、2014年)、と年を追うごとにその層数を増加させてきました。しかし、層をやみくもに増やせば学習精度が向上するわけではなく、緻密なアーキテクチャの構築によって層数の増加、精度向上が図られました。
+　一方でRNNを振り返ってみましょう。RNNそのものの構造は自己への閉ループを1つ持つだけの単純な構造をしていますが、これを時系列方向に展開するとその総数は時系列の長さ$T$に比例します。当然多くの時系列データは1000ステップ以上の長期のステップを扱うわけなので、**素朴には昔ながらのRNNの方が深い層数を扱っている**と言えます。
+ LSTMは、解釈によっては非常に深い層数のネットワークともとれるRNNに対して勾配が消失しない方法を考え、深いネットワークにおける問題を克服しました。今年、そんなLSTMにインスパイアされたようなモデルが立て続けに提案されました。LSTMからいったん離れて、これらのモデルを見ていきましょう。
+
+## Highway Networks[Srivastava+ 15]
+　Highway Networks(以下、HN)は、LSTMの重要な要素技術であるゲートを導入することで100層以上の深いネットワークを学習可能であることを示しました。著者にはLSTMの生みの親であるSchumidhuberが入っており、LSTMの影響を強く受けています。
+　下図にHNの1レイヤーの構造を示します。
+
+![highway.png](https://qiita-image-store.s3.amazonaws.com/0/60969/4c838da4-def3-26aa-48bc-89ad7fe40718.png)
+
+　通常のフィードフォワードネットワークでは、1レイヤーの入力と出力は本質的には下式のように表されます(バイアス項などは省略)：
+
+```math
+y = H(x, W_H)
+```
+
+この変換Hは通常の非線形変換でも、CNNにおける畳み込み、リカレント構造などでも構いません。一方、HNでは、**Transform GateとCarry Gate**の2つのゲートを新たに導入し、以下のような計算を行います。
+
+```math
+y = H(x, W_H)・T(x, W_T) + x・C(x, W_C)
+```
+
+　見て分かるように、Transform gateは変換された出力をどれだけ伝播するか、Carry gateは未変換の入力をどれだけ運ぶかを表します。簡単のために、論文中では$C=1-T$として、学習時には$H$と$T$2つの変換の最適化を行うことで学習します。T、C共に非線形のシグモイド関数による変換を挟んで、0～1の間の数値を取るようになっています。
+　通常、深いネットワークの重みを変更したい場合、100層なら100層先まで順番に重みを変化させていくしかありません。すると、少ない層数の時と比べて必ずその伝播は遅くなり、層数の増加につれてその影響は深刻になります。しかし、Carry Gateによる&quot;Information Highway&quot;を用意することでHNでは高速な情報の伝播を実現しました。
+
+## Highway Networksの初期化と学習
+　HNの学習は非常にシンプルです。まず、Transform Gateのパラメータの初期値$T(x) = \sigma (W_T^T x + b_T)$の$b_T$の値には負の値(-1, -3など)を与えておきます。これはCarry Gate(恒等変換)の方に初期の重要度を与えることを意味し、これにより初期の誤差が速く浅い層に伝播するとされています。最適化はシンプルにSGD(確率的勾配降下法)及びmomentum(モーメンタム)を使用していますが、1000層のネットワークでも破たんすることなく学習したとされています。
+　特筆すべきは深いネットワークにおけるその収束の速さで、下図からは20層以上のネットワークにおいて高速に、よく汎化していることが確認できます。
+
+![highway2.png](https://qiita-image-store.s3.amazonaws.com/0/60969/87ebeb7b-488a-7cec-d45c-65b1b967515a.png)
+([Sharma+ 15]より引用)
+
+## Deep Residual Networks[He+ 15]
+　つい先日ILSVRC 2015で優勝を飾った最新のモデルです。2位以下を大きく突き放してImageNetのTest Setにおいて**エラー率3.57%**を叩き出しました。さらには、そのネットワークが152層にも及んでいることが判明し、大きなインパクトを与えました。このモデルの中身を見てみましょう。
+
+## Residual Learning
+　Deep Residual Newtorks(ResNet)の発想はHNのそれと非常に似ています。が、その中身はHNよりさらにシンプルな構成となっています。HNではゲートの開閉により変換を挟んだ出力と無変換の出力の土合を調整したのに対し、ResNetでは各レイヤーにレイヤーの変換を飛び越すような恒等変換を加算します。以下にその模式図を示します。
+
+![residual.png](https://qiita-image-store.s3.amazonaws.com/0/60969/d003e42c-378f-c25a-0ab8-198d97673072.png)
+
+　ResNetのレイヤーは、入力として$x$を受け取り、出力として恒等変換された$x$と変換が施された$H(x)$の和である$x+H(x)$が返されます。そのため、ある変換$H(x)$を学習することは、所望の出力$F(x)$と入力$x$の残差(Residual)を目的の値に近づけることと解釈することができます。論文中ではこの$F(x)$をResidual Functionと呼んでいます。一見何とでもない変換に見えますが、これがDNNにおいて避けられない事象であるdegradation problemを解決する突破口となります。
+　DNNは、NNの層を増やし段階的に特徴を取り出すことによって圧倒的な表現力を達成してきましたが、層を追加するにつれ、その学習は難しくなります。現在ではそのような認識は当たり前に見えますが、理想的には**深いネットワークは浅いネットワークの上位互換**であるべきです。なぜそれが達成できないのか。解析の結果、層数を増やすとかえってエラー率が上がる有力な原因として、&quot;degradation problem&quot;という現象が発見されました。この問題は、深いネットワークが、**余計な(これ以上の精度向上を望めない)レイヤーに関して恒等写像を学習するのが難しい**という状況を引き起こすことで起こります。数多くの非線形変換を組み合わせるDNNでは、恒等写像を再現する方がかえってネックになっていたのです。
+　そこでResNetでは恒等写像を学習する過程を非常に簡単に行う方法を考えました。入力そのものとの残差を取るのです。すると、今まで$H(x)=x$となるような最適化が必要だったところ、**$H(x)=0$を学習するだけで済む**ようになりました。もちろん、ネットワーク全体としては必ずしも恒等写像を学習することが目標ではありませんが、この変換によってネットワーク全体の最適化が容易になったと報告されています。
+
+## Deep Residual Networksの構成と学習
+　ResNetの構成もHNの構成と同様、GoogLeNetなどと比べると非常にすっきりしています。ImageNetの画像入力サイズは224×224ですが、これに5種類の大きさの畳み込み層(conv)＋バッチ正規化(Batch Normalization)を用意したうえで、それらを合計の層数によって数を変えて構成しています。以下の図は18, 32,4, 50, 101, 152層のアーキテクチャを示しています。
+
+![residual_arch.png](https://qiita-image-store.s3.amazonaws.com/0/60969/20697e62-1e2c-f519-c894-cbc78d5799bb.png)
+([He+ 15]より引用)
+
+ImageNetで使われた実際のResidual Functionの具体形は以下のようになります。
+
+![residual_func.png](https://qiita-image-store.s3.amazonaws.com/0/60969/ccdccdc5-8e09-3383-bcfb-8de43081b5a4.png)
+([He+ 15]より引用)
+
+ **RNの学習においても最適化にはSGD(+荷重減衰、モーメンタム)が使われています**。Adagrad、Adam、RMSPropなどの半自動制御より細やかな手動制御の方がやはり精度向上に寄与するようです。最終的に、ILSVRC2015においては**152層(!)のモデル単体でtop-5エラー率4.49%(この時点で既存のモデル全てを上回る)、異なる深さの6つのモデルのアンサンブルで冒頭のエラー率3.57%**を達成しています。
+
+ このモデル自体がRNNの最適化にヒントを得たかどうかは全く定かではありませんが、先行的に行われたRNNの解析によって得られた知見が現在のDNNに還元されている面は否定できないと思われます。
+
+# 第5部：汎用コンピュータとしてのLSTM
+　上節で、RNNは真に深いネットワークであるという解釈を紹介しましたが、LSTMの生みの親であるSchmidhuberはさらに突っ込んで、「RNNは汎用コンピュータである」という旨の発言をしています。RNNは可変長の入力を受け取るため、原理的に任意のプログラムを入力することができます。RNNは内部に重み(状態)を持ち、次々に入ってくる入力に応じてその重み(状態)を変化させる、強く解釈すれば自己の状態を変える作業を行っています。これは命令を受けて内部状態(メモリ)を書き換えるノイマン型コンピュータと同じであると考えることができます。Schmidhuberは、RNNはHMM(隠れマルコフモデル)やSVM(Support Vector Machine)が連続的な内部状態を持たないことを根拠に、RNNはそれらのモデルよりも強力で、生物学的に尤もらしいモデルであると主張しています[Jürgen Schmidhuber&#39;s page on Recurrent Neural Networks](http://people.idsia.ch/~juergen/rnn.html)。
+　迷路探索などのタスクにRNN(+強化学習)を用いる研究は90年代より為されていましたが、近年は観念的な話に留まらず、実際にRNNやLSTMに命令(Instruction)を解釈・実行させ、汎用性が求められると思われるタスクを解決する取り組みが多数行われています。今回はその中から新しめの事例を1つ紹介します。
+
+## 誤差逆伝播法＆強化学習による簡単なアルゴリズムの学習[Zaremba+ 15]
+　この論文では、数字列のコピー、複数桁の数字の足し算、数値の掛け算などの簡単なタスクを、**入力列の周りを適当に探索して、計算そのものに留まらず計算に至るまでの走査自体も同時に学習する**という挑戦的な設定で解くことを目指しています。まずは以下の動画を見ると何をやっているのか何となくわかると思います：
+
+[Learning Simple Algorithms from Examples](https://www.youtube.com/watch?v=GVe6kfJnRAw)
+
+　まず、システムはControllerと呼ばれる制御機能を持ったユニットを中心に構成されます。ここにはLSTMや後述のGRU(Gated Recurrent Unit)などのNNが配置されています。今回のタスクは次のような設定でタスクを解くことを要求されます：
+
+![lstm_rl.png](https://qiita-image-store.s3.amazonaws.com/0/60969/43ec3c7e-c8b2-3bcf-14ea-060f1a71ca53.png)
+([Zaremba+ 15]より引用)
+
+まず、入力と出力は
+
+- Input Tape(Grid): 問題で使用する数字列が書かれている1次元の数列または2次元のグリッド
+- Output Action: ある場所の数字を受け取った後、グリッド(数列)上のどこに移動するかを判断する
+- Output Tape：ある場所の数字を受け取った後、数字またはNOP(Φ)を出力する
+
+の3つから成ります。Controllerは、Input Tapeの現在の値を読み取った後、次のどこのマスに移動するかを判断し、同時に数字またはNOPを出力します。例えば、「ABCDr」(rは終端文字)という文字の反転を行いたければ、ControllerはAの位置にいる状態から計算を開始して、
+
+- Input Tape内の移動：**Right Right Right Right Left Left Left Left**
+- Output Tapeの出力：**NOP NOP NOP NOP D C B A**
+
+という**制御と出力を同時に行う**必要があります。本論文ではこれらの制御と出力の学習を**誤差逆伝播法と強化学習のアンサンブル**で行っています。
+
+- 制御(Action)の学習…出力シンボルが正解であるとき1、不正解であるとき0の報酬を得て強化学習を行う(注：正解は入力列に「埋め込まれている」)
+- 出力(Output)の学習…正解と出力シンボルの確率(softmax)とのクロスエントロピー誤差を用いて誤差逆伝播法を行う
+
+　このタスクは非常に難しく、例えば3つの数列の足し算などになるとControllerはどこを動き回ればよいのかまったくわかりません。本論文では今日強化学習で広く使われているQ-Learningを改良することで、これらのタスクを**「数列の長さ・問題の複雑さとは関係なく、かつ初見の問題も解けるように」**多大なる苦労を以て解決しています(やはり相当苦しかったようで、直接的な正解ではないが、ヒントとなるような知識をQ-Learningの実行時に与えています)。Controllerの部品には200または400個のユニットを持つLSTMが用いられ、LSTMは**ある特定のアルゴリズムを表すオートマトンを構成するようなメモリ付きのプロセッサ**としての役割を果たしています。これは音声認識などで用いられたときの使い方と似ているようで、その目的は大きく異なっています。
+
+## Curriculum Learning
+　Deep Learningが脚光を浴びた直接のきっかけは「猫の概念を学習した」などでおなじみの画像認識分野でした。しかし、画像認識に比べRNNによる汎用コンピューティングはさらに難しく、教師となるデータを単純に与えただけではうまくいきません。そこで、Curriculum Learning(カリキュラムラーニング)[Bengio+ 09]と呼ばれる**簡単な問題から難しい問題を徐々に覚えさせる**というアプローチが本論文をはじめ同様のタスクで用いられています。
+　例えば、3つの数列の足し算であれば、最初のタスクは「1桁の3つの数字の足し算」になります。そして、モデルがうまくそれらの問題を探索・計算できるようになったところで2桁、3桁と徐々に問題の複雑度を上げていきます。しかし、これも一筋縄ではいかず、**ある特定の長さの問題に特化してしまう**という過学習の特殊形に陥る事例が数多く見られました。
+
+## RNNは汎用コンピュータへの道筋となるか？
+　この論文に留まらず、今現在も多数のRNN(+強化学習)を用いた汎用学習モデルが研究されています。現在はまだ地味に見えますが、数年後に驚くような成果を以て我々の前に現れるかもしれません。しかし間違えてはいけないのは、人間が期待するような**様々な問題に対して適切な応答を返す汎用性、あるいは創造性は、適当に多くのデータを与えただけでは達成されない**ということです。RNN・LSTMを使えば簡単に文章を生成できますが、**そのような出力自体には何ら意味はなく**、真に汎用的な出力が行われているかどうか慎重な検証が必要となります。
+
+これ以上のCurriculum Learningの詳細については以下を参照してください。
+&lt;iframe src=&quot;//www.slideshare.net/slideshow/embed_code/key/BgIaSW6hJM19F8&quot; width=&quot;340&quot; height=&quot;290&quot; frameborder=&quot;0&quot; marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot; style=&quot;border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;&quot; allowfullscreen&gt; &lt;/iframe&gt; &lt;div style=&quot;margin-bottom:5px&quot;&gt; &lt;strong&gt; &lt;a href=&quot;//www.slideshare.net/YoshitakaUshiku/20150530-kantocv-curriculumlearning&quot; title=&quot;Curriculum Learning （関東CV勉強会）&quot; target=&quot;_blank&quot;&gt;Curriculum Learning （関東CV勉強会）&lt;/a&gt; &lt;/strong&gt; from &lt;strong&gt;&lt;a href=&quot;//www.slideshare.net/YoshitakaUshiku&quot; target=&quot;_blank&quot;&gt;祥孝 牛久&lt;/a&gt;&lt;/strong&gt; &lt;/div&gt;
+
+# 終章：LSTMを超えて
+
+## LSTM以外の構造の模索：Gated Recurrent Unit(GRU)[Cho+ 14]
+　登場から20年が経ち、上で紹介したようにLSTMがどのような性質を持つのか、どのようなタスクに使えるのか、徐々にその性能が見えてくるようになりました。しかし、LSTM以外に同等またはそれ以上の能力を持つ学習器は存在しないのでしょうか？興味深い提案として、ChoらがGated Recurrent Unitと呼ばれるLSTMを簡略化したモデルを提案しています。
+　GRUの構造は以下の通りです。ゲート数が3つから2つに減って、**Update GateとReset Gate**の2つのゲートによってメモリセルの中身の維持・出力を制御しています。GRUは機械翻訳のタスクにおいて、LSTMと遜色のない性能を出したことが報告されています。
+
+![gru_14.png](https://qiita-image-store.s3.amazonaws.com/0/60969/f4f84fc7-ac4a-882b-26de-b2588accd3b7.png)
+
+そこで、[Chung+ 15]においてBengioらのチームはGRUとLSTM、どちらが良いのかどうか判断するべく性能比較を行いました。しかしもどかしいことに、この報告ではLSTMとGRUとの間に明確な優劣をつけることはできなかったとされています。**LSTMそのものの解析は進みましたが、LSTMとそれ以外の構造の比較**はこれからの課題となりそうです。
+
+## LSTMの限界
+　最後に、LSTMの限界について簡単にコメントしたいと思います。
+　ここまで紹介してきたとおり、LSTMは勾配消失問題に対応するために発明され、潤沢な計算リソースと合わせて音声認識・機械翻訳などで目覚ましい性能を見出してきました。しかし、LSTMの重大な欠点として**LSTMの構造自体からは、どのような問題が解けるのか・なぜ解けない問題があるのか判断できない**ことが挙げられます。例えば、Seq-to-Seq Learningによる機械翻訳モデルでは、LSTMが文章の内部表現を獲得していることは示唆されましたが、木構造などによる人間が理解可能な分析は非常に難しくなっています。LSTMを使うときはこの欠点を理解したうえで使う必要があります。
+
+# まとめ
+- LSTMは時系列データに対する強力な予測モデルである
+- Hochreiterの勾配消失問題を解決し、長期の時系列を学習可能になった
+- 現在LSTMは単体での使用に留まらず、双方向、複数段の組み合わせによってその表現力を拡大している
+- RNNベースで、任意のアルゴリズムを学習させる研究も始まっている
+- LSTM以外の有効なアーキテクチャの分析が始まっているが、モデルの構造自体の評価は未だ難しい
+- LSTMは強力なモデルだが、やみくもに動かしても意味のある出力を得ることは不可能に近い、緻密な問題設定が必要
+
+LSTMの活躍はまだ始まったばかりです。今後の動きに注目していきましょう。
+
+## おわりに
+
+結構頑張って書きました。もう少し洗練させたら印税とか入らないでしょうか。
+
+# 参考文献
+大変多くなったので外部リンクにまとめてあります：
+[わかるLSTM ～ 最近の動向と共に：参考文献リスト](https://docs.google.com/document/d/1O4Qwkfi4w6-sz81BbgiJb6rHaci_wZ_CSAoVuPrOl08/edit?usp=sharing)
+
+# 参考Webページ
+[LSTM Tutorial](http://lstm.iupr.com/)
+[Recurrent Neural Networks(PFIセミナー)](http://www.slideshare.net/beam2d/pfi-seminar-20141030rnn)
+[Learning to forget continual prediction with lstm(CV勉強会@関東)](http://www.slideshare.net/FujimotoKeisuke/learning-to-forget-continual-prediction-with-lstm)
+[ChainerとRNNと機械翻訳](http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e)
+[Curriculum Learning （関東CV勉強会）](http://www.slideshare.net/YoshitakaUshiku/20150530-kantocv-curriculumlearning)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="わかるLSTM ～ 最近の動向と共に by @t_Signull on @Qiita" data-url="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="わかるLSTM ～ 最近の動向と共に" href="http://b.hatena.ne.jp/entry/http://qiita.com/t_Signull/items/21b82be280b46f467d1b" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/t_Signull"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/60969/profile-images/1473695400" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/t_Signull">t_Signull</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1329</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;t_Signull&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-25f81a15-6fac-4959-8135-b078b60c61d0"></div>
+    <div id="UserFollowButton-react-component-25f81a15-6fac-4959-8135-b078b60c61d0"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/t_Signull/items/21b82be280b46f467d1b">わかるLSTM ～ 最近の動向と共に</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/t_Signull/items/f776aecb4909b7c5c116">RBMから考えるDeep Learning　～黒魔術を添えて～</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/t_Signull/items/7d557ae3b272bd1ae78f">rsyslogが出力してくれなかった話(CentOS 7)</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%AE%E8%A8%98%E4%BA%8B%E3%81%AE%E7%9B%AE%E7%9A%84\&quot;\u003eこの記事の目的\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%9B%AE%E6%AC%A1\&quot;\u003e目次\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%AC%AC1%E9%83%A8long-short-term-memorylstm%E3%81%AE%E5%9F%BA%E7%A4%8E\&quot;\u003e第1部：Long short-term memory(LSTM)の基礎\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%99%82%E7%B3%BB%E5%88%97%E3%83%87%E3%83%BC%E3%82%BF%E3%81%A8%E3%81%9D%E3%81%AE%E5%95%8F%E9%A1%8C\&quot;\u003e時系列データとその問題\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%A8%E3%81%AF\&quot;\u003eLSTMとは？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%83%8C%E6%99%AFhochreiter%E3%81%AE%E5%8B%BE%E9%85%8D%E6%B6%88%E5%A4%B1%E5%95%8F%E9%A1%8C91%E5%B9%B4\&quot;\u003e背景：Hochreiterの勾配消失問題(91年)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%AC%AC2%E9%83%A8lstm%E3%81%AE%E6%A7%8B%E9%80%A0%E3%81%A8%E5%AD%A6%E7%BF%92\&quot;\u003e第2部：LSTMの構造と学習\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%AC%AC%E4%B8%80%E4%B8%96%E4%BB%A3lstm9597%E5%B9%B4\&quot;\u003e第一世代LSTM(95,97年)\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#constant-error-carousel-cec\&quot;\u003eConstant Error Carousel (CEC)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%A5%E5%8A%9B%E3%82%B2%E3%83%BC%E3%83%88%E3%81%A8%E5%87%BA%E5%8A%9B%E3%82%B2%E3%83%BC%E3%83%88%E3%81%AE%E6%84%8F%E5%91%B3\&quot;\u003e入力ゲートと出力ゲートの意味\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%85%A5%E5%8A%9B%E9%87%8D%E3%81%BF%E8%A1%9D%E7%AA%81input-weight-conflict\&quot;\u003e入力重み衝突(input weight conflict)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%87%BA%E5%8A%9B%E9%87%8D%E3%81%BF%E8%A1%9D%E7%AA%81output-weight-conflict\&quot;\u003e出力重み衝突(output weight conflict)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#forget-gate%E3%81%AE%E5%B0%8E%E5%85%A599%E5%B9%B4\&quot;\u003eForget Gateの導入(99年)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#peephole-connection%E3%81%AE%E5%B0%8E%E5%85%A500%E5%B9%B4\&quot;\u003ePeephole Connectionの導入(00年)\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A3%9C%E8%B6%B3chainer%E3%81%AF%E3%81%A9%E3%81%AElstm%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B151214%E6%99%82%E7%82%B9\&quot;\u003e補足：chainerはどのLSTMを使っている？(15/12/14時点)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#full-bptt%E3%81%AB%E3%82%88%E3%82%8B%E5%AD%A6%E7%BF%9205%E5%B9%B4\&quot;\u003eFull BPTTによる学習(05年)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AE%E9%A0%86%E4%BC%9D%E6%92%AD%E8%A8%88%E7%AE%97\&quot;\u003eLSTMの順伝播計算\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AE%E9%80%86%E4%BC%9D%E6%92%AD%E8%A8%88%E7%AE%97\&quot;\u003eLSTMの逆伝播計算\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AE%E5%AD%A6%E7%BF%92%E3%81%AE%E3%82%B3%E3%83%84\&quot;\u003eLSTMの学習のコツ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%A8%E5%8B%BE%E9%85%8D%E3%81%AE%E3%82%AF%E3%83%AA%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0gradient-cliping\&quot;\u003eRNNと勾配のクリッピング(Gradient Cliping)\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AE%E3%81%A9%E3%81%AE%E9%83%A8%E5%88%86%E3%81%8C%E9%87%8D%E8%A6%81%E3%81%AA%E3%81%AE%E3%81%8B\&quot;\u003eLSTMのどの部分が重要なのか？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#connectionist-temporal-classificationctc%E6%B3%95graves-06\&quot;\u003eConnectionist Temporal Classification(CTC)法[Graves+ 06]\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%AC%AC3%E9%83%A8%E5%BF%9C%E7%94%A8%E4%BA%8B%E4%BE%8B%E3%81%8B%E3%82%89%E8%A6%8B%E3%82%8Blstm%E3%81%A8%E3%81%9D%E3%81%AE%E6%B4%BE%E7%94%9F%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3\&quot;\u003e第3部：応用事例から見るLSTMとその派生アーキテクチャ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%9F%B3%E7%B4%A0%E9%9F%B3%E5%A3%B0%E8%AA%8D%E8%AD%98%E3%81%A8bidirectional-lstmblstmgraves--schmidhuber-05graves-13\&quot;\u003e音素・音声認識とBidirectional LSTM(BLSTM)[Graves \u0026amp; Schmidhuber 05][Graves+ 13]\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#sequence-to-sequence-learning%E3%81%AB%E3%82%88%E3%82%8B%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3sutskever-14\&quot;\u003eSequence-to-sequence learningによる機械翻訳[Sutskever+ 14]\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%AC%AC4%E9%83%A8rnn%E7%9C%9F%E3%81%AB%E6%B7%B1%E3%81%84%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\&quot;\u003e第4部：RNN≒真に深いネットワーク？\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#highway-networkssrivastava-15\&quot;\u003eHighway Networks[Srivastava+ 15]\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#highway-networks%E3%81%AE%E5%88%9D%E6%9C%9F%E5%8C%96%E3%81%A8%E5%AD%A6%E7%BF%92\&quot;\u003eHighway Networksの初期化と学習\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#deep-residual-networkshe-15\&quot;\u003eDeep Residual Networks[He+ 15]\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#residual-learning\&quot;\u003eResidual Learning\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#deep-residual-networks%E3%81%AE%E6%A7%8B%E6%88%90%E3%81%A8%E5%AD%A6%E7%BF%92\&quot;\u003eDeep Residual Networksの構成と学習\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%AC%AC5%E9%83%A8%E6%B1%8E%E7%94%A8%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%A8%E3%81%97%E3%81%A6%E3%81%AElstm\&quot;\u003e第5部：汎用コンピュータとしてのLSTM\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%A4%E5%B7%AE%E9%80%86%E4%BC%9D%E6%92%AD%E6%B3%95%E5%BC%B7%E5%8C%96%E5%AD%A6%E7%BF%92%E3%81%AB%E3%82%88%E3%82%8B%E7%B0%A1%E5%8D%98%E3%81%AA%E3%82%A2%E3%83%AB%E3%82%B4%E3%83%AA%E3%82%BA%E3%83%A0%E3%81%AE%E5%AD%A6%E7%BF%92zaremba-15\&quot;\u003e誤差逆伝播法＆強化学習による簡単なアルゴリズムの学習[Zaremba+ 15]\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#curriculum-learning\&quot;\u003eCurriculum Learning\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AF%E6%B1%8E%E7%94%A8%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%B8%E3%81%AE%E9%81%93%E7%AD%8B%E3%81%A8%E3%81%AA%E3%82%8B%E3%81%8B\&quot;\u003eRNNは汎用コンピュータへの道筋となるか？\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%82%E7%AB%A0lstm%E3%82%92%E8%B6%85%E3%81%88%E3%81%A6\&quot;\u003e終章：LSTMを超えて\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E4%BB%A5%E5%A4%96%E3%81%AE%E6%A7%8B%E9%80%A0%E3%81%AE%E6%A8%A1%E7%B4%A2gated-recurrent-unitgrucho-14\&quot;\u003eLSTM以外の構造の模索：Gated Recurrent Unit(GRU)[Cho+ 14]\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AE%E9%99%90%E7%95%8C\&quot;\u003eLSTMの限界\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE\&quot;\u003e参考文献\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83web%E3%83%9A%E3%83%BC%E3%82%B8\&quot;\u003e参考Webページ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-8a935b10-0f27-4de1-8521-ec36527e8782"></div>
+    <div id="Toc-react-component-8a935b10-0f27-4de1-8521-ec36527e8782"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:895,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;21b82be280b46f467d1b&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="drstkng"><a itemprop="url" href="/drstkng"><img alt="drstkng" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/81593/profile-images/1473702165" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="madobon"><a itemprop="url" href="/madobon"><img alt="madobon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9760/profile-images/1473681539" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TomokIshii"><a itemprop="url" href="/TomokIshii"><img alt="TomokIshii" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sora0077@github"><a itemprop="url" href="/sora0077@github"><img alt="sora0077@github" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/5010388ffe9101a3dfce88ef8816efc6?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-140.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="doorda"><a itemprop="url" href="/doorda"><img alt="doorda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/97858/profile-images/1473707325" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="DandyMania"><a itemprop="url" href="/DandyMania"><img alt="DandyMania" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31791/profile-images/1473760592" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yokoji"><a itemprop="url" href="/yokoji"><img alt="yokoji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3785/profile-images/1473683527" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Mukku8730"><a itemprop="url" href="/Mukku8730"><img alt="Mukku8730" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10215/profile-images/1473757235" /></a></div></div><div class="ArticleFooter__user"><a href="/t_Signull/items/21b82be280b46f467d1b/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/21b82be280b46f467d1b/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/t_Signull/items/21b82be280b46f467d1b.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.14</span> article of <a class="title" href="/advent-calendar/2015/machinelearning">Machine Learning Advent Calendar 2015</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 13:</span><span class="itemsShowBody_adventCalendar_title"><img alt="RyotaKatoh" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/34715/profile-images/1473686463" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/RyotaKatoh/items/b353d14a5d7c3edc0f3e">Variational Autoencoder（VAE）で生成モデル</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 15:</span><span class="itemsShowBody_adventCalendar_title"><img alt="kazk1018" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/30866/profile-images/1473685569" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/kazk1018/items/c338b2883b4a58298bcf">SparseMatrixについてまとめてみた</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 12 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/moaikids/items/5c4f32d73716478fc1e1#_reference-6e40c52a2ec291e21951"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/44364/profile-images/1473689874" />RNN / LSTM を用いてさだまさし風の歌詞を自動生成してみる</a><time class="references_datetime js-dateTimeView" datetime="2015-12-18T15:02:00+00:00">about 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/ixixi/items/a3d56b2db6e09249a519#_reference-6cac083816c3000f3d08"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/8954/profile-images/1473681204" />ニコニコ動画の公開コメントデータをDeep Learningで解析する</a><time class="references_datetime js-dateTimeView" datetime="2015-12-23T17:11:23+00:00">about 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/mokemokechicken/items/ba0b5124808e1a21ba70#_reference-9c542cdd39230e3535b3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/11124/profile-images/1473681925" />TensorFlowで機械学習と戯れる: LSTMでユーザの行動を予測するモデルを作る実験</a><time class="references_datetime js-dateTimeView" datetime="2016-01-24T06:56:02+00:00">about 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/dsanno/items/3b8e75c91cee799877a4#_reference-5072bf99b9974269df78"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/58026/profile-images/1473694517" />LSTMを使ってズンドコキヨシを学習する</a><time class="references_datetime js-dateTimeView" datetime="2016-03-15T07:28:42+00:00">about 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/tanishi/items/70a5085213b7eae32231#_reference-06a085f86bd0b47c6b9f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/40921/profile-images/1473688600" />深層学習について何もわからないけどそういう系の勉強会に行った</a><time class="references_datetime js-dateTimeView" datetime="2016-03-18T17:23:08+00:00">about 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/komakomako/items/9ba38fc38f098c0e8b9b#_reference-29424931f0f724c42775"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/80357/profile-images/1473701762" />RNN + LSTMで自動作曲してみた [DW 1日目]</a><time class="references_datetime js-dateTimeView" datetime="2016-04-29T14:34:28+00:00">11 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/komakomako/items/0d138e885bc8ba79c1cd#_reference-ddf41dceda96ea8f9eda"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/80357/profile-images/1473701762" />【深層学習】再帰ニューラルネットワークに関する良ページまとめ [DW 5日目]</a><time class="references_datetime js-dateTimeView" datetime="2016-05-03T09:36:08+00:00">11 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/komakomako/items/de5077efa344a8689fa0#_reference-7ed998a15943525b3a64"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/80357/profile-images/1473701762" />深層学習で自動作曲（Stacked LSTM編） [DW 6日目]</a><time class="references_datetime js-dateTimeView" datetime="2016-05-05T17:40:47+00:00">11 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/waytoa/items/b2757e9dce564d2358b0#_reference-a0f78302d3cc9870f3ea"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/27027/profile-images/1473684802" />TensorFlowの&quot;Recurrent Neural Networks&quot;章に関連する日本語記事</a><time class="references_datetime js-dateTimeView" datetime="2016-05-26T01:44:08+00:00">10 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/_329_/items/381b2c17377b6a6a4adb#_reference-d08144f6e18c055bca14"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/87943/profile-images/1473704263" />夏休みは終わった，Chainer v 1.13.0の新機能を確認しよう</a><time class="references_datetime js-dateTimeView" datetime="2016-08-17T03:05:23+00:00">7 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/tackey/items/b61c7be999c448583075#_reference-58699cfedeed99d10d7e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/82763/profile-images/1473702558" />TensorFlow製音楽生成プロジェクト「Magenta」でMIDIファイルを学習させ、曲を生成する。</a><time class="references_datetime js-dateTimeView" datetime="2016-10-05T13:58:09+00:00">5 months ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/hogefugabar/items/7a8a503725fc1a8224a5#_reference-868cc285d3cea51f7e02"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" />深層学習による声質変換</a><time class="references_datetime js-dateTimeView" datetime="2016-12-20T15:00:51+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/imenurok/items/b6a5b04d1ebb46480bdc#_reference-cfd5b3955b601c09c920"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/102946/profile-images/1473708857" />彼女ができないのに、実験ができるはずがない。</a><time class="references_datetime js-dateTimeView" datetime="2016-12-22T14:46:23+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/deaikei/items/e06a1a122b7e19f6a343#_reference-2b6951b6136c4712dd1e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/132984/profile-images/1473718815" />外部メモリー付きのニューラルネット&quot;Differentiable Neural Computing (DNC)&quot;について解説するよ</a><time class="references_datetime js-dateTimeView" datetime="2016-12-29T12:53:00+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/yamano357/items/27bb3d39dc8047c46dba#_reference-64011a9030d930c6774d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99957/profile-images/1473707949" />RでKerasを使う（短歌手習い編）</a><time class="references_datetime js-dateTimeView" datetime="2017-01-03T15:39:27+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/jiny2001/items/85af7dd163a63b3a152a#_reference-a0280e6c861136658a3a"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/12959344?v=3" />Inside of Deep Learning あるいは深層学習は何を変えるのか</a><time class="references_datetime js-dateTimeView" datetime="2017-01-20T18:26:14+00:00">about 2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenchin110100/items/b34f5106d5a211f4c004#_reference-d9feac1e3bafe715f70c"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/11845307?v=3" />今更ながらchainerでSeq2Seq（1）</a><time class="references_datetime js-dateTimeView" datetime="2017-02-23T12:12:17+00:00">24 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="わかるLSTM ～ 最近の動向と共に by @t_Signull on @Qiita" data-url="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="わかるLSTM ～ 最近の動向と共に" href="http://b.hatena.ne.jp/entry/http://qiita.com/t_Signull/items/21b82be280b46f467d1b" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e素晴らしいです！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-09T12:58:56+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:560071,&quot;is_team&quot;:false,&quot;item_id&quot;:352454,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;21b82be280b46f467d1b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;素晴らしいです！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/t_Signull/items/21b82be280b46f467d1b#comment-ccc504b67a77c87be0f6&quot;,&quot;user&quot;:{&quot;contribution&quot;:13,&quot;created_at&quot;:&quot;2014-02-27T09:30:18+09:00&quot;,&quot;id&quot;:38538,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/38538/profile-images/1473687806&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Rascal&quot;},&quot;uuid&quot;:&quot;ccc504b67a77c87be0f6&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eありがとうございます！\u003cbr\u003e\n1点気になったのですが、LSTMの順伝播計算のところで、forget gateとoutput gateに二重にシグモイド関数を通してしまっている気がします。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-16T16:07:49+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:566406,&quot;is_team&quot;:false,&quot;item_id&quot;:352454,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;21b82be280b46f467d1b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;ありがとうございます！\n1点気になったのですが、LSTMの順伝播計算のところで、forget gateとoutput gateに二重にシグモイド関数を通してしまっている気がします。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/t_Signull/items/21b82be280b46f467d1b#comment-a153650e82134a7862eb&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2014-12-08T23:53:07+09:00&quot;,&quot;id&quot;:62279,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/62279/profile-images/1478161017&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;KotaroSetoyama&quot;},&quot;uuid&quot;:&quot;a153650e82134a7862eb&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eとても勉強になります。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-17T15:40:38+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:567732,&quot;is_team&quot;:false,&quot;item_id&quot;:352454,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;21b82be280b46f467d1b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;とても勉強になります。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/t_Signull/items/21b82be280b46f467d1b#comment-b097fdde672eb2194943&quot;,&quot;user&quot;:{&quot;contribution&quot;:39,&quot;created_at&quot;:&quot;2016-06-17T15:38:46+09:00&quot;,&quot;id&quot;:130097,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/130097/profile-images/1475816168&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;saiyuki1919&quot;},&quot;uuid&quot;:&quot;b097fdde672eb2194943&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eKotaroSetoyama様\u003c/p\u003e\n\n\u003cp\u003eご指摘ありがとうございます。仰る通りです。修正しました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-18T00:00:05+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:568226,&quot;is_team&quot;:false,&quot;item_id&quot;:352454,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;21b82be280b46f467d1b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;KotaroSetoyama様\n\nご指摘ありがとうございます。仰る通りです。修正しました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/t_Signull/items/21b82be280b46f467d1b#comment-86cc404154c60213b845&quot;,&quot;user&quot;:{&quot;contribution&quot;:1329,&quot;created_at&quot;:&quot;2014-11-28T22:16:10+09:00&quot;,&quot;id&quot;:60969,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/60969/profile-images/1473695400&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;t_Signull&quot;},&quot;uuid&quot;:&quot;86cc404154c60213b845&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:352454,&quot;uuid&quot;:&quot;21b82be280b46f467d1b&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;t_Signull&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:60969,&quot;url_name&quot;:&quot;t_Signull&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/60969/profile-images/1473695400&quot;},{&quot;id&quot;:38538,&quot;url_name&quot;:&quot;Rascal&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/38538/profile-images/1473687806&quot;},{&quot;id&quot;:62279,&quot;url_name&quot;:&quot;KotaroSetoyama&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/62279/profile-images/1478161017&quot;},{&quot;id&quot;:130097,&quot;url_name&quot;:&quot;saiyuki1919&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/130097/profile-images/1475816168&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-a4661340-a441-40d2-bdd4-aa262a891ae2"></div>
+    <div id="CommentListContainer-react-component-a4661340-a441-40d2-bdd4-aa262a891ae2"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="AVZdOAmViwCzEKyZh0/cPBKHBYWM87phefgztXGtn0l10fucNZMOtdEbQ6GJncwN3Pra729Htlgba4O/6HhS3Q==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/t_Signull/items/21b82be280b46f467d1b" /><input type="hidden" name="item_uuid" id="item_uuid" value="21b82be280b46f467d1b" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/t_Signull/items/21b82be280b46f467d1b", "id": 352454, "uuid": "21b82be280b46f467d1b" }</script><script class="js-user" type="application/json">{&quot;id&quot;:60969,&quot;url_name&quot;:&quot;t_Signull&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/60969/profile-images/1473695400&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="JZnbG9bKkdNeZxgU9ORVWdCzC1COSaJvzPi2dOaSewlRHn2/6swUZjxs9yz6NkVoHs7UOm39rlauawZ+f0e2nQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/t_Signull/items/21b82be280b46f467d1b" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

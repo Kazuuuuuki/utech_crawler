@@ -1,0 +1,596 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>TensorFlowで学習したモデルを使ってiOS/Swiftで実行する - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="最近 Qoncept では TensorFlow を使った案件が続いており、その中で TensorFlow を iOS 上で使いたいことがありました。
+
+
+
+ぱっと浮かんだ選択肢は次の二つでした。
+
+
+TensorFlow を iOS 用にビルドして C++ の API を Swift から叩く
+学習は TensorFlow / Python で行って、テンソルの計算だけを iOS / Swift でシミュレーションする
+
+
+しかし、前者ついては、まだ TensorFl..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="koher" name="twitter:creator" /><meta content="TensorFlowで学習したモデルを使ってiOS/Swiftで実行する - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/koher/items/2c0bfca4d6e31cde674b" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="最近 [Qoncept](https://qiita.com/organizations/qoncept) では [TensorFlow](https://www.tensorflow.org/) を使った案件が続いており、その中で ..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="BWcNHMwbarYTTZfORKx2FGP7vA240rRCMWD0tucaOwBaVgQKxa4F52Mw80StaY6ALw5JprEeYPtfgAFlA/K4Lg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"koher","type":"items","id":"2c0bfca4d6e31cde674b"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-8075a2fb-57f0-40f4-a135-2ce9874fa623"></div>
+    <div id="HeaderContainer-react-component-8075a2fb-57f0-40f4-a135-2ce9874fa623"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Swift",        "name": "Swift"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">TensorFlowで学習したモデルを使ってiOS/Swiftで実行する</h1><ul class="TagList"><li class="TagList__item" data-count="6745"><a class="u-link-unstyled TagList__label" href="/tags/Swift"><img alt="Swift" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8924010780db484a83145542a3e49c6c2084ecb7/medium.jpg?1401738498" /><span>Swift</span><div class="tagIcon_version">2.2</div></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="8969"><a class="u-link-unstyled TagList__label" href="/tags/iOS"><img alt="iOS" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/7d705cc5b20b094a52f4a328019a74d180ddb1f9/medium.jpg?1474336232" /><span>iOS</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">429</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="4 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>4</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:429,&quot;uuid&quot;:&quot;2c0bfca4d6e31cde674b&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="taiju59"><a itemprop="url" href="/taiju59"><img alt="taiju59" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/93608/profile-images/1473706005" /></a></li><li class="js-hovercard" data-hovercard-target-name="keiD2"><a itemprop="url" href="/keiD2"><img alt="keiD2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/116040/profile-images/1473713120" /></a></li><li class="js-hovercard" data-hovercard-target-name="tawago"><a itemprop="url" href="/tawago"><img alt="tawago" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></li><li class="js-hovercard" data-hovercard-target-name="fulihata"><a itemprop="url" href="/fulihata"><img alt="fulihata" class="thumb thumb--xs" src="https://twimg0-a.akamaihd.net/profile_images/1281073294/image_normal.jpg" /></a></li><li class="js-hovercard" data-hovercard-target-name="minewebstaff"><a itemprop="url" href="/minewebstaff"><img alt="minewebstaff" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46049/profile-images/1473690517" /></a></li><li class="js-hovercard" data-hovercard-target-name="kurimoto"><a itemprop="url" href="/kurimoto"><img alt="kurimoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80905/profile-images/1473701939" /></a></li><li class="js-hovercard" data-hovercard-target-name="ymiyamae"><a itemprop="url" href="/ymiyamae"><img alt="ymiyamae" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74135/profile-images/1480828957" /></a></li><li class="js-hovercard" data-hovercard-target-name="kanetai"><a itemprop="url" href="/kanetai"><img alt="kanetai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102093/profile-images/1473708580" /></a></li><li class="js-hovercard" data-hovercard-target-name="ushisantoasobu"><a itemprop="url" href="/ushisantoasobu"><img alt="ushisantoasobu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50827/profile-images/1473692235" /></a></li><li><a href="/koher/items/2c0bfca4d6e31cde674b/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/koher"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868" alt="1473690868" /></a> <a class="u-link-unstyled" href="/koher">koher</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-05-16T10:15:54+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-05-16">Edited at <time datetime="2016-06-07T23:57:48+09:00" itemprop="dateModified">2016-06-07</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/koher/items/2c0bfca4d6e31cde674b/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/koher/items/2c0bfca4d6e31cde674b/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/koher/items/2c0bfca4d6e31cde674b.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-2c0bfca4d6e31cde674b" itemprop="articleBody"><p>最近 <a href="https://qiita.com/organizations/qoncept">Qoncept</a> では <a href="https://www.tensorflow.org/" rel="nofollow noopener" target="_blank">TensorFlow</a> を使った案件が続いており、その中で TensorFlow を iOS 上で使いたいことがありました。</p>
+
+<p><a href="https://raw.githubusercontent.com/qoncept/TensorSwift/master/Resources/DeepMnist.gif" target="_blank" rel="nofollow noopener"><img src="https://raw.githubusercontent.com/qoncept/TensorSwift/master/Resources/DeepMnist.gif" alt="deep-mnist.gif"></a></p>
+
+<p>ぱっと浮かんだ選択肢は次の二つでした。</p>
+
+<ul>
+<li>TensorFlow を iOS 用にビルドして C++ の API を Swift から叩く</li>
+<li>学習は TensorFlow / Python で行って、テンソルの計算だけを iOS / Swift でシミュレーションする</li>
+</ul>
+
+<p>しかし、前者ついては、<del>まだ TensorFlow を iOS 用にビルド<a href="https://github.com/tensorflow/tensorflow/issues/16" rel="nofollow noopener" target="_blank">できなさそう</a>でしたし</del>できるようになりました（<a href="http://qiita.com/koher/items/2c0bfca4d6e31cde674b#comment-3003403c289e35757189">コメント参照</a>）、たとえできたとしても C++ の API を Swift から叩くのは辛そうです。</p>
+
+<p>TensorFlow がありがたいのは学習時の自動微分等の機能であって、学習済みのモデルを利用するときはただテンソルの計算をしてるだけです。別に学習を iOS 上でやりたいわけではありませんでしたし、それくらいの計算なら自力でシミュレーションできそうです。</p>
+
+<p>そういうわけで、 <strong>TensorFlow で学習させたモデルを使って Swift 上でテンソルを計算してくれるライブラリ <a href="https://github.com/qoncept/TensorSwift" rel="nofollow noopener" target="_blank">TensorSwift</a> を作りました</strong>。</p>
+
+<p>冒頭の画像は TensorFlow のチュートリアル <a href="https://www.tensorflow.org/versions/r0.8/tutorials/mnist/pros/index.html" rel="nofollow noopener" target="_blank">Deep MNIST for Experts</a> を再現し、 iOS アプリで数字認識をしている様子です。こちらのアプリは TensorSwift のデモアプリとしてリポジトリに同梱されているので、興味があれば clone して実行してみてください。</p>
+
+<p>以下、 TensorSwift がどんなものなのか、どのように使うのかを説明します。</p>
+
+<h2>
+<span id="インストール" class="fragment"></span><a href="#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB"><i class="fa fa-link"></i></a>インストール</h2>
+
+<h3>
+<span id="cocoapods" class="fragment"></span><a href="#cocoapods"><i class="fa fa-link"></i></a>CocoaPods</h3>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+pod 'TensorSwift', '~&gt; 0.1'
+</pre></div></div>
+
+<h3>
+<span id="carthage" class="fragment"></span><a href="#carthage"><i class="fa fa-link"></i></a>Carthage</h3>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+github "qoncept/TensorSwift" ~&gt; 0.1
+</pre></div></div>
+
+<h2>
+<span id="tensor" class="fragment"></span><a href="#tensor"><i class="fa fa-link"></i></a><code>Tensor</code>
+</h2>
+
+<p>TensorSwift では学習は TensorFlow で行うことを前提に、学習済みのモデルを使ってテンソルを計算する部分しか担当しません。そのため、 TensorFlow で出てくる色々な <del>ややこしい</del> 概念がありません。 <code>placeholder</code> も <code>Variable</code> も <code>Graph</code> も <code>Session</code> もありません。 TensorSwift の <code>Tensor</code> はただの値です。 <code>CGPoint</code> なんかと変わりません。</p>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="k">let</span> <span class="n">a</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="nl">shape</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="nl">elements</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+</pre></div></div>
+
+<p>単純に↑のようにすれば次のようなテンソルが出来上がります。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+[[1, 2, 3],
+ [4, 5, 6]]
+</pre></div></div>
+
+<p>計算もシンプルです。</p>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="k">let</span> <span class="n">a</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="nl">shape</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="nl">elements</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+<span class="k">let</span> <span class="n">b</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="nl">shape</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="nl">elements</span><span class="p">:</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+<span class="k">let</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+</pre></div></div>
+
+<p>TensorFlow と違って <code>Session</code> を <code>run</code> しなくても即時計算が実行されます。 <code>sum</code> は次のようになります。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+[[8, 10, 12],
+ [14, 16, 18]]
+</pre></div></div>
+
+<p>なお、今のところ <code>Tensor</code> の要素の型は <code>Float</code> しかサポートされていません。</p>
+
+<h3>
+<span id="値型としての特徴" class="fragment"></span><a href="#%E5%80%A4%E5%9E%8B%E3%81%A8%E3%81%97%E3%81%A6%E3%81%AE%E7%89%B9%E5%BE%B4"><i class="fa fa-link"></i></a>値型としての特徴</h3>
+
+<p>Swift の特徴を活かして、 <code>Tensor</code> は値型となるよう <code>struct</code> で実装されています。その結果 <code>Tensor</code> は次の特徴を持ちます。</p>
+
+<ul>
+<li>
+<code>var</code> か <code>let</code> かでミュータビリティをコントロールできる</li>
+<li>値型だけど Copy-on-Write が効いているので代入してもコピーは発生しない</li>
+</ul>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// ミュータビリティのコントロール</span>
+<span class="k">var</span> <span class="n">a</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="nl">shape</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="nl">elements</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">111</span> <span class="c1">// OK</span>
+<span class="k">let</span> <span class="n">b</span> <span class="o">=</span> <span class="n">a</span>
+<span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">222</span> <span class="c1">// コンパイルエラー</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// Copy-on-write</span>
+<span class="k">let</span> <span class="n">zeros</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="nl">shape</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">],</span> <span class="nl">elements</span><span class="p">:</span> <span class="p">[</span><span class="n">Float</span><span class="p">](</span><span class="nl">count</span><span class="p">:</span> <span class="mi">10000000</span><span class="p">,</span> <span class="nl">repeatedValue</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="k">let</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">zeros</span> <span class="c1">// 値型なのに代入してもコピーは発生しない</span>
+</pre></div></div>
+
+<h2>
+<span id="deep-mnist-for-experts-を再現" class="fragment"></span><a href="#deep-mnist-for-experts-%E3%82%92%E5%86%8D%E7%8F%BE"><i class="fa fa-link"></i></a>Deep MNIST for Experts を再現</h2>
+
+<p>それでは、 <a href="https://www.tensorflow.org/versions/r0.8/tutorials/mnist/pros/index.html" rel="nofollow noopener" target="_blank">Deep MNIST for Experts</a> をオリジナルの Python 版のコードと見比べながら、 TensorSwift でどのように書けるのかを見ていきましょう。</p>
+
+<h3>
+<span id="first-convolutional-layer" class="fragment"></span><a href="#first-convolutional-layer"><i class="fa fa-link"></i></a>First Convolutional Layer</h3>
+
+<p>最初の畳込み＆プーリング層は、 Python / TensorFlow のコードでは次のようになっていました。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># Python</span>
+<span class="n">h_conv1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x_image</span><span class="p">,</span> <span class="n">W_conv1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_conv1</span><span class="p">)</span>
+<span class="n">h_pool1</span> <span class="o">=</span> <span class="n">max_pool_2x2</span><span class="p">(</span><span class="n">h_conv1</span><span class="p">)</span>
+</pre></div></div>
+
+<p>なお、 <code>conv2d</code> および <code>max_pool</code> はチュートリアルの中で定義された↓のような関数です。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># Python</span>
+<span class="k">def</span> <span class="nf">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">max_pool_2x2</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">max_pool</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ksize</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s">'SAME'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>これらの関数は書き下すことにして、 Swift / TensorSwift では次のようになります。</p>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// Swift</span>
+<span class="k">let</span> <span class="n">h_conv1</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_image</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="nl">filter</span><span class="p">:</span> <span class="n">W_conv1</span><span class="p">,</span> <span class="nl">strides</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">b_conv1</span><span class="p">).</span><span class="n">relu</span>
+<span class="k">let</span> <span class="n">h_pool1</span> <span class="o">=</span> <span class="n">h_conv1</span><span class="p">.</span><span class="n">maxPool</span><span class="p">(</span><span class="nl">kernelSize</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="nl">strides</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div></div>
+
+<p>見比べると、 <code>conv2d</code> と <code>maxPool</code> が TensorSwift では <code>Tensor</code> のメソッドになっているのがわかると思います。 <code>relu</code> も関数ではなく <code>Tensor</code> のプロパティです。これは、メソッドやプロパティの方が Swift っぽいという判断です（ Swift では <code>map</code> や <code>filter</code> なんかも Python と違って関数ではなくメソッドとして用意されています）。また、個人的にはメソッドやプロパティの方が、コード上の記述順と実行される計算の順序が一致するので書きやすい／読みやすいと思います。例えば、 <code>h_conv1</code> の例では、 Swift では <code>conv2d</code> を計算してから <code>b_conv1</code> を足し、その結果を <code>relu</code> に適用するという計算順がコード上の順番と一致します。しかし、 Python では、実行順が最後である <code>relu</code> が最初に来てしまいます。</p>
+
+<p>そのような表面上の違いに加えて、一番大きな違いは <code>conv2d</code>, <code>maxPool</code> に渡す <code>strides</code> と、 <code>maxPool</code> の <code>kernelSize</code> が 4 階ではなく 3 階のテンソルになっていることです（ <code>kernelSize</code> はテンソルそのものではなく <code>Shape</code> ですが）。学習時にはまとめて複数のデータを渡して計算させることが多いですが、学習済みモデルを利用するときには一つずつデータを渡すケースが多いと思います。そのため、いちいち 4 階のテンソルに <code>reshape</code> しなくても 3 階のテンソルとして渡せるようにしています。</p>
+
+<p>なお、今のところ <code>padding</code> は SAME しかサポートしていません。</p>
+
+<h3>
+<span id="second-convolutional-layer" class="fragment"></span><a href="#second-convolutional-layer"><i class="fa fa-link"></i></a>Second Convolutional Layer</h3>
+
+<p>次の層は最初の層とまったく同じなので説明は省略してコードだけ載せます。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># Python</span>
+<span class="n">h_conv2</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">conv2d</span><span class="p">(</span><span class="n">h_pool1</span><span class="p">,</span> <span class="n">W_conv2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_conv2</span><span class="p">)</span>
+<span class="n">h_pool2</span> <span class="o">=</span> <span class="n">max_pool_2x2</span><span class="p">(</span><span class="n">h_conv2</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// Swift</span>
+<span class="k">let</span> <span class="n">h_conv2</span> <span class="o">=</span> <span class="p">(</span><span class="n">h_pool1</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="nl">filter</span><span class="p">:</span> <span class="n">W_conv2</span><span class="p">,</span> <span class="nl">strides</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">b_conv2</span><span class="p">).</span><span class="n">relu</span>
+<span class="k">let</span> <span class="n">h_pool2</span> <span class="o">=</span> <span class="n">h_conv2</span><span class="p">.</span><span class="n">maxPool</span><span class="p">(</span><span class="nl">kernelSize</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="nl">strides</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div></div>
+
+<h3>
+<span id="densely-connected-layer" class="fragment"></span><a href="#densely-connected-layer"><i class="fa fa-link"></i></a>Densely Connected Layer</h3>
+
+<p>次の全結合層を見比べてみましょう。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># Python</span>
+<span class="n">h_pool2_flat</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">h_pool2</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="o">*</span><span class="mi">7</span><span class="o">*</span><span class="mi">64</span><span class="p">])</span>
+<span class="n">h_fc1</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h_pool2_flat</span><span class="p">,</span> <span class="n">W_fc1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_fc1</span><span class="p">)</span>
+
+<span class="n">keep_prob</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">h_fc1_drop</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">h_fc1</span><span class="p">,</span> <span class="n">keep_prob</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// Swift</span>
+<span class="k">let</span> <span class="n">h_pool2_flat</span> <span class="o">=</span> <span class="n">h_pool2</span><span class="p">.</span><span class="n">reshape</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">*</span> <span class="mi">64</span><span class="p">])</span>
+<span class="k">let</span> <span class="n">h_fc1</span> <span class="o">=</span> <span class="p">(</span><span class="n">h_pool2_flat</span><span class="p">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">W_fc1</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_fc1</span><span class="p">).</span><span class="n">relu</span>
+</pre></div></div>
+
+<p>TensorSwift では <code>reshape</code> と <code>matmul</code> が <code>Tensor</code> のメソッドになっています。また、 Swift / TensroSwift で <code>dropout</code> がないのは、 <code>dropout</code> は過学習を防ぐ仕組みで学習時のみ必要だからです。</p>
+
+<p><code>reshape</code> 時の <code>Shape</code> を見比べると、 Python で <code>[-1, 7*7*64]</code> となっているのが <code>[1, 7 * 7 * 64]</code> となっています。 <code>-1</code> （不定）が <code>1</code> になっているのは、学習時（ Python / TensorFlow ）は N 件のデータをまとめて渡すのに対して、今（ Swift / TensorSwift ）は 1 件だけを識別したいためです。</p>
+
+<h3>
+<span id="readout-layer" class="fragment"></span><a href="#readout-layer"><i class="fa fa-link"></i></a>Readout Layer</h3>
+
+<p>最後に、 digit ごとの確率に対応した 10 次元ベクトルに変換します。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># Python</span>
+<span class="n">y_conv</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">h_fc1_drop</span><span class="p">,</span> <span class="n">W_fc2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_fc2</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// Swift</span>
+<span class="k">let</span> <span class="n">y_conv</span> <span class="o">=</span> <span class="p">(</span><span class="n">h_fc1</span><span class="p">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">W_fc2</span><span class="p">)</span> <span class="o">+</span> <span class="n">b_fc2</span><span class="p">).</span><span class="n">softmax</span>
+</pre></div></div>
+
+<p>ここでは <code>softmax</code> を使いますが、これも TensorSwift では関数ではなくプロパティになっています。</p>
+
+<h3>
+<span id="y_conv-からクラスへの変換" class="fragment"></span><a href="#y_conv-%E3%81%8B%E3%82%89%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%B8%E3%81%AE%E5%A4%89%E6%8F%9B"><i class="fa fa-link"></i></a><code>y_conv</code> からクラスへの変換</h3>
+
+<p>実際にどのクラスとして識別されたかを判断するには、 <code>y_conv</code> の最も大きい要素のインデックスを取得する必要があります。</p>
+
+<p>TensorFlow では次のように <code>argmax</code> を使ってインデックスを取り出せます。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># Python</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_conv</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</pre></div></div>
+
+<p>しかし、今のところ TensorSwift では <code>argmax</code> を提供していません。 <code>argmax</code> がなくても次のようにしてインデックスを取得できます。</p>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// Swift</span>
+<span class="n">y_conv</span><span class="p">.</span><span class="n">elements</span><span class="p">.</span><span class="n">enumerate</span><span class="p">().</span><span class="n">maxElement</span> <span class="p">{</span> <span class="err">$</span><span class="mf">0.1</span> <span class="o">&lt;</span> <span class="err">$</span><span class="mf">1.1</span> <span class="p">}</span><span class="o">!</span><span class="mf">.0</span>
+</pre></div></div>
+
+<h2>
+<span id="モデルの書き出し読み込み" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E6%9B%B8%E3%81%8D%E5%87%BA%E3%81%97%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF"><i class="fa fa-link"></i></a>モデルの書き出し、読み込み</h2>
+
+<p><code>W_conv1</code>, <code>b_conv1</code> などは Python / TensorFlow で学習させた値を使います。本当は TensorFlow で書きだした Checkpoint ファイルを読み込めればいいのですが今のところそのような機能はありません。何らかの方法で Python 側でテンソルを書き出し、それを Swift で読み込む必要があります。</p>
+
+<p>Python に関しては大した経験がないのでもっと良いやり方があるかもしれませんが、参考までに僕は次のようにやっています。</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="c"># Python ( 書き出し )</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+
+<span class="n">ndarray</span> <span class="o">=</span> <span class="n">W_conv1</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">session</span><span class="o">=</span><span class="n">sess</span><span class="p">)</span>
+<span class="nb">list</span> <span class="o">=</span> <span class="n">ndarray</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">"W_conv1"</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s">"</span><span class="si">%d</span><span class="s">f"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">),</span> <span class="o">*</span><span class="nb">list</span><span class="p">))</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="swift"><div class="highlight"><pre>
+<span class="c1">// Swift ( 読み込み )</span>
+<span class="k">let</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">NSData</span><span class="p">(</span><span class="nl">contentsOfFile</span><span class="p">:</span> <span class="s">"W_conv1"</span><span class="p">)</span><span class="o">!</span>
+<span class="k">let</span> <span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="n">Float</span><span class="p">](</span><span class="n">UnsafeBufferPointer</span><span class="p">(</span><span class="nl">start</span><span class="p">:</span> <span class="n">UnsafeMutablePointer</span><span class="o">&lt;</span><span class="n">Float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">bytes</span><span class="p">),</span> <span class="nl">count</span><span class="p">:</span> <span class="n">data</span><span class="p">.</span><span class="n">length</span> <span class="o">/</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">let</span> <span class="n">W_conv1</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="nl">shape</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span> <span class="nl">elements</span><span class="p">:</span> <span class="n">array</span><span class="p">)</span>
+</pre></div></div>
+
+<h2>
+<span id="その他" class="fragment"></span><a href="#%E3%81%9D%E3%81%AE%E4%BB%96"><i class="fa fa-link"></i></a>その他</h2>
+
+<ul>
+<li>TensorSwift はテンソルの計算部分しか含まないので軽量なライブラリになった</li>
+<li>TensorSwift は単純にテンソルを計算するだけなので、試してないけど Chainer とでも Caffe とでも組み合わせて使うことができるはず</li>
+<li>現状ではまだα版くらいの完成度なので TensorFlow の API のごく一部しか再現できておらず、 Deep MNIST for Experts の畳み込みニューラルネットワークが再現できるくらいの段階</li>
+<li>GPU を使った計算の高速化はしていない</li>
+<li>行列演算やコンボリューションの計算で BLAS を使った高速化はしている</li>
+</ul>
+
+<h2>
+<span id="kotlin" class="fragment"></span><a href="#kotlin"><i class="fa fa-link"></i></a>Kotlin</h2>
+
+<p>実は <a href="https://github.com/qoncept/TensorKotlin" rel="nofollow noopener" target="_blank">Kotlin 版</a>も作ってます。値型でないところ以外はほとんど同じように使えます。</p>
+
+<h2>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h2>
+
+<ul>
+<li>iOS で TensorFlow を使いたくなった</li>
+<li>TensorFlow を iOS 用にビルドするのは現状では難しそうだし、たとえできても Swift から C++ の API を叩くのは辛そう</li>
+<li>学習は Python でやると割りきって Swift では学習済みのモデルを使って計算だけすることにした</li>
+<li>テンソルの計算部分だけをシミュレーションする軽量なライブラリ TensorSwift を作った</li>
+<li>TensorSwift を使って TensorFlow のチュートリアル Deep MNIST for Experts の動作を再現した</li>
+<li>デモアプリとして、 Deep MNIST for Experts の結果を使って手書き文字認識する iOS アプリを作った</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/koher/items/2c0bfca4d6e31cde674b" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="QIvmVFENXd5wu84v86nWeY3pu4Hxd6kF4zkL4J7ctoIfuu9CWLgyjwDGqqUabC7twRxOKvi7fbyN2f4zejQ1rA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1465311468" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+最近 [Qoncept](https://qiita.com/organizations/qoncept) では [TensorFlow](https://www.tensorflow.org/) を使った案件が続いており、その中で TensorFlow を iOS 上で使いたいことがありました。
+
+![deep-mnist.gif](https://raw.githubusercontent.com/qoncept/TensorSwift/master/Resources/DeepMnist.gif)
+
+ぱっと浮かんだ選択肢は次の二つでした。
+
+- TensorFlow を iOS 用にビルドして C++ の API を Swift から叩く
+- 学習は TensorFlow / Python で行って、テンソルの計算だけを iOS / Swift でシミュレーションする
+
+しかし、前者ついては、~~まだ TensorFlow を iOS 用にビルド[できなさそう](https://github.com/tensorflow/tensorflow/issues/16)でしたし~~できるようになりました（[コメント参照](http://qiita.com/koher/items/2c0bfca4d6e31cde674b#comment-3003403c289e35757189)）、たとえできたとしても C++ の API を Swift から叩くのは辛そうです。
+
+TensorFlow がありがたいのは学習時の自動微分等の機能であって、学習済みのモデルを利用するときはただテンソルの計算をしてるだけです。別に学習を iOS 上でやりたいわけではありませんでしたし、それくらいの計算なら自力でシミュレーションできそうです。
+
+そういうわけで、 __TensorFlow で学習させたモデルを使って Swift 上でテンソルを計算してくれるライブラリ [TensorSwift](https://github.com/qoncept/TensorSwift) を作りました__。
+
+冒頭の画像は TensorFlow のチュートリアル [Deep MNIST for Experts](https://www.tensorflow.org/versions/r0.8/tutorials/mnist/pros/index.html) を再現し、 iOS アプリで数字認識をしている様子です。こちらのアプリは TensorSwift のデモアプリとしてリポジトリに同梱されているので、興味があれば clone して実行してみてください。
+
+以下、 TensorSwift がどんなものなのか、どのように使うのかを説明します。
+
+## インストール
+
+### CocoaPods
+
+```
+pod &#39;TensorSwift&#39;, &#39;~&gt; 0.1&#39;
+```
+
+### Carthage
+
+```
+github &quot;qoncept/TensorSwift&quot; ~&gt; 0.1
+```
+
+## `Tensor`
+
+TensorSwift では学習は TensorFlow で行うことを前提に、学習済みのモデルを使ってテンソルを計算する部分しか担当しません。そのため、 TensorFlow で出てくる色々な ~~ややこしい~~ 概念がありません。 `placeholder` も `Variable` も `Graph` も `Session` もありません。 TensorSwift の `Tensor` はただの値です。 `CGPoint` なんかと変わりません。
+
+```swift
+let a = Tensor(shape: [2, 3], elements: [1, 2, 3, 4, 5, 6])
+```
+
+単純に↑のようにすれば次のようなテンソルが出来上がります。
+
+```
+[[1, 2, 3],
+ [4, 5, 6]]
+```
+
+計算もシンプルです。
+
+```swift
+let a = Tensor(shape: [2, 3], elements: [1, 2, 3, 4, 5, 6])
+let b = Tensor(shape: [2, 3], elements: [7, 8, 9, 10, 11, 12])
+let sum = a + b
+```
+
+TensorFlow と違って `Session` を `run` しなくても即時計算が実行されます。 `sum` は次のようになります。
+
+```
+[[8, 10, 12],
+ [14, 16, 18]]
+```
+
+なお、今のところ `Tensor` の要素の型は `Float` しかサポートされていません。
+
+### 値型としての特徴
+
+Swift の特徴を活かして、 `Tensor` は値型となるよう `struct` で実装されています。その結果 `Tensor` は次の特徴を持ちます。
+
+- `var` か `let` かでミュータビリティをコントロールできる
+- 値型だけど Copy-on-Write が効いているので代入してもコピーは発生しない
+
+```swift
+// ミュータビリティのコントロール
+var a = Tensor(shape: [2, 3], elements: [1, 2, 3, 4, 5, 6])
+a[1, 2] = 111 // OK
+let b = a
+b[1, 2] = 222 // コンパイルエラー
+```
+
+```swift
+// Copy-on-write
+let zeros = Tensor(shape: [100, 100, 1000], elements: [Float](count: 10000000, repeatedValue: 0.0))
+let foo = zeros // 値型なのに代入してもコピーは発生しない
+```
+
+## Deep MNIST for Experts を再現
+
+それでは、 [Deep MNIST for Experts](https://www.tensorflow.org/versions/r0.8/tutorials/mnist/pros/index.html) をオリジナルの Python 版のコードと見比べながら、 TensorSwift でどのように書けるのかを見ていきましょう。
+
+### First Convolutional Layer
+
+最初の畳込み＆プーリング層は、 Python / TensorFlow のコードでは次のようになっていました。
+
+```python
+# Python
+h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
+h_pool1 = max_pool_2x2(h_conv1)
+```
+
+なお、 `conv2d` および `max_pool` はチュートリアルの中で定義された↓のような関数です。
+
+```python
+# Python
+def conv2d(x, W):
+  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding=&#39;SAME&#39;)
+
+def max_pool_2x2(x):
+  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
+                        strides=[1, 2, 2, 1], padding=&#39;SAME&#39;)
+```
+
+これらの関数は書き下すことにして、 Swift / TensorSwift では次のようになります。
+
+```swift
+// Swift
+let h_conv1 = (x_image.conv2d(filter: W_conv1, strides: [1, 1, 1]) + b_conv1).relu
+let h_pool1 = h_conv1.maxPool(kernelSize: [2, 2, 1], strides: [2, 2, 1])
+```
+
+見比べると、 `conv2d` と `maxPool` が TensorSwift では `Tensor` のメソッドになっているのがわかると思います。 `relu` も関数ではなく `Tensor` のプロパティです。これは、メソッドやプロパティの方が Swift っぽいという判断です（ Swift では `map` や `filter` なんかも Python と違って関数ではなくメソッドとして用意されています）。また、個人的にはメソッドやプロパティの方が、コード上の記述順と実行される計算の順序が一致するので書きやすい／読みやすいと思います。例えば、 `h_conv1` の例では、 Swift では `conv2d` を計算してから `b_conv1` を足し、その結果を `relu` に適用するという計算順がコード上の順番と一致します。しかし、 Python では、実行順が最後である `relu` が最初に来てしまいます。
+
+そのような表面上の違いに加えて、一番大きな違いは `conv2d`, `maxPool` に渡す `strides` と、 `maxPool` の `kernelSize` が 4 階ではなく 3 階のテンソルになっていることです（ `kernelSize` はテンソルそのものではなく `Shape` ですが）。学習時にはまとめて複数のデータを渡して計算させることが多いですが、学習済みモデルを利用するときには一つずつデータを渡すケースが多いと思います。そのため、いちいち 4 階のテンソルに `reshape` しなくても 3 階のテンソルとして渡せるようにしています。
+
+なお、今のところ `padding` は SAME しかサポートしていません。
+
+### Second Convolutional Layer
+
+次の層は最初の層とまったく同じなので説明は省略してコードだけ載せます。
+
+```python
+# Python
+h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
+h_pool2 = max_pool_2x2(h_conv2)
+```
+
+```swift
+// Swift
+let h_conv2 = (h_pool1.conv2d(filter: W_conv2, strides: [1, 1, 1]) + b_conv2).relu
+let h_pool2 = h_conv2.maxPool(kernelSize: [2, 2, 1], strides: [2, 2, 1])
+```
+
+### Densely Connected Layer
+
+次の全結合層を見比べてみましょう。
+
+```python
+# Python
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
+h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
+
+keep_prob = tf.placeholder(tf.float32)
+h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+```
+
+```swift
+// Swift
+let h_pool2_flat = h_pool2.reshape([1, 7 * 7 * 64])
+let h_fc1 = (h_pool2_flat.matmul(W_fc1) + b_fc1).relu
+```
+
+TensorSwift では `reshape` と `matmul` が `Tensor` のメソッドになっています。また、 Swift / TensroSwift で `dropout` がないのは、 `dropout` は過学習を防ぐ仕組みで学習時のみ必要だからです。
+
+`reshape` 時の `Shape` を見比べると、 Python で `[-1, 7*7*64]` となっているのが `[1, 7 * 7 * 64]` となっています。 `-1` （不定）が `1` になっているのは、学習時（ Python / TensorFlow ）は N 件のデータをまとめて渡すのに対して、今（ Swift / TensorSwift ）は 1 件だけを識別したいためです。
+
+### Readout Layer
+
+最後に、 digit ごとの確率に対応した 10 次元ベクトルに変換します。
+
+```python
+# Python
+y_conv=tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
+```
+
+```swift
+// Swift
+let y_conv = (h_fc1.matmul(W_fc2) + b_fc2).softmax
+```
+
+ここでは `softmax` を使いますが、これも TensorSwift では関数ではなくプロパティになっています。
+
+### `y_conv` からクラスへの変換
+
+実際にどのクラスとして識別されたかを判断するには、 `y_conv` の最も大きい要素のインデックスを取得する必要があります。
+
+TensorFlow では次のように `argmax` を使ってインデックスを取り出せます。
+
+```python
+# Python
+tf.argmax(y_conv,1)
+```
+
+しかし、今のところ TensorSwift では `argmax` を提供していません。 `argmax` がなくても次のようにしてインデックスを取得できます。
+
+```swift
+// Swift
+y_conv.elements.enumerate().maxElement { $0.1 &lt; $1.1 }!.0
+```
+
+## モデルの書き出し、読み込み
+
+`W_conv1`, `b_conv1` などは Python / TensorFlow で学習させた値を使います。本当は TensorFlow で書きだした Checkpoint ファイルを読み込めればいいのですが今のところそのような機能はありません。何らかの方法で Python 側でテンソルを書き出し、それを Swift で読み込む必要があります。
+
+Python に関しては大した経験がないのでもっと良いやり方があるかもしれませんが、参考までに僕は次のようにやっています。
+
+```python
+# Python ( 書き出し )
+import struct
+
+ndarray = W_conv1.eval(session=sess)
+list = ndarray.reshape([-1]).tolist()
+f = open(&quot;W_conv1&quot;, &quot;wb&quot;)
+f.write(struct.pack(&quot;%df&quot; % len(list), *list))
+f.close()
+```
+
+```swift
+// Swift ( 読み込み )
+let data = NSData(contentsOfFile: &quot;W_conv1&quot;)!
+let array = [Float](UnsafeBufferPointer(start: UnsafeMutablePointer&lt;Float&gt;(data.bytes), count: data.length / 4))
+let W_conv1 = Tensor(shape: [5, 5, 1, 32], elements: array)
+```
+
+## その他
+
+- TensorSwift はテンソルの計算部分しか含まないので軽量なライブラリになった
+- TensorSwift は単純にテンソルを計算するだけなので、試してないけど Chainer とでも Caffe とでも組み合わせて使うことができるはず
+- 現状ではまだα版くらいの完成度なので TensorFlow の API のごく一部しか再現できておらず、 Deep MNIST for Experts の畳み込みニューラルネットワークが再現できるくらいの段階
+- GPU を使った計算の高速化はしていない
+- 行列演算やコンボリューションの計算で BLAS を使った高速化はしている
+
+## Kotlin
+
+実は [Kotlin 版](https://github.com/qoncept/TensorKotlin)も作ってます。値型でないところ以外はほとんど同じように使えます。
+
+## まとめ
+
+- iOS で TensorFlow を使いたくなった
+- TensorFlow を iOS 用にビルドするのは現状では難しそうだし、たとえできても Swift から C++ の API を叩くのは辛そう
+- 学習は Python でやると割りきって Swift では学習済みのモデルを使って計算だけすることにした
+- テンソルの計算部分だけをシミュレーションする軽量なライブラリ TensorSwift を作った
+- TensorSwift を使って TensorFlow のチュートリアル Deep MNIST for Experts の動作を再現した
+- デモアプリとして、 Deep MNIST for Experts の結果を使って手書き文字認識する iOS アプリを作った
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowで学習したモデルを使ってiOS/Swiftで実行する by @koher on @Qiita" data-url="http://qiita.com/koher/items/2c0bfca4d6e31cde674b" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowで学習したモデルを使ってiOS/Swiftで実行する" href="http://b.hatena.ne.jp/entry/http://qiita.com/koher/items/2c0bfca4d6e31cde674b" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/koher/items/2c0bfca4d6e31cde674b" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/koher/items/2c0bfca4d6e31cde674b" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/koher"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/koher">koher</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">9404</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;koher&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-5f198138-a3e2-4981-ba0f-52cb5ae9d28c"></div>
+    <div id="UserFollowButton-react-component-5f198138-a3e2-4981-ba0f-52cb5ae9d28c"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/koher/items/e4835bd429b88809ab33">null安全でない言語は、もはやレガシー言語だ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/koher/items/b5c7c949aa62c60d5457">絶対に見逃せない投稿が、そこにはある</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/koher/items/c6f446bad54442a28bf4">SwiftのOptional型を極める</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/koher/items/4aea541fd0f0d8a9a166">今すぐObjective-CをやめてSwiftを使おう</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/koher/items/a7a12e7e18d2bb7d8c77">Swiftのエラー4分類が素晴らしすぎるのでみんなに知ってほしい</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/qoncept"><img alt="Qoncept, Inc." class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/ed3aea50a6eb93fa503cdc7db163fab27de07e4d/original.jpg?1415244287" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB\&quot;\u003eインストール\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#cocoapods\&quot;\u003eCocoaPods\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#carthage\&quot;\u003eCarthage\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tensor\&quot;\u003e\u003ccode\u003eTensor\u003c/code\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%80%A4%E5%9E%8B%E3%81%A8%E3%81%97%E3%81%A6%E3%81%AE%E7%89%B9%E5%BE%B4\&quot;\u003e値型としての特徴\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#deep-mnist-for-experts-%E3%82%92%E5%86%8D%E7%8F%BE\&quot;\u003eDeep MNIST for Experts を再現\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#first-convolutional-layer\&quot;\u003eFirst Convolutional Layer\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#second-convolutional-layer\&quot;\u003eSecond Convolutional Layer\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#densely-connected-layer\&quot;\u003eDensely Connected Layer\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#readout-layer\&quot;\u003eReadout Layer\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#y_conv-%E3%81%8B%E3%82%89%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%B8%E3%81%AE%E5%A4%89%E6%8F%9B\&quot;\u003e\u003ccode\u003ey_conv\u003c/code\u003e からクラスへの変換\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E6%9B%B8%E3%81%8D%E5%87%BA%E3%81%97%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF\&quot;\u003eモデルの書き出し、読み込み\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%9D%E3%81%AE%E4%BB%96\&quot;\u003eその他\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#kotlin\&quot;\u003eKotlin\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-bd3bd55d-4d39-40b7-b468-815adb8db90c"></div>
+    <div id="Toc-react-component-bd3bd55d-4d39-40b7-b468-815adb8db90c"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:429,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;2c0bfca4d6e31cde674b&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="taiju59"><a itemprop="url" href="/taiju59"><img alt="taiju59" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/93608/profile-images/1473706005" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="keiD2"><a itemprop="url" href="/keiD2"><img alt="keiD2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/116040/profile-images/1473713120" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tawago"><a itemprop="url" href="/tawago"><img alt="tawago" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fulihata"><a itemprop="url" href="/fulihata"><img alt="fulihata" class="thumb thumb--xs" src="https://twimg0-a.akamaihd.net/profile_images/1281073294/image_normal.jpg" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="minewebstaff"><a itemprop="url" href="/minewebstaff"><img alt="minewebstaff" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46049/profile-images/1473690517" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kurimoto"><a itemprop="url" href="/kurimoto"><img alt="kurimoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80905/profile-images/1473701939" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ymiyamae"><a itemprop="url" href="/ymiyamae"><img alt="ymiyamae" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74135/profile-images/1480828957" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kanetai"><a itemprop="url" href="/kanetai"><img alt="kanetai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102093/profile-images/1473708580" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ushisantoasobu"><a itemprop="url" href="/ushisantoasobu"><img alt="ushisantoasobu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50827/profile-images/1473692235" /></a></div></div><div class="ArticleFooter__user"><a href="/koher/items/2c0bfca4d6e31cde674b/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/2c0bfca4d6e31cde674b/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/koher/items/2c0bfca4d6e31cde674b.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/koher/items/7be570bb0a8ceb4d72be#_reference-9973ac7ec5f68ac30c3d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868" />Swiftで書かれたプログラムを1000倍速くした話</a><time class="references_datetime js-dateTimeView" datetime="2016-05-30T01:26:34+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/shu223/items/a2808e9dfccbd23387ff#_reference-42c813603ec6632732fe"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" />TensorFlowの学習済みモデルを拾ってきてiOSで利用する</a><time class="references_datetime js-dateTimeView" datetime="2016-08-24T00:40:37+00:00">7 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/hirokimu/items/61568d5ab84dc8b49f68#_reference-56d276dc3a574f6dbe6a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/9042/profile-images/1473681234" />TensorFlow &amp; TensorSwiftを使ったiOSアプリの試作</a><time class="references_datetime js-dateTimeView" datetime="2016-10-11T05:18:38+00:00">5 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowで学習したモデルを使ってiOS/Swiftで実行する by @koher on @Qiita" data-url="http://qiita.com/koher/items/2c0bfca4d6e31cde674b" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowで学習したモデルを使ってiOS/Swiftで実行する" href="http://b.hatena.ne.jp/entry/http://qiita.com/koher/items/2c0bfca4d6e31cde674b" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/koher/items/2c0bfca4d6e31cde674b" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/koher/items/2c0bfca4d6e31cde674b" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003cimg alt=\&quot;:clap:\&quot; class=\&quot;emoji\&quot; height=\&quot;20\&quot; src=\&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44f.png\&quot; title=\&quot;:clap:\&quot; width=\&quot;20\&quot;\u003e \u003cimg alt=\&quot;:clap:\&quot; class=\&quot;emoji\&quot; height=\&quot;20\&quot; src=\&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44f.png\&quot; title=\&quot;:clap:\&quot; width=\&quot;20\&quot;\u003e \u003cimg alt=\&quot;:clap:\&quot; class=\&quot;emoji\&quot; height=\&quot;20\&quot; src=\&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44f.png\&quot; title=\&quot;:clap:\&quot; width=\&quot;20\&quot;\u003e \u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-05-16T11:21:23+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:537723,&quot;is_team&quot;:false,&quot;item_id&quot;:392744,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c0bfca4d6e31cde674b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;:clap: :clap: :clap: \n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/koher/items/2c0bfca4d6e31cde674b#comment-7d065f02ef7ddcfbef54&quot;,&quot;user&quot;:{&quot;contribution&quot;:3633,&quot;created_at&quot;:&quot;2014-12-19T17:57:52+09:00&quot;,&quot;id&quot;:63543,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;tawago&quot;},&quot;uuid&quot;:&quot;7d065f02ef7ddcfbef54&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eTensorFlow v0.9.0 RC0のリリースノートに「Added iOS support」とあり、iOSサポートされたようです。\u003cbr\u003e\niOS端末でゴリゴリ学習が回せるようになるかもしれませんね！（嬉しいかはともかく）\u003cbr\u003e\n\u003ca href=\&quot;https://github.com/tensorflow/tensorflow/releases/tag/v0.9.0rc0\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://github.com/tensorflow/tensorflow/releases/tag/v0.9.0rc0\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-07T16:48:20+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:557837,&quot;is_team&quot;:false,&quot;item_id&quot;:392744,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c0bfca4d6e31cde674b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;TensorFlow v0.9.0 RC0のリリースノートに「Added iOS support」とあり、iOSサポートされたようです。\niOS端末でゴリゴリ学習が回せるようになるかもしれませんね！（嬉しいかはともかく）\nhttps://github.com/tensorflow/tensorflow/releases/tag/v0.9.0rc0\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/koher/items/2c0bfca4d6e31cde674b#comment-3003403c289e35757189&quot;,&quot;user&quot;:{&quot;contribution&quot;:673,&quot;created_at&quot;:&quot;2014-11-05T14:37:04+09:00&quot;,&quot;id&quot;:58479,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/58479/profile-images/1473694646&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;yuyakato&quot;},&quot;uuid&quot;:&quot;3003403c289e35757189&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/yuyakato\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;yuyakato\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;yuyakato\&quot;\u003e@yuyakato\u003c/a\u003e さん\u003c/p\u003e\n\n\u003cp\u003e情報ありがとうございます！ちょうど今、 iOS 上で学習させられたらおもしろいかもと考えてることがあったのでうれしいです。\u003c/p\u003e\n\n\u003cp\u003eTensorSwift 自体は、 TensorFlow が iOS をサポートしても次の点で差別化できそうです。\u003c/p\u003e\n\n\u003cul\u003e\n\u003cli\u003e学習を除外することでシンプル化された API\n\n\u003cul\u003e\n\u003cli\u003e\n\u003ccode\u003eVariable\u003c/code\u003e や \u003ccode\u003ePlaceholder\u003c/code\u003e が不要\u003c/li\u003e\n\u003cli\u003e\n\u003ccode\u003eSession\u003c/code\u003e などもなく、 \u003ccode\u003eTensor\u003c/code\u003e をただの値として計算\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003eSwift に適した API\n\n\u003cul\u003e\n\u003cli\u003e特に、値型で実装されていること\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003eライブラリが軽量なこと\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-07T23:54:39+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:558246,&quot;is_team&quot;:false,&quot;item_id&quot;:392744,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c0bfca4d6e31cde674b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@yuyakato さん\n\n情報ありがとうございます！ちょうど今、 iOS 上で学習させられたらおもしろいかもと考えてることがあったのでうれしいです。\n\nTensorSwift 自体は、 TensorFlow が iOS をサポートしても次の点で差別化できそうです。\n\n- 学習を除外することでシンプル化された API\n  - `Variable` や `Placeholder` が不要\n  - `Session` などもなく、 `Tensor` をただの値として計算\n- Swift に適した API\n  - 特に、値型で実装されていること\n- ライブラリが軽量なこと\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/koher/items/2c0bfca4d6e31cde674b#comment-644179b9f59170c10322&quot;,&quot;user&quot;:{&quot;contribution&quot;:9404,&quot;created_at&quot;:&quot;2014-06-21T14:43:14+09:00&quot;,&quot;id&quot;:47085,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;koher&quot;},&quot;uuid&quot;:&quot;644179b9f59170c10322&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eInception v3をこれで動かしたいですね。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-07-04T17:36:43+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:581785,&quot;is_team&quot;:false,&quot;item_id&quot;:392744,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c0bfca4d6e31cde674b&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;Inception v3をこれで動かしたいですね。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/koher/items/2c0bfca4d6e31cde674b#comment-9136aa848feaa75fd81c&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2011-12-19T15:28:50+09:00&quot;,&quot;id&quot;:1688,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/1688/profile-images/1473683780&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;gnodt&quot;},&quot;uuid&quot;:&quot;9136aa848feaa75fd81c&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:392744,&quot;uuid&quot;:&quot;2c0bfca4d6e31cde674b&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;koher&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:47085,&quot;url_name&quot;:&quot;koher&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868&quot;},{&quot;id&quot;:63543,&quot;url_name&quot;:&quot;tawago&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;},{&quot;id&quot;:58479,&quot;url_name&quot;:&quot;yuyakato&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/58479/profile-images/1473694646&quot;},{&quot;id&quot;:1688,&quot;url_name&quot;:&quot;gnodt&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/1688/profile-images/1473683780&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-870f6d24-3a40-4e78-85c8-2f9481a7e661"></div>
+    <div id="CommentListContainer-react-component-870f6d24-3a40-4e78-85c8-2f9481a7e661"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="CkheWjRAf6W1hHXCIMz1+lakmkwx+noE1iI1IhpLFK1VeVdMPfUQ9MX5EUjJCQ1uGlFv5zg2rr24wsDx/qOXgw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/koher/items/2c0bfca4d6e31cde674b" /><input type="hidden" name="item_uuid" id="item_uuid" value="2c0bfca4d6e31cde674b" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/koher/items/2c0bfca4d6e31cde674b", "id": 392744, "uuid": "2c0bfca4d6e31cde674b" }</script><script class="js-user" type="application/json">{&quot;id&quot;:47085,&quot;url_name&quot;:&quot;koher&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="93mGSXDjn8z7Q4YhrabIRQey41Lpk+Oi5s6MpHVLQ36oSI9feVbwnYs+4qtEYzDRS0cW+eBfNxuILnl3kaPAUA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/koher/items/2c0bfca4d6e31cde674b" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-51950394-2', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

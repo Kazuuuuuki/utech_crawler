@@ -1,0 +1,675 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>ニューラルネットワーク、多様体、トポロジー - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Christopher Olah氏のブログ記事
+http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+
+
+
+ニューラルネットワーク、多様体、トポロジー
+
+近年、ディープ・ニューラルネットワークには多くの興奮と関心が寄せられています。コンピュータ・ビジョンなどの分野でブレークスルーとなる成果を達成したためです。1
+
+しかし、それにはいくつかの懸..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="KojiOhki" name="twitter:creator" /><meta content="ニューラルネットワーク、多様体、トポロジー - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Christopher Olah氏のブログ記事
+http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+-..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="PvltE0SOG34EWvK+AX3fce7pMrd/OGDO0/1LP8L281bLwokMekTlppi0t8pBFJBa38k6l8yTfdh3Dy8Tr2Z8ZA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"KojiOhki","type":"items","id":"af2241027b00f892d2bd"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-1788e619-d488-48ca-bef8-49160b8f9cf2"></div>
+    <div id="HeaderContainer-react-component-1788e619-d488-48ca-bef8-49160b8f9cf2"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">ニューラルネットワーク、多様体、トポロジー</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">245</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:245,&quot;uuid&quot;:&quot;af2241027b00f892d2bd&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="rneuo"><a itemprop="url" href="/rneuo"><img alt="rneuo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51849/profile-images/1473692560" /></a></li><li class="js-hovercard" data-hovercard-target-name="ssssssk"><a itemprop="url" href="/ssssssk"><img alt="ssssssk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80548/profile-images/1473701825" /></a></li><li class="js-hovercard" data-hovercard-target-name="ikkitang"><a itemprop="url" href="/ikkitang"><img alt="ikkitang" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/66498/profile-images/1473697228" /></a></li><li class="js-hovercard" data-hovercard-target-name="minewebstaff"><a itemprop="url" href="/minewebstaff"><img alt="minewebstaff" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46049/profile-images/1473690517" /></a></li><li class="js-hovercard" data-hovercard-target-name="takano_tak"><a itemprop="url" href="/takano_tak"><img alt="takano_tak" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92260/profile-images/1485139358" /></a></li><li class="js-hovercard" data-hovercard-target-name="akiraa"><a itemprop="url" href="/akiraa"><img alt="akiraa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/85927/profile-images/1473703582" /></a></li><li class="js-hovercard" data-hovercard-target-name="garam"><a itemprop="url" href="/garam"><img alt="garam" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51513/profile-images/1473692465" /></a></li><li class="js-hovercard" data-hovercard-target-name="bele_m"><a itemprop="url" href="/bele_m"><img alt="bele_m" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/78508/profile-images/1473701186" /></a></li><li class="js-hovercard" data-hovercard-target-name="shimpei_yotsukura"><a itemprop="url" href="/shimpei_yotsukura"><img alt="shimpei_yotsukura" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106095/profile-images/1473709829" /></a></li><li class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></li><li><a href="/KojiOhki/items/af2241027b00f892d2bd/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/KojiOhki"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" alt="1473684259" /></a> <a class="u-link-unstyled" href="/KojiOhki">KojiOhki</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-01-15T14:53:37+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-01-15">Edited at <time datetime="2017-01-23T09:13:18+09:00" itemprop="dateModified">2017-01-23</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/KojiOhki/items/af2241027b00f892d2bd/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">5</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/KojiOhki/items/af2241027b00f892d2bd/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(5)</span></a></li><li><a href="/KojiOhki/items/af2241027b00f892d2bd.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-af2241027b00f892d2bd" itemprop="articleBody"><p>Christopher Olah氏のブログ記事<br>
+<a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/" class="autolink" rel="nofollow noopener" target="_blank">http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/</a><br>
+の翻訳です。<br>
+翻訳の誤りなどあればご指摘お待ちしております。</p>
+
+<hr>
+
+<h1>
+<span id="ニューラルネットワーク多様体トポロジー" class="fragment"></span><a href="#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E5%A4%9A%E6%A7%98%E4%BD%93%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC"><i class="fa fa-link"></i></a>ニューラルネットワーク、多様体、トポロジー</h1>
+
+<p>近年、ディープ・ニューラルネットワークには多くの興奮と関心が寄せられています。コンピュータ・ビジョンなどの分野でブレークスルーとなる成果を達成したためです。<sup id="fnref1"><a href="#fn1" rel="footnote" title="これは、Krizhevsky et al., (2012) から本当に始まったようです。彼らは、優れた結果を達成するために、多くの異なるピースをまとめました。それ以降、多くのエキサイティングな研究があります。">1</a></sup></p>
+
+<p>しかし、それにはいくつかの懸念が残ります。そのひとつは、ニューラルネットワークが実際に<em>何を</em>やっているかを理解することが、かなり難問であり得る、ということです。よく訓練されたネットワークは高品質の結果を達成しますが、どのようにしてそうしているかを理解することは困難です。ネットワークが失敗した場合、何がうまくいかなかったかについて理解することは難しいです。</p>
+
+<p>一般的にディープ・ニューラルネットワークの挙動を理解することは困難ですが、低次元のディープ・ニューラルネットワーク、すなわち各層ごとにわずかなニューロンのみを持つネットワークを探究する方がはるかに簡単であることが判明しました。実際、このようなネットワークの挙動と訓練を完全に理解するための視覚化をすることができます。この観点から、ニューラルネットワークの挙動についてのより深い直観を獲得し、ニューラルネットワークとトポロジーと呼ばれる数学の分野との関連を観察することができます。</p>
+
+<p>このことから、興味深いいくつかのことが従います。例えば、あるデータセットの分類をするニューラルネットワークの複雑さに対する根源的な下限などです。</p>
+
+<h2>
+<span id="単純な例" class="fragment"></span><a href="#%E5%8D%98%E7%B4%94%E3%81%AA%E4%BE%8B"><i class="fa fa-link"></i></a>単純な例</h2>
+
+<p>それでは、とても単純なデータセット、平面上の２本の曲線から始めましょう。ネットワークは、点がどちらに属しているか分類することを学習します。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_data.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_data.png" alt="図"></a></p>
+
+<p>ニューラルネットワーク、あるいは任意の分類アルゴリズムでも、それに関する挙動を可視化する明白な方法は、単にあらゆるデータ・ポイントがどのように分類されるかを見ることです。</p>
+
+<p>最も単純なニューラルネットワークのクラス、１つの入力層と１つの出力層のみを持つものから始めましょう。このようなネットワークは、単に直線で分割することにより、データの２つのクラスを分離することを試みます。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_linear.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_linear.png" alt="図"></a></p>
+
+<p>この種のネットワークはあまり面白くありません。一般に、現在のニューラルネットワークは入力と出力の間に「隠れ」層と呼ばれる複数の層を持ちます。少なくとも、１つは持ちます。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/example_network.svg" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/example_network.svg" alt="図"></a><br>
+<strong>単純なネットワークの図（ウィキペディアより）</strong></p>
+
+<p>さきほどと同様、領域内のいろいろな点がどうなるかを見ることにより、ネットワークの挙動を可視化することができます。それはデータを直線よりも複雑な曲線により分離します。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_0.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_0.png" alt="図"></a></p>
+
+<p>各層により、ネットワークは新たな<em>表現</em>を作り、<sup id="fnref2"><a href="#fn2" rel="footnote" title="これらの表現は、うまくいけば、データをネットワークで分類する上で「より良く」します。近年、表現を探究する多くの研究がありました。おそらくもっとも魅力的なものは、自然言語処理に関するものです：私たちが単語を理解するということの表現は、単語埋め込みと呼ばれ、面白い性質があります。 Mikolov et al. (2013) 、 Turian et al. (2010) 、 Richard Socherの研究を参照してください。入門として、Turianの論文に関連するとても素晴らしい可視化があります。">2</a></sup> データを変換します。これらの各表現におけるデータ、および、ネットワークがそのデータを分類する方法を見ることができます。最終的な表現では、ネットワークはデータを貫く直線（または、高次元では、超平面）を描きます。</p>
+
+<p>さきほどの可視化では、データの「生の」表現を見ました。これは入力層を見ていると考えることができます。次に、第１層により変換された後を見ます。これは隠れ層を見ていると考えることができます。</p>
+
+<p>各次元は層内のニューロンの発火に対応しています。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_1.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_1.png" alt="図"></a><br>
+<strong>隠れ層はデータが線形分離可能であるような表現を学習</strong></p>
+
+<h2>
+<span id="層の連続的可視化" class="fragment"></span><a href="#%E5%B1%A4%E3%81%AE%E9%80%A3%E7%B6%9A%E7%9A%84%E5%8F%AF%E8%A6%96%E5%8C%96"><i class="fa fa-link"></i></a>層の連続的可視化</h2>
+
+<p>前節で概説したアプローチで、各層に対応する表現を見ることでネットワークを理解することができるようになりました。これにより表現の離散的なリストが得られます。</p>
+
+<p>扱いにくい部分は、ある表現から別の表現へどのように写るかを理解するところです。ありがたいことに、ニューラルネットワークの層には、これをとても簡単にする素晴らしい性質があります。</p>
+
+<p>ニューラルネットワークで使用される層には、多種多様なものがあります。具体例として、 tanh 層について述べます。 tanh 層 $\tanh(Wx+b)$ は以下により構成されます。</p>
+
+<ol>
+<li>「重み」行列 $W$ による線形変換</li>
+<li>ベクトル $b$ による並進</li>
+<li>tanh の各点適用</li>
+</ol>
+
+<p>次のように、連続的な変換としてこれを視覚化することができます：</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/1layer.gif" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/1layer.gif" alt="Gradually applying a neural network layer"></a></p>
+
+<p>アフィン変換につづく単調活性化関数の各点適用により構成される、多くの他の標準的な層についても、ストーリーは同様です。</p>
+
+<p>より複雑なネットワークの理解のために、このテクニックを適用することもできます。例えば、以下のネットワークは４つの隠れ層を使用して、わずかに絡み合う２つの螺旋を分類します。時間とともに、「生の」表現からデータを分類するために学習された高レベルな表現にシフトするところを見ることができます。螺旋は、最初は絡み合っていますが、最終的には線形分離可能です。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif" alt="図"></a></p>
+
+<p>一方、次のネットワークは、同じく複数の層を使用していますが、より絡み合う２つの螺旋を分類することに失敗しています。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.2.2-2-2-2-2-2-2.gif" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.2.2-2-2-2-2-2-2.gif" alt="図"></a></p>
+
+<p>低次元のニューラルネットワークを使用しているためにこのタスクがやや困難であることに、注意してください。より広いネットワークを使用すれば、これはとても簡単でしょう。</p>
+
+<p>（Andrej Karpathyは、この種の訓練の視覚化により対話形式でネットワークを探究することができる、<a href="http://cs.stanford.edu/people/karpathy/convnetjs//demo/classify2d.html" rel="nofollow noopener" target="_blank">素晴らしいデモ</a>をConvnetJSで作りました！）</p>
+
+<h2>
+<span id="tanh-層のトポロジー" class="fragment"></span><a href="#tanh-%E5%B1%A4%E3%81%AE%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC"><i class="fa fa-link"></i></a>tanh 層のトポロジー</h2>
+
+<p>各層は空間を伸ばしたり、潰したりしますが、切ったり、壊したり、折ったりはしません。直観的に、それが位相的性質を保つことがわかります。例えば、層の前で連結集合であれば、層の後も連結集合です（そしてその逆も）。</p>
+
+<p>このような、位相に影響を与えない変換は、同相写像と呼ばれます。正式には、それらは双方向に連続関数である全単射です。</p>
+
+<p>定理： $N$ 入力 $N$ 出力の層は、重み行列 $W$ が非特異であれば、同相写像である。（ただし定義域と値域に注意する必要がある。）</p>
+
+<p>証明：段階的に考える。</p>
+
+<ol>
+<li>$W$ が0でない行列式を持つと仮定する。すると、それは線形な逆を持つ全単射線形関数である。線形関数は連続である。そのため、 $W$ を掛けることは同相である。</li>
+<li>並進は同相である。</li>
+<li>tanhは（シグモイドやソフトプラスもであるが、ReLUはそうではない）連続な逆を持つ連続関数である。定義域と値域を注意深く考慮すれば、それは全単射である。それを各点適用することは同相である。</li>
+</ol>
+
+<p>従って、 $W$ が0でない行列式を持てば、層は同相である。∎</p>
+
+<p>この結果は、このような層を任意の数組み合わせた場合も成り立ちます。</p>
+
+<h2>
+<span id="トポロジーと分類" class="fragment"></span><a href="#%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC%E3%81%A8%E5%88%86%E9%A1%9E"><i class="fa fa-link"></i></a>トポロジーと分類</h2>
+
+<p>２つのクラス $A, B \subset \mathbb{R}^2$ と２次元のデータセットを考えてみましょう：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+A = \{x | d(x,0) &lt; 1/3\}
+B = \{x | 2/3 &lt; d(x,0) &lt; 1\}
+</pre></div></div>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_base.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_base.png" alt="図"></a><br>
+<em>$A$は赤、$B$は青</em></p>
+
+<p>主張：深さに関わらず、３つ以上の隠れユニットを持つ層がなければ、ニューラルネットワークでこのデータセットを分類することは不可能である。</p>
+
+<p>前述したとおり、シグモイド・ユニットやソフトマックス層による分類は、最終的な表現で $A$ と $B$ を分離する超平面（このケースでは直線）を見つけることと同値です。２つの隠れユニットだけでは、ネットワークがこのようにデータを分離することは位相的に不可能であり、このデータセットにおいては失敗する運命です。</p>
+
+<p>以下の可視化では、ネットワークの訓練中の隠れ表現が、分類線とともに見られます。見て取れるように、ネットワークは分類する方法を学習しようと、もがき、仕損ないます。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_2D-2D_train.gif" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_2D-2D_train.gif" alt="図"></a><br>
+<strong>このネットワークではハードワークは不十分</strong></p>
+
+<p>最終的に、それはむしろ非生産的な極小値に引き込まれます。なお、それは実は約 $\sim 80\%$ の分類精度を達成することができます。</p>
+
+<p>この例では隠れ層を１つしか持っていませんが、隠れ層の数にかかわらず失敗します。</p>
+
+<p>証明：各層は同相写像であるか、行列式0の重み行列を持つ。同相の場合、 $A$ は依然 $B$ に囲まれており、直線でそれらを分離することはできない。しかし、行列式0を持つと仮定すると：データセットはなんらかの軸に潰れる。元のデータセットと同相なものを扱っているため、 $A$ は $B$ に囲まれており、軸に潰れることは、 $A$ と $B$ の点が混ざる点があり、区別できなくなることを意味する。∎</p>
+
+<p>第３の隠れユニットを追加すれば、問題は簡単になります。ニューラルネットワークは以下の表現を学習します：</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_3d.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_3d.png" alt="図"></a></p>
+
+<p>この表現においては、超平面でデータセットを分離することが可能です。</p>
+
+<p>より深く理解するために、さらに単純なデータセット、１次元のものを考えてみましょう：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+A = [-\frac{1}{3}, \frac{1}{3}]
+B = [-1, -\frac{2}{3}] \cup [\frac{2}{3}, 1]
+</pre></div></div>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_1d.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_1d.png" alt="図"></a></p>
+
+<p>２つ以上の隠れユニットの層を使用することなく、このデータセットを分類することはできません。しかし２つのユニットの層を使用すれば、直線でクラスを分離することができる良い曲線として、データを表現することができるようになります：</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_1D-2D_train.gif" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_1D-2D_train.gif" alt="図"></a></p>
+
+<p>何が起こっているのでしょうか？１つの隠れユニットは $x &gt; -\frac{1}{2}$ の場合に発火することを学習し、１つは $x &gt; \frac{1}{2}$ の場合に発火することを学習します。１番目が発火し、２番目が発火しなかった場合、 A だと分かります。</p>
+
+<h2>
+<span id="多様体仮説" class="fragment"></span><a href="#%E5%A4%9A%E6%A7%98%E4%BD%93%E4%BB%AE%E8%AA%AC"><i class="fa fa-link"></i></a>多様体仮説</h2>
+
+<p>これは、画像データのような、実世界のデータ・セットに関連しているでしょうか？本当にまじめに多様体仮説を採用した場合、考察が得られると思います。</p>
+
+<p>多様体仮説とは、自然界のデータがその埋め込み空間の中で、より低次元の多様体を形成する、というものです。これを支持する理論的<sup id="fnref3"><a href="#fn3" rel="footnote" title="画像に施される多くの自然な変換、例えば、オブジェクトの平行移動やスケーリング、照明の変更などは、連続的に実施した場合、画像空間における連続的な曲線を形成します。">3</a></sup> および実験的<sup id="fnref4"><a href="#fn4" rel="footnote" title="Carlsson et al. は画像の局所的な部分がクラインの壺を形成することを発見しました。">4</a></sup> 理由があります。これを信じるならば、分類アルゴリズムのタスクは、本質的には、入り組んだ多様体の束を分離することです。</p>
+
+<p>前の例では、１つのクラスが、別のクラスを完全に囲みました。しかし、犬画像の多様体が完全に猫画像の多様体に囲まれているということが、ありそうには思われません。でも、次の節で説明するように、まだ問題を提起することができる、他の、よりもっともらしい位相的状況があります。</p>
+
+<h2>
+<span id="リンクとホモトピー" class="fragment"></span><a href="#%E3%83%AA%E3%83%B3%E3%82%AF%E3%81%A8%E3%83%9B%E3%83%A2%E3%83%88%E3%83%94%E3%83%BC"><i class="fa fa-link"></i></a>リンクとホモトピー</h2>
+
+<p>考察することが面白いもう一つのデータセットは、２つの結合されたトーラス、 $A$ と $B$ です。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/link.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/link.png" alt="図"></a></p>
+
+<p>これまで考えてきたデータセットのように、このデータセットも $n+1$ 次元、すなわち第４次元を使用しなければ分離することはできません。</p>
+
+<p>リンクはトポロジーの１分野、結び目理論で研究されています。リンクを見るとき、時にそれがアンリンク（一緒に絡み合うものの束だが、連続変形により分離可能）であるか否かは明らかではありません。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/unlink-2spiral.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/unlink-2spiral.png" alt="図"></a><br>
+<strong>比較的単純なアンリンク</strong></p>
+
+<p>３ユニットのみの層を用いたニューラルネットワークが分類できる場合、それはアンリンクです。（問題：理論上、すべてのアンリンクは３ユニットのみのネットワークにより分類可能でしょうか？）</p>
+
+<p>この結び目の観点から、ニューラルネットワークによって作られる表現の連続的視覚化は、ただの素敵なアニメーションではなく、リンクをほどく手順です。トポロジーでは、それを、元のリンクと分離されたものの間の<em>アンビエント・アイソトピー</em>と呼びます。</p>
+
+<p>形式的には、多様体 $A$ と $B$ の間のアンビエント・アイソトピーとは、連続関数 $F: [0,1] \times X \to Y$ で、各 $F_t$ が $X$ から値域への同相写像であり、 $F_0$ が恒等写像であり、 $F_1$ が $A$ を $B$ に写すものです。つまり、 $F_t$ は、 $A$ の自分自身への写像から、$A$ から $B$ への写像へ、連続的に遷移します。</p>
+
+<p>定理： a) $W$ が特異ではない、 b) 隠れ層のニューロンを入れ替えて良い、 c) １つ以上の隠れユニットがある、という条件の下で、入力からネットワークの層の表現へのアンビエント・アイソトピーが存在する。</p>
+
+<p>証明：ここでも、ネットワークの各段階を個別に考える：</p>
+
+<ol>
+<li>最も難しい部分は線形変換である。これを可能にするためには、 $W$ が正の行列式を持つ必要がある。前提により行列式は0ではなく、もし負であれば２つの隠れニューロンを入れ替えることにより符号を反転させることができるため、行列式は正として良い。正の行列式を持つ行列の空間は<a href="http://en.wikipedia.org/wiki/Connected_space#Path_connectedness" rel="nofollow noopener" target="_blank">パス連結</a>である。そのため、 $p(0) = Id$ 、 $p(1) = W$ であるような、 $p: [0,1] \to GL_n(\mathbb{R})$<sup id="fnref5"><a href="#fn5" rel="footnote" title="$GL_n(\mathbb{R})$ は実数上の可逆な $n \times n$ 行列の集合で、正式には、位数 $n$ の一般線形群と呼ばれます。">5</a></sup> が存在する。各時点 $t$ において $x$ に連続的な遷移行列 $p(t)$ を掛ける関数 $x \to p(t)x$ により、恒等関数から $W$ 変換への連続的な遷移が得られる。</li>
+<li>関数 $x \to x + tb$ により、恒等関数から $b$ 並進への連続的な遷移が得られる。</li>
+<li>関数 $x \to (1-t)x + tσ(x)$ により、恒等関数から σ の各点適用への連続的な遷移が得られる。∎</li>
+</ol>
+
+<p>このようなアンビエント・アイソトピーを自動的に発見し、リンク同士の同値性や、あるリンクが分離可能かどうかを自動的に証明するプログラムに対する関心が、おそらくあるだろうと、私は想像します。最先端の技術であれば何であれ、ニューラルネットワークで打ち勝つことができるかどうかを知ることは、興味深いことでしょう。</p>
+
+<p>（見たところ、結び目が自明かどうかを決定することはNPです。これはニューラルネットワークにとって良い兆候ではありません。）</p>
+
+<p>ここまで話した種類のリンクは実世界のデータには現れそうにありませんが、より高次元の一般化があります。そのようなものが実世界のデータに存在することは、もっともらしいです。</p>
+
+<p>リンクと結び目は１次元多様体ですが、そのすべてをほどくには４次元が必要です。同様に、 $n$次元多様体の結び目をほどくには、より高い次元の空間が必要です。すべての$n$次元多様体は $2n+2$ 次元でほどくことが可能です。<sup id="fnref6"><a href="#fn6" rel="footnote" title="この結果はウィキペディアのサブセクションの Isotopy versions に記載されています。">6</a></sup></p>
+
+<p>（私は結び目理論についてあまり知らないため、次元とリンクに関して知られていることについて、より多くを学ぶ必要があります。多様体がn次元空間に埋め込み可能な場合、多様体の次元の代わりにどのような制限があるのでしょうか？）</p>
+
+<h2>
+<span id="簡単な出口" class="fragment"></span><a href="#%E7%B0%A1%E5%8D%98%E3%81%AA%E5%87%BA%E5%8F%A3"><i class="fa fa-link"></i></a>簡単な出口</h2>
+
+<p>ニューラルネットが行う自然なこと、とても簡単なルートは、単純に多様体を引き離し、絡み合う部分をできるだけ薄く伸ばすことです。しかしこれは真の解法とはほど遠く、相対的に高い分類精度を実現するかもしれませんが魅惑的な局所解でしょう。</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/tangle.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/tangle.png" alt="図"></a></p>
+
+<p>それは伸ばそうとしている領域の、とても高い導関数、そして鋭くほとんど不連続な点として、現れるでしょう。それらが起こることが知られています。<sup id="fnref7"><a href="#fn7" rel="footnote" title="Szegedy et al. を参照してください、彼らは、データ・サンプルを修正し、最高水準の画像分類ニューラルネットワークがデータを誤って分類する原因となるわずかな変更を見つけることに成功しました。">7</a></sup> 収縮ペナルティ、データ・ポイントにおける層の導関数に対するペナルティは、これに立ち向かう自然な方法です。<sup id="fnref8"><a href="#fn8" rel="footnote" title="収縮ペナルティは収縮オートエンコーダで導入されました。 Rifai et al. (2011) を参照してください。">8</a></sup></p>
+
+<p>トポロジーの問題を解決する観点では、この種の局所最小値はまったく役に立たないため、トポロジーの問題はこれらの課題に立ち向かい探究するための良い動機を提供するかもしれません。</p>
+
+<p>一方、良い分類結果を達成することのみを気にするならば、それは気にならないように思われます。データの多様体の小さなかけらが他の多様体に妨害されているとして、それは問題でしょうか？この問題にかかわらず、任意の良い分類結果が得られるべきであるように思われます。</p>
+
+<p>（私の直観では、このように問題をだまそうとすることは、悪いアイデアです：行き止まりでないと想像することは難しいです。特に、局所最小値が大きな問題である最適化問題において、問題を真に解決することができないアーキテクチャを選択することは悪いパフォーマンスのためのレシピのようです。）</p>
+
+<h2>
+<span id="多様体操作のためのより良い層" class="fragment"></span><a href="#%E5%A4%9A%E6%A7%98%E4%BD%93%E6%93%8D%E4%BD%9C%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE%E3%82%88%E3%82%8A%E8%89%AF%E3%81%84%E5%B1%A4"><i class="fa fa-link"></i></a>多様体操作のためのより良い層？</h2>
+
+<p>標準的なニューラルネットワークの層、つまり、アフィン変換につづく活性化関数の各点適用によるものを考えれば考えるほど、幻滅を感じます。これらが多様体を操作するために非常に優れているとは想像しがたいです。</p>
+
+<p>おそらく、より歴史的な層の合成に使うことができる、非常に異なる種類の層を持つことは、意味をなすかも知れません？</p>
+
+<p>自然に感じられるのは、多様体をシフトしたい方向のベクトル場を学習することです：</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/grid_vec.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/grid_vec.png" alt="図"></a></p>
+
+<p>そして、それに基づき空間を変形させます：</p>
+
+<p><a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/grid_bubble.png" target="_blank" rel="nofollow noopener"><img src="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/grid_bubble.png" alt="図"></a></p>
+
+<p>固定点（ちょうど、アンカーとして使うために、訓練セットからいくつかの固定点を取ります）におけるベクトル場を学習し、何らかの方法で補間することができます。上のベクトル場の形式は以下のとおりです：</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+F(x) = \frac{v_0f_0(x) + v_1f_1(x)}{1+f_0(x)+f_1(x)}
+</pre></div></div>
+
+<p>ここで、 $v_0$ と $v_1$ はベクトル、 $f_0(x)$ と $f_1(x)$ はn次元ガウシアンです。これは<a href="http://en.wikipedia.org/wiki/Radial_basis_function" rel="nofollow noopener" target="_blank">放射基底関数</a>に少しインスパイアされています。</p>
+
+<h2>
+<span id="k近傍層" class="fragment"></span><a href="#k%E8%BF%91%E5%82%8D%E5%B1%A4"><i class="fa fa-link"></i></a>K近傍層</h2>
+
+<p>私はまた、線形分離性がニューラルネットワークの膨大な、そしておそらく無理な、要求であると考え始めました。いくつかの点で、<a href="http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/knn" rel="nofollow noopener" target="_blank">k近傍法</a>（k-NN）を使用することが自然であるように感じます。しかし、k近傍法の成功は分類されるデータの表現に大きく依存するため、k近傍法がうまく機能するより先に良い表現が必要になります。</p>
+
+<p>最初の実験として、私は約$\sim 1\%$のテストエラーを達成したいくつかのMNISTネットワーク（２層畳み込みネット、ドロップアウトなし）を訓練しました。そして最後のソフトマックス層を取り除き、k近傍アルゴリズムを使用しました。一貫して0.1-0.2%のテストエラーの低減を達成できました。</p>
+
+<p>しかし、これはまだ正しいようには感じられません。ネットワークがまだ線形分類をしようとしているにも関わらず、テスト時にk近傍法を使用するため、間違いからわずかに回復できるだけです。</p>
+
+<p>1/距離の重みのため、k近傍法はそれが作用する表現に関して微分可能です。このように、k近傍分類のためにネットワークを直接訓練することが可能です。これは、ソフトマックスの代わりとしてふるまう、「近傍」層の一種と考えることができます。</p>
+
+<p>計算が非常に高価になるため、各ミニバッチのために訓練セット全体にフィードフォワードすることを望みません。私が良いと思うアプローチは、各々に1/(分類対象からの距離)の重みを与えることにより、ミニバッチの各要素をミニバッチの他の要素に基づき分類することです。<sup id="fnref9"><a href="#fn9" rel="footnote" title="Theanoで実装することがより実践的であったため、私はこれよりわずかにエレガントではないが、大雑把にいえば同等なアルゴリズムを使用しました：２つの異なるバッチを同時にフィードフォワードし、お互いに基づいてそれらを分類します。">9</a></sup></p>
+
+<p>悲しいことに、洗練されたアーキテクチャでさえ、単にk近傍法のみを使用した方が5-4%低いテストエラーとなり、シンプルなアーキテクチャではより悪い結果となります。しかし、私はハイパーパラメータの変更にはほとんど力を入れていません。</p>
+
+<p>それでも、ネットワークにするように「求めている」ことが、はるかに合理的に思えるため、私は本当に審美的にこのアプローチが好きです。多様体の超平面による分離可能性とは対照的に、同じ多様体の点が他の多様体の点よりも近いことを求めます。これは、異なるカテゴリーの多様体の間の空間を膨張させ、個々の多様体を収縮させることに一致するはずです。これは単純化のように感じます。</p>
+
+<h2>
+<span id="結論" class="fragment"></span><a href="#%E7%B5%90%E8%AB%96"><i class="fa fa-link"></i></a>結論</h2>
+
+<p>リンクのような、データの位相的な性質は、ネットワークの深さに関わらず、低次元のネットワークを使用してクラスを線形分離不可能にする場合があります。螺旋のように、技術的には可能でも、とても困難な場合もあります。</p>
+
+<p>ニューラルネットワークを使用してデータを正確に分類するには、幅広い層が必要な場合があります。さらに、従来のニューラルネットワークの層は、多様体の重要な操作を表現するには、あまり良いとは思われません、手動で巧みに重みを設定したとしても、私たちが望む変換をコンパクトに表現することは困難です。機械学習の多様体的観点から動機づけされた新たな層は、有用なサプリメントかもしれません。</p>
+
+<p>（これは、研究開発プロジェクトです。この記事は、オープンな研究を行う中で、実験として掲載しています。これらのアイデアにフィードバックいただければ幸いです：インラインか末尾にコメントできます。タイポ、技術的間違い、追加部分の明確化のため、<a href="https://github.com/colah/NN-Topology-Post" rel="nofollow noopener" target="_blank">github</a>でのプルリクエストを推奨します。）</p>
+
+<h2>
+<span id="謝辞" class="fragment"></span><a href="#%E8%AC%9D%E8%BE%9E"><i class="fa fa-link"></i></a>謝辞</h2>
+
+<p>コメントおよび励ましをくださった、 Yoshua Bengio 、 Michael Nielsen 、 Dario Amodei 、 Eliana Lorch 、 Jacob Steinhardt 、 Tamsyn Waterhouse に感謝します。</p>
+
+<hr>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>これは、<a href="http://www.cs.toronto.edu/%7Efritz/absps/imagenet.pdf" rel="nofollow noopener" target="_blank">Krizhevsky et al., (2012)</a> から本当に始まったようです。彼らは、優れた結果を達成するために、多くの異なるピースをまとめました。それ以降、多くのエキサイティングな研究があります。 <a href="#fnref1">↩</a></p>
+</li>
+
+<li id="fn2">
+<p>これらの表現は、うまくいけば、データをネットワークで分類する上で「より良く」します。近年、表現を探究する多くの研究がありました。おそらくもっとも魅力的なものは、自然言語処理に関するものです：私たちが単語を理解するということの表現は、単語埋め込みと呼ばれ、面白い性質があります。 <a href="http://research.microsoft.com/pubs/189726/rvecs.pdf" rel="nofollow noopener" target="_blank">Mikolov et al. (2013)</a> 、 <a href="http://www.iro.umontreal.ca/%7Elisa/pointeurs/turian-wordrepresentations-acl10.pdf" rel="nofollow noopener" target="_blank">Turian et al. (2010)</a> 、 <a href="http://www.socher.org/" rel="nofollow noopener" target="_blank">Richard Socherの研究</a>を参照してください。入門として、Turianの論文に関連する<a href="http://metaoptimize.s3.amazonaws.com/cw-embeddings-ACL2010/embeddings-mostcommon.EMBEDDING_SIZE=50.png" rel="nofollow noopener" target="_blank">とても素晴らしい可視化</a>があります。 <a href="#fnref2">↩</a></p>
+</li>
+
+<li id="fn3">
+<p>画像に施される多くの自然な変換、例えば、オブジェクトの平行移動やスケーリング、照明の変更などは、連続的に実施した場合、画像空間における連続的な曲線を形成します。 <a href="#fnref3">↩</a></p>
+</li>
+
+<li id="fn4">
+<p><a href="http://comptop.stanford.edu/u/preprints/mumford.pdf" rel="nofollow noopener" target="_blank">Carlsson et al.</a> は画像の局所的な部分がクラインの壺を形成することを発見しました。 <a href="#fnref4">↩</a></p>
+</li>
+
+<li id="fn5">
+<p>$GL_n(\mathbb{R})$ は実数上の可逆な $n \times n$ 行列の集合で、正式には、位数 $n$ の<a href="http://en.wikipedia.org/wiki/General_linear_group" rel="nofollow noopener" target="_blank">一般線形群</a>と呼ばれます。 <a href="#fnref5">↩</a></p>
+</li>
+
+<li id="fn6">
+<p>この結果は<a href="http://en.wikipedia.org/wiki/Whitney_embedding_theorem#Isotopy_versions" rel="nofollow noopener" target="_blank">ウィキペディアのサブセクションの Isotopy versions</a> に記載されています。 <a href="#fnref6">↩</a></p>
+</li>
+
+<li id="fn7">
+<p><a href="http://cs.nyu.edu/%7Ezaremba/docs/understanding.pdf" rel="nofollow noopener" target="_blank">Szegedy et al.</a> を参照してください、彼らは、データ・サンプルを修正し、最高水準の画像分類ニューラルネットワークがデータを誤って分類する原因となるわずかな変更を見つけることに成功しました。 <a href="#fnref7">↩</a></p>
+</li>
+
+<li id="fn8">
+<p>収縮ペナルティは収縮オートエンコーダで導入されました。 <a href="http://www.iro.umontreal.ca/%7Elisa/pointeurs/ICML2011_explicit_invariance.pdf" rel="nofollow noopener" target="_blank">Rifai et al. (2011)</a> を参照してください。 <a href="#fnref8">↩</a></p>
+</li>
+
+<li id="fn9">
+<p>Theanoで実装することがより実践的であったため、私はこれよりわずかにエレガントではないが、大雑把にいえば同等なアルゴリズムを使用しました：２つの異なるバッチを同時にフィードフォワードし、お互いに基づいてそれらを分類します。 <a href="#fnref9">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/KojiOhki/items/af2241027b00f892d2bd" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="+2lcoK59FhAzLVaImGmzHv9BPI7H7YEar215ZVhj2jcOUri/kLfoyK/DE/zYAPw1zmE0rnRGnAwLnx1JNfNVBQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1485130398" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Christopher Olah氏のブログ記事
+http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/
+の翻訳です。
+翻訳の誤りなどあればご指摘お待ちしております。
+
+---
+
+
+#ニューラルネットワーク、多様体、トポロジー
+
+近年、ディープ・ニューラルネットワークには多くの興奮と関心が寄せられています。コンピュータ・ビジョンなどの分野でブレークスルーとなる成果を達成したためです。[^1]
+
+しかし、それにはいくつかの懸念が残ります。そのひとつは、ニューラルネットワークが実際に*何を*やっているかを理解することが、かなり難問であり得る、ということです。よく訓練されたネットワークは高品質の結果を達成しますが、どのようにしてそうしているかを理解することは困難です。ネットワークが失敗した場合、何がうまくいかなかったかについて理解することは難しいです。
+
+一般的にディープ・ニューラルネットワークの挙動を理解することは困難ですが、低次元のディープ・ニューラルネットワーク、すなわち各層ごとにわずかなニューロンのみを持つネットワークを探究する方がはるかに簡単であることが判明しました。実際、このようなネットワークの挙動と訓練を完全に理解するための視覚化をすることができます。この観点から、ニューラルネットワークの挙動についてのより深い直観を獲得し、ニューラルネットワークとトポロジーと呼ばれる数学の分野との関連を観察することができます。
+
+このことから、興味深いいくつかのことが従います。例えば、あるデータセットの分類をするニューラルネットワークの複雑さに対する根源的な下限などです。
+
+##単純な例
+
+それでは、とても単純なデータセット、平面上の２本の曲線から始めましょう。ネットワークは、点がどちらに属しているか分類することを学習します。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_data.png)
+
+ニューラルネットワーク、あるいは任意の分類アルゴリズムでも、それに関する挙動を可視化する明白な方法は、単にあらゆるデータ・ポイントがどのように分類されるかを見ることです。
+
+最も単純なニューラルネットワークのクラス、１つの入力層と１つの出力層のみを持つものから始めましょう。このようなネットワークは、単に直線で分割することにより、データの２つのクラスを分離することを試みます。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_linear.png)
+
+この種のネットワークはあまり面白くありません。一般に、現在のニューラルネットワークは入力と出力の間に「隠れ」層と呼ばれる複数の層を持ちます。少なくとも、１つは持ちます。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/example_network.svg)
+**単純なネットワークの図（ウィキペディアより）**
+
+さきほどと同様、領域内のいろいろな点がどうなるかを見ることにより、ネットワークの挙動を可視化することができます。それはデータを直線よりも複雑な曲線により分離します。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_0.png)
+
+各層により、ネットワークは新たな*表現*を作り、[^2] データを変換します。これらの各表現におけるデータ、および、ネットワークがそのデータを分類する方法を見ることができます。最終的な表現では、ネットワークはデータを貫く直線（または、高次元では、超平面）を描きます。
+
+さきほどの可視化では、データの「生の」表現を見ました。これは入力層を見ていると考えることができます。次に、第１層により変換された後を見ます。これは隠れ層を見ていると考えることができます。
+
+各次元は層内のニューロンの発火に対応しています。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/simple2_1.png)
+**隠れ層はデータが線形分離可能であるような表現を学習**
+
+##層の連続的可視化
+
+前節で概説したアプローチで、各層に対応する表現を見ることでネットワークを理解することができるようになりました。これにより表現の離散的なリストが得られます。
+
+扱いにくい部分は、ある表現から別の表現へどのように写るかを理解するところです。ありがたいことに、ニューラルネットワークの層には、これをとても簡単にする素晴らしい性質があります。
+
+ニューラルネットワークで使用される層には、多種多様なものがあります。具体例として、 tanh 層について述べます。 tanh 層 $\\tanh(Wx+b)$ は以下により構成されます。
+
+1. 「重み」行列 $W$ による線形変換
+2. ベクトル $b$ による並進
+3. tanh の各点適用
+
+次のように、連続的な変換としてこれを視覚化することができます：
+
+![Gradually applying a neural network layer](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/1layer.gif)
+
+アフィン変換につづく単調活性化関数の各点適用により構成される、多くの他の標準的な層についても、ストーリーは同様です。
+
+より複雑なネットワークの理解のために、このテクニックを適用することもできます。例えば、以下のネットワークは４つの隠れ層を使用して、わずかに絡み合う２つの螺旋を分類します。時間とともに、「生の」表現からデータを分類するために学習された高レベルな表現にシフトするところを見ることができます。螺旋は、最初は絡み合っていますが、最終的には線形分離可能です。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.1-2.2-2-2-2-2-2.gif)
+
+一方、次のネットワークは、同じく複数の層を使用していますが、より絡み合う２つの螺旋を分類することに失敗しています。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/spiral.2.2-2-2-2-2-2-2.gif)
+
+低次元のニューラルネットワークを使用しているためにこのタスクがやや困難であることに、注意してください。より広いネットワークを使用すれば、これはとても簡単でしょう。
+
+（Andrej Karpathyは、この種の訓練の視覚化により対話形式でネットワークを探究することができる、[素晴らしいデモ](http://cs.stanford.edu/people/karpathy/convnetjs//demo/classify2d.html)をConvnetJSで作りました！）
+
+## tanh 層のトポロジー
+
+各層は空間を伸ばしたり、潰したりしますが、切ったり、壊したり、折ったりはしません。直観的に、それが位相的性質を保つことがわかります。例えば、層の前で連結集合であれば、層の後も連結集合です（そしてその逆も）。
+
+このような、位相に影響を与えない変換は、同相写像と呼ばれます。正式には、それらは双方向に連続関数である全単射です。
+
+定理： $N$ 入力 $N$ 出力の層は、重み行列 $W$ が非特異であれば、同相写像である。（ただし定義域と値域に注意する必要がある。）
+
+証明：段階的に考える。
+
+1. $W$ が0でない行列式を持つと仮定する。すると、それは線形な逆を持つ全単射線形関数である。線形関数は連続である。そのため、 $W$ を掛けることは同相である。
+2. 並進は同相である。
+3. tanhは（シグモイドやソフトプラスもであるが、ReLUはそうではない）連続な逆を持つ連続関数である。定義域と値域を注意深く考慮すれば、それは全単射である。それを各点適用することは同相である。
+
+従って、 $W$ が0でない行列式を持てば、層は同相である。∎
+
+この結果は、このような層を任意の数組み合わせた場合も成り立ちます。
+
+##トポロジーと分類
+
+２つのクラス $A, B \\subset \\mathbb{R}^2$ と２次元のデータセットを考えてみましょう：
+
+```math
+A = \{x | d(x,0) &lt; 1/3\}
+B = \{x | 2/3 &lt; d(x,0) &lt; 1\}
+```
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_base.png)
+*$A$は赤、$B$は青*
+
+主張：深さに関わらず、３つ以上の隠れユニットを持つ層がなければ、ニューラルネットワークでこのデータセットを分類することは不可能である。
+
+前述したとおり、シグモイド・ユニットやソフトマックス層による分類は、最終的な表現で $A$ と $B$ を分離する超平面（このケースでは直線）を見つけることと同値です。２つの隠れユニットだけでは、ネットワークがこのようにデータを分離することは位相的に不可能であり、このデータセットにおいては失敗する運命です。
+
+以下の可視化では、ネットワークの訓練中の隠れ表現が、分類線とともに見られます。見て取れるように、ネットワークは分類する方法を学習しようと、もがき、仕損ないます。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_2D-2D_train.gif)
+**このネットワークではハードワークは不十分**
+
+最終的に、それはむしろ非生産的な極小値に引き込まれます。なお、それは実は約 $\\sim 80\\%$ の分類精度を達成することができます。
+
+この例では隠れ層を１つしか持っていませんが、隠れ層の数にかかわらず失敗します。
+
+証明：各層は同相写像であるか、行列式0の重み行列を持つ。同相の場合、 $A$ は依然 $B$ に囲まれており、直線でそれらを分離することはできない。しかし、行列式0を持つと仮定すると：データセットはなんらかの軸に潰れる。元のデータセットと同相なものを扱っているため、 $A$ は $B$ に囲まれており、軸に潰れることは、 $A$ と $B$ の点が混ざる点があり、区別できなくなることを意味する。∎
+
+第３の隠れユニットを追加すれば、問題は簡単になります。ニューラルネットワークは以下の表現を学習します：
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_3d.png)
+
+この表現においては、超平面でデータセットを分離することが可能です。
+
+より深く理解するために、さらに単純なデータセット、１次元のものを考えてみましょう：
+
+```math
+A = [-\frac{1}{3}, \frac{1}{3}]
+B = [-1, -\frac{2}{3}] \cup [\frac{2}{3}, 1]
+```
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_1d.png)
+
+２つ以上の隠れユニットの層を使用することなく、このデータセットを分類することはできません。しかし２つのユニットの層を使用すれば、直線でクラスを分離することができる良い曲線として、データを表現することができるようになります：
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/topology_1D-2D_train.gif)
+
+何が起こっているのでしょうか？１つの隠れユニットは $x &gt; -\\frac{1}{2}$ の場合に発火することを学習し、１つは $x &gt; \\frac{1}{2}$ の場合に発火することを学習します。１番目が発火し、２番目が発火しなかった場合、 A だと分かります。
+
+##多様体仮説
+
+これは、画像データのような、実世界のデータ・セットに関連しているでしょうか？本当にまじめに多様体仮説を採用した場合、考察が得られると思います。
+
+多様体仮説とは、自然界のデータがその埋め込み空間の中で、より低次元の多様体を形成する、というものです。これを支持する理論的[^3] および実験的[^4] 理由があります。これを信じるならば、分類アルゴリズムのタスクは、本質的には、入り組んだ多様体の束を分離することです。
+
+前の例では、１つのクラスが、別のクラスを完全に囲みました。しかし、犬画像の多様体が完全に猫画像の多様体に囲まれているということが、ありそうには思われません。でも、次の節で説明するように、まだ問題を提起することができる、他の、よりもっともらしい位相的状況があります。
+
+##リンクとホモトピー
+
+考察することが面白いもう一つのデータセットは、２つの結合されたトーラス、 $A$ と $B$ です。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/link.png)
+
+これまで考えてきたデータセットのように、このデータセットも $n+1$ 次元、すなわち第４次元を使用しなければ分離することはできません。
+
+リンクはトポロジーの１分野、結び目理論で研究されています。リンクを見るとき、時にそれがアンリンク（一緒に絡み合うものの束だが、連続変形により分離可能）であるか否かは明らかではありません。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/unlink-2spiral.png)
+**比較的単純なアンリンク**
+
+３ユニットのみの層を用いたニューラルネットワークが分類できる場合、それはアンリンクです。（問題：理論上、すべてのアンリンクは３ユニットのみのネットワークにより分類可能でしょうか？）
+
+この結び目の観点から、ニューラルネットワークによって作られる表現の連続的視覚化は、ただの素敵なアニメーションではなく、リンクをほどく手順です。トポロジーでは、それを、元のリンクと分離されたものの間の*アンビエント・アイソトピー*と呼びます。
+
+形式的には、多様体 $A$ と $B$ の間のアンビエント・アイソトピーとは、連続関数 $F: [0,1] \\times X \\to Y$ で、各 $F_t$ が $X$ から値域への同相写像であり、 $F_0$ が恒等写像であり、 $F_1$ が $A$ を $B$ に写すものです。つまり、 $F_t$ は、 $A$ の自分自身への写像から、$A$ から $B$ への写像へ、連続的に遷移します。
+
+定理： a) $W$ が特異ではない、 b) 隠れ層のニューロンを入れ替えて良い、 c) １つ以上の隠れユニットがある、という条件の下で、入力からネットワークの層の表現へのアンビエント・アイソトピーが存在する。
+
+証明：ここでも、ネットワークの各段階を個別に考える：
+
+1. 最も難しい部分は線形変換である。これを可能にするためには、 $W$ が正の行列式を持つ必要がある。前提により行列式は0ではなく、もし負であれば２つの隠れニューロンを入れ替えることにより符号を反転させることができるため、行列式は正として良い。正の行列式を持つ行列の空間は[パス連結](http://en.wikipedia.org/wiki/Connected_space#Path_connectedness)である。そのため、 $p(0) = Id$ 、 $p(1) = W$ であるような、 $p: [0,1] \\to GL_n(\\mathbb{R})$[^5] が存在する。各時点 $t$ において $x$ に連続的な遷移行列 $p(t)$ を掛ける関数 $x \\to p(t)x$ により、恒等関数から $W$ 変換への連続的な遷移が得られる。
+2. 関数 $x \\to x + tb$ により、恒等関数から $b$ 並進への連続的な遷移が得られる。
+3. 関数 $x \\to (1-t)x + tσ(x)$ により、恒等関数から σ の各点適用への連続的な遷移が得られる。∎
+
+このようなアンビエント・アイソトピーを自動的に発見し、リンク同士の同値性や、あるリンクが分離可能かどうかを自動的に証明するプログラムに対する関心が、おそらくあるだろうと、私は想像します。最先端の技術であれば何であれ、ニューラルネットワークで打ち勝つことができるかどうかを知ることは、興味深いことでしょう。
+
+（見たところ、結び目が自明かどうかを決定することはNPです。これはニューラルネットワークにとって良い兆候ではありません。）
+
+ここまで話した種類のリンクは実世界のデータには現れそうにありませんが、より高次元の一般化があります。そのようなものが実世界のデータに存在することは、もっともらしいです。
+
+リンクと結び目は１次元多様体ですが、そのすべてをほどくには４次元が必要です。同様に、 $n$次元多様体の結び目をほどくには、より高い次元の空間が必要です。すべての$n$次元多様体は $2n+2$ 次元でほどくことが可能です。[^6]
+
+（私は結び目理論についてあまり知らないため、次元とリンクに関して知られていることについて、より多くを学ぶ必要があります。多様体がn次元空間に埋め込み可能な場合、多様体の次元の代わりにどのような制限があるのでしょうか？）
+
+##簡単な出口
+
+ニューラルネットが行う自然なこと、とても簡単なルートは、単純に多様体を引き離し、絡み合う部分をできるだけ薄く伸ばすことです。しかしこれは真の解法とはほど遠く、相対的に高い分類精度を実現するかもしれませんが魅惑的な局所解でしょう。
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/tangle.png)
+
+それは伸ばそうとしている領域の、とても高い導関数、そして鋭くほとんど不連続な点として、現れるでしょう。それらが起こることが知られています。[^7] 収縮ペナルティ、データ・ポイントにおける層の導関数に対するペナルティは、これに立ち向かう自然な方法です。[^8]
+
+トポロジーの問題を解決する観点では、この種の局所最小値はまったく役に立たないため、トポロジーの問題はこれらの課題に立ち向かい探究するための良い動機を提供するかもしれません。
+
+一方、良い分類結果を達成することのみを気にするならば、それは気にならないように思われます。データの多様体の小さなかけらが他の多様体に妨害されているとして、それは問題でしょうか？この問題にかかわらず、任意の良い分類結果が得られるべきであるように思われます。
+
+（私の直観では、このように問題をだまそうとすることは、悪いアイデアです：行き止まりでないと想像することは難しいです。特に、局所最小値が大きな問題である最適化問題において、問題を真に解決することができないアーキテクチャを選択することは悪いパフォーマンスのためのレシピのようです。）
+
+##多様体操作のためのより良い層？
+
+標準的なニューラルネットワークの層、つまり、アフィン変換につづく活性化関数の各点適用によるものを考えれば考えるほど、幻滅を感じます。これらが多様体を操作するために非常に優れているとは想像しがたいです。
+
+おそらく、より歴史的な層の合成に使うことができる、非常に異なる種類の層を持つことは、意味をなすかも知れません？
+
+自然に感じられるのは、多様体をシフトしたい方向のベクトル場を学習することです：
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/grid_vec.png)
+
+そして、それに基づき空間を変形させます：
+
+![図](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/img/grid_bubble.png)
+
+固定点（ちょうど、アンカーとして使うために、訓練セットからいくつかの固定点を取ります）におけるベクトル場を学習し、何らかの方法で補間することができます。上のベクトル場の形式は以下のとおりです：
+
+```math
+F(x) = \frac{v_0f_0(x) + v_1f_1(x)}{1+f_0(x)+f_1(x)}
+```
+
+ここで、 $v_0$ と $v_1$ はベクトル、 $f_0(x)$ と $f_1(x)$ はn次元ガウシアンです。これは[放射基底関数](http://en.wikipedia.org/wiki/Radial_basis_function)に少しインスパイアされています。
+
+##K近傍層
+
+私はまた、線形分離性がニューラルネットワークの膨大な、そしておそらく無理な、要求であると考え始めました。いくつかの点で、[k近傍法](http://colah.github.io/posts/2014-03-NN-Manifolds-Topology/knn)（k-NN）を使用することが自然であるように感じます。しかし、k近傍法の成功は分類されるデータの表現に大きく依存するため、k近傍法がうまく機能するより先に良い表現が必要になります。
+
+最初の実験として、私は約$\\sim 1\\%$のテストエラーを達成したいくつかのMNISTネットワーク（２層畳み込みネット、ドロップアウトなし）を訓練しました。そして最後のソフトマックス層を取り除き、k近傍アルゴリズムを使用しました。一貫して0.1-0.2%のテストエラーの低減を達成できました。
+
+しかし、これはまだ正しいようには感じられません。ネットワークがまだ線形分類をしようとしているにも関わらず、テスト時にk近傍法を使用するため、間違いからわずかに回復できるだけです。
+
+1/距離の重みのため、k近傍法はそれが作用する表現に関して微分可能です。このように、k近傍分類のためにネットワークを直接訓練することが可能です。これは、ソフトマックスの代わりとしてふるまう、「近傍」層の一種と考えることができます。
+
+計算が非常に高価になるため、各ミニバッチのために訓練セット全体にフィードフォワードすることを望みません。私が良いと思うアプローチは、各々に1/(分類対象からの距離)の重みを与えることにより、ミニバッチの各要素をミニバッチの他の要素に基づき分類することです。[^9]
+
+悲しいことに、洗練されたアーキテクチャでさえ、単にk近傍法のみを使用した方が5-4%低いテストエラーとなり、シンプルなアーキテクチャではより悪い結果となります。しかし、私はハイパーパラメータの変更にはほとんど力を入れていません。
+
+それでも、ネットワークにするように「求めている」ことが、はるかに合理的に思えるため、私は本当に審美的にこのアプローチが好きです。多様体の超平面による分離可能性とは対照的に、同じ多様体の点が他の多様体の点よりも近いことを求めます。これは、異なるカテゴリーの多様体の間の空間を膨張させ、個々の多様体を収縮させることに一致するはずです。これは単純化のように感じます。
+
+##結論
+
+リンクのような、データの位相的な性質は、ネットワークの深さに関わらず、低次元のネットワークを使用してクラスを線形分離不可能にする場合があります。螺旋のように、技術的には可能でも、とても困難な場合もあります。
+
+ニューラルネットワークを使用してデータを正確に分類するには、幅広い層が必要な場合があります。さらに、従来のニューラルネットワークの層は、多様体の重要な操作を表現するには、あまり良いとは思われません、手動で巧みに重みを設定したとしても、私たちが望む変換をコンパクトに表現することは困難です。機械学習の多様体的観点から動機づけされた新たな層は、有用なサプリメントかもしれません。
+
+（これは、研究開発プロジェクトです。この記事は、オープンな研究を行う中で、実験として掲載しています。これらのアイデアにフィードバックいただければ幸いです：インラインか末尾にコメントできます。タイポ、技術的間違い、追加部分の明確化のため、[github](https://github.com/colah/NN-Topology-Post)でのプルリクエストを推奨します。）
+
+##謝辞
+
+コメントおよび励ましをくださった、 Yoshua Bengio 、 Michael Nielsen 、 Dario Amodei 、 Eliana Lorch 、 Jacob Steinhardt 、 Tamsyn Waterhouse に感謝します。
+
+---
+
+[^1]: これは、[Krizhevsky et al., (2012)](http://www.cs.toronto.edu/~fritz/absps/imagenet.pdf) から本当に始まったようです。彼らは、優れた結果を達成するために、多くの異なるピースをまとめました。それ以降、多くのエキサイティングな研究があります。
+
+[^2]: これらの表現は、うまくいけば、データをネットワークで分類する上で「より良く」します。近年、表現を探究する多くの研究がありました。おそらくもっとも魅力的なものは、自然言語処理に関するものです：私たちが単語を理解するということの表現は、単語埋め込みと呼ばれ、面白い性質があります。 [Mikolov et al. (2013)](http://research.microsoft.com/pubs/189726/rvecs.pdf) 、 [Turian et al. (2010)](http://www.iro.umontreal.ca/~lisa/pointeurs/turian-wordrepresentations-acl10.pdf) 、 [Richard Socherの研究](http://www.socher.org/)を参照してください。入門として、Turianの論文に関連する[とても素晴らしい可視化](http://metaoptimize.s3.amazonaws.com/cw-embeddings-ACL2010/embeddings-mostcommon.EMBEDDING_SIZE=50.png)があります。
+
+[^3]: 画像に施される多くの自然な変換、例えば、オブジェクトの平行移動やスケーリング、照明の変更などは、連続的に実施した場合、画像空間における連続的な曲線を形成します。
+
+[^4]: [Carlsson et al.](http://comptop.stanford.edu/u/preprints/mumford.pdf) は画像の局所的な部分がクラインの壺を形成することを発見しました。
+
+[^5]: $GL_n(\\mathbb{R})$ は実数上の可逆な $n \\times n$ 行列の集合で、正式には、位数 $n$ の[一般線形群](http://en.wikipedia.org/wiki/General_linear_group)と呼ばれます。
+
+[^6]: この結果は[ウィキペディアのサブセクションの Isotopy versions](http://en.wikipedia.org/wiki/Whitney_embedding_theorem#Isotopy_versions) に記載されています。
+
+[^7]: [Szegedy et al.](http://cs.nyu.edu/~zaremba/docs/understanding.pdf) を参照してください、彼らは、データ・サンプルを修正し、最高水準の画像分類ニューラルネットワークがデータを誤って分類する原因となるわずかな変更を見つけることに成功しました。
+
+[^8]: 収縮ペナルティは収縮オートエンコーダで導入されました。 [Rifai et al. (2011)](http://www.iro.umontreal.ca/~lisa/pointeurs/ICML2011_explicit_invariance.pdf) を参照してください。
+
+[^9]: Theanoで実装することがより実践的であったため、私はこれよりわずかにエレガントではないが、大雑把にいえば同等なアルゴリズムを使用しました：２つの異なるバッチを同時にフィードフォワードし、お互いに基づいてそれらを分類します。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ニューラルネットワーク、多様体、トポロジー by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ニューラルネットワーク、多様体、トポロジー" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/KojiOhki"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/KojiOhki">KojiOhki</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1874</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;KojiOhki&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-b4836392-c217-4504-9600-5c12cc6ddc37"></div>
+    <div id="UserFollowButton-react-component-b4836392-c217-4504-9600-5c12cc6ddc37"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/89cd7b69a8a6239d67ca">LSTMネットワークの概要</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/af2241027b00f892d2bd">ニューラルネットワーク、多様体、トポロジー</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/ff6ae04d6cf02f1b6edf">TensorFlowチュートリアル - ML初心者のためのMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/64a2ee54214b01a411c7">TensorFlowチュートリアル - 熟練者のためのディープMNIST（翻訳）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/KojiOhki/items/dab6922b6cd7b990c002">TensorFlowチュートリアル - 画像認識（翻訳）</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E5%A4%9A%E6%A7%98%E4%BD%93%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC\&quot;\u003eニューラルネットワーク、多様体、トポロジー\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8D%98%E7%B4%94%E3%81%AA%E4%BE%8B\&quot;\u003e単純な例\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B1%A4%E3%81%AE%E9%80%A3%E7%B6%9A%E7%9A%84%E5%8F%AF%E8%A6%96%E5%8C%96\&quot;\u003e層の連続的可視化\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tanh-%E5%B1%A4%E3%81%AE%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC\&quot;\u003etanh 層のトポロジー\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC%E3%81%A8%E5%88%86%E9%A1%9E\&quot;\u003eトポロジーと分類\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%A4%9A%E6%A7%98%E4%BD%93%E4%BB%AE%E8%AA%AC\&quot;\u003e多様体仮説\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AA%E3%83%B3%E3%82%AF%E3%81%A8%E3%83%9B%E3%83%A2%E3%83%88%E3%83%94%E3%83%BC\&quot;\u003eリンクとホモトピー\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B0%A1%E5%8D%98%E3%81%AA%E5%87%BA%E5%8F%A3\&quot;\u003e簡単な出口\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%A4%9A%E6%A7%98%E4%BD%93%E6%93%8D%E4%BD%9C%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE%E3%82%88%E3%82%8A%E8%89%AF%E3%81%84%E5%B1%A4\&quot;\u003e多様体操作のためのより良い層？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#k%E8%BF%91%E5%82%8D%E5%B1%A4\&quot;\u003eK近傍層\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E8%AB%96\&quot;\u003e結論\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AC%9D%E8%BE%9E\&quot;\u003e謝辞\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-57923c07-51df-49f6-a4cf-d652ac1a8551"></div>
+    <div id="Toc-react-component-57923c07-51df-49f6-a4cf-d652ac1a8551"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:245,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;af2241027b00f892d2bd&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="rneuo"><a itemprop="url" href="/rneuo"><img alt="rneuo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51849/profile-images/1473692560" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ssssssk"><a itemprop="url" href="/ssssssk"><img alt="ssssssk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/80548/profile-images/1473701825" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ikkitang"><a itemprop="url" href="/ikkitang"><img alt="ikkitang" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/66498/profile-images/1473697228" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="minewebstaff"><a itemprop="url" href="/minewebstaff"><img alt="minewebstaff" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46049/profile-images/1473690517" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="takano_tak"><a itemprop="url" href="/takano_tak"><img alt="takano_tak" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92260/profile-images/1485139358" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="akiraa"><a itemprop="url" href="/akiraa"><img alt="akiraa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/85927/profile-images/1473703582" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="garam"><a itemprop="url" href="/garam"><img alt="garam" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51513/profile-images/1473692465" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="bele_m"><a itemprop="url" href="/bele_m"><img alt="bele_m" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/78508/profile-images/1473701186" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shimpei_yotsukura"><a itemprop="url" href="/shimpei_yotsukura"><img alt="shimpei_yotsukura" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106095/profile-images/1473709829" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></div></div><div class="ArticleFooter__user"><a href="/KojiOhki/items/af2241027b00f892d2bd/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/af2241027b00f892d2bd/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/KojiOhki/items/af2241027b00f892d2bd.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/tawago/items/931bea2ff6d56e32d693#_reference-dfed9baa000fc460b09c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" />Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説</a><time class="references_datetime js-dateTimeView" datetime="2016-03-29T02:05:44+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/c1d6de78062fd24139c0#_reference-390eca90a43ed71e40d6"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />（ 事例調査 ）トポロジー・ 微分幾何学・  情報幾何学 の 高み から、（深層）ニューラル・ネットワークモデル の 情報処理過程 を 可視化し、学習速度 を 早める 視座 の 有効性 を 考える</a><time class="references_datetime js-dateTimeView" datetime="2016-12-31T13:51:32+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ニューラルネットワーク、多様体、トポロジー by @KojiOhki on @Qiita" data-url="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ニューラルネットワーク、多様体、トポロジー" href="http://b.hatena.ne.jp/entry/http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/KojiOhki/items/af2241027b00f892d2bd" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:361623,&quot;uuid&quot;:&quot;af2241027b00f892d2bd&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;KojiOhki&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-0a7b0ea4-e414-4361-a137-683813f940b3"></div>
+    <div id="CommentListContainer-react-component-0a7b0ea4-e414-4361-a137-683813f940b3"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="jWqbiNKFjy9dSzV8cYo14GtpyKBbgjgAAKAJNWILvLF4UX+X7E9x98GlcAgx43rLWknAgOgpJRakUm0ZD5szgw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/af2241027b00f892d2bd" /><input type="hidden" name="item_uuid" id="item_uuid" value="af2241027b00f892d2bd" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/KojiOhki/items/af2241027b00f892d2bd", "id": 361623, "uuid": "af2241027b00f892d2bd" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25103,&quot;url_name&quot;:&quot;KojiOhki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25103/profile-images/1473684259&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="4UAvFy9rfE1mdWPS9YZ4EqY4UXRl9zlCu+NHSU3ru2MUe8sIEaGClfqbJqa17zc5lxhZVNZcJFQfESNlIHs0UQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/KojiOhki/items/af2241027b00f892d2bd" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

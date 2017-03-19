@@ -1,0 +1,364 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>LSTMを超える期待の新星、QRNN - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="RNN「これってもしかして」
+CNN「わたしたちのモデルが・・・」
+
+「「入れ替わってる～～～！？」」
+
+というわけでQRNN、QUASI-RECURRENT NEURAL NETWORKSとは、RNNの機構をCNNで「疑似的(QUASI)に」実装するというモデルです。これにより、既存のRNN(というかLSTM)が抱えていたいくつかの問題の解決を試みています。
+
+元論文は以下となります。
+
+
+QUASI-RECURRENT NEURAL NETWORKS
+作者によるブロ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="icoxfog417" name="twitter:creator" /><meta content="LSTMを超える期待の新星、QRNN - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="RNN「これってもしかして」
+CNN「わたしたちのモデルが・・・」
+
+「「入れ替わってる～～～！？」」
+
+というわけでQRNN、QUASI-RECURRENT NEURAL NETWORKSとは、RNNの機構をCNNで「疑似的(QUA..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="9LJHA63RXfzABt7ANlLjEQjUz/fPNwMIx7mp6OQ4jYwMV3nPOxfcG8tSrVZHaqQGcW3S3OgHT/wmjGLm1NTyIA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"icoxfog417","type":"items","id":"d77912e10a7c60ae680e"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-294cecd0-31b8-40e1-92a0-eef8091b112d"></div>
+    <div id="HeaderContainer-react-component-294cecd0-31b8-40e1-92a0-eef8091b112d"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2016/nlp">自然言語処理 Advent Calendar 2016</a> Day 3</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">LSTMを超える期待の新星、QRNN</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="70"><a class="u-link-unstyled TagList__label" href="/tags/%E8%AB%96%E6%96%87%E8%AA%AD%E3%81%BF"><img alt="論文読み" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>論文読み</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">178</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:178,&quot;uuid&quot;:&quot;d77912e10a7c60ae680e&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="non2ono"><a itemprop="url" href="/non2ono"><img alt="non2ono" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55566/profile-images/1473693722" /></a></li><li class="js-hovercard" data-hovercard-target-name="knsht"><a itemprop="url" href="/knsht"><img alt="knsht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83568/profile-images/1473702818" /></a></li><li class="js-hovercard" data-hovercard-target-name="P_tan"><a itemprop="url" href="/P_tan"><img alt="P_tan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15708/profile-images/1473681663" /></a></li><li class="js-hovercard" data-hovercard-target-name="airtoxin"><a itemprop="url" href="/airtoxin"><img alt="airtoxin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22102/profile-images/1478352585" /></a></li><li class="js-hovercard" data-hovercard-target-name="hatoo@github"><a itemprop="url" href="/hatoo@github"><img alt="hatoo@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20535/profile-images/1473683044" /></a></li><li class="js-hovercard" data-hovercard-target-name="shiozaki"><a itemprop="url" href="/shiozaki"><img alt="shiozaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74551/profile-images/1473699875" /></a></li><li class="js-hovercard" data-hovercard-target-name="yamachu"><a itemprop="url" href="/yamachu"><img alt="yamachu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104085/profile-images/1478107482" /></a></li><li class="js-hovercard" data-hovercard-target-name="trkw"><a itemprop="url" href="/trkw"><img alt="trkw" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11654/profile-images/1486922437" /></a></li><li class="js-hovercard" data-hovercard-target-name="hogefugabar"><a itemprop="url" href="/hogefugabar"><img alt="hogefugabar" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" /></a></li><li class="js-hovercard" data-hovercard-target-name="Hironsan"><a itemprop="url" href="/Hironsan"><img alt="Hironsan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" /></a></li><li><a href="/icoxfog417/items/d77912e10a7c60ae680e/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/icoxfog417"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" alt="1484303516" /></a> <a class="u-link-unstyled" href="/icoxfog417">icoxfog417</a> </div><div class="ArticleAsideHeader__date"><span>posted at <time datetime="2016-12-12T18:01:19+09:00" itemprop="datePublished">2016-12-12</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/icoxfog417/items/d77912e10a7c60ae680e.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-d77912e10a7c60ae680e" itemprop="articleBody"><p>RNN「これってもしかして」<br>
+CNN「わたしたちのモデルが・・・」</p>
+
+<p>「「入れ替わってる～～～！？」」</p>
+
+<p>というわけでQRNN、QUASI-RECURRENT NEURAL NETWORKSとは、RNNの機構をCNNで「疑似的(QUASI)に」実装するというモデルです。これにより、既存のRNN(というかLSTM)が抱えていたいくつかの問題の解決を試みています。</p>
+
+<p>元論文は以下となります。</p>
+
+<ul>
+<li><a href="https://arxiv.org/pdf/1611.01576v1.pdf" rel="nofollow noopener" target="_blank">QUASI-RECURRENT NEURAL NETWORKS</a></li>
+<li><a href="http://metamind.io/research/new-neural-network-building-block-allows-faster-and-more-accurate-text-understanding/" rel="nofollow noopener" target="_blank">作者によるブログ</a></li>
+</ul>
+
+<p>作者の方のブログにChainerのサンプルコードがあったので、それを元にTensorFlowで実装してみました。早く動かしたい！という方はこちらを見てみてください。</p>
+
+<p><a href="https://github.com/icoxfog417/tensorflow_qrnn" rel="nofollow noopener" target="_blank">icoxfog417/tensorflow_qrnn</a><br>
+(Starを頂ければ励みになります m(_ _)m)</p>
+
+<p>本記事では、この研究のモチベーションとそのアプローチについて、順を追って解説していきたいと思います。</p>
+
+<h2>
+<span id="背景" class="fragment"></span><a href="#%E8%83%8C%E6%99%AF"><i class="fa fa-link"></i></a>背景</h2>
+
+<p>RNNはその仕組み上、一要素(一単語)ごとに処理しないといけないので並列処理ができません(下図参照)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/76cb7e8f-3baf-e97f-185c-3d6c5918a40f.png" target="_blank" rel="nofollow noopener"><img width="548" alt="rnn.PNG" src="https://qiita-image-store.s3.amazonaws.com/0/25990/76cb7e8f-3baf-e97f-185c-3d6c5918a40f.png"></a></p>
+
+<p>また、前回隠れ層からの入力を「重みをかけて」受けとることで、隠れ層はいろんな単語の情報がミックスされた、謎の何かに変貌していきます。ここは少しわかりにくいので、図解します。<br>
+以下の図はベクトル(隠れ層=左の縦棒)に行列(重み=U)をかける様子を図式化したものです。計算後の右のベクトルの第一要素は、元のベクトルのすべての要素に重みをかけて計算されているのがわかると思います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/73d1e3f9-b650-1470-7c6d-c26a26909da4.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/73d1e3f9-b650-1470-7c6d-c26a26909da4.png" alt="image"></a></p>
+
+<p>こんなことをすると、もはやベクトルの第一要素が何を意味していたのかなんて、だんだんとあいまいというかいろんな情報がミックスされた謎の何かになってきます。これは、中の仕組みを理解しようとするとき大きな障害になります。</p>
+
+<p>こうした問題を解決しよう！として提案されたのが、CNNを活用したQUASI-RECURRENT NEURAL NETWORKS、QRNNになります。</p>
+
+<h2>
+<span id="ポイント" class="fragment"></span><a href="#%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88"><i class="fa fa-link"></i></a>ポイント</h2>
+
+<p>論文におけるポイントは、以下の2点になります。何れも「新規」というわけではないのですが、伝搬の構成などは先行研究と異なります。</p>
+
+<ul>
+<li>RNNではなく、CNNを連続的なデータ(文章など)に対して適用する
+
+<ul>
+<li>これにより並列計算が可能になります</li>
+</ul>
+</li>
+<li>重みを使わず伝搬することで、隠れ層の中の各要素を、他要素からの影響から独立した状態でキープする
+
+<ul>
+<li>これにより隠れ層の分析(どの場所が活性しているかなど)が行いやすくなる</li>
+</ul>
+</li>
+</ul>
+
+<p>全体図としては、以下のような感じになります(ちょっと端折っている箇所もありますが)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/388fcfa1-7a85-bfd4-c487-331b48fc4a67.png" target="_blank" rel="nofollow noopener"><img width="497" alt="qrnn.PNG" src="https://qiita-image-store.s3.amazonaws.com/0/25990/388fcfa1-7a85-bfd4-c487-331b48fc4a67.png"></a></p>
+
+<p>中では、畳みこんだ後にLSTMライクな処理をいかに要素積で済ませるか、というところが述べられています。ここからは、論文中の式を追ってみていきます。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{\bf
+Z = tanh(W_z * X)\\
+F = \sigma(W_f * X)\\
+O = \sigma(W_o * X)
+}
+</pre></div></div>
+
+<p>これらはすべて、畳みこみの処理です。Z, F, Oの3つを作るということですね。これらは、ちょうどLSTMのinput, forget, outputに相当します。これらは時系列方向への畳みこみなので、フィルターのサイズが2の場合で、LSTMライクに書くと以下のようになります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{\bf
+z_t = tanh(W^1_z x_{t-1} + W^2_z x_t)\\
+f_t = \sigma(W^1_f x_{t-1} + W^2_f x_t)\\
+o_t = \sigma(W^1_o x_{t-1} + W^2_o x_t)\\
+}
+</pre></div></div>
+
+<p>さて、これで並列計算はOKなので、あとはどう時系列を処理していくかです。当然、行列積は使いたくありません(↓これ)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/9ee0a2ba-5f5c-c32d-1f99-b8fc3b7990d8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/9ee0a2ba-5f5c-c32d-1f99-b8fc3b7990d8.png" alt="image"></a><br>
+<a href="https://en.wikipedia.org/wiki/Long_short-term_memory" rel="nofollow noopener" target="_blank">Long short-term memory</a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/72c8493c-b1cc-34a6-6496-65733bdd363f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/72c8493c-b1cc-34a6-6496-65733bdd363f.png" alt="image"></a></p>
+
+<p>畳みこみの処理では、よくプーリングという手法を使います。これは、4つの領域があったらその中の最大を取る、など複数の領域があった場合に最大や平均などを取って値を集約するという手法です。こいつをうまく応用して、時系列(t-1とtなど)をいい感じにミックスさせます。<br>
+具体的に提案されているのは、以下のような手法です(dynamic average poolingというらしい)。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{\bf 
+ h_t = f_t \odot h_{t-1} + (1 - f_t) \odot z_t \\
+}
+</pre></div></div>
+
+<p>${\bf f_t}$(forget)の割合で、過去の${\bf h_{t-1}}$と${\bf z_t}$をミックスさせてやるということですね。これを論文中ではf-poolingと読んでいます。この他に、以下2つの変形が提案されています。<br>
+一つ目は、コンテキストを経由するfo-pooling</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{\bf 
+ c_t = f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
+ h_t = o_t \odot c_t
+}
+</pre></div></div>
+
+<p>もう一つが、${\bf 1-f}$という適当な感じではなく、inputを書き込む割合をちゃんと考えるパターンです。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+{\bf 
+ c_t = f_t \odot c_{t-1} + i_t \odot z_t \\
+ h_t = o_t \odot c_t
+}
+</pre></div></div>
+
+<p>これがifo-poolingになります。<br>
+基本はこの3タイプで、これ以外に論文中ではdropoutを組み込んだものや、DenseNetの機構を組み込む、Encoder-Decoderへの拡張といったことが述べられています。</p>
+
+<h2>
+<span id="結果" class="fragment"></span><a href="#%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>結果</h2>
+
+<p>以下3つのタスクで効果を見ています。すべて、LSTMと同等かちょっと良いスコアになっています。</p>
+
+<ul>
+<li>Sentiment Classification: 感情分類
+
+<ul>
+<li>IMDbという映画のレビューのデータセットを使用して検証</li>
+</ul>
+</li>
+<li>Language Modeling: 言語モデル
+
+<ul>
+<li>おなじみのPenn Treebankで検証</li>
+</ul>
+</li>
+<li>Character-level Machine translation: 機械翻訳
+
+<ul>
+<li>IWSLTという英語-ドイツ語のデータセットで検証</li>
+</ul>
+</li>
+</ul>
+
+<p>また、ベクトルを要素独立にしたおかげで、隠れ層の分析も行いやすくなりました。以下は、Sentiment Classificationを行っている際の隠れ層の様子です。色は、隠れ層の活性化を表しています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/3a5bd418-5c29-e035-d103-33492aebe871.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/3a5bd418-5c29-e035-d103-33492aebe871.png" alt="image"></a></p>
+
+<p>120~160近辺で全体的に薄くなっていると思いますが、この時word的に「否定的な」文言が出ていたらしく、そのあとおすすめだよ！みたいな文言が登場したことで再度活性化しています。こうした分析ができるようになったというのも、大きな利点の一つになります。</p>
+
+<p>いかがだったでしょうか。このQRNNを使うことで、ニューラルネットワークがどのように学習をしているのかより理解することができるかもしれません。</p>
+<div class="hidden"><form class="js-task-list-update" action="/icoxfog417/items/d77912e10a7c60ae680e" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="I9gyFaGK+HxW6sG6yKV7kdR2327+IPV6e34JhLoE/5LbPQzZN0x5m12+siy5nTyGrc/CRdkQuY6aS8KKiuiAPg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1481533279" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+RNN「これってもしかして」
+CNN「わたしたちのモデルが・・・」
+
+「「入れ替わってる～～～！？」」
+
+というわけでQRNN、QUASI-RECURRENT NEURAL NETWORKSとは、RNNの機構をCNNで「疑似的(QUASI)に」実装するというモデルです。これにより、既存のRNN(というかLSTM)が抱えていたいくつかの問題の解決を試みています。
+
+元論文は以下となります。
+
+* [QUASI-RECURRENT NEURAL NETWORKS](https://arxiv.org/pdf/1611.01576v1.pdf)
+* [作者によるブログ](http://metamind.io/research/new-neural-network-building-block-allows-faster-and-more-accurate-text-understanding/)
+
+作者の方のブログにChainerのサンプルコードがあったので、それを元にTensorFlowで実装してみました。早く動かしたい！という方はこちらを見てみてください。
+
+[icoxfog417/tensorflow_qrnn](https://github.com/icoxfog417/tensorflow_qrnn)
+(Starを頂ければ励みになります m(_ _)m)
+
+本記事では、この研究のモチベーションとそのアプローチについて、順を追って解説していきたいと思います。
+
+## 背景
+
+RNNはその仕組み上、一要素(一単語)ごとに処理しないといけないので並列処理ができません(下図参照)。
+
+&lt;img width=&quot;548&quot; alt=&quot;rnn.PNG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/76cb7e8f-3baf-e97f-185c-3d6c5918a40f.png&quot;&gt;
+
+また、前回隠れ層からの入力を「重みをかけて」受けとることで、隠れ層はいろんな単語の情報がミックスされた、謎の何かに変貌していきます。ここは少しわかりにくいので、図解します。
+以下の図はベクトル(隠れ層=左の縦棒)に行列(重み=U)をかける様子を図式化したものです。計算後の右のベクトルの第一要素は、元のベクトルのすべての要素に重みをかけて計算されているのがわかると思います。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/73d1e3f9-b650-1470-7c6d-c26a26909da4.png)
+
+こんなことをすると、もはやベクトルの第一要素が何を意味していたのかなんて、だんだんとあいまいというかいろんな情報がミックスされた謎の何かになってきます。これは、中の仕組みを理解しようとするとき大きな障害になります。
+
+こうした問題を解決しよう！として提案されたのが、CNNを活用したQUASI-RECURRENT NEURAL NETWORKS、QRNNになります。
+
+## ポイント
+
+論文におけるポイントは、以下の2点になります。何れも「新規」というわけではないのですが、伝搬の構成などは先行研究と異なります。
+
+* RNNではなく、CNNを連続的なデータ(文章など)に対して適用する
+ * これにより並列計算が可能になります
+* 重みを使わず伝搬することで、隠れ層の中の各要素を、他要素からの影響から独立した状態でキープする
+ * これにより隠れ層の分析(どの場所が活性しているかなど)が行いやすくなる
+
+全体図としては、以下のような感じになります(ちょっと端折っている箇所もありますが)。
+
+&lt;img width=&quot;497&quot; alt=&quot;qrnn.PNG&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/388fcfa1-7a85-bfd4-c487-331b48fc4a67.png&quot;&gt;
+
+中では、畳みこんだ後にLSTMライクな処理をいかに要素積で済ませるか、というところが述べられています。ここからは、論文中の式を追ってみていきます。
+
+```math
+{\bf
+Z = tanh(W_z * X)\\
+F = \sigma(W_f * X)\\
+O = \sigma(W_o * X)
+}
+```
+
+これらはすべて、畳みこみの処理です。Z, F, Oの3つを作るということですね。これらは、ちょうどLSTMのinput, forget, outputに相当します。これらは時系列方向への畳みこみなので、フィルターのサイズが2の場合で、LSTMライクに書くと以下のようになります。
+
+```math
+{\bf
+z_t = tanh(W^1_z x_{t-1} + W^2_z x_t)\\
+f_t = \sigma(W^1_f x_{t-1} + W^2_f x_t)\\
+o_t = \sigma(W^1_o x_{t-1} + W^2_o x_t)\\
+}
+```
+
+さて、これで並列計算はOKなので、あとはどう時系列を処理していくかです。当然、行列積は使いたくありません(↓これ)。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/9ee0a2ba-5f5c-c32d-1f99-b8fc3b7990d8.png)
+[Long short-term memory](https://en.wikipedia.org/wiki/Long_short-term_memory)
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/72c8493c-b1cc-34a6-6496-65733bdd363f.png)
+
+畳みこみの処理では、よくプーリングという手法を使います。これは、4つの領域があったらその中の最大を取る、など複数の領域があった場合に最大や平均などを取って値を集約するという手法です。こいつをうまく応用して、時系列(t-1とtなど)をいい感じにミックスさせます。
+具体的に提案されているのは、以下のような手法です(dynamic average poolingというらしい)。
+
+```math
+{\bf 
+ h_t = f_t \odot h_{t-1} + (1 - f_t) \odot z_t \\
+}
+```
+
+${\bf f_t}$(forget)の割合で、過去の${\bf h_{t-1}}$と${\bf z_t}$をミックスさせてやるということですね。これを論文中ではf-poolingと読んでいます。この他に、以下2つの変形が提案されています。
+一つ目は、コンテキストを経由するfo-pooling
+
+```math
+{\bf 
+ c_t = f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
+ h_t = o_t \odot c_t
+}
+```
+
+もう一つが、${\bf 1-f}$という適当な感じではなく、inputを書き込む割合をちゃんと考えるパターンです。
+
+```math
+{\bf 
+ c_t = f_t \odot c_{t-1} + i_t \odot z_t \\
+ h_t = o_t \odot c_t
+}
+```
+
+これがifo-poolingになります。
+基本はこの3タイプで、これ以外に論文中ではdropoutを組み込んだものや、DenseNetの機構を組み込む、Encoder-Decoderへの拡張といったことが述べられています。
+
+## 結果
+
+以下3つのタスクで効果を見ています。すべて、LSTMと同等かちょっと良いスコアになっています。
+
+* Sentiment Classification: 感情分類
+ * IMDbという映画のレビューのデータセットを使用して検証
+* Language Modeling: 言語モデル
+ * おなじみのPenn Treebankで検証
+* Character-level Machine translation: 機械翻訳
+ * IWSLTという英語-ドイツ語のデータセットで検証
+
+また、ベクトルを要素独立にしたおかげで、隠れ層の分析も行いやすくなりました。以下は、Sentiment Classificationを行っている際の隠れ層の様子です。色は、隠れ層の活性化を表しています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/3a5bd418-5c29-e035-d103-33492aebe871.png)
+
+120~160近辺で全体的に薄くなっていると思いますが、この時word的に「否定的な」文言が出ていたらしく、そのあとおすすめだよ！みたいな文言が登場したことで再度活性化しています。こうした分析ができるようになったというのも、大きな利点の一つになります。
+
+いかがだったでしょうか。このQRNNを使うことで、ニューラルネットワークがどのように学習をしているのかより理解することができるかもしれません。
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="LSTMを超える期待の新星、QRNN by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="LSTMを超える期待の新星、QRNN" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/icoxfog417"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/icoxfog417">icoxfog417</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">20387</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;icoxfog417&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-d80b64e9-7fae-4b49-9a11-9e40f4a54528"></div>
+    <div id="UserFollowButton-react-component-d80b64e9-7fae-4b49-9a11-9e40f4a54528"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/e8f97a6acad07903b5b0">Pythonを書き始める前に見るべきTips</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/adbbf445d357c924b8fc">画像処理の数式を見て石になった時のための、金の針</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/242439ecd1a477ece312">ゼロからDeepまで学ぶ強化学習</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/65e800c3a2094457c3a0">はじめるDeep learning</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/5d79b3336226aa51e30d">React.js 実戦投入への道</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%83%8C%E6%99%AF\&quot;\u003e背景\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9D%E3%82%A4%E3%83%B3%E3%83%88\&quot;\u003eポイント\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E6%9E%9C\&quot;\u003e結果\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-a760a007-9c56-44b3-8654-e84cd9d184e2"></div>
+    <div id="Toc-react-component-a760a007-9c56-44b3-8654-e84cd9d184e2"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:178,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;d77912e10a7c60ae680e&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="non2ono"><a itemprop="url" href="/non2ono"><img alt="non2ono" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55566/profile-images/1473693722" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="knsht"><a itemprop="url" href="/knsht"><img alt="knsht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83568/profile-images/1473702818" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="P_tan"><a itemprop="url" href="/P_tan"><img alt="P_tan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15708/profile-images/1473681663" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="airtoxin"><a itemprop="url" href="/airtoxin"><img alt="airtoxin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22102/profile-images/1478352585" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hatoo@github"><a itemprop="url" href="/hatoo@github"><img alt="hatoo@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20535/profile-images/1473683044" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shiozaki"><a itemprop="url" href="/shiozaki"><img alt="shiozaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74551/profile-images/1473699875" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yamachu"><a itemprop="url" href="/yamachu"><img alt="yamachu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104085/profile-images/1478107482" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="trkw"><a itemprop="url" href="/trkw"><img alt="trkw" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11654/profile-images/1486922437" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hogefugabar"><a itemprop="url" href="/hogefugabar"><img alt="hogefugabar" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Hironsan"><a itemprop="url" href="/Hironsan"><img alt="Hironsan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" /></a></div></div><div class="ArticleFooter__user"><a href="/icoxfog417/items/d77912e10a7c60ae680e/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/d77912e10a7c60ae680e/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/icoxfog417/items/d77912e10a7c60ae680e.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.3</span> article of <a class="title" href="/advent-calendar/2016/nlp">自然言語処理 Advent Calendar 2016</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 4:</span><span class="itemsShowBody_adventCalendar_title"> <a class="itemsShowBody_adventCalendar_link" href="/advent-calendar/2016/nlp#day-4">Next</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/eve_yk/items/f4b274da7042cba1ba76#_reference-e58312212676c588a856"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/110468/profile-images/1473711224" />DeepLearning研究 2016年のまとめ</a><time class="references_datetime js-dateTimeView" datetime="2016-12-16T23:28:28+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/tmshn/items/3ccc5d84daa23a98d4be#_reference-c3f73bc174dddb10862a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/105378/profile-images/1473709596" />インフラエンジニアが見た機械学習のトップカンファレンス NIPS 2016</a><time class="references_datetime js-dateTimeView" datetime="2016-12-23T14:43:08+00:00">3 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/yamano357/items/27bb3d39dc8047c46dba#_reference-8ccda7f1327939b70cf8"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99957/profile-images/1473707949" />RでKerasを使う（短歌手習い編）</a><time class="references_datetime js-dateTimeView" datetime="2017-01-03T15:39:27+00:00">2 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/91b3aade0d7c5b2d403b#_reference-f4a2c9e2d6e5ef7fd197"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />CNN で 時系列データ の 特徴量（特徴マップ） を 畳み込み で 抽出して、 + プーリング で 情報圧縮 する 方法 いろいろ</a><time class="references_datetime js-dateTimeView" datetime="2017-02-17T12:18:31+00:00">30 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="LSTMを超える期待の新星、QRNN by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="LSTMを超える期待の新星、QRNN" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:448604,&quot;uuid&quot;:&quot;d77912e10a7c60ae680e&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;icoxfog417&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-629be43b-2571-418d-ae12-639336071333"></div>
+    <div id="CommentListContainer-react-component-629be43b-2571-418d-ae12-639336071333"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="dINg7A6VWjCHteVOKXayYdB9AvSrHnaRjSpqmIecGyiMZl4gmFPb14zhlthYTvV2qcQf34wuOmVsH6GWt3BkhA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/d77912e10a7c60ae680e" /><input type="hidden" name="item_uuid" id="item_uuid" value="d77912e10a7c60ae680e" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/icoxfog417/items/d77912e10a7c60ae680e", "id": 448604, "uuid": "d77912e10a7c60ae680e" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="SSXgyHg0iMjNbA2LNa9aS//VI9MT35iqIERjLrcfMVKxwN4E7vIJL8Y4fh1Elx1chmw++DTv1F7Bcaggh/NO/g==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/d77912e10a7c60ae680e" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

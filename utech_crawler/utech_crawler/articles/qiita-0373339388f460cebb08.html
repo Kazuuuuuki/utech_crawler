@@ -1,0 +1,1339 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>初心者に捧げる対話システムの作り方 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+はじめに
+
+こんにちは。Hironsanです。
+3月から4月にかけてLine, Facebook, Microsoftと各社がBot開発用プラットフォームを発表して以来、爆発的な数のBotが登場しています。実にFacebook Messengerだけに限っても2016年7月時点で1万1000超のBotが稼働しています。
+
+しかし、これらのBotのほとんどは単純な一問一答型のシステムであり、対話システムと言えるものではありません。これでは徐々にユーザの嗜好を聞き出すよ..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Hironsan13" name="twitter:creator" /><meta content="初心者に捧げる対話システムの作り方 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/Hironsan/items/0373339388f460cebb08" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# はじめに
+こんにちは。[Hironsan](http://qiita.com/Hironsan)です。
+3月から4月にかけてLine, Facebook, Microsoftと各社がBot開発用プラットフォームを発表して以来、爆発..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="msM+L15dkM9PdfQhBbOlRgpYB611eqcPmulsGLmz6EqES4fBC5ffrTBC/mGmEmnYdM8mztfESZAKjijLOaHpdw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"Hironsan","type":"items","id":"0373339388f460cebb08"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-ccb346f2-caa7-40de-9dd2-db68bc71efac"></div>
+    <div id="HeaderContainer-react-component-ccb346f2-caa7-40de-9dd2-db68bc71efac"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86",        "name": "自然言語処理"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">初心者に捧げる対話システムの作り方</h1><ul class="TagList"><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="241"><a class="u-link-unstyled TagList__label" href="/tags/bot"><img alt="bot" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>bot</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="7"><a class="u-link-unstyled TagList__label" href="/tags/%E5%AF%BE%E8%A9%B1%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0"><img alt="対話システム" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>対話システム</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">137</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:137,&quot;uuid&quot;:&quot;0373339388f460cebb08&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="mettoboshi"><a itemprop="url" href="/mettoboshi"><img alt="mettoboshi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42925/profile-images/1473689342" /></a></li><li class="js-hovercard" data-hovercard-target-name="daikiti412"><a itemprop="url" href="/daikiti412"><img alt="daikiti412" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76687/profile-images/1473700573" /></a></li><li class="js-hovercard" data-hovercard-target-name="masaki_iwahara"><a itemprop="url" href="/masaki_iwahara"><img alt="masaki_iwahara" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/13767a27b4bb60df7d108b6fc26931c2?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="quenhulu"><a itemprop="url" href="/quenhulu"><img alt="quenhulu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14708/profile-images/1473683459" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></li><li class="js-hovercard" data-hovercard-target-name="shuhei_f"><a itemprop="url" href="/shuhei_f"><img alt="shuhei_f" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70763/profile-images/1473698579" /></a></li><li class="js-hovercard" data-hovercard-target-name="GDaigo"><a itemprop="url" href="/GDaigo"><img alt="GDaigo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/129334/profile-images/1473717525" /></a></li><li class="js-hovercard" data-hovercard-target-name="meganetaaan"><a itemprop="url" href="/meganetaaan"><img alt="meganetaaan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20447/profile-images/1473683016" /></a></li><li class="js-hovercard" data-hovercard-target-name="musashi13z"><a itemprop="url" href="/musashi13z"><img alt="musashi13z" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83495/profile-images/1488906054" /></a></li><li class="js-hovercard" data-hovercard-target-name="yklitter"><a itemprop="url" href="/yklitter"><img alt="yklitter" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/111478/profile-images/1481787377" /></a></li><li><a href="/Hironsan/items/0373339388f460cebb08/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/Hironsan"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" alt="1473700709" /></a> <a class="u-link-unstyled" href="/Hironsan">Hironsan</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-08-24T10:11:24+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-08-24">Edited at <time datetime="2016-08-25T13:13:12+09:00" itemprop="dateModified">2016-08-25</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/Hironsan/items/0373339388f460cebb08/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">13</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/Hironsan/items/0373339388f460cebb08/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(13)</span></a></li><li><a href="/Hironsan/items/0373339388f460cebb08.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-0373339388f460cebb08" itemprop="articleBody">
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p>こんにちは。<a href="http://qiita.com/Hironsan">Hironsan</a>です。<br>
+3月から4月にかけてLine, Facebook, Microsoftと各社がBot開発用プラットフォームを発表して以来、爆発的な数のBotが登場しています。実にFacebook Messengerだけに限っても<a href="http://japan.cnet.com/news/service/35085270/" rel="nofollow noopener" target="_blank">2016年7月時点で1万1000超のBotが稼働</a>しています。</p>
+
+<p>しかし、これらのBotのほとんどは単純な一問一答型のシステムであり、対話システムと言えるものではありません。これでは徐々にユーザの嗜好を聞き出すような対応を行うことはできません。</p>
+
+<p>そこで今回は、対話の履歴を考慮した<strong>レストラン検索対話システム</strong>を作り、最終的にはBotに組み込んでみたいと思います。完成イメージとしては以下のアニメーションのようなものを作ることができます。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif" alt="bot2.mov.gif"></a></p>
+
+<p>具体的には以下のステップで作成します。</p>
+
+<ul>
+<li>簡単なパターンマッチ</li>
+<li>おうむ返し</li>
+<li>対話状態を保持したレストラン検索対話システム</li>
+</ul>
+
+<p>また、レストラン検索だけでなく雑談も行うことができます。これらのBotの作成を通じて、基本的な対話システムの作成方法について理解することを目的とします。</p>
+
+<h1>
+<span id="対象読者" class="fragment"></span><a href="#%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85"><i class="fa fa-link"></i></a>対象読者</h1>
+
+<ul>
+<li>Pythonの基礎的な文法を理解している人</li>
+<li>対話システムを作ってみたい人</li>
+<li>
+<a href="http://qiita.com/Hironsan/items/fd9e62c3d1ad23a67300" id="reference-93827b6f76d1e86af81f">対話システムの資料</a>を読んだ人</li>
+</ul>
+
+<h1>
+<span id="準備" class="fragment"></span><a href="#%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>準備</h1>
+
+<h2>
+<span id="python環境の構築" class="fragment"></span><a href="#python%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89"><i class="fa fa-link"></i></a>Python環境の構築</h2>
+
+<p>今回作る対話システムはPython3系を用いて構築します。そのため公式サイトからPython3系をダウンロード後、インストールしてください。</p>
+
+<p><a href="https://www.python.org/downloads/" rel="nofollow noopener" target="_blank">Download Python</a></p>
+
+<h2>
+<span id="ハンズオン用リポジトリのclone" class="fragment"></span><a href="#%E3%83%8F%E3%83%B3%E3%82%BA%E3%82%AA%E3%83%B3%E7%94%A8%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA%E3%81%AEclone"><i class="fa fa-link"></i></a>ハンズオン用リポジトリのClone</h2>
+
+<p>今からハンズオン用リポジトリを用意します。以下の手順に従って用意してください。</p>
+
+<ol>
+<li><a href="https://github.com/Hironsan/HotPepperGourmetDialogue" rel="nofollow noopener" target="_blank">https://github.com/Hironsan/HotPepperGourmetDialogue</a></li>
+<li>右上にある「fork」というボタンから、本リポジトリをfork(=コピー)してください。</li>
+<li>forkしたリポジトリを、git cloneによって手元の端末に取ってきてブランチを切り替えます。これで準備は完了です。</li>
+</ol>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ git clone YOUR_FORK_REPOSITORY.git</span>
+<span class="go">$ cd HotPepperGourmetDialogue</span>
+<span class="go">$ git checkout -b tutorial origin/tutorial</span>
+</pre></div></div>
+
+<p>さらに、モジュールのimportのために、HotPepperGourmetDialogueディレクトリ直下でPYTHONPATHを設定してください。ダブルクオテーション""はつけないでください。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ export PYTHONPATH=`pwd`</span>
+</pre></div></div>
+
+<p>コマンドプロンプト環境の場合は以下を実行してください。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ set PYTHONPATH=%CD%</span>
+</pre></div></div>
+
+<h2>
+<span id="仮想環境の構築" class="fragment"></span><a href="#%E4%BB%AE%E6%83%B3%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89"><i class="fa fa-link"></i></a>仮想環境の構築</h2>
+
+<h3>
+<span id="virtualenvの場合" class="fragment"></span><a href="#virtualenv%E3%81%AE%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>Virtualenvの場合</h3>
+
+<p>Virtualenvの場合、以下のコマンドを実行して仮想環境を構築し、有効にします。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ pip install virtualenv</span>
+<span class="go">$ virtualenv env</span>
+<span class="go">$ source env/bin/activate</span>
+</pre></div></div>
+
+<h3>
+<span id="condaの場合" class="fragment"></span><a href="#conda%E3%81%AE%E5%A0%B4%E5%90%88"><i class="fa fa-link"></i></a>Condaの場合</h3>
+
+<p>Condaの場合、以下のコマンドを実行して仮想環境を構築し、有効にします。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ conda create -n env python</span>
+<span class="go">$ source activate env   # コマンドプロンプトの場合 activate env</span>
+</pre></div></div>
+
+<h2>
+<span id="api-keyの取得" class="fragment"></span><a href="#api-key%E3%81%AE%E5%8F%96%E5%BE%97"><i class="fa fa-link"></i></a>API Keyの取得</h2>
+
+<p>レストラン検索対話システムの中で使用するため、以下の2つのAPI Keyを取得してください。</p>
+
+<ul>
+<li><a href="https://dev.smt.docomo.ne.jp/?p=docs.api.page&amp;api_name=dialogue&amp;p_name=api_reference" rel="nofollow noopener" target="_blank">docomo雑談対話API</a></li>
+<li><a href="http://webservice.recruit.co.jp/hotpepper/reference.html" rel="nofollow noopener" target="_blank">HotPepperグルメサーチAPI</a></li>
+</ul>
+
+<p>docomo雑談対話APIはBotと雑談を行うために使用し、HotPepperグルメーサーチAPIはレストラン検索を行うために使用します。取得時間の目安は、HotPepperのAPI Keyは5分程度、docomo雑談対話APIは1日程度かかります。</p>
+
+<p>取得するまでの間は、おうむ返しBotの作成まで進めておいてください。</p>
+
+<h2>
+<span id="slackアカウントの作成" class="fragment"></span><a href="#slack%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88%E3%81%AE%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>Slackアカウントの作成</h2>
+
+<p>今回はSlack上にBotを作成していきます。そのためSlackアカウントを持っていなかったら以下から作成してください。<br>
+<a href="https://slack.com/" rel="nofollow noopener" target="_blank">https://slack.com/</a></p>
+
+<p>チーム名などはよしなに設定してください。</p>
+
+<h2>
+<span id="slack-botアカウントの作成" class="fragment"></span><a href="#slack-bot%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88%E3%81%AE%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>Slack Botアカウントの作成</h2>
+
+<p>まずはSlack Botアカウントを作成しましょう。</p>
+
+
+
+<p><a href="https://my.slack.com/services/new/bot" rel="nofollow noopener" target="_blank">https://my.slack.com/services/new/bot</a></p>
+
+<p>既にチームのSlackは開設済で、権限のあるユーザでログインしているものとします。その状態で、上記リンクを開くと、Botアカウントの作成画面が開きます。表示されているフォーム中にBotアカウントのユーザ名を入力して、「Add bot integration」を押してください。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/3273c39b-618d-b712-2928-7905516fd9a0.png" target="_blank" rel="nofollow noopener"><img width="972" alt="スクリーンショット 2016-08-21 22.10.05.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/3273c39b-618d-b712-2928-7905516fd9a0.png"></a></p>
+
+<p>「Add bot integration」を押すと、新たにフォームが表示されます。その中の「API Token」は後で作成するBotで用いるのでメモしてください。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/42c5aba5-0ced-6ee6-4b77-00bd3ecac688.png" target="_blank" rel="nofollow noopener"><img width="1020" alt="スクリーンショット 2016-08-21 22.25.23.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/42c5aba5-0ced-6ee6-4b77-00bd3ecac688.png"></a></p>
+
+<p>「Customize Icon」や「Customize Name」で作成したBotの名前やアイコン画像を変更できます。変更内容を「Save Integration」で保存します。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/455e3859-7487-b7f3-a3bb-4257e099d203.png" target="_blank" rel="nofollow noopener"><img width="971" alt="スクリーンショット 2016-08-21 22.26.46.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/455e3859-7487-b7f3-a3bb-4257e099d203.png"></a></p>
+
+<p>この後のテスト用にプライベートチャンネルを作成して作成したBotを登録しておきましょう。下記のように設定したら、「Create Channel」で内容を保存します。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/a28c5a27-cb19-cc78-cc39-8e452e9ac920.png" target="_blank" rel="nofollow noopener"><img width="655" alt="スクリーンショット 2016-08-21 22.30.18.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/a28c5a27-cb19-cc78-cc39-8e452e9ac920.png"></a></p>
+
+<p>以上でSlackの設定は完了です。ではBotの作成に入りましょう。</p>
+
+<h1>
+<span id="はじめてのbot" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AEbot"><i class="fa fa-link"></i></a>はじめてのBot</h1>
+
+<p>さて、いよいよBotの作成にとりかかります。<br>
+以下のPythonライブラリを使います。<br>
+<a href="https://github.com/lins05/slackbot" rel="nofollow noopener" target="_blank">lins05/slackbot</a></p>
+
+<p>導入はpipで行います。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ pip install slackbot</span>
+</pre></div></div>
+
+<h2>
+<span id="slack-botを起動してみる" class="fragment"></span><a href="#slack-bot%E3%82%92%E8%B5%B7%E5%8B%95%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a>Slack Botを起動してみる</h2>
+
+<p>まずはbot用のディレクトリに移動します。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ cd application</span>
+</pre></div></div>
+
+<p>applicationディレクトリに移動したら、その内にある“slackbot_settings.py”にBotの設定を記述します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="n">API_TOKEN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'SLACK_API_KEY'</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span>
+
+<span class="n">default_reply</span> <span class="o">=</span> <span class="s">"スイマセン。其ノ言葉ワカリマセン"</span>
+</pre></div></div>
+
+<p>ここで、API_TOKENは先ほどメモした値を環境変数から読み込んで使用します。そのため、以下のコマンドを実行して環境変数に先ほどメモした値を設定してください。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ export SLACK_API_KEY=YOUR_API_KEY  # コマンドプロンプトの場合: set SLACK_API_KEY=YOUR_API_KEY</span>
+</pre></div></div>
+
+<p>次に、“slack_bot.py”にBotを起動するコードを記述します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">slackbot.bot</span> <span class="k">import</span> <span class="n">Bot</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">bot</span> <span class="o">=</span> <span class="n">Bot</span><span class="p">()</span>
+    <span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div></div>
+
+<p>ではいよいよ、Botの起動です。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ python slack_bot.py</span>
+</pre></div></div>
+
+<p>メンションの特定の言葉に反応したり、チャンネルに投稿された言葉に反応したりします。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/4901b1f8-522d-152d-eb63-9f448aa2f97b.png" target="_blank" rel="nofollow noopener"><img width="470" alt="スクリーンショット 2016-08-21 23.34.15.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/4901b1f8-522d-152d-eb63-9f448aa2f97b.png"></a></p>
+
+<p>ここで行われている返答はSlackbotライブラリのデフォルトプラグインによるものです。これだけでは味気ないので自分でプラグインを登録して機能を拡張していきます。ということで、次は自分でプラグインを作成してみましょう。</p>
+
+<h2>
+<span id="はじめてのプラグイン" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AE%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3"><i class="fa fa-link"></i></a>はじめてのプラグイン</h2>
+
+<p>では次に、ユーザの「こんにちは」にたいして「こんにちは」と返すBotを作ってみましょう。<br>
+今回の記事で利用しているPythonのSlackbotライブラリはプラグインにより機能拡張を行えます。そのため、自分でプラグインを実装することで、ダイレクトメッセージやBotが参加しているチャンネル内での投稿内の特定の言葉に反応する機能を実装することができます。</p>
+
+<p>まずは作成済みのBot用のディレクトリ内にあるプラグイン配置用ディレクトリに移動します。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ cd plugins</span>
+</pre></div></div>
+
+<p>このpluginsディレクトリには「__init__.py」が入っています。このファイルが必要な理由は、Slackbotのプラグインとして読み込ませるディレクトリはPythonパッケージである必要があるため、「__init__.py」を入れてパッケージとして認識させています。ちなみに中身は空で結構です。</p>
+
+<p>さて、プラグイン配置用ディレクトリに移動したら、実際にプラグインスクリプトを作成しましょう。"slack.py"に以下のコードを記述して下さい。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">slackbot.bot</span> <span class="k">import</span> <span class="n">respond_to</span>
+
+<span class="nd">@respond_to</span><span class="p">(</span><span class="s">'こんにちは'</span><span class="p">)</span>
+<span class="nd">@respond_to</span><span class="p">(</span><span class="s">'今日は'</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="n">message</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="s">'こんにちは!'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>関数”hello”に対して、”respond_to”というデコレータが付与されています。</p>
+
+<p>“respond_to”デコレータの引数にマッチするキーワードを指定することでプラグインロード時に関数がBotに対するメンションに反応するように登録されます。キーワードの指定は正規表現で行うことも可能です。また、今回のサンプルのようにデコレータを複数付与することで複数キーワードに対応させることもできます。</p>
+
+<p>最後に、プラグインロードが行われるように“slackbot_settings.py”に以下を追記します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="n">PLUGINS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">'plugins'</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div></div>
+
+<p>Slackbotを起動して、メンションを送ってみましょう。<font color="red">@をつけてくださいね。</font></p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ python slack_bot.py</span>
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/77079/050c33a3-f351-5a31-2042-9c2cd01442d3.png" target="_blank" rel="nofollow noopener"><img width="379" alt="スクリーンショット 2016-08-21 23.51.18.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/050c33a3-f351-5a31-2042-9c2cd01442d3.png"></a></p>
+
+<p>今回作成したBotが意図した通りに反応しているのがわかります。</p>
+
+<h1>
+<span id="おうむ返しbot" class="fragment"></span><a href="#%E3%81%8A%E3%81%86%E3%82%80%E8%BF%94%E3%81%97bot"><i class="fa fa-link"></i></a>おうむ返しBot</h1>
+
+<p>では次に、正規表現を使ってユーザの発言内容を取得してみましょう。さきほどの、"slack.py"を以下のように改造してみてください。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">slackbot.bot</span> <span class="k">import</span> <span class="n">respond_to</span><span class="p">,</span> <span class="n">listen_to</span>
+
+
+<span class="nd">@listen_to</span><span class="p">(</span><span class="s">'私は(.*)です'</span><span class="p">)</span>
+<span class="nd">@listen_to</span><span class="p">(</span><span class="s">'わたしは(.*)です'</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">something</span><span class="p">):</span>
+    <span class="n">message</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="s">'こんにちは!{0}さん。'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">something</span><span class="p">))</span>
+</pre></div></div>
+
+<p>Slackbotを起動して、投稿してみましょう。<font color="red">@はつけないでくださいね。</font></p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ python slack_bot.py</span>
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/77079/4dc57f72-4485-6b2b-55d5-e8470d762b75.png" target="_blank" rel="nofollow noopener"><img width="318" alt="スクリーンショット 2016-08-22 0.09.12.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/4dc57f72-4485-6b2b-55d5-e8470d762b75.png"></a></p>
+
+<p>ユーザの発言内容を取得できていることがわかると思います。</p>
+
+<p>前回のhello関数と今回のhello関数には大きく2つの違いがあります。<br>
+まず第一に、今回は"listen_to"デコレータを使用しています。“listen_to”デコレータの引数にマッチする言葉を指定することで、Botが参加しているチャンネルへの投稿に反応するようになります。</p>
+
+<p>もう一つがデコレータ内の"(.*)"です。こちらは正規表現を使っており、"(.*)"を指定することで任意の文字列にマッチさせることができます。また、マッチした内容は第２引数のsomethingに格納されています。そのため、somethingを使用することで発言内容を送り返すことができたわけです。</p>
+
+<p>ユーザの発言を単におうむ返しするBotはさらに簡単です。以下のようにコードを書くだけです。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="nd">@respond_to</span><span class="p">(</span><span class="s">'(.*)'</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">refrection</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">something</span><span class="p">):</span>
+    <span class="n">message</span><span class="o">.</span><span class="n">reply</span><span class="p">(</span><span class="n">something</span><span class="p">)</span>
+</pre></div></div>
+
+<p>正規表現では任意の文字列に一致させる以外にも、数字だけに一致させたり、大文字だけに一致させたりすることができます。詳しくは以下を参照してください。</p>
+
+<p><a href="http://docs.python.jp/3/library/re.html" rel="nofollow noopener" target="_blank">Pythonにおける正規表現</a></p>
+
+<p>また、正規表現を書く際にはオンラインエディタを使ってリアルタイムに確認しながら行うと、今書いている正規表現がどんなパターンにマッチするのかがすぐわかるので、作業が捗ります。</p>
+
+<p><a href="https://regex101.com/" rel="nofollow noopener" target="_blank">https://regex101.com/</a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/77079/69b3af8b-018b-4840-9934-0cd31d2814e6.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/69b3af8b-018b-4840-9934-0cd31d2814e6.gif" alt="regexp.mov.gif"></a></p>
+
+<h1>
+<span id="レストラン検索システム" class="fragment"></span><a href="#%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%E6%A4%9C%E7%B4%A2%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0"><i class="fa fa-link"></i></a>レストラン検索システム</h1>
+
+<p>ここまででslackbotライブラリを用いたSlackbotの作り方はわかりました。ここからはPythonを使ってレストラン検索を行う対話システムを構築していきます。そして、構築した対話システムをSlack上に組み込んでSlackbotの作成を行います。</p>
+
+<p>完成イメージは以下の通りです。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif" alt="bot2.mov.gif"></a><br>
+このボットは対話を通じてレストラン検索を行うことができます。また、それだけでは味気ないので雑談も行うことができるようになっています。それでは完成図もわかったところで作成していきましょう。まずは準備からです。</p>
+
+
+
+<h2>
+<span id="準備-1" class="fragment"></span><a href="#%E6%BA%96%E5%82%99-1"><i class="fa fa-link"></i></a>準備</h2>
+
+<p>レストラン検索Bot内で使用するライブラリをインストールします。以下のコマンドを実行してライブラリをインストールしてください。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ pip install requests</span>
+<span class="go">$ pip install pyyaml</span>
+<span class="go">$ pip install doco</span>
+</pre></div></div>
+
+<p>※Windowsでdocoをインストールする際にUnicodeDecodeErrorが出た場合</p>
+
+<ol>
+<li>
+<a href="https://github.com/heavenshell/py-doco" rel="nofollow noopener" target="_blank">https://github.com/heavenshell/py-doco</a>からリポジトリをダウンロード</li>
+<li>setup.pyの18行目を以下のように編集して、インストール</li>
+</ol>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="nb">open</span><span class="p">(</span><span class="n">rst</span><span class="p">,</span> <span class="s">'r'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">'utf-8'</span><span class="p">)</span>
+</pre></div></div>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ python setup.py install</span>
+</pre></div></div>
+
+<p>また、docomo雑談対話APIとHotPepperグルメサーチAPIで取得したAPIキーを環境変数に設定してください。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ export DOCOMO_DIALOGUE_API_KEY=YOUR_DOCOMO_API_KEY</span>
+<span class="go">$ export HOTPEPPER_API_KEY=YOUR_HOTPEPPER_API_KEY</span>
+</pre></div></div>
+
+<p>コマンドプロンプト環境の場合は以下で設定してください。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ set DOCOMO_DIALOGUE_API_KEY=YOUR_DOCOMO_API_KEY</span>
+<span class="go">$ set HOTPEPPER_API_KEY=YOUR_HOTPEPPER_API_KEY</span>
+</pre></div></div>
+
+<h2>
+<span id="システム構成" class="fragment"></span><a href="#%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%88%90"><i class="fa fa-link"></i></a>システム構成</h2>
+
+<p>システム構成は以下の通りです。基礎的な対話システムの構成に従っています。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/6ebc2e81-aad0-4eab-c478-90c85ec9b1fa.png" target="_blank" rel="nofollow noopener"><img width="782" alt="スクリーンショット 2016-08-18 20.50.40.png" src="https://qiita-image-store.s3.amazonaws.com/0/77079/6ebc2e81-aad0-4eab-c478-90c85ec9b1fa.png"></a></p>
+
+<h2>
+<span id="ディレクトリ構成" class="fragment"></span><a href="#%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E6%A7%8B%E6%88%90"><i class="fa fa-link"></i></a>ディレクトリ構成</h2>
+
+<p>ディレクトリ構成は以下のようになっています。システム構成に対応したディレクトリ構成になっています。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">.</span>
+<span class="go">├── application                       # Slackbotの作成</span>
+<span class="go">└── dialogue_system                   # 対話システム全体</span>
+<span class="go">    ├── language_generation             # 言語生成部</span>
+<span class="go">    ├── language_understanding          # 言語理解部</span>
+<span class="go">    │   ├── attribute_extraction          # 属性抽出</span>
+<span class="go">    │   ├── dialogue_act_type             # 対話行為タイプの推定</span>
+<span class="go">    │   ├── language_understanding.py</span>
+<span class="go">    │   └── utils</span>
+<span class="go">    ├── dialogue_management             # 対話管理部</span>
+<span class="go">    ├── backend                         # 外部連携部</span>
+<span class="go">    │   └── apis</span>
+<span class="go">    ├── knowledge                       # ドメイン知識</span>
+<span class="go">    └── bot.py</span>
+</pre></div></div>
+
+<p>それではシステムの構成部分を一つずつ作成してきましょう。</p>
+
+<h2>
+<span id="言語理解" class="fragment"></span><a href="#%E8%A8%80%E8%AA%9E%E7%90%86%E8%A7%A3"><i class="fa fa-link"></i></a>言語理解</h2>
+
+<p>さて、まずは言語理解部から作成しましょう。<br>
+以下の２つの処理を作っていきます。</p>
+
+<ul>
+<li>属性抽出</li>
+<li>対話行為タイプの推定</li>
+</ul>
+
+<p>これらの作り方には大きく分けて以下の2つの方式があります：</p>
+
+<ul>
+<li>ルールベース方式</li>
+<li>機械学習方式</li>
+</ul>
+
+<p>機械学習方式を使うことで頑健なシステムを作ることができるのですが、データを用意するのがなかなか大変です。そのため、まずは学習データを必要とせず、比較的簡単に作れるルールベース方式で作ることにしましょう。</p>
+
+<p>言語理解部のディレクトリ構成は以下の通りです。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">.</span>
+<span class="go">└── language_understanding          # 言語理解部</span>
+<span class="go">    ├── attribute_extraction          # 属性抽出</span>
+<span class="go">    ├── dialogue_act_type             # 対話行為タイプの推定</span>
+<span class="go">    ├── language_understanding.py   # 属性抽出と対話行為タイプ推定の統合</span>
+<span class="go">    └── utils                       # 便利関数</span>
+</pre></div></div>
+
+<h3>
+<span id="属性抽出" class="fragment"></span><a href="#%E5%B1%9E%E6%80%A7%E6%8A%BD%E5%87%BA"><i class="fa fa-link"></i></a>属性抽出</h3>
+
+<p>言語理解部ではユーザの入力したテキストを受け取ったら、属性抽出を行います。<br>
+今回抽出する属性は以下の3つとします。レストランを検索する際にはこれら3つの情報を使います。</p>
+
+<ul>
+<li>料理ジャンル</li>
+<li>場所</li>
+<li>予算上限</li>
+</ul>
+
+<p>ルールベースで属性抽出をするための方法としてキーワード抽出を行う方法があります。これはあらかじめ場所や料理ジャンルの辞書を用意しておいて、ユーザの発話中にマッチする部分を抽出する方式です。具体例としては、ユーザが「場所は新宿がいい」と発話し、また場所の辞書内に「新宿」というキーワードがあればユーザの発話から「新宿」を場所として抽出することができます。</p>
+
+<p>属性抽出部分のディレクトリ構成は以下のようになっています。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">.</span>
+<span class="go">└── attribute_extraction          # 属性抽出</span>
+<span class="go">    ├── __init__.py</span>
+<span class="go">    └── rule_based_extractor.py</span>
+</pre></div></div>
+
+<p>rule_based_extractor.pyは以下のようなコードになります。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_understanding/attribute_extraction/rule_based_extractor.py" rel="nofollow noopener" target="_blank">attribute_extraction/rule_based_extractor.py</a></p>
+
+<p>以下のような感じで属性抽出を行えます。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">rule_based_extractor</span> <span class="k">import</span> <span class="n">RuleBasedAttributeExtractor</span>
+
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">RuleBasedAttributeExtractor</span><span class="p">()</span>
+<span class="n">attribute</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s">'ラーメンを食べたい'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">attribute</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">{</span><span class="s">'LOCATION'</span><span class="p">:</span> <span class="s">''</span><span class="p">,</span> <span class="s">'GENRE'</span><span class="p">:</span> <span class="s">'ラーメン'</span><span class="p">,</span> <span class="s">'MAXIMUM_AMOUNT'</span><span class="p">:</span> <span class="s">''</span><span class="p">}</span>
+</pre></div></div>
+
+<h3>
+<span id="対話行為タイプの推定" class="fragment"></span><a href="#%E5%AF%BE%E8%A9%B1%E8%A1%8C%E7%82%BA%E3%82%BF%E3%82%A4%E3%83%97%E3%81%AE%E6%8E%A8%E5%AE%9A"><i class="fa fa-link"></i></a>対話行為タイプの推定</h3>
+
+<p>言語理解部がユーザが入力したテキストを受け取ったら、対話行為タイプの推定を行います。<br>
+今回推定する対話行為タイプは以下の4つです。</p>
+
+<ul>
+<li>ジャンル指定（INFORM_GENRE）</li>
+<li>場所指定（INFORM_LOC）</li>
+<li>上限金額指定（INFORM_MONEY）</li>
+<li>その他（OTHER）</li>
+</ul>
+
+<p>対話行為タイプの推定には属性抽出の結果を利用することにします。これは属性として料理ジャンルが抽出されていたら対話行為タイプとしてジャンル指定と推定し、場所が抽出されていたら対話行為タイプとして場所指定を推定するという方式です。属性として何も抽出されていなかったら対話行為タイプとしてその他(OTHER)を推定することにします。</p>
+
+<p>対話行為タイプ推定部分のディレクトリ構成は以下のようになっています。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">.</span>
+<span class="go">└── dialogue_act_type             # 対話行為タイプの推定</span>
+<span class="go">    ├── __init__.py</span>
+<span class="go">    └── rule_based_estimator.py</span>
+</pre></div></div>
+
+<p>rule_based_estimator.pyは以下のような簡単なコードになります。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_understanding/dialogue_act_type/rule_based_estimator.py" rel="nofollow noopener" target="_blank">dialogue_act_type/rule_based_estimator.py</a></p>
+
+<p>動作を確認すると以下のようになります。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">rule_based_extractor</span> <span class="k">import</span> <span class="n">RuleBasedAttributeExtractor</span>
+<span class="kn">from</span> <span class="nn">rule_based_estimator</span> <span class="k">import</span> <span class="n">RuleBasedDialogueActTypeEstimator</span>
+
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">RuleBasedAttributeExtractor</span><span class="p">()</span>
+<span class="n">estimator</span> <span class="o">=</span> <span class="n">RuleBasedDialogueActTypeEstimator</span><span class="p">()</span>
+<span class="n">attribute</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s">'ラーメンを食べたい'</span><span class="p">)</span>
+<span class="n">act_type</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">attribute</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">act_type</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s">'INFORM_GENRE'</span>
+</pre></div></div>
+
+<h3>
+<span id="属性抽出と対話行為タイプ推定の統合" class="fragment"></span><a href="#%E5%B1%9E%E6%80%A7%E6%8A%BD%E5%87%BA%E3%81%A8%E5%AF%BE%E8%A9%B1%E8%A1%8C%E7%82%BA%E3%82%BF%E3%82%A4%E3%83%97%E6%8E%A8%E5%AE%9A%E3%81%AE%E7%B5%B1%E5%90%88"><i class="fa fa-link"></i></a>属性抽出と対話行為タイプ推定の統合</h3>
+
+<p>ここまでで、属性抽出と対話行為タイプの推定は行えました。次はこれらを統合して言語理解部のコードを"language_understanding.py"に作成します。</p>
+
+<p>コードは以下の通りです。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_understanding/language_understanding.py" rel="nofollow noopener" target="_blank">language_understanding/language_understanding.py</a></p>
+
+<h2>
+<span id="対話管理" class="fragment"></span><a href="#%E5%AF%BE%E8%A9%B1%E7%AE%A1%E7%90%86"><i class="fa fa-link"></i></a>対話管理</h2>
+
+<p>対話管理部では入力理解の結果(対話行為)をもとに 以下の２つの処理を行います</p>
+
+<ul>
+<li>内部状態更新</li>
+<li>行動選択</li>
+</ul>
+
+<p>対話管理部のディレクトリ構成は以下のようになります。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">.</span>
+<span class="go">└── dialogue_management             # 対話管理部</span>
+<span class="go">    ├── __init__.py</span>
+<span class="go">    ├── manager.py</span>
+<span class="go">    └── state.py</span>
+</pre></div></div>
+
+<p>それぞれを見ていきましょう。</p>
+
+<h3>
+<span id="内部状態更新" class="fragment"></span><a href="#%E5%86%85%E9%83%A8%E7%8A%B6%E6%85%8B%E6%9B%B4%E6%96%B0"><i class="fa fa-link"></i></a>内部状態更新</h3>
+
+<p>内部状態更新では、言語理解の結果を基に対話システムの内部状態を更新していきます。内部状態の更新は規則を用いて行います。また内部状態には様々な情報を持たせることができますが、今回は簡単のためにユーザの意図だけを持たせます。ユーザの意図とは過去に得られた属性と属性値のことです。具体的には以下の情報をもたせます。</p>
+
+<ul>
+<li>料理ジャンル(GENRE)</li>
+<li>場所(LOCATION)</li>
+<li>予算上限(MAXIMUM_AMOUNT)</li>
+</ul>
+
+<p>まずは保持する状態に関するクラスを書きます。こちらのクラスに状態更新のメソッドを書いてしまいます。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/dialogue_management/state.py" rel="nofollow noopener" target="_blank">dialogue_management/state.py</a></p>
+
+<p>次に対話管理を行うクラスを書いていきます。対話管理のクラスでは状態更新処理を状態クラスに委譲しています。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/dialogue_management/manager.py" rel="nofollow noopener" target="_blank">dialogue_management/manager.py</a></p>
+
+<h3>
+<span id="行動選択" class="fragment"></span><a href="#%E8%A1%8C%E5%8B%95%E9%81%B8%E6%8A%9E"><i class="fa fa-link"></i></a>行動選択</h3>
+
+<p>行動選択部では内部状態と規則をもとに次の行動を決定します。<br>
+具体的には、対話行為タイプを出力して次の言語生成に引き渡します。<br>
+この対話行為タイプをもとに、言語生成部でテキストを生成します。必要なら外部連携部を呼び出します。</p>
+
+<p>内部状態更新で書いた対話管理クラス内に行動選択のアルゴリズムを書いていきます。<br>
+以下のような方針で行動選択を行います。</p>
+
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IF(ユーザ対話行為タイプ=OTHER)</td>
+<td>雑談を行う対話行為タイプ(CHAT)を出力</td>
+</tr>
+<tr>
+<td>IF(埋まっていない属性値がある)</td>
+<td>埋まっていない属性を聞き出す対話行為タイプを出力</td>
+</tr>
+<tr>
+<td>IF(すべての属性値が埋まっている)</td>
+<td>レストランを提示する対話行為タイプ(INFORM_RESTAURANT)を出力</td>
+</tr>
+</tbody>
+</table>
+
+<p>実際のコードは以下の通りです。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/dialogue_management/manager.py" rel="nofollow noopener" target="_blank">dialogue_management/manager.py</a></p>
+
+<h2>
+<span id="言語生成" class="fragment"></span><a href="#%E8%A8%80%E8%AA%9E%E7%94%9F%E6%88%90"><i class="fa fa-link"></i></a>言語生成</h2>
+
+<p>言語生成部では、規則と対話管理部から受け取った対話行為をもとに言語生成を行います。</p>
+
+<p>言語生成部のディレクトリ構成は以下のようになっています。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">.</span>
+<span class="go">└── language_generation             # 言語生成部</span>
+<span class="go">    ├── __init__.py</span>
+<span class="go">    └── generator.py</span>
+</pre></div></div>
+
+<p>以下のような方針で言語生成を行います。</p>
+
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IF(対話行為タイプ=REQUEST_LOCATION)</td>
+<td>場所を聞く</td>
+</tr>
+<tr>
+<td>IF(対話行為タイプ=REQUEST_GENRE)</td>
+<td>ジャンルを聞く</td>
+</tr>
+<tr>
+<td>IF(対話行為タイプ=REQUEST_BUDGET)</td>
+<td>予算を聞く</td>
+</tr>
+<tr>
+<td>IF(対話行為タイプ=CHAT)</td>
+<td>雑談をする</td>
+</tr>
+<tr>
+<td>IF(対話行為タイプ=INFORM_RESTAURANT)</td>
+<td>レストランを提案する</td>
+</tr>
+</tbody>
+</table>
+
+<p>ここで、雑談をする場合はdocomoの雑談対話APIを呼び出し、レストランを提案する場合はHotPepperグルメサーチAPIを呼び出しています。</p>
+
+<p>実際のコードは以下の通り。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_generation/generator.py" rel="nofollow noopener" target="_blank">language_generation/generator.py</a></p>
+
+<h2>
+<span id="botクラスの作成" class="fragment"></span><a href="#bot%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%AE%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>Botクラスの作成</h2>
+
+<p>以上で、対話システムのコンポーネント作成は完了しました。これらを組み合わせたBotクラスを作ることにします。このBotクラス内部で対話システムのコンポーネントが連携し、ユーザへの応答を生成します。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/bot.py" rel="nofollow noopener" target="_blank">dialogue_system/bot.py</a></p>
+
+<h2>
+<span id="slackbotへの組み込み" class="fragment"></span><a href="#slackbot%E3%81%B8%E3%81%AE%E7%B5%84%E3%81%BF%E8%BE%BC%E3%81%BF"><i class="fa fa-link"></i></a>Slackbotへの組み込み</h2>
+
+<p>作成したBotクラスをSlackbotに組み込んでいきます。新しくプラグインを作成して、以下のコードを記述します。<br>
+<a href="https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/application/plugins/slack.py" rel="nofollow noopener" target="_blank">application/plugins/slack.py</a></p>
+
+<p>組み込みが終わったら、slackbotを実行します。</p>
+
+<div class="code-frame" data-lang="shell-session"><div class="highlight"><pre>
+<span class="go">$ python slack_bot.py</span>
+</pre></div></div>
+
+<p>実行すると、Botが現れて対話ができるようになります。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif" alt="bot2.mov.gif"></a></p>
+
+<h1>
+<span id="さらに賢くするために" class="fragment"></span><a href="#%E3%81%95%E3%82%89%E3%81%AB%E8%B3%A2%E3%81%8F%E3%81%99%E3%82%8B%E3%81%9F%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>さらに賢くするために</h1>
+
+<p>今回、言語理解部はキーワード抽出と規則により作成しましたが、キーワード抽出では辞書内にない単語は抽出できません。この問題に対応するために、機械学習を使って属性抽出を行うことができます。また、対話行為タイプの推定は文分類の問題と考えることができます。これもまた機械学習を用いて推定が可能です。最近は機械学習系のAPIも充実してきたので、それらを使って是非言語理解部を改善してみてください。</p>
+
+<p>手前味噌ですが、以下の記事では機械学習を使った言語理解を行っています。</p>
+
+<ul>
+<li><a href="http://qiita.com/Hironsan/items/6425787ccbee75dfae36" id="reference-b5d4d37d636a3676635b">機械学習を使って作る対話システム</a></li>
+</ul>
+
+<p>また、規則を用いた対話管理は簡単でわかりやすいのですが、規則の数が増えると管理・変更ができなくなってきます。その問題に対応するために強化学習を使うという方法もあります。さらに、音声対話システムの場合は入力に誤りが含まれることがあります。これに対してはPOMDPという強化学習の枠組みを使用することで入力誤りに対して対応するという研究もされています。興味がありましたら是非、強化学習を用いた対話管理も行ってみてください。</p>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<p>今回はSlack上にレストラン検索対話システムを構築してみました。<br>
+以上で、ハンズオンは終了です。<br>
+いかがだったでしょうか。<br>
+ルールベースの簡単なタスク指向対話システムでしたが、SlackBot化することで様々な可能性を感じていただければ幸いです。<br>
+他のWeb APIや機械学習系のAPIと組み合わせて、より賢くする仕組みを考えてみましょう！</p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<ul>
+<li><a href="http://blog.bitmeister.jp/?p=3892" rel="nofollow noopener" target="_blank">PythonでSlackbotを作る(1)</a></li>
+<li><a href="http://blog.bitmeister.jp/?p=3911" rel="nofollow noopener" target="_blank">PythonでSlackbotを作る(2)</a></li>
+<li><a href="http://qiita.com/Hironsan/items/6425787ccbee75dfae36">機械学習を使って作る対話システム</a></li>
+<li><a href="https://www.amazon.co.jp/%E5%AF%BE%E8%A9%B1%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0-%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86%E3%82%B7%E3%83%AA%E3%83%BC%E3%82%BA-%E4%B8%AD%E9%87%8E-%E5%B9%B9%E7%94%9F/dp/433902757X/ref=sr_1_1?ie=UTF8&amp;qid=1471848601&amp;sr=8-1&amp;keywords=%E5%AF%BE%E8%A9%B1%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0" rel="nofollow noopener" target="_blank">対話システム (自然言語処理シリーズ)</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/Hironsan/items/0373339388f460cebb08" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="OqXh5IwmIDIQO0LvF5rEU5P+Rpa9Oj2ctBuhQVfLSrYkLVgK2exvUG8MSK+0OwjN7Wln9R+E0wMkfOWS19lLiw==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1472098392" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# はじめに
+こんにちは。[Hironsan](http://qiita.com/Hironsan)です。
+3月から4月にかけてLine, Facebook, Microsoftと各社がBot開発用プラットフォームを発表して以来、爆発的な数のBotが登場しています。実にFacebook Messengerだけに限っても[2016年7月時点で1万1000超のBotが稼働](http://japan.cnet.com/news/service/35085270/
+)しています。
+
+しかし、これらのBotのほとんどは単純な一問一答型のシステムであり、対話システムと言えるものではありません。これでは徐々にユーザの嗜好を聞き出すような対応を行うことはできません。
+
+そこで今回は、対話の履歴を考慮した**レストラン検索対話システム**を作り、最終的にはBotに組み込んでみたいと思います。完成イメージとしては以下のアニメーションのようなものを作ることができます。
+![bot2.mov.gif](https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif)
+
+具体的には以下のステップで作成します。
+
+* 簡単なパターンマッチ
+* おうむ返し
+* 対話状態を保持したレストラン検索対話システム
+
+また、レストラン検索だけでなく雑談も行うことができます。これらのBotの作成を通じて、基本的な対話システムの作成方法について理解することを目的とします。
+
+
+
+# 対象読者
+
+* Pythonの基礎的な文法を理解している人
+* 対話システムを作ってみたい人
+* [対話システムの資料](http://qiita.com/Hironsan/items/fd9e62c3d1ad23a67300)を読んだ人
+
+# 準備
+
+## Python環境の構築
+今回作る対話システムはPython3系を用いて構築します。そのため公式サイトからPython3系をダウンロード後、インストールしてください。
+
+[Download Python](https://www.python.org/downloads/)
+
+## ハンズオン用リポジトリのClone
+今からハンズオン用リポジトリを用意します。以下の手順に従って用意してください。
+
+1. [https://github.com/Hironsan/HotPepperGourmetDialogue](https://github.com/Hironsan/HotPepperGourmetDialogue)
+2. 右上にある「fork」というボタンから、本リポジトリをfork(=コピー)してください。
+3. forkしたリポジトリを、git cloneによって手元の端末に取ってきてブランチを切り替えます。これで準備は完了です。
+
+```shell-session
+$ git clone YOUR_FORK_REPOSITORY.git
+$ cd HotPepperGourmetDialogue
+$ git checkout -b tutorial origin/tutorial
+```
+
+さらに、モジュールのimportのために、HotPepperGourmetDialogueディレクトリ直下でPYTHONPATHを設定してください。ダブルクオテーション&quot;&quot;はつけないでください。
+
+```shell-session
+$ export PYTHONPATH=`pwd`
+```
+
+コマンドプロンプト環境の場合は以下を実行してください。
+
+```shell-session
+$ set PYTHONPATH=%CD%
+```
+
+## 仮想環境の構築
+### Virtualenvの場合
+Virtualenvの場合、以下のコマンドを実行して仮想環境を構築し、有効にします。
+
+```shell-session
+$ pip install virtualenv
+$ virtualenv env
+$ source env/bin/activate
+```
+### Condaの場合
+Condaの場合、以下のコマンドを実行して仮想環境を構築し、有効にします。
+
+```shell-session
+$ conda create -n env python
+$ source activate env   # コマンドプロンプトの場合 activate env
+```
+
+## API Keyの取得
+レストラン検索対話システムの中で使用するため、以下の2つのAPI Keyを取得してください。
+
+* [docomo雑談対話API](https://dev.smt.docomo.ne.jp/?p=docs.api.page&amp;api_name=dialogue&amp;p_name=api_reference)
+* [HotPepperグルメサーチAPI](http://webservice.recruit.co.jp/hotpepper/reference.html)
+
+docomo雑談対話APIはBotと雑談を行うために使用し、HotPepperグルメーサーチAPIはレストラン検索を行うために使用します。取得時間の目安は、HotPepperのAPI Keyは5分程度、docomo雑談対話APIは1日程度かかります。
+
+取得するまでの間は、おうむ返しBotの作成まで進めておいてください。
+
+
+## Slackアカウントの作成
+今回はSlack上にBotを作成していきます。そのためSlackアカウントを持っていなかったら以下から作成してください。
+[https://slack.com/](https://slack.com/)
+
+チーム名などはよしなに設定してください。
+
+## Slack Botアカウントの作成
+まずはSlack Botアカウントを作成しましょう。
+
+&lt;!--
+[https://api.slack.com/bot-users](https://api.slack.com/bot-users)
+--&gt;
+[https://my.slack.com/services/new/bot](https://my.slack.com/services/new/bot)
+
+既にチームのSlackは開設済で、権限のあるユーザでログインしているものとします。その状態で、上記リンクを開くと、Botアカウントの作成画面が開きます。表示されているフォーム中にBotアカウントのユーザ名を入力して、「Add bot integration」を押してください。
+&lt;img width=&quot;972&quot; alt=&quot;スクリーンショット 2016-08-21 22.10.05.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/3273c39b-618d-b712-2928-7905516fd9a0.png&quot;&gt;
+
+
+「Add bot integration」を押すと、新たにフォームが表示されます。その中の「API Token」は後で作成するBotで用いるのでメモしてください。
+&lt;img width=&quot;1020&quot; alt=&quot;スクリーンショット 2016-08-21 22.25.23.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/42c5aba5-0ced-6ee6-4b77-00bd3ecac688.png&quot;&gt;
+
+
+「Customize Icon」や「Customize Name」で作成したBotの名前やアイコン画像を変更できます。変更内容を「Save Integration」で保存します。
+&lt;img width=&quot;971&quot; alt=&quot;スクリーンショット 2016-08-21 22.26.46.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/455e3859-7487-b7f3-a3bb-4257e099d203.png&quot;&gt;
+
+
+この後のテスト用にプライベートチャンネルを作成して作成したBotを登録しておきましょう。下記のように設定したら、「Create Channel」で内容を保存します。
+&lt;img width=&quot;655&quot; alt=&quot;スクリーンショット 2016-08-21 22.30.18.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/a28c5a27-cb19-cc78-cc39-8e452e9ac920.png&quot;&gt;
+
+以上でSlackの設定は完了です。ではBotの作成に入りましょう。
+
+# はじめてのBot
+さて、いよいよBotの作成にとりかかります。
+以下のPythonライブラリを使います。
+[lins05/slackbot](https://github.com/lins05/slackbot)
+
+導入はpipで行います。
+
+```shell-session
+$ pip install slackbot
+```
+
+## Slack Botを起動してみる
+まずはbot用のディレクトリに移動します。
+
+```shell-session
+$ cd application
+```
+
+applicationディレクトリに移動したら、その内にある“slackbot_settings.py”にBotの設定を記述します。
+
+```py3
+# -*- coding: utf-8 -*-
+import os
+
+
+API_TOKEN = os.environ.get(&#39;SLACK_API_KEY&#39;, &#39;&#39;)
+ 
+default_reply = &quot;スイマセン。其ノ言葉ワカリマセン&quot;
+```
+ここで、API_TOKENは先ほどメモした値を環境変数から読み込んで使用します。そのため、以下のコマンドを実行して環境変数に先ほどメモした値を設定してください。
+
+```shell-session
+$ export SLACK_API_KEY=YOUR_API_KEY  # コマンドプロンプトの場合: set SLACK_API_KEY=YOUR_API_KEY
+```
+
+
+次に、“slack_bot.py”にBotを起動するコードを記述します。
+
+
+```py3
+# -*- coding: utf-8 -*-
+from slackbot.bot import Bot
+
+
+def main():
+    bot = Bot()
+    bot.run()
+ 
+if __name__ == &quot;__main__&quot;:
+    main()
+```
+
+ではいよいよ、Botの起動です。
+
+```shell-session
+$ python slack_bot.py
+```
+
+メンションの特定の言葉に反応したり、チャンネルに投稿された言葉に反応したりします。
+&lt;img width=&quot;470&quot; alt=&quot;スクリーンショット 2016-08-21 23.34.15.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/4901b1f8-522d-152d-eb63-9f448aa2f97b.png&quot;&gt;
+
+ここで行われている返答はSlackbotライブラリのデフォルトプラグインによるものです。これだけでは味気ないので自分でプラグインを登録して機能を拡張していきます。ということで、次は自分でプラグインを作成してみましょう。
+
+
+## はじめてのプラグイン
+では次に、ユーザの「こんにちは」にたいして「こんにちは」と返すBotを作ってみましょう。
+今回の記事で利用しているPythonのSlackbotライブラリはプラグインにより機能拡張を行えます。そのため、自分でプラグインを実装することで、ダイレクトメッセージやBotが参加しているチャンネル内での投稿内の特定の言葉に反応する機能を実装することができます。
+
+まずは作成済みのBot用のディレクトリ内にあるプラグイン配置用ディレクトリに移動します。
+
+```shell-session
+$ cd plugins
+```
+
+このpluginsディレクトリには「\_\_init\_\_.py」が入っています。このファイルが必要な理由は、Slackbotのプラグインとして読み込ませるディレクトリはPythonパッケージである必要があるため、「\_\_init\_\_.py」を入れてパッケージとして認識させています。ちなみに中身は空で結構です。
+
+さて、プラグイン配置用ディレクトリに移動したら、実際にプラグインスクリプトを作成しましょう。&quot;slack.py&quot;に以下のコードを記述して下さい。
+
+```py3
+from slackbot.bot import respond_to
+ 
+@respond_to(&#39;こんにちは&#39;)
+@respond_to(&#39;今日は&#39;)
+def hello(message):
+    message.reply(&#39;こんにちは!&#39;)
+```
+
+関数”hello”に対して、”respond_to”というデコレータが付与されています。
+
+“respond_to”デコレータの引数にマッチするキーワードを指定することでプラグインロード時に関数がBotに対するメンションに反応するように登録されます。キーワードの指定は正規表現で行うことも可能です。また、今回のサンプルのようにデコレータを複数付与することで複数キーワードに対応させることもできます。
+
+最後に、プラグインロードが行われるように“slackbot_settings.py”に以下を追記します。
+
+```py3
+PLUGINS = [
+    &#39;plugins&#39;,
+]
+```
+
+Slackbotを起動して、メンションを送ってみましょう。&lt;font color=&quot;red&quot;&gt;@をつけてくださいね。&lt;/font&gt;
+
+```shell-session
+$ python slack_bot.py
+```
+
+&lt;img width=&quot;379&quot; alt=&quot;スクリーンショット 2016-08-21 23.51.18.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/050c33a3-f351-5a31-2042-9c2cd01442d3.png&quot;&gt;
+
+
+今回作成したBotが意図した通りに反応しているのがわかります。
+
+# おうむ返しBot
+では次に、正規表現を使ってユーザの発言内容を取得してみましょう。さきほどの、&quot;slack.py&quot;を以下のように改造してみてください。
+
+```py3
+# -*- coding: utf-8 -*-
+from slackbot.bot import respond_to, listen_to
+
+
+@listen_to(&#39;私は(.*)です&#39;)
+@listen_to(&#39;わたしは(.*)です&#39;)
+def hello(message, something):
+    message.reply(&#39;こんにちは!{0}さん。&#39;.format(something))
+```
+
+Slackbotを起動して、投稿してみましょう。&lt;font color=&quot;red&quot;&gt;@はつけないでくださいね。&lt;/font&gt;
+
+```shell-session
+$ python slack_bot.py
+```
+
+&lt;img width=&quot;318&quot; alt=&quot;スクリーンショット 2016-08-22 0.09.12.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/4dc57f72-4485-6b2b-55d5-e8470d762b75.png&quot;&gt;
+
+ユーザの発言内容を取得できていることがわかると思います。
+
+前回のhello関数と今回のhello関数には大きく2つの違いがあります。
+まず第一に、今回は&quot;listen_to&quot;デコレータを使用しています。“listen_to”デコレータの引数にマッチする言葉を指定することで、Botが参加しているチャンネルへの投稿に反応するようになります。
+
+もう一つがデコレータ内の&quot;(.\*)&quot;です。こちらは正規表現を使っており、&quot;(.\*)&quot;を指定することで任意の文字列にマッチさせることができます。また、マッチした内容は第２引数のsomethingに格納されています。そのため、somethingを使用することで発言内容を送り返すことができたわけです。
+
+
+ユーザの発言を単におうむ返しするBotはさらに簡単です。以下のようにコードを書くだけです。
+
+```py3
+@respond_to(&#39;(.*)&#39;)
+def refrection(message, something):
+    message.reply(something)
+```
+
+正規表現では任意の文字列に一致させる以外にも、数字だけに一致させたり、大文字だけに一致させたりすることができます。詳しくは以下を参照してください。
+
+[Pythonにおける正規表現](http://docs.python.jp/3/library/re.html)
+
+また、正規表現を書く際にはオンラインエディタを使ってリアルタイムに確認しながら行うと、今書いている正規表現がどんなパターンにマッチするのかがすぐわかるので、作業が捗ります。
+
+[https://regex101.com/](https://regex101.com/)
+
+![regexp.mov.gif](https://qiita-image-store.s3.amazonaws.com/0/77079/69b3af8b-018b-4840-9934-0cd31d2814e6.gif)
+
+
+
+# レストラン検索システム
+ここまででslackbotライブラリを用いたSlackbotの作り方はわかりました。ここからはPythonを使ってレストラン検索を行う対話システムを構築していきます。そして、構築した対話システムをSlack上に組み込んでSlackbotの作成を行います。
+
+完成イメージは以下の通りです。
+![bot2.mov.gif](https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif)
+このボットは対話を通じてレストラン検索を行うことができます。また、それだけでは味気ないので雑談も行うことができるようになっています。それでは完成図もわかったところで作成していきましょう。まずは準備からです。
+
+&lt;!--
+全体像を図示。事前対話と事後対話。事後に対話して絞り込む。今回やるのは事前対話だけだけど、事後対話するのにはこういうものがあるよ。ということで久保さんの作った音楽検索を見せる感じ。
+機械学習部分もコードがどうなっているのかくらいはみせる。
+最初につくるものの完成図を見せる。
+このセクションが終わるとなにが身に付くのか教える
+ここまでは状態を保持していない
+対話システム理論編の説明内容に照らし合わせて作る
+--&gt;
+
+## 準備
+レストラン検索Bot内で使用するライブラリをインストールします。以下のコマンドを実行してライブラリをインストールしてください。
+
+```shell-session
+$ pip install requests
+$ pip install pyyaml
+$ pip install doco
+```
+
+※Windowsでdocoをインストールする際にUnicodeDecodeErrorが出た場合
+
+1. [https://github.com/heavenshell/py-doco](https://github.com/heavenshell/py-doco)からリポジトリをダウンロード
+2. setup.pyの18行目を以下のように編集して、インストール
+
+```py3
+open(rst, &#39;r&#39;, encoding=&#39;utf-8&#39;)
+```
+```shell-session
+$ python setup.py install
+```
+
+
+
+また、docomo雑談対話APIとHotPepperグルメサーチAPIで取得したAPIキーを環境変数に設定してください。
+
+```shell-session
+$ export DOCOMO_DIALOGUE_API_KEY=YOUR_DOCOMO_API_KEY
+$ export HOTPEPPER_API_KEY=YOUR_HOTPEPPER_API_KEY
+```
+
+コマンドプロンプト環境の場合は以下で設定してください。
+
+```shell-session
+$ set DOCOMO_DIALOGUE_API_KEY=YOUR_DOCOMO_API_KEY
+$ set HOTPEPPER_API_KEY=YOUR_HOTPEPPER_API_KEY
+```
+
+## システム構成
+システム構成は以下の通りです。基礎的な対話システムの構成に従っています。
+&lt;img width=&quot;782&quot; alt=&quot;スクリーンショット 2016-08-18 20.50.40.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/6ebc2e81-aad0-4eab-c478-90c85ec9b1fa.png&quot;&gt;
+
+## ディレクトリ構成
+ディレクトリ構成は以下のようになっています。システム構成に対応したディレクトリ構成になっています。
+
+```shell-session
+.
+├── application                       # Slackbotの作成
+└── dialogue_system                   # 対話システム全体
+    ├── language_generation             # 言語生成部
+    ├── language_understanding          # 言語理解部
+    │   ├── attribute_extraction          # 属性抽出
+    │   ├── dialogue_act_type             # 対話行為タイプの推定
+    │   ├── language_understanding.py
+    │   └── utils
+    ├── dialogue_management             # 対話管理部
+    ├── backend                         # 外部連携部
+    │   └── apis
+    ├── knowledge                       # ドメイン知識
+    └── bot.py
+```
+
+それではシステムの構成部分を一つずつ作成してきましょう。
+
+## 言語理解
+さて、まずは言語理解部から作成しましょう。
+以下の２つの処理を作っていきます。
+
+* 属性抽出
+* 対話行為タイプの推定
+
+これらの作り方には大きく分けて以下の2つの方式があります：
+
+* ルールベース方式
+* 機械学習方式
+
+機械学習方式を使うことで頑健なシステムを作ることができるのですが、データを用意するのがなかなか大変です。そのため、まずは学習データを必要とせず、比較的簡単に作れるルールベース方式で作ることにしましょう。
+
+言語理解部のディレクトリ構成は以下の通りです。
+
+```shell-session
+.
+└── language_understanding          # 言語理解部
+    ├── attribute_extraction          # 属性抽出
+    ├── dialogue_act_type             # 対話行為タイプの推定
+    ├── language_understanding.py   # 属性抽出と対話行為タイプ推定の統合
+    └── utils                       # 便利関数
+```
+
+
+### 属性抽出
+言語理解部ではユーザの入力したテキストを受け取ったら、属性抽出を行います。
+今回抽出する属性は以下の3つとします。レストランを検索する際にはこれら3つの情報を使います。
+
+* 料理ジャンル
+* 場所
+* 予算上限
+
+ルールベースで属性抽出をするための方法としてキーワード抽出を行う方法があります。これはあらかじめ場所や料理ジャンルの辞書を用意しておいて、ユーザの発話中にマッチする部分を抽出する方式です。具体例としては、ユーザが「場所は新宿がいい」と発話し、また場所の辞書内に「新宿」というキーワードがあればユーザの発話から「新宿」を場所として抽出することができます。
+
+属性抽出部分のディレクトリ構成は以下のようになっています。
+
+```shell-session
+.
+└── attribute_extraction          # 属性抽出
+    ├── __init__.py
+    └── rule_based_extractor.py
+```
+
+rule_based_extractor.pyは以下のようなコードになります。
+[attribute_extraction/rule_based_extractor.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_understanding/attribute_extraction/rule_based_extractor.py)
+
+以下のような感じで属性抽出を行えます。
+
+```py3
+from rule_based_extractor import RuleBasedAttributeExtractor
+
+extractor = RuleBasedAttributeExtractor()
+attribute = extractor.extract(text=&#39;ラーメンを食べたい&#39;)
+print(attribute)
+&gt;&gt;&gt; {&#39;LOCATION&#39;: &#39;&#39;, &#39;GENRE&#39;: &#39;ラーメン&#39;, &#39;MAXIMUM_AMOUNT&#39;: &#39;&#39;}
+```
+
+### 対話行為タイプの推定
+言語理解部がユーザが入力したテキストを受け取ったら、対話行為タイプの推定を行います。
+今回推定する対話行為タイプは以下の4つです。
+
+* ジャンル指定（INFORM_GENRE）
+* 場所指定（INFORM_LOC）
+* 上限金額指定（INFORM_MONEY）
+* その他（OTHER）
+
+
+対話行為タイプの推定には属性抽出の結果を利用することにします。これは属性として料理ジャンルが抽出されていたら対話行為タイプとしてジャンル指定と推定し、場所が抽出されていたら対話行為タイプとして場所指定を推定するという方式です。属性として何も抽出されていなかったら対話行為タイプとしてその他(OTHER)を推定することにします。
+
+対話行為タイプ推定部分のディレクトリ構成は以下のようになっています。
+
+```shell-session
+.
+└── dialogue_act_type             # 対話行為タイプの推定
+    ├── __init__.py
+    └── rule_based_estimator.py
+```
+
+rule_based_estimator.pyは以下のような簡単なコードになります。
+[dialogue_act_type/rule_based_estimator.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_understanding/dialogue_act_type/rule_based_estimator.py)
+
+動作を確認すると以下のようになります。
+
+```py3
+from rule_based_extractor import RuleBasedAttributeExtractor
+from rule_based_estimator import RuleBasedDialogueActTypeEstimator
+
+extractor = RuleBasedAttributeExtractor()
+estimator = RuleBasedDialogueActTypeEstimator()
+attribute = extractor.extract(text=&#39;ラーメンを食べたい&#39;)
+act_type = estimator.estimate(attribute)
+print(act_type)
+&gt;&gt;&gt; &#39;INFORM_GENRE&#39;
+```
+
+### 属性抽出と対話行為タイプ推定の統合
+ここまでで、属性抽出と対話行為タイプの推定は行えました。次はこれらを統合して言語理解部のコードを&quot;language_understanding.py&quot;に作成します。
+
+コードは以下の通りです。
+[language_understanding/language_understanding.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_understanding/language_understanding.py)
+
+
+## 対話管理
+対話管理部では入力理解の結果(対話行為)をもとに 以下の２つの処理を行います
+
+* 内部状態更新
+* 行動選択
+
+対話管理部のディレクトリ構成は以下のようになります。
+
+```shell-session
+.
+└── dialogue_management             # 対話管理部
+    ├── __init__.py
+    ├── manager.py
+    └── state.py
+```
+
+それぞれを見ていきましょう。
+
+### 内部状態更新
+内部状態更新では、言語理解の結果を基に対話システムの内部状態を更新していきます。内部状態の更新は規則を用いて行います。また内部状態には様々な情報を持たせることができますが、今回は簡単のためにユーザの意図だけを持たせます。ユーザの意図とは過去に得られた属性と属性値のことです。具体的には以下の情報をもたせます。
+
+* 料理ジャンル(GENRE)
+* 場所(LOCATION)
+* 予算上限(MAXIMUM_AMOUNT)
+
+まずは保持する状態に関するクラスを書きます。こちらのクラスに状態更新のメソッドを書いてしまいます。
+[dialogue_management/state.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/dialogue_management/state.py)
+
+次に対話管理を行うクラスを書いていきます。対話管理のクラスでは状態更新処理を状態クラスに委譲しています。
+[dialogue_management/manager.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/dialogue_management/manager.py)
+
+### 行動選択
+行動選択部では内部状態と規則をもとに次の行動を決定します。
+具体的には、対話行為タイプを出力して次の言語生成に引き渡します。
+この対話行為タイプをもとに、言語生成部でテキストを生成します。必要なら外部連携部を呼び出します。
+
+内部状態更新で書いた対話管理クラス内に行動選択のアルゴリズムを書いていきます。
+以下のような方針で行動選択を行います。
+
+| 条件  | 内容  |
+|---|---|
+| IF(ユーザ対話行為タイプ=OTHER)  | 雑談を行う対話行為タイプ(CHAT)を出力  |
+| IF(埋まっていない属性値がある)  | 埋まっていない属性を聞き出す対話行為タイプを出力  |
+| IF(すべての属性値が埋まっている)  | レストランを提示する対話行為タイプ(INFORM_RESTAURANT)を出力  |
+
+実際のコードは以下の通りです。
+[dialogue_management/manager.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/dialogue_management/manager.py)
+
+
+## 言語生成
+言語生成部では、規則と対話管理部から受け取った対話行為をもとに言語生成を行います。
+
+言語生成部のディレクトリ構成は以下のようになっています。
+
+```shell-session
+.
+└── language_generation             # 言語生成部
+    ├── __init__.py
+    └── generator.py
+```
+
+以下のような方針で言語生成を行います。
+
+| 条件  | 内容  |
+|---|---|
+| IF(対話行為タイプ=REQUEST_LOCATION)  | 場所を聞く  |
+| IF(対話行為タイプ=REQUEST_GENRE)  | ジャンルを聞く  |
+| IF(対話行為タイプ=REQUEST_BUDGET)  | 予算を聞く  |
+| IF(対話行為タイプ=CHAT)  | 雑談をする  |
+| IF(対話行為タイプ=INFORM_RESTAURANT)  | レストランを提案する  |
+
+ここで、雑談をする場合はdocomoの雑談対話APIを呼び出し、レストランを提案する場合はHotPepperグルメサーチAPIを呼び出しています。
+
+実際のコードは以下の通り。
+[language_generation/generator.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/language_generation/generator.py)
+
+## Botクラスの作成
+以上で、対話システムのコンポーネント作成は完了しました。これらを組み合わせたBotクラスを作ることにします。このBotクラス内部で対話システムのコンポーネントが連携し、ユーザへの応答を生成します。
+[dialogue_system/bot.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/dialogue_system/bot.py)
+
+## Slackbotへの組み込み
+作成したBotクラスをSlackbotに組み込んでいきます。新しくプラグインを作成して、以下のコードを記述します。
+[application/plugins/slack.py](https://github.com/Hironsan/HotPepperGourmetDialogue/blob/answer/application/plugins/slack.py)
+
+組み込みが終わったら、slackbotを実行します。
+
+```shell-session
+$ python slack_bot.py
+```
+
+実行すると、Botが現れて対話ができるようになります。
+![bot2.mov.gif](https://qiita-image-store.s3.amazonaws.com/0/77079/91e1bbc0-af7c-0b8a-a618-4a086546891d.gif)
+
+
+# さらに賢くするために
+今回、言語理解部はキーワード抽出と規則により作成しましたが、キーワード抽出では辞書内にない単語は抽出できません。この問題に対応するために、機械学習を使って属性抽出を行うことができます。また、対話行為タイプの推定は文分類の問題と考えることができます。これもまた機械学習を用いて推定が可能です。最近は機械学習系のAPIも充実してきたので、それらを使って是非言語理解部を改善してみてください。
+
+手前味噌ですが、以下の記事では機械学習を使った言語理解を行っています。
+
+* [機械学習を使って作る対話システム](http://qiita.com/Hironsan/items/6425787ccbee75dfae36)
+
+
+また、規則を用いた対話管理は簡単でわかりやすいのですが、規則の数が増えると管理・変更ができなくなってきます。その問題に対応するために強化学習を使うという方法もあります。さらに、音声対話システムの場合は入力に誤りが含まれることがあります。これに対してはPOMDPという強化学習の枠組みを使用することで入力誤りに対して対応するという研究もされています。興味がありましたら是非、強化学習を用いた対話管理も行ってみてください。
+
+
+# おわりに
+今回はSlack上にレストラン検索対話システムを構築してみました。
+以上で、ハンズオンは終了です。
+いかがだったでしょうか。
+ルールベースの簡単なタスク指向対話システムでしたが、SlackBot化することで様々な可能性を感じていただければ幸いです。
+他のWeb APIや機械学習系のAPIと組み合わせて、より賢くする仕組みを考えてみましょう！
+
+# 参考
+
+* [PythonでSlackbotを作る(1)](http://blog.bitmeister.jp/?p=3892)
+* [PythonでSlackbotを作る(2)](http://blog.bitmeister.jp/?p=3911)
+* [機械学習を使って作る対話システム](http://qiita.com/Hironsan/items/6425787ccbee75dfae36)
+* [対話システム (自然言語処理シリーズ)](https://www.amazon.co.jp/%E5%AF%BE%E8%A9%B1%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0-%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86%E3%82%B7%E3%83%AA%E3%83%BC%E3%82%BA-%E4%B8%AD%E9%87%8E-%E5%B9%B9%E7%94%9F/dp/433902757X/ref=sr_1_1?ie=UTF8&amp;qid=1471848601&amp;sr=8-1&amp;keywords=%E5%AF%BE%E8%A9%B1%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="初心者に捧げる対話システムの作り方 by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/0373339388f460cebb08" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="初心者に捧げる対話システムの作り方" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/0373339388f460cebb08" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/0373339388f460cebb08" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/0373339388f460cebb08" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/Hironsan"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/Hironsan">Hironsan</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">4816</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;Hironsan&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-18b141a7-5572-40c2-a676-b091ad5977b5"></div>
+    <div id="UserFollowButton-react-component-18b141a7-5572-40c2-a676-b091ad5977b5"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/6425787ccbee75dfae36">機械学習を使って作る対話システム</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/8ad9b11bcc0c618ec5e2">DeepLearningで上司を認識して画面を隠す</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/20951116a2650f45fea5">学年ビリのアホが1年半でTOEICスコアを300点から840点に上げた英語勉強法の話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/326b66711eb4196aa9d4">【チュートリアル】機械学習を使って30分で固有表現抽出器を作る</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/Hironsan/items/ca0b176fd859490dde08">まだ機械学習の論文を追うのに消耗してるの？それBotで解決したよ</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AF%BE%E8%B1%A1%E8%AA%AD%E8%80%85\&quot;\u003e対象読者\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%BA%96%E5%82%99\&quot;\u003e準備\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#python%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89\&quot;\u003ePython環境の構築\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8F%E3%83%B3%E3%82%BA%E3%82%AA%E3%83%B3%E7%94%A8%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA%E3%81%AEclone\&quot;\u003eハンズオン用リポジトリのClone\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BB%AE%E6%83%B3%E7%92%B0%E5%A2%83%E3%81%AE%E6%A7%8B%E7%AF%89\&quot;\u003e仮想環境の構築\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#virtualenv%E3%81%AE%E5%A0%B4%E5%90%88\&quot;\u003eVirtualenvの場合\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#conda%E3%81%AE%E5%A0%B4%E5%90%88\&quot;\u003eCondaの場合\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#api-key%E3%81%AE%E5%8F%96%E5%BE%97\&quot;\u003eAPI Keyの取得\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#slack%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88%E3%81%AE%E4%BD%9C%E6%88%90\&quot;\u003eSlackアカウントの作成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#slack-bot%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88%E3%81%AE%E4%BD%9C%E6%88%90\&quot;\u003eSlack Botアカウントの作成\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AEbot\&quot;\u003eはじめてのBot\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#slack-bot%E3%82%92%E8%B5%B7%E5%8B%95%E3%81%97%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003eSlack Botを起動してみる\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%A6%E3%81%AE%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3\&quot;\u003eはじめてのプラグイン\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%81%86%E3%82%80%E8%BF%94%E3%81%97bot\&quot;\u003eおうむ返しBot\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AC%E3%82%B9%E3%83%88%E3%83%A9%E3%83%B3%E6%A4%9C%E7%B4%A2%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0\&quot;\u003eレストラン検索システム\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%BA%96%E5%82%99-1\&quot;\u003e準備\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E6%A7%8B%E6%88%90\&quot;\u003eシステム構成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E6%A7%8B%E6%88%90\&quot;\u003eディレクトリ構成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A8%80%E8%AA%9E%E7%90%86%E8%A7%A3\&quot;\u003e言語理解\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B1%9E%E6%80%A7%E6%8A%BD%E5%87%BA\&quot;\u003e属性抽出\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AF%BE%E8%A9%B1%E8%A1%8C%E7%82%BA%E3%82%BF%E3%82%A4%E3%83%97%E3%81%AE%E6%8E%A8%E5%AE%9A\&quot;\u003e対話行為タイプの推定\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B1%9E%E6%80%A7%E6%8A%BD%E5%87%BA%E3%81%A8%E5%AF%BE%E8%A9%B1%E8%A1%8C%E7%82%BA%E3%82%BF%E3%82%A4%E3%83%97%E6%8E%A8%E5%AE%9A%E3%81%AE%E7%B5%B1%E5%90%88\&quot;\u003e属性抽出と対話行為タイプ推定の統合\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AF%BE%E8%A9%B1%E7%AE%A1%E7%90%86\&quot;\u003e対話管理\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E9%83%A8%E7%8A%B6%E6%85%8B%E6%9B%B4%E6%96%B0\&quot;\u003e内部状態更新\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A1%8C%E5%8B%95%E9%81%B8%E6%8A%9E\&quot;\u003e行動選択\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A8%80%E8%AA%9E%E7%94%9F%E6%88%90\&quot;\u003e言語生成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#bot%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%AE%E4%BD%9C%E6%88%90\&quot;\u003eBotクラスの作成\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#slackbot%E3%81%B8%E3%81%AE%E7%B5%84%E3%81%BF%E8%BE%BC%E3%81%BF\&quot;\u003eSlackbotへの組み込み\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%95%E3%82%89%E3%81%AB%E8%B3%A2%E3%81%8F%E3%81%99%E3%82%8B%E3%81%9F%E3%82%81%E3%81%AB\&quot;\u003eさらに賢くするために\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-a3f4e2b5-63a5-4b12-a63f-b457f94b6e57"></div>
+    <div id="Toc-react-component-a3f4e2b5-63a5-4b12-a63f-b457f94b6e57"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:137,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;0373339388f460cebb08&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mettoboshi"><a itemprop="url" href="/mettoboshi"><img alt="mettoboshi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42925/profile-images/1473689342" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="daikiti412"><a itemprop="url" href="/daikiti412"><img alt="daikiti412" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76687/profile-images/1473700573" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="masaki_iwahara"><a itemprop="url" href="/masaki_iwahara"><img alt="masaki_iwahara" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/13767a27b4bb60df7d108b6fc26931c2?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="quenhulu"><a itemprop="url" href="/quenhulu"><img alt="quenhulu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14708/profile-images/1473683459" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shuhei_f"><a itemprop="url" href="/shuhei_f"><img alt="shuhei_f" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70763/profile-images/1473698579" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="GDaigo"><a itemprop="url" href="/GDaigo"><img alt="GDaigo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/129334/profile-images/1473717525" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="meganetaaan"><a itemprop="url" href="/meganetaaan"><img alt="meganetaaan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20447/profile-images/1473683016" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="musashi13z"><a itemprop="url" href="/musashi13z"><img alt="musashi13z" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83495/profile-images/1488906054" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yklitter"><a itemprop="url" href="/yklitter"><img alt="yklitter" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/111478/profile-images/1481787377" /></a></div></div><div class="ArticleFooter__user"><a href="/Hironsan/items/0373339388f460cebb08/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/0373339388f460cebb08/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/Hironsan/items/0373339388f460cebb08.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/ykoga/items/755637e4af0491c56e89#_reference-1fc375fd7bf14e934c0e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/60470/profile-images/1473695235" />SotaでBotと連携させた賢い対話を実現してみる</a><time class="references_datetime js-dateTimeView" datetime="2016-09-03T03:23:48+00:00">7 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="初心者に捧げる対話システムの作り方 by @Hironsan13 on @Qiita" data-url="http://qiita.com/Hironsan/items/0373339388f460cebb08" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="初心者に捧げる対話システムの作り方" href="http://b.hatena.ne.jp/entry/http://qiita.com/Hironsan/items/0373339388f460cebb08" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/Hironsan/items/0373339388f460cebb08" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/Hironsan/items/0373339388f460cebb08" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:417625,&quot;uuid&quot;:&quot;0373339388f460cebb08&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;Hironsan&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-abb2c179-9cad-44be-a536-3a9103ac2538"></div>
+    <div id="CommentListContainer-react-component-abb2c179-9cad-44be-a536-3a9103ac2538"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="fkgM507QDroaArJD8WL9bfYoKUgMjgOxg10WXnVzHWNgwLUJGxpB2GU1uANSwzHziL8IK64w7S4TOlKN9WEcXg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/0373339388f460cebb08" /><input type="hidden" name="item_uuid" id="item_uuid" value="0373339388f460cebb08" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/Hironsan/items/0373339388f460cebb08", "id": 417625, "uuid": "0373339388f460cebb08" }</script><script class="js-user" type="application/json">{&quot;id&quot;:77079,&quot;url_name&quot;:&quot;Hironsan&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/77079/profile-images/1473700709&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="cBOimUsu5QSyyiX7EFDPqZw3S9wMH6JWfap7caUAAxtumxt3HuSqZs39L7uz8QM34qBqv66hTMntzT+iJRICJg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/Hironsan/items/0373339388f460cebb08" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

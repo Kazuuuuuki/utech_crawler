@@ -1,0 +1,427 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Swiftで書かれたOCRライブラリ「SwiftOCR」をiOS実機で試してみた - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="OCRエンジンをつくるのはそれなりに大変そうだし専門知識も必要そうなので、それがよほどのコア技術となるような会社／プロダクトでもない限りあまり自前実装をすることはなくて、どこかのライブラリを買ってくるか、オープンソースのものを使うか、ということがほとんどだと思います。で、iOSで無料で使えるOCRエンジン、となると実質 Tesseract 一択だったのではないでしょうか。
+
+そんな状況の中、最近出てきたのが、Swiftで書かれたオープンソースのOCRライブラリ「Swif..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="shu223" name="twitter:creator" /><meta content="Swiftで書かれたOCRライブラリ「SwiftOCR」をiOS実機で試してみた - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="OCRエンジンをつくるのはそれなりに大変そうだし専門知識も必要そうなので、それがよほどのコア技術となるような会社／プロダクトでもない限りあまり自前実装をすることはなくて、どこかのライブラリを買ってくるか、オープンソースのものを使うか、..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="Toy8i7dV/97YPEtGtL/2veTSFW+Wq2gtWcXW/8rXRh4RvbWdvuCQj6hBL8xdeg4pqCfgxJ9nvJQ3JSMsLj/FMA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"shu223","type":"items","id":"f9c82b0b4e7bdb4e3c96"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-e30b89a2-24b0-44bf-b2d8-9e92cfb3689f"></div>
+    <div id="HeaderContainer-react-component-e30b89a2-24b0-44bf-b2d8-9e92cfb3689f"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Swift",        "name": "Swift"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2016/ios">iOS Advent Calendar 2016</a> Day 8</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">Swiftで書かれたOCRライブラリ「SwiftOCR」をiOS実機で試してみた</h1><ul class="TagList"><li class="TagList__item" data-count="6745"><a class="u-link-unstyled TagList__label" href="/tags/Swift"><img alt="Swift" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8924010780db484a83145542a3e49c6c2084ecb7/medium.jpg?1401738498" /><span>Swift</span></a></li><li class="TagList__item" data-count="8969"><a class="u-link-unstyled TagList__label" href="/tags/iOS"><img alt="iOS" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/7d705cc5b20b094a52f4a328019a74d180ddb1f9/medium.jpg?1474336232" /><span>iOS</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="322"><a class="u-link-unstyled TagList__label" href="/tags/%E7%94%BB%E5%83%8F%E5%87%A6%E7%90%86"><img alt="画像処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/4c43dc9a30e781489de25e68c0325ddb3279016e/medium.jpg?1422923133" /><span>画像処理</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">119</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:119,&quot;uuid&quot;:&quot;f9c82b0b4e7bdb4e3c96&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="Sasakky"><a itemprop="url" href="/Sasakky"><img alt="Sasakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42743/profile-images/1473689270" /></a></li><li class="js-hovercard" data-hovercard-target-name="izariuo440"><a itemprop="url" href="/izariuo440"><img alt="izariuo440" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3970/profile-images/1473683719" /></a></li><li class="js-hovercard" data-hovercard-target-name="fumiyasac@github"><a itemprop="url" href="/fumiyasac@github"><img alt="fumiyasac@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/17400/profile-images/1473682149" /></a></li><li class="js-hovercard" data-hovercard-target-name="morizotter"><a itemprop="url" href="/morizotter"><img alt="morizotter" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24041/profile-images/1473683979" /></a></li><li class="js-hovercard" data-hovercard-target-name="rodobot"><a itemprop="url" href="/rodobot"><img alt="rodobot" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52536/profile-images/1473692764" /></a></li><li class="js-hovercard" data-hovercard-target-name="matsuyoro"><a itemprop="url" href="/matsuyoro"><img alt="matsuyoro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37406/profile-images/1473687415" /></a></li><li class="js-hovercard" data-hovercard-target-name="fulihata"><a itemprop="url" href="/fulihata"><img alt="fulihata" class="thumb thumb--xs" src="https://twimg0-a.akamaihd.net/profile_images/1281073294/image_normal.jpg" /></a></li><li class="js-hovercard" data-hovercard-target-name="zizi_lab"><a itemprop="url" href="/zizi_lab"><img alt="zizi_lab" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63892/profile-images/1473696407" /></a></li><li class="js-hovercard" data-hovercard-target-name="uti"><a itemprop="url" href="/uti"><img alt="uti" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26102/profile-images/1473684495" /></a></li><li class="js-hovercard" data-hovercard-target-name="dnby"><a itemprop="url" href="/dnby"><img alt="dnby" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51522/profile-images/1473692467" /></a></li><li><a href="/shu223/items/f9c82b0b4e7bdb4e3c96/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/shu223"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" alt="1473682733" /></a> <a class="u-link-unstyled" href="/shu223">shu223</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-08-25T15:55:39+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-08-25">Edited at <time datetime="2016-08-25T16:06:49+09:00" itemprop="dateModified">2016-08-25</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/shu223/items/f9c82b0b4e7bdb4e3c96/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/shu223/items/f9c82b0b4e7bdb4e3c96/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/shu223/items/f9c82b0b4e7bdb4e3c96.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-f9c82b0b4e7bdb4e3c96" itemprop="articleBody"><p>OCRエンジンをつくるのはそれなりに大変そうだし専門知識も必要そうなので、それがよほどのコア技術となるような会社／プロダクトでもない限りあまり自前実装をすることはなくて、どこかのライブラリを買ってくるか、オープンソースのものを使うか、ということがほとんどだと思います。で、<strong>iOSで無料で使えるOCRエンジン、となると実質 <a href="https://github.com/tesseract-ocr/tesseract" rel="nofollow noopener" target="_blank">Tesseract</a> 一択だった</strong>のではないでしょうか。</p>
+
+<p>そんな状況の中、最近出てきたのが、<strong>Swiftで書かれたオープンソースのOCRライブラリ</strong>「SwiftOCR」です。</p>
+
+<ul>
+<li>
+<strong>Swift</strong>製</li>
+<li><strong>高精度</strong></li>
+<li><strong>高速</strong></li>
+<li>iOS と OS X で使用可能</li>
+</ul>
+
+<p>をうたっていて、ライセンスはApache License, Version 2.0です。</p>
+
+<p><strong>画像認識にはニューラルネットワークを利用</strong>しているとのこと。</p>
+
+<p>そしてREADMEに載っている以下の表がなんとも魅力的です。</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>SwiftOCR</th>
+<th>Tesseract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Speed</td>
+<td>0.08 sec.</td>
+<td>0.63 sec.</td>
+</tr>
+<tr>
+<td>Accuracy</td>
+<td>97.7%</td>
+<td>45.2%</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>~30%</td>
+<td>~90%</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>45 MB</td>
+<td>73 MB</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Tesseractよりも速く、高精度で、CPU負荷は小さく（つまりバッテリー消費も少なく）、メモリも食わない</strong>、と良いことづくめ。</p>
+
+<p>READMEに書いてありますが、<a href="https://en.wikipedia.org/wiki/Connected-component_labeling" rel="nofollow noopener" target="_blank">Connected-component labeling</a>という手法を用いているそうです。</p>
+
+<blockquote>
+<p>First, SwiftOCR binarizes the input image. Afterwards it extracts the characters of the image using a technique called Connected-component labeling. Finally the seperated characters get converted into numbers which then get feed into the neural network.</p>
+</blockquote>
+
+<p>別の作業をしていてたまたま見つけたのですが、あまりに気になったので git clone してサンプルプロジェクトを試してみました。</p>
+
+<h2>
+<span id="試行1" class="fragment"></span><a href="#%E8%A9%A6%E8%A1%8C1"><i class="fa fa-link"></i></a>試行1</h2>
+
+<p>まずは同梱されているSwiftOCR Cameraというサンプルを「そのまま」試してみました。</p>
+
+<p>真ん中の半透明の黒帯の範囲が認識対象で、Take Photoボタンを押すとOCR処理が走り、<strong>上部のラベルに認識結果が表示</strong>されます。</p>
+
+<p>自分の名刺の中の自分の名前を認識させてみました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/63fd6cc3-0ea1-0808-4b88-753597a7872c.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/63fd6cc3-0ea1-0808-4b88-753597a7872c.jpeg" width="240"></a></p>
+
+<p>（"T50ISUTSH0C" 全然ダメ・・・）</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/fbb0f4d3-4aec-8ad6-9fa5-74690c1bcbf2.jpeg" target="_blank" rel="nofollow noopener"><img width="240" alt="IMG_0009.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/3180/fbb0f4d3-4aec-8ad6-9fa5-74690c1bcbf2.jpeg"></a></p>
+
+<p>（"TSUISUMSHUICHI" 近い、が、間違えている）</p>
+
+<p>あれ、領域を最初から絞ってあげてるという好条件なのに、<strong>間違ってるし、全然ロバストじゃない</strong>（ちょっと動くと認識結果がコロコロ変わる）・・・</p>
+
+<p>ちなみにこの名刺のフォントはちょっと変わってますが、<strong>Core Image + Tesseractでかなりいい精度で認識</strong>できてました。</p>
+
+<p>ここでハタと気付きました。</p>
+
+<div class="code-frame" data-lang="swift">
+<div class="code-lang"><span class="bold">SwiftOCR.swift</span></div>
+<div class="highlight"><pre>
+<span class="n">internal</span> <span class="k">var</span> <span class="n">recognizableCharacters</span> <span class="o">=</span> <span class="s">"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"</span>
+</pre></div>
+</div>
+
+<p>サンプルのデフォルトでは<strong>認識対象文字列に小文字アルファベットが入ってなかった</strong>ということに。。</p>
+
+<p>というわけで、と小文字を追加して再挑戦・・・</p>
+
+<div class="code-frame" data-lang="swift">
+<div class="code-lang"><span class="bold">SwiftOCR.swift</span></div>
+<div class="highlight"><pre>
+<span class="n">internal</span> <span class="k">var</span> <span class="n">recognizableCharacters</span> <span class="o">=</span> <span class="s">"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"</span>
+</pre></div>
+</div>
+
+<p>・・・と思いましたが、そのすぐ上にコメントでこう書いてありました。</p>
+
+<div class="code-frame" data-lang="swift">
+<div class="code-lang"><span class="bold">SwiftOCR.swift</span></div>
+<div class="highlight"><pre>
+<span class="c1">///It **must** be in the **same order** as the network got trained</span>
+</pre></div>
+</div>
+
+<p><strong>学習（トレーニング）時と同じ順序</strong>じゃないといけないよと。。<sup id="fnref1"><a href="#fn1" rel="footnote" title="結果のラベルの順番が変わってしまうということだと思います。">1</a></sup></p>
+
+<h2>
+<span id="学習モデル作成" class="fragment"></span><a href="#%E5%AD%A6%E7%BF%92%E3%83%A2%E3%83%87%E3%83%AB%E4%BD%9C%E6%88%90"><i class="fa fa-link"></i></a>学習（モデル作成）</h2>
+
+<p>というわけで、リポジトリに同梱されている SwiftOCR Training というOS Xで動作する学習ツールでネットワークをつくりなおしました。</p>
+
+<p>Build &amp; Runで次のようなウィンドウが起動します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/fcc7d4f0-8c1a-8421-c49b-6419abe34003.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/fcc7d4f0-8c1a-8421-c49b-6419abe34003.png" width="500"></a></p>
+
+<p>小文字アルファベットを加えて<sup id="fnref2"><a href="#fn2" rel="footnote" title="チマチマ打つのは面倒なのでstoryboardをいじりました。">2</a></sup>、フォントを全選択してStart Trainingするだけの簡単操作です。</p>
+
+<p>ノイズというか歪みを加えるための背景画像が何パターンかリソースに入っていて、あとはフォントから文字列をつくって学習用のデータを生成するしくみのようです。</p>
+
+<p>学習が完了すると、デフォルトでは <code>~/Desktop</code> に OCR-Network というファイルが生成されます。</p>
+
+<h2>
+<span id="試行2" class="fragment"></span><a href="#%E8%A9%A6%E8%A1%8C2"><i class="fa fa-link"></i></a>試行2</h2>
+
+<p>というわけで新しくできた OCR-Network を使い、かつ認識対象文字列として小文字アルファベットを追加して、</p>
+
+<div class="code-frame" data-lang="swift">
+<div class="code-lang"><span class="bold">SwiftOCR.swift</span></div>
+<div class="highlight"><pre>
+<span class="n">internal</span> <span class="k">var</span> <span class="n">recognizableCharacters</span> <span class="o">=</span> <span class="s">"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"</span>
+</pre></div>
+</div>
+
+<p>Cameraサンプルを再度試してみました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/2d80e6a1-97fe-6ece-7561-7aac9e8720ab.jpeg" target="_blank" rel="nofollow noopener"><img width="240" alt="IMG_0017.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/3180/2d80e6a1-97fe-6ece-7561-7aac9e8720ab.jpeg"></a></p>
+
+<p>（"Tsutsunsbcb" あれ・・・）</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/3180/27cc0199-b21a-faf0-9df8-784a48ad8874.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/3180/27cc0199-b21a-faf0-9df8-784a48ad8874.jpeg" width="240"></a></p>
+
+<p>（"1sutsnksbulcbi" ダメだ・・・）</p>
+
+<p>というわけで<strong>小文字は認識するようにはなったものの、精度は相変わらずイマイチ</strong>でした。<sup id="fnref3"><a href="#fn3" rel="footnote" title="つくりなおした学習データがちゃんと効いてそうな結果だとは思います。">3</a></sup></p>
+
+<h2>
+<span id="なぜ精度が出ないのか" class="fragment"></span><a href="#%E3%81%AA%E3%81%9C%E7%B2%BE%E5%BA%A6%E3%81%8C%E5%87%BA%E3%81%AA%E3%81%84%E3%81%AE%E3%81%8B"><i class="fa fa-link"></i></a>なぜ精度が出ないのか？</h2>
+
+<p>Tesseractではもっとちゃんと認識できた的なことをちらっと上で書きましたが、そのときはTesseractの性能どうこうよりも、<strong>二値化の閾値を動的に計算</strong>する処理を入れたときに精度にグッと改善した記憶があります。</p>
+
+<p>で、今回のCameraサンプルでは、ソースをさらっと見た限りだとGPUImageでグレースケール化してるだけっぽいので、まずその点でロバスト性を大きく欠いているのではないかという気がします。</p>
+
+<p>あとちゃんと見てないですが文字領域の切り出しがうまくいってるのかも気になります。そこはCore ImageのText Detectorでも補完できるので。</p>
+
+<p>それとネットワークをTrainingする際に、自分の環境に入っているフォントが一通り列挙されて、それをもとに学習データが自動生成されるっぽかったですが、そんなんでいいのかなと。所詮個人の環境なので古今東西のフォントを網羅してるわけじゃないですし。それよりはちゃんとした人（専門家）がちゃんとしたデータでちゃんとつくったであろうTesseractのモデルの方が良さそうだなと。</p>
+
+<h2>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h2>
+
+<p>今回は残念ながら精度が出なかったわけですが、誤解しないでほしいのは、<strong>本記事ではあくまでサンプルをちょこっと試しただけ</strong>であって、<strong>精度改善の余地はいくらでもある</strong>、ということです。本記事ではTesseractと同条件での比較も行っていませんし。</p>
+
+<p>上で書いたように</p>
+
+<ul>
+<li>学習をちゃんとする</li>
+<li>前処理をちゃんとする</li>
+</ul>
+
+<p>というだけで大いに改善するかもしれないですし、非常に可能性のあるライブラリだと思います。</p>
+
+<p>仕事でOCR的なことが必要になったら改めてもっとちゃんと触ってみようと思います。</p>
+
+<h2>
+<span id="こちらもどうぞ" class="fragment"></span><a href="#%E3%81%93%E3%81%A1%E3%82%89%E3%82%82%E3%81%A9%E3%81%86%E3%81%9E"><i class="fa fa-link"></i></a>こちらもどうぞ</h2>
+
+<ul>
+<li><a href="http://qiita.com/shu223/items/b8119de62209d1b8d78a" id="reference-144d16bb8cb22f7605a0">Swiftで書かれた人工知能・機械学習ライブラリ「Swift-AI」をiOSで動かしてみる - Qiita</a></li>
+<li><a href="http://qiita.com/shu223/items/a2808e9dfccbd23387ff" id="reference-e672fd5b12bf741bef49">TensorFlowの学習済みモデルを拾ってきてiOSで利用する - Qiita</a></li>
+<li><a href="http://qiita.com/shu223/items/9cbde46c0690f1952750" id="reference-657ce0cfdafa92b21538">機械学習はじめの一歩に役立つ記事のまとめ - Qiita</a></li>
+<li><a href="http://d.hatena.ne.jp/shu223/20141212/1418300463" rel="nofollow noopener" target="_blank">iOSと機械学習</a></li>
+</ul>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>結果のラベルの順番が変わってしまうということだと思います。 <a href="#fnref1">↩</a></p>
+</li>
+
+<li id="fn2">
+<p>チマチマ打つのは面倒なのでstoryboardをいじりました。 <a href="#fnref2">↩</a></p>
+</li>
+
+<li id="fn3">
+<p>つくりなおした学習データがちゃんと効いてそうな結果だとは思います。 <a href="#fnref3">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/shu223/items/f9c82b0b4e7bdb4e3c96" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="ErQmyaSR1zL1uuVCmrVC9TYu7PER5qKBCJPOPOTUA/RNhS/frSS4Y4XHgchzcLphetsZWhgqdjhmczvvADyA2g==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1472108809" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+OCRエンジンをつくるのはそれなりに大変そうだし専門知識も必要そうなので、それがよほどのコア技術となるような会社／プロダクトでもない限りあまり自前実装をすることはなくて、どこかのライブラリを買ってくるか、オープンソースのものを使うか、ということがほとんどだと思います。で、**iOSで無料で使えるOCRエンジン、となると実質 [Tesseract](https://github.com/tesseract-ocr/tesseract) 一択だった**のではないでしょうか。
+
+そんな状況の中、最近出てきたのが、**Swiftで書かれたオープンソースのOCRライブラリ**「SwiftOCR」です。
+
+- **Swift**製
+- **高精度**
+- **高速**
+- iOS と OS X で使用可能
+
+をうたっていて、ライセンスはApache License, Version 2.0です。
+
+**画像認識にはニューラルネットワークを利用**しているとのこと。
+
+そしてREADMEに載っている以下の表がなんとも魅力的です。
+
+ |SwiftOCR | Tesseract
+------------ |------------ | -------------
+Speed | 0.08 sec. | 0.63 sec.
+Accuracy | 97.7% | 45.2%
+CPU | ~30% | ~90% 
+Memory | 45 MB | 73 MB
+
+**Tesseractよりも速く、高精度で、CPU負荷は小さく（つまりバッテリー消費も少なく）、メモリも食わない**、と良いことづくめ。
+
+READMEに書いてありますが、[Connected-component labeling](https://en.wikipedia.org/wiki/Connected-component_labeling)という手法を用いているそうです。
+
+&gt; First, SwiftOCR binarizes the input image. Afterwards it extracts the characters of the image using a technique called Connected-component labeling. Finally the seperated characters get converted into numbers which then get feed into the neural network.
+
+別の作業をしていてたまたま見つけたのですが、あまりに気になったので git clone してサンプルプロジェクトを試してみました。
+
+##試行1
+
+まずは同梱されているSwiftOCR Cameraというサンプルを「そのまま」試してみました。
+
+
+真ん中の半透明の黒帯の範囲が認識対象で、Take Photoボタンを押すとOCR処理が走り、**上部のラベルに認識結果が表示**されます。
+
+自分の名刺の中の自分の名前を認識させてみました。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/63fd6cc3-0ea1-0808-4b88-753597a7872c.jpeg&quot; width=&quot;240&quot;&gt;
+
+（&quot;T50ISUTSH0C&quot; 全然ダメ・・・）
+
+
+&lt;img width=&quot;240&quot; alt=&quot;IMG_0009.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/fbb0f4d3-4aec-8ad6-9fa5-74690c1bcbf2.jpeg&quot;&gt;
+
+（&quot;TSUISUMSHUICHI&quot; 近い、が、間違えている）
+
+あれ、領域を最初から絞ってあげてるという好条件なのに、**間違ってるし、全然ロバストじゃない**（ちょっと動くと認識結果がコロコロ変わる）・・・
+
+ちなみにこの名刺のフォントはちょっと変わってますが、**Core Image + Tesseractでかなりいい精度で認識**できてました。
+
+ここでハタと気付きました。
+
+```swift:SwiftOCR.swift
+internal var recognizableCharacters = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&quot;
+```
+
+サンプルのデフォルトでは**認識対象文字列に小文字アルファベットが入ってなかった**ということに。。
+
+というわけで、と小文字を追加して再挑戦・・・
+
+```swift:SwiftOCR.swift
+internal var recognizableCharacters = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&quot;
+```
+
+・・・と思いましたが、そのすぐ上にコメントでこう書いてありました。
+
+```swift:SwiftOCR.swift
+///It **must** be in the **same order** as the network got trained
+```
+
+**学習（トレーニング）時と同じ順序**じゃないといけないよと。。[^2]
+
+[^2]: 結果のラベルの順番が変わってしまうということだと思います。
+
+##学習（モデル作成）
+
+というわけで、リポジトリに同梱されている SwiftOCR Training というOS Xで動作する学習ツールでネットワークをつくりなおしました。
+
+Build &amp; Runで次のようなウィンドウが起動します。
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/fcc7d4f0-8c1a-8421-c49b-6419abe34003.png&quot; width=&quot;500&quot;&gt;
+
+小文字アルファベットを加えて[^1]、フォントを全選択してStart Trainingするだけの簡単操作です。
+
+[^1]: チマチマ打つのは面倒なのでstoryboardをいじりました。
+
+ノイズというか歪みを加えるための背景画像が何パターンかリソースに入っていて、あとはフォントから文字列をつくって学習用のデータを生成するしくみのようです。
+
+学習が完了すると、デフォルトでは `~/Desktop` に OCR-Network というファイルが生成されます。
+
+
+##試行2
+
+というわけで新しくできた OCR-Network を使い、かつ認識対象文字列として小文字アルファベットを追加して、
+
+```swift:SwiftOCR.swift
+internal var recognizableCharacters = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&quot;
+```
+
+Cameraサンプルを再度試してみました。
+
+&lt;img width=&quot;240&quot; alt=&quot;IMG_0017.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/2d80e6a1-97fe-6ece-7561-7aac9e8720ab.jpeg&quot;&gt;
+
+（&quot;Tsutsunsbcb&quot; あれ・・・）
+
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/27cc0199-b21a-faf0-9df8-784a48ad8874.jpeg&quot; width=&quot;240&quot;&gt;
+
+（&quot;1sutsnksbulcbi&quot; ダメだ・・・）
+
+というわけで**小文字は認識するようにはなったものの、精度は相変わらずイマイチ**でした。[^3]
+
+[^3]: つくりなおした学習データがちゃんと効いてそうな結果だとは思います。
+
+
+##なぜ精度が出ないのか？
+
+Tesseractではもっとちゃんと認識できた的なことをちらっと上で書きましたが、そのときはTesseractの性能どうこうよりも、**二値化の閾値を動的に計算**する処理を入れたときに精度にグッと改善した記憶があります。
+
+で、今回のCameraサンプルでは、ソースをさらっと見た限りだとGPUImageでグレースケール化してるだけっぽいので、まずその点でロバスト性を大きく欠いているのではないかという気がします。
+
+あとちゃんと見てないですが文字領域の切り出しがうまくいってるのかも気になります。そこはCore ImageのText Detectorでも補完できるので。
+
+それとネットワークをTrainingする際に、自分の環境に入っているフォントが一通り列挙されて、それをもとに学習データが自動生成されるっぽかったですが、そんなんでいいのかなと。所詮個人の環境なので古今東西のフォントを網羅してるわけじゃないですし。それよりはちゃんとした人（専門家）がちゃんとしたデータでちゃんとつくったであろうTesseractのモデルの方が良さそうだなと。
+
+##おわりに
+
+今回は残念ながら精度が出なかったわけですが、誤解しないでほしいのは、**本記事ではあくまでサンプルをちょこっと試しただけ**であって、**精度改善の余地はいくらでもある**、ということです。本記事ではTesseractと同条件での比較も行っていませんし。
+
+上で書いたように
+
+- 学習をちゃんとする
+- 前処理をちゃんとする
+
+というだけで大いに改善するかもしれないですし、非常に可能性のあるライブラリだと思います。
+
+仕事でOCR的なことが必要になったら改めてもっとちゃんと触ってみようと思います。
+
+##こちらもどうぞ
+
+- [Swiftで書かれた人工知能・機械学習ライブラリ「Swift-AI」をiOSで動かしてみる - Qiita](http://qiita.com/shu223/items/b8119de62209d1b8d78a)
+- [TensorFlowの学習済みモデルを拾ってきてiOSで利用する - Qiita](http://qiita.com/shu223/items/a2808e9dfccbd23387ff)
+- [機械学習はじめの一歩に役立つ記事のまとめ - Qiita](http://qiita.com/shu223/items/9cbde46c0690f1952750)
+- [iOSと機械学習](http://d.hatena.ne.jp/shu223/20141212/1418300463)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Swiftで書かれたOCRライブラリ「SwiftOCR」をiOS実機で試してみた by @shu223 on @Qiita" data-url="http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Swiftで書かれたOCRライブラリ「SwiftOCR」をiOS実機で試してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/shu223"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/shu223">shu223</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">18292</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;shu223&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-f2d83fbd-1898-4b72-9fae-a188fcae5cdf"></div>
+    <div id="UserFollowButton-react-component-f2d83fbd-1898-4b72-9fae-a188fcae5cdf"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/a4fc17eb3356a6068553">ディープラーニングの有名ライブラリ5種を最短距離で試す半日コース（TensorFlow, Chainer, Caffe, DeepDream, 画風変換）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/a895a989e84219e5302e">iOSアプリ開発に役立つTips100連発！</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/9e3a50e092c2997fe6d2">例の機械学習コースが良いらしいと知りながらも2年間スルーし続けたがやはり良かったという話</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/9cbde46c0690f1952750">機械学習はじめの一歩に役立つ記事のまとめ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/shu223/items/ffd2202eaf92d342f83d">「顔以外」のものを画像認識する</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A9%A6%E8%A1%8C1\&quot;\u003e試行1\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AD%A6%E7%BF%92%E3%83%A2%E3%83%87%E3%83%AB%E4%BD%9C%E6%88%90\&quot;\u003e学習（モデル作成）\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A9%A6%E8%A1%8C2\&quot;\u003e試行2\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AA%E3%81%9C%E7%B2%BE%E5%BA%A6%E3%81%8C%E5%87%BA%E3%81%AA%E3%81%84%E3%81%AE%E3%81%8B\&quot;\u003eなぜ精度が出ないのか？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%81%A1%E3%82%89%E3%82%82%E3%81%A9%E3%81%86%E3%81%9E\&quot;\u003eこちらもどうぞ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-c33aaad3-5ed8-419c-9056-1befbe221b8f"></div>
+    <div id="Toc-react-component-c33aaad3-5ed8-419c-9056-1befbe221b8f"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:119,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;f9c82b0b4e7bdb4e3c96&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Sasakky"><a itemprop="url" href="/Sasakky"><img alt="Sasakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42743/profile-images/1473689270" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="izariuo440"><a itemprop="url" href="/izariuo440"><img alt="izariuo440" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3970/profile-images/1473683719" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fumiyasac@github"><a itemprop="url" href="/fumiyasac@github"><img alt="fumiyasac@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/17400/profile-images/1473682149" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="morizotter"><a itemprop="url" href="/morizotter"><img alt="morizotter" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24041/profile-images/1473683979" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="rodobot"><a itemprop="url" href="/rodobot"><img alt="rodobot" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52536/profile-images/1473692764" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="matsuyoro"><a itemprop="url" href="/matsuyoro"><img alt="matsuyoro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/37406/profile-images/1473687415" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fulihata"><a itemprop="url" href="/fulihata"><img alt="fulihata" class="thumb thumb--xs" src="https://twimg0-a.akamaihd.net/profile_images/1281073294/image_normal.jpg" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zizi_lab"><a itemprop="url" href="/zizi_lab"><img alt="zizi_lab" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63892/profile-images/1473696407" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="uti"><a itemprop="url" href="/uti"><img alt="uti" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26102/profile-images/1473684495" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dnby"><a itemprop="url" href="/dnby"><img alt="dnby" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51522/profile-images/1473692467" /></a></div></div><div class="ArticleFooter__user"><a href="/shu223/items/f9c82b0b4e7bdb4e3c96/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/f9c82b0b4e7bdb4e3c96/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/shu223/items/f9c82b0b4e7bdb4e3c96.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.8</span> article of <a class="title" href="/advent-calendar/2016/ios">iOS Advent Calendar 2016</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 7:</span><span class="itemsShowBody_adventCalendar_title"><img alt="masaichi" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/8398/profile-images/1473681020" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/masaichi/items/5fc721233d33c0690772">型推論とGenericsを利用してiOSアプリをシンプルに書く</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 9:</span><span class="itemsShowBody_adventCalendar_title"><img alt="WorldDownTown" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/11454/profile-images/1473682028" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/WorldDownTown/items/26c0ba39015f023523a8">Swift 3時代のUIColorとそれを扱う便利なライブラリを作りました</a></span></li></ul></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Swiftで書かれたOCRライブラリ「SwiftOCR」をiOS実機で試してみた by @shu223 on @Qiita" data-url="http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Swiftで書かれたOCRライブラリ「SwiftOCR」をiOS実機で試してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:417985,&quot;uuid&quot;:&quot;f9c82b0b4e7bdb4e3c96&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;shu223&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:3180,&quot;url_name&quot;:&quot;shu223&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-37dbaf4b-ca55-41fb-8da5-1ea202400284"></div>
+    <div id="CommentListContainer-react-component-37dbaf4b-ca55-41fb-8da5-1ea202400284"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="yR/kqAt1ftYhtRmAagX+7izIQ6y/5LdblgwHupcuojaWLu2+AsARh1HIfQqDwAZ6YD22B7YoY+L47PJpc8YhGA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shu223/items/f9c82b0b4e7bdb4e3c96" /><input type="hidden" name="item_uuid" id="item_uuid" value="f9c82b0b4e7bdb4e3c96" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/shu223/items/f9c82b0b4e7bdb4e3c96", "id": 417985, "uuid": "f9c82b0b4e7bdb4e3c96" }</script><script class="js-user" type="application/json">{&quot;id&quot;:3180,&quot;url_name&quot;:&quot;shu223&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="dKCNaJxGq+5hq56CkkXE1CTsCGD/RDmO7Luf5es573QrkYR+lfPEvxHW+gh7gDxAaBn9y/aI7TeCW2o2D9FsWg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/shu223/items/f9c82b0b4e7bdb4e3c96" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-3716439-6', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

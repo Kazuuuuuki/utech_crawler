@@ -1,0 +1,735 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>ChainerとRNNと機械翻訳 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+自然言語処理とニューラルネット
+
+ここ数年で、自然言語処理の分野でもニューラルネットが非常に頻繁に使われるようになってきました。
+
+自然言語処理で主に解析対象となるのは単語の配列や構文木などで、これらの内包する情報を表現するためにrecurrent neural network1やrecursive neural network1などに基づくモデルが頻繁に使われます。これらの最大の特徴はニューラルネットがある種のデータ構造を持っているという点で、1レイヤあたりのノー..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="odashi_t" name="twitter:creator" /><meta content="ChainerとRNNと機械翻訳 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# 自然言語処理とニューラルネット
+
+ここ数年で、自然言語処理の分野でもニューラルネットが非常に頻繁に使われるようになってきました。
+
+自然言語処理で主に解析対象となるのは単語の配列や構文木などで、これらの内包する情報を表現するために..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="oTJJPf2PWXsInEz6EwOQFB0K5apvGpOhWknMr8hWEAmIcDoyLWyn4lWU82FCQisaUqapZKMOASpfRGrHMW1FKw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"odashi_t","type":"items","id":"a1be7c4964fbea6a116e"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-1558e083-44fd-4ff0-baf4-c0c08758c2a5"></div>
+    <div id="HeaderContainer-react-component-1558e083-44fd-4ff0-baf4-c0c08758c2a5"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2015/chainer">Chainer Advent Calendar 2015</a> Day 6</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">ChainerとRNNと機械翻訳</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="3"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E7%BF%BB%E8%A8%B3"><img alt="機械翻訳" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>機械翻訳</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">279</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="3 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>3</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:279,&quot;uuid&quot;:&quot;a1be7c4964fbea6a116e&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="yukinoi"><a itemprop="url" href="/yukinoi"><img alt="yukinoi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48207/profile-images/1473691268" /></a></li><li class="js-hovercard" data-hovercard-target-name="ntddk"><a itemprop="url" href="/ntddk"><img alt="ntddk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22237/profile-images/1473683530" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></li><li class="js-hovercard" data-hovercard-target-name="hakuro"><a itemprop="url" href="/hakuro"><img alt="hakuro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38221/profile-images/1473687686" /></a></li><li class="js-hovercard" data-hovercard-target-name="twipg"><a itemprop="url" href="/twipg"><img alt="twipg" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/88331/profile-images/1473704388" /></a></li><li class="js-hovercard" data-hovercard-target-name="asahima_"><a itemprop="url" href="/asahima_"><img alt="asahima_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4453/profile-images/1473684031" /></a></li><li class="js-hovercard" data-hovercard-target-name="k_ishiguro"><a itemprop="url" href="/k_ishiguro"><img alt="k_ishiguro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12134/profile-images/1473682287" /></a></li><li class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></li><li class="js-hovercard" data-hovercard-target-name="Takashi78364"><a itemprop="url" href="/Takashi78364"><img alt="Takashi78364" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/66781/profile-images/1473697319" /></a></li><li class="js-hovercard" data-hovercard-target-name="akivajp"><a itemprop="url" href="/akivajp"><img alt="akivajp" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104262/profile-images/1473709246" /></a></li><li><a href="/odashi_t/items/a1be7c4964fbea6a116e/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/odashi_t"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/100698/profile-images/1486983372" alt="1486983372" /></a> <a class="u-link-unstyled" href="/odashi_t">odashi_t</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-06T00:00:12+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-06">Edited at <time datetime="2015-12-10T18:00:38+09:00" itemprop="dateModified">2015-12-10</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/odashi_t/items/a1be7c4964fbea6a116e/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">6</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/odashi_t/items/a1be7c4964fbea6a116e/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(6)</span></a></li><li><a href="/odashi_t/items/a1be7c4964fbea6a116e.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-a1be7c4964fbea6a116e" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div>
+<h1>
+<span id="自然言語処理とニューラルネット" class="fragment"></span><a href="#%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86%E3%81%A8%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>自然言語処理とニューラルネット</h1>
+
+<p>ここ数年で、自然言語処理の分野でもニューラルネットが非常に頻繁に使われるようになってきました。</p>
+
+<p>自然言語処理で主に解析対象となるのは単語の配列や構文木などで、これらの内包する情報を表現するためにrecurrent neural network<sup id="fnref1"><a href="#fn1" rel="footnote" title="両方ともRNNと略されるので紛らわしい。紛らわしさを逆手に取ったのかR2NN (recursive recurrent neural network)などというモデルもあったりする。">1</a></sup>やrecursive neural network<sup id="fnref1"><a href="#fn1" rel="footnote" title="両方ともRNNと略されるので紛らわしい。紛らわしさを逆手に取ったのかR2NN (recursive recurrent neural network)などというモデルもあったりする。">1</a></sup>などに基づくモデルが頻繁に使われます。これらの最大の特徴は<strong>ニューラルネットがある種のデータ構造を持っている</strong>という点で、1レイヤあたりのノードはそれほど多くない代わりにネットワークの接続が複雑で、しかも入力されるデータごとにネットワークそのものの形状が変化するという特徴があります。このため、伝統的なfeedforward neural networkを前提としたツールキットでは構築が難しいという問題がありました。</p>
+
+<p><a href="http://chainer.org/" rel="nofollow noopener" target="_blank">Chainer</a>は、そのような問題を概ね解決してしまう強力なニューラルネットのフレームワークです。Pythonの文法とほんの少しだけNumPyを知っていれば使えるのと、ソースコード上の計算式がそのままニューラルネットの接続情報として自動的に記憶されるので、<strong>入力データをパースすれば自動的にニューラルネットで解析できてしまう</strong>という<del>チートのような</del>特徴があります。</p>
+
+<p>最近書き溜めていた<a href="https://github.com/odashi/chainer_examples" rel="nofollow noopener" target="_blank">Chainerサンプル集</a>でも言語モデルや単語分割器、翻訳モデルなどを実装していますが、いずれも基本的な部分（コード中の<code>forward</code>関数）は半日、短いものだと1時間くらいあれば実装できてしまいます。サンプルを見てもらえば分かりますが、むしろデータを整理する周辺コードに労力の大半を割いているような状況です。</p>
+
+<p>本稿では主にrecurrent neural networkについて、そのChainerでの実装方法と、自然言語処理での一応用であるencoder-decoder翻訳モデルの解説を行います。</p>
+
+<p><em>記事の内容はChainer1.4以前を前提としています。1.5系には様子を見て対応します。</em></p>
+
+<h1>
+<span id="recurrent-neural-network" class="fragment"></span><a href="#recurrent-neural-network"><i class="fa fa-link"></i></a>Recurrent Neural Network</h1>
+
+<p>最も基本的なrecurrent neural network（以降RNN）は、次の図のような、オーソドックスな3層ニューラルネットに隠れ層のフィードバックが追加されたものです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/100698/b7d34800-5a65-9162-dc6b-ab29b8124daf.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/100698/b7d34800-5a65-9162-dc6b-ab29b8124daf.png" alt="rnn.png"></a></p>
+
+<p>簡単なモデルですが、後で紹介する翻訳モデルはRNNを組み合わせて作られています。またRNN単体でも、言語モデルに使用すると従来の<em>N</em>-gramモデルを簡単に凌駕する精度を叩き出してくれる優れ物です。<sup id="fnref2"><a href="#fn2" rel="footnote" title="ただし、N-gramモデルのように文の一部だけを取り出してスコアを求めたりすることはできないので、少しずつスコアを求めながら解析を進める機械翻訳のような分野では使い方が限られるという問題もある。">2</a></sup></p>
+
+<p>上図を式に書き下すと、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+{\bf h}_n &amp; = \tanh \bigl( W_{xh} \cdot {\bf x}_n + W_{hh} \cdot {\bf h}_{n-1} \bigr), \\
+{\bf y}_n &amp; = {\rm softmax} \bigl( W_{hy} \cdot {\bf h}_n \bigr)
+\end{align}
+</pre></div></div>
+
+<p>となり、これをそのままChainer上の計算式として使います。</p>
+
+<p>とりあえずここでは「単語IDを入力して、次の単語IDを予測する」RNN言語モデルを考えましょう。<sup id="fnref3"><a href="#fn3" rel="footnote" title="単語を単語IDに変換する方法は色々あり、採用する方法によってモデルの精度に直接影響が出る。ここまで説明すると記事の趣旨から逸脱するので、ここでは解説しない。">3</a></sup><br>
+まず<strong>モデル</strong>を定義します。モデルとは<strong>学習可能なパラメータの集合</strong>のことで、上図の$W_{**}$がこれに相当します。この場合$W_{**}$は全て線形作用素（行列）なので、<code>chainer.functions</code>内の<code>Linear</code>か<code>EmbedID</code>を使用します。<code>EmbedID</code>は入力側がone-hotベクトルの場合の<code>Linear</code>で、ベクトルの代わりに発火している要素のIDを渡すことができます。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">chainer</span> <span class="k">import</span> <span class="n">FunctionSet</span>
+<span class="kn">from</span> <span class="nn">chainer.functions</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">FunctionSet</span><span class="p">(</span>
+  <span class="n">w_xh</span> <span class="o">=</span> <span class="n">EmbedID</span><span class="p">(</span><span class="n">VOCAB_SIZE</span><span class="p">,</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="c"># 入力層(one-hot) -&gt; 隠れ層</span>
+  <span class="n">w_hh</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">HIDDEN_SIZE</span><span class="p">,</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="c"># 隠れ層 -&gt; 隠れ層</span>
+  <span class="n">w_hy</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">HIDDEN_SIZE</span><span class="p">,</span> <span class="n">VOCAB_SIZE</span><span class="p">),</span> <span class="c"># 隠れ層 -&gt; 出力層</span>
+<span class="p">)</span>  
+</pre></div></div>
+
+<p><code>VOCAB_SIZE</code>は単語の種類数、<code>HIDDEN_SIZE</code>は隠れ層の次元を表します。</p>
+
+<p>次に実際の解析を行う<code>forward</code>関数を定義します。ここでは基本的にはモデルの定義と実際の入力データに従って上図のネットワーク構造を再現し、最終的に求めたい値を計算することになります。言語モデルの場合は次の式に表す<strong>文の結合確率</strong>を求めることになります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+\log {\rm Pr} \bigl( {\bf w} \bigr) &amp; = \sum_{n=1}^{|{\bf w}|} \log {\rm Pr} \bigl( w_n \ \big| \ w_1, w_2, \cdots, w_{n-1} \bigr) \\
+&amp; = \sum_{n=1}^{|{\bf w}|} \log {\bf y}_n\big[ {\rm index} \bigl( w_n \bigr) \big]
+\end{align}
+</pre></div></div>
+
+<p>以下がコード例ですが、Chainerはミニバッチ処理が前提になっているので、データの次元がひとつ多くなっています（コード中でバッチ処理は行っていません）。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">chainer</span> <span class="k">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">chainer.functions</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span> <span class="c"># sentenceはstrの配列。MeCabなどの出力を想定。</span>
+  <span class="n">sentence</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert_to_your_word_id</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">]</span> <span class="c"># 単語をIDに変換。自分で適当に実装する。</span>
+  <span class="n">h</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span> <span class="c"># 隠れ層の初期値</span>
+  <span class="n">log_joint_prob</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c"># 文の結合確率</span>
+
+  <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">word</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span> <span class="c"># 次回の入力層</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">w_hy</span><span class="p">(</span><span class="n">h</span><span class="p">))</span> <span class="c"># 次の単語の確率分布</span>
+    <span class="n">log_joint_prob</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">word</span><span class="p">])</span> <span class="c"># 結合確率の更新</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">w_xh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">w_hh</span><span class="p">(</span><span class="n">h</span><span class="p">))</span> <span class="c"># 隠れ層の更新</span>
+
+  <span class="k">return</span> <span class="n">log_joint_prob</span> <span class="c"># 結合確率の計算結果を返す</span>
+</pre></div></div>
+
+<p>これで文の確率を求めることができるようになりました。が、上記にはモデルを学習するための損失関数の計算が含まれていません。今回はsoftmax関数を最終段に使用しているので、<code>chainer.functions.softmax_cross_entropy</code>で正解とのクロスエントロピーを求めて損失関数とします。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+  <span class="o">...</span>
+
+  <span class="n">accum_loss</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span> <span class="c"># 累積損失の初期値</span>
+  <span class="o">...</span>
+
+  <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">word</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span> <span class="c"># 次回の入力層 (=今回の正解)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">w_hy</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+    <span class="n">accum_loss</span> <span class="o">+=</span> <span class="n">softmax_cross_entropy</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="c"># 損失の蓄積</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+    <span class="o">...</span>
+
+  <span class="k">return</span> <span class="n">log_joint_prob</span><span class="p">,</span> <span class="n">accum_loss</span> <span class="c"># 累積損失も一緒に返す</span>
+</pre></div></div>
+
+<p>これで学習ができるようになりました。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">chainer.optimizers</span> <span class="k">import</span> <span class="o">*</span>
+<span class="o">...</span>
+
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">sentence_set</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+  <span class="n">opt</span> <span class="o">=</span> <span class="n">SGD</span><span class="p">()</span> <span class="c"># 確率的勾配法を使用</span>
+  <span class="n">opt</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="c"># 学習器の初期化</span>
+  <span class="k">for</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="n">sentence_set</span><span class="p">:</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">();</span> <span class="c"># 勾配の初期化</span>
+    <span class="n">log_joint_prob</span><span class="p">,</span> <span class="n">accum_loss</span> <span class="o">=</span> <span class="n">forward</span><span class="p">(</span><span class="n">sentence</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="c"># 損失の計算</span>
+    <span class="n">accum_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span> <span class="c"># 誤差逆伝播</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">clip_grads</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c"># 大きすぎる勾配を抑制</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">update</span><span class="p">()</span> <span class="c"># パラメータの更新</span>
+</pre></div></div>
+
+<p>基本的にChainerの処理はこれだけです。従来はこのようなニューラルネットのためにウンザリするような行数のプログラムを記述していたわけですが、Chainerは面倒な計算がほぼ全てPythonの構文に隠蔽されているので、このように短い記述が可能となります。Chainerの使い方さえ覚えていれば、最近提案されたモデルや今思いついた独自モデルをサッと書いて試す、というような実験も可能となるわけです。<sup id="fnref4"><a href="#fn4" rel="footnote" title="学習時間がボトルネックとして効いてくるので、本当にtry-and-error的な開発がしたい場合はGPUを1枚持っていた方が良い。">4</a></sup></p>
+
+<h1>
+<span id="encoder-decoder翻訳モデル" class="fragment"></span><a href="#encoder-decoder%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB"><i class="fa fa-link"></i></a>Encoder-decoder翻訳モデル</h1>
+
+<p>RNNを応用した少し複雑な例として、ニューラルネットを使った機械翻訳の手法である<strong>encoder-decoder翻訳モデル</strong>を実装してみます。<br>
+これは入力から出力までの全ての過程がニューラルネットで記述された翻訳モデルであり、そのシンプルさに反して従来の翻訳モデルに匹敵する精度を実現するため、発表時には研究者に驚きを以って迎えられました。</p>
+
+<p>Encoder-decoder翻訳モデルには色々な亜種がありますが、ここでは私のサンプル集でも実装している下図のモデルを書いてみます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/100698/949b1930-5db2-008c-4db1-ad24b2eea4fe.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/100698/949b1930-5db2-008c-4db1-ad24b2eea4fe.png" alt="encdec.png"></a></p>
+
+<p>考え方としては簡単で、入力言語側(encoder)と出力言語側(decoder)の2個のRNNを用意して、それを中間ノードで繋ぎ合わせたものです。このモデルの面白い点は、出力側で単語と一緒に終端記号を生成するため、<strong>翻訳の終了をモデル自身が決めている</strong>という点です。しかし逆に言うと、この終端記号の学習に失敗していると無限に単語を生成するようになってしまうため、実際には適当な単語数を生成しても終わらない場合は処理を打ち切る必要があります。</p>
+
+<p>${\bf i}$と${\bf j}$は<strong>埋め込み(embedding)層</strong>と呼ばれるもので、次元の圧縮された単語情報を表します。また入力の単語列が反転していますが、このようにすると実験的に良い翻訳結果が出ることが分かっています。なぜなのかはあまりはっきりと分かっていませんが、encoderとdecoderが変換・逆変換の関係にあるから、という風に解釈されていたりします。</p>
+
+<p>早速コードを書き進めて行きますが、まずは計算式に落とし込みましょう。これは次のようになります。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+\begin{align}
+{\bf i}_n &amp; = \tanh \bigl( W_{xi} \cdot {\bf x}_n \bigr), \\
+{\bf p}_n &amp; = {\rm LSTM} \bigl( W_{ip} \cdot {\bf i}_n + W_{pp} \cdot {\bf p}_{n-1} \bigr), \\
+{\bf q}_1 &amp; = {\rm LSTM} \bigl( W_{pq} \cdot {\bf p}_{|{\bf w}|} \bigr), \\
+{\bf q}_m &amp; = {\rm LSTM} \bigl( W_{yq} \cdot {\bf y}_{m-1} + W_{qq} \cdot {\bf q}_{m-1} \bigr), \\
+{\bf j}_m &amp; = \tanh \bigl( W_{qj} \cdot {\bf q}_m \bigr), \\
+{\bf y}_m &amp; = {\rm softmax} \bigl( W_{jy} \cdot {\bf j}_m \bigr).
+\end{align}
+</pre></div></div>
+
+<p>ここで隠れ層${\bf p}$と${\bf q}$の遷移にちゃっかりLSTMを使っています。<sup id="fnref5"><a href="#fn5" rel="footnote" title="簡単のため、式上ではLSTMの内部状態を無視している。">5</a></sup>というのも図を見て貰えば分かるのですが、encoder側は実際に損失が計算される位置${\bf y}$からかなり遠い場所にあるので、普通の活性化関数ではうまく学習できないという問題があるためです。このようなモデルでは重みの事前学習か、LSTMのような長距離の依存関係を記憶できる素子が必要となります。</p>
+
+<p>さて、上図や式を見てみると、遷移$W_{**}$が8種類あることが分かります。これらが今回学習するパラメータで、モデルの定義にはこれを列挙します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="n">model</span> <span class="o">=</span> <span class="n">FunctionSet</span><span class="p">(</span>
+  <span class="n">w_xi</span> <span class="o">=</span> <span class="n">EmbedID</span><span class="p">(</span><span class="n">SRC_VOCAB_SIZE</span><span class="p">,</span> <span class="n">SRC_EMBED_SIZE</span><span class="p">),</span> <span class="c"># 入力層(one-hot) -&gt; 入力埋め込み層</span>
+  <span class="n">w_ip</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">SRC_EMBED_SIZE</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="c"># 入力埋め込み層 -&gt; 入力隠れ層</span>
+  <span class="n">w_pp</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">HIDDEN_SIZE</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="c"># 入力隠れ層 -&gt; 入力隠れ層</span>
+  <span class="n">w_pq</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">HIDDEN_SIZE</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="c"># 入力隠れ層 -&gt; 出力隠れ層</span>
+  <span class="n">w_yq</span> <span class="o">=</span> <span class="n">EmbedID</span><span class="p">(</span><span class="n">TRG_VOCAB_SIZE</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="c"># 出力層(one-hot) -&gt; 出力隠れ層</span>
+  <span class="n">w_qq</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">HIDDEN_SIZE</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="c"># 出力隠れ層 -&gt; 出力隠れ層</span>
+  <span class="n">w_qj</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">HIDDEN_SIZE</span><span class="p">,</span> <span class="n">TRG_EMBED_SIZE</span><span class="p">),</span> <span class="c"># 出力隠れ層 -&gt; 出力埋め込み層</span>
+  <span class="n">w_jy</span> <span class="o">=</span> <span class="n">Linear</span><span class="p">(</span><span class="n">TRG_EMBED_SIZE</span><span class="p">,</span> <span class="n">TRG_VOCAB_SIZE</span><span class="p">),</span> <span class="c"># 出力隠れ層 -&gt; 出力隠れ層</span>
+<span class="p">)</span>  
+</pre></div></div>
+
+<p>注意する必要があるのはLSTMの入力になる$W_{ip}, W_{pp}, W_{pq}, W_{yq}, W_{qq}$の各パラメータで、LSTMに入力される側の次元を4倍に増やす必要があります。Chainerの実装しているLSTMは通常の入力の他にinput gate, output gate, forget gateの3種類の入力があり、これを1個のベクトルとしてまとめているためにこのような実装が必要となっています。<sup id="fnref6"><a href="#fn6" rel="footnote" title="最近の実装であるchainer.linksにはこの辺りの実装を隠蔽したバージョンのLSTMが実装されている。">6</a></sup></p>
+
+<p>次に<code>forward</code>関数を書きます。LSTMは内部状態を持っているので、${\bf p}$と${\bf q}$の計算時にもう一つ<code>Variable</code>が必要となることに注意します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+
+<span class="c"># src_sentence: 翻訳したい単語列 e.g. ['彼', 'は', '走る']</span>
+<span class="c"># trg_sentence: 正解の翻訳を表す単語列 e.g. ['he', 'runs']</span>
+<span class="c"># training: 学習か予測か。デコーダの挙動に影響する。</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">src_sentence</span><span class="p">,</span> <span class="n">trg_sentence</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+
+  <span class="c"># 単語IDへの変換（自分で適当に実装する）</span>
+  <span class="c"># 正解の翻訳には終端記号を追加しておく。</span>
+  <span class="n">src_sentence</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert_to_your_src_id</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">src_sentence</span><span class="p">]</span>
+  <span class="n">trg_sentence</span> <span class="o">=</span> <span class="p">[</span><span class="n">convert_to_your_trg_id</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="k">for</span> <span class="n">wprd</span> <span class="ow">in</span> <span class="n">trg_sentence</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">END_OF_SENTENCE</span><span class="p">]</span>
+
+  <span class="c"># LSTM内部状態の初期値</span>
+  <span class="n">c</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">HIDDEN_SIZE</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+
+  <span class="c"># エンコーダ</span>
+  <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">src_sentence</span><span class="p">):</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">word</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">w_xi</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">lstm</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">w_ip</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">w_pp</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+  <span class="c"># エンコーダ -&gt; デコーダ</span>
+  <span class="n">c</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">lstm</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">w_pq</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+  <span class="c"># デコーダ</span>
+  <span class="k">if</span> <span class="n">training</span><span class="p">:</span>
+    <span class="c"># 学習時はyとして正解の翻訳を使い、forwardの結果として累積損失を返す。</span>
+    <span class="n">accum_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">trg_sentence</span><span class="p">:</span>
+      <span class="n">j</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">w_qj</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+      <span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">w_jy</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+      <span class="n">t</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">word</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+      <span class="n">accum_loss</span> <span class="o">+=</span> <span class="n">softmax_cross_entropy</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+      <span class="n">c</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">lstm</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">w_yq</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">model</span><span class="o">.</span><span class="n">w_qq</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">accum_loss</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="c"># 予測時には翻訳器が生成したyを次回の入力に使い、forwardの結果として生成された単語列を返す。</span>
+    <span class="c"># yの中で最大の確率を持つ単語を選択していくが、softmaxを取る必要はない。</span>
+    <span class="n">hyp_sentence</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">hyp_sentence</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span> <span class="c"># 100単語以上は生成しないようにする</span>
+      <span class="n">j</span> <span class="o">=</span> <span class="n">tanh</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">w_qj</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+      <span class="n">y</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">w_jy</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+      <span class="n">word</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="k">if</span> <span class="n">word</span> <span class="o">==</span> <span class="n">END_OF_SENTENCE</span><span class="p">:</span>
+        <span class="k">break</span> <span class="c"># 終端記号が生成されたので終了</span>
+      <span class="n">hyp_sentence</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">convert_to_your_trg_str</span><span class="p">(</span><span class="n">word</span><span class="p">))</span>
+      <span class="n">c</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">lstm</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">w_yq</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">model</span><span class="o">.</span><span class="n">w_qq</span><span class="p">(</span><span class="n">q</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">hyp_sentence</span>
+</pre></div></div>
+
+<p>少々長いですが、注意深く読むと上図の矢印とコードの各部分が対応していることが分かると思います。<br>
+あとはこのコードの外側にRNNと同じような学習器を追加すれば、晴れて自前の翻訳データを学習できるようになるわけです。</p>
+
+<p>さて、果たしてこのモデルがどのように学習するかですが、<a href="https://drive.google.com/open?id=0B3O7bgd3mym6VG9OVHRmRlBLbkk" rel="nofollow noopener" target="_blank">ここ</a>に置いている日英翻訳のサンプルデータを用いて学習してみます。語彙数2000、埋め込み層100、隠れ層100として1万文程度を学習すると、概ね世代ごとに次のような翻訳結果が得られます（学習にはサンプル集の方のプログラムを使いました）。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+入力: 休暇 は いかが で し た か 。
+出力:
+1: the is is a of of &lt;unk&gt; .
+2: the 't is a &lt;unk&gt; of &lt;unk&gt; .
+3: it is a good of the &lt;unk&gt; .
+4: how is the &lt;unk&gt; to be ?
+5: how do you have a &lt;unk&gt; ?
+6: how do you have a &lt;unk&gt; ?
+7: how did you like the &lt;unk&gt; ?
+8: how did you like the weather ?
+9: how did you like the weather ?
+10: how did you like your work ?
+11: how did you like your vacation ?
+12: how did you like your vacation ?
+13: how did you the weather to drink ?
+14: how did you like your vacation ?
+15: how did you like your vacation ?
+16: how did you like your vacation ?
+17: how did you like your vacation ?
+18: how did you like your vacation ?
+19: how did you enjoy your vacation ?
+20: how did you enjoy your vacation now ?
+21: how did you enjoy your vacation for you ?
+22: how did you enjoy your vacation ?
+
+入力: 彼女 は 幸福 そう に 見え る 。
+出力:
+1: she is a of of of .
+2: she is a good of of .
+3: she is a good of &lt;unk&gt; .
+4: she is a good of &lt;unk&gt; .
+5: she is a good of &lt;unk&gt; .
+6: she is a good of his morning .
+7: she is a good of his morning .
+8: she is a good of his morning .
+9: she is a good of his morning .
+11: she is a good of his morning .
+12: she is a good of his morning .
+13: she is a good of his morning .
+14: she is a good of his morning .
+15: she is a good at tennis .
+16: she is a good at tennis .
+17: she is a good at tennis .
+18: she is a good of the time .
+19: she seems to be very very happy .
+20: she is going to be a student .
+21: she seems to be very very happy .
+22: she seems to be very very happy .
+23: she seems to be very happy .
+
+入力: 今朝 は 寒 く 感じ る 。
+出力:
+1: i 'm a of of of .
+2: i 'm a &lt;unk&gt; of the &lt;unk&gt; .
+3: it is a good of &lt;unk&gt; .
+4: it is a good of &lt;unk&gt; .
+5: it is a good of &lt;unk&gt; .
+6: it is a good of the day .
+7: it 's a good of &lt;unk&gt; .
+8: it 's a good of &lt;unk&gt; .
+9: it 's a good of &lt;unk&gt; .
+10: it 's a good of &lt;unk&gt; today .
+11: i 'm a good &lt;unk&gt; of time .
+12: i 'm a good &lt;unk&gt; of time .
+13: i 'm a good &lt;unk&gt; of time .
+14: i 'm very busy this &lt;unk&gt; today .
+15: i 'm very busy this morning time .
+16: i 'm very busy this morning time .
+17: i 'm very busy this time .
+18: i 'm very busy this time .
+19: i have a lot of cold here .
+20: i have a lot of &lt;unk&gt; here .
+21: i have a lot of &lt;unk&gt; time .
+22: i 'm very busy this morning time .
+23: i have a lot of cold here .
+24: i have a lot of cold here .
+25: i have a lot of that morning .
+26: i have a lot of cold here .
+27: i have a lot of cold here .
+28: i have a cold , will do .
+29: i feel cold this morning this morning .
+</pre></div></div>
+
+<p>結果を見て分かるのは、まず大まかな文法や意味の広い単語を生成するよう学習し、次第に具体的な単語を当てに行くよう調整されてゆく点です。これは、ニューラルネットの収束が進むにつれて単語同士の意味の違いをはっきりと捉えることができるようになってゆくためである、と考えることもできます。最後の例などは面白くて、「今朝は寒い(feel cold this morning)」と「風邪を引いた(have a cold)」を学習の最後まで間違えていたようです。このような意味的な間違いはニューラルネットに独特の現象で、従来の機械翻訳の手法ではまず起こることがありません。このような異なる特徴を持つ点も、ニューラルネットが自然言語処理で注目されている理由の一つと考えられます。</p>
+
+<div class="footnotes">
+<hr>
+<ol>
+
+<li id="fn1">
+<p>両方ともRNNと略されるので紛らわしい。紛らわしさを逆手に取ったのか<a href="https://aclweb.org/anthology/P/P14/P14-1140.pdf" rel="nofollow noopener" target="_blank">R2NN (recursive recurrent neural network)</a>などというモデルもあったりする。 <a href="#fnref1">↩</a></p>
+</li>
+
+<li id="fn2">
+<p>ただし、<em>N</em>-gramモデルのように文の一部だけを取り出してスコアを求めたりすることはできないので、少しずつスコアを求めながら解析を進める機械翻訳のような分野では使い方が限られるという問題もある。 <a href="#fnref2">↩</a></p>
+</li>
+
+<li id="fn3">
+<p>単語を単語IDに変換する方法は色々あり、採用する方法によってモデルの精度に直接影響が出る。ここまで説明すると記事の趣旨から逸脱するので、ここでは解説しない。 <a href="#fnref3">↩</a></p>
+</li>
+
+<li id="fn4">
+<p>学習時間がボトルネックとして効いてくるので、本当にtry-and-error的な開発がしたい場合はGPUを1枚持っていた方が良い。 <a href="#fnref4">↩</a></p>
+</li>
+
+<li id="fn5">
+<p>簡単のため、式上ではLSTMの内部状態を無視している。 <a href="#fnref5">↩</a></p>
+</li>
+
+<li id="fn6">
+<p>最近の実装である<code>chainer.links</code>にはこの辺りの実装を隠蔽したバージョンのLSTMが実装されている。 <a href="#fnref6">↩</a></p>
+</li>
+
+</ol>
+</div>
+<div class="hidden"><form class="js-task-list-update" action="/odashi_t/items/a1be7c4964fbea6a116e" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="eZe9L5SQ5pLe+ZrTuMFNZm384hcIORNVKOaKab7FL8FQ1c4gRHMYC4PxJUjpgPZoIlCu2cQtgd4t6ywBR/564w==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1449738038" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# 自然言語処理とニューラルネット
+
+ここ数年で、自然言語処理の分野でもニューラルネットが非常に頻繁に使われるようになってきました。
+
+自然言語処理で主に解析対象となるのは単語の配列や構文木などで、これらの内包する情報を表現するためにrecurrent neural network[^1]やrecursive neural network[^1]などに基づくモデルが頻繁に使われます。これらの最大の特徴は**ニューラルネットがある種のデータ構造を持っている**という点で、1レイヤあたりのノードはそれほど多くない代わりにネットワークの接続が複雑で、しかも入力されるデータごとにネットワークそのものの形状が変化するという特徴があります。このため、伝統的なfeedforward neural networkを前提としたツールキットでは構築が難しいという問題がありました。
+
+[Chainer](http://chainer.org/)は、そのような問題を概ね解決してしまう強力なニューラルネットのフレームワークです。Pythonの文法とほんの少しだけNumPyを知っていれば使えるのと、ソースコード上の計算式がそのままニューラルネットの接続情報として自動的に記憶されるので、**入力データをパースすれば自動的にニューラルネットで解析できてしまう**という~~チートのような~~特徴があります。
+
+最近書き溜めていた[Chainerサンプル集](https://github.com/odashi/chainer_examples)でも言語モデルや単語分割器、翻訳モデルなどを実装していますが、いずれも基本的な部分（コード中の`forward`関数）は半日、短いものだと1時間くらいあれば実装できてしまいます。サンプルを見てもらえば分かりますが、むしろデータを整理する周辺コードに労力の大半を割いているような状況です。
+
+本稿では主にrecurrent neural networkについて、そのChainerでの実装方法と、自然言語処理での一応用であるencoder-decoder翻訳モデルの解説を行います。
+
+*記事の内容はChainer1.4以前を前提としています。1.5系には様子を見て対応します。*
+
+# Recurrent Neural Network
+
+最も基本的なrecurrent neural network（以降RNN）は、次の図のような、オーソドックスな3層ニューラルネットに隠れ層のフィードバックが追加されたものです。
+
+![rnn.png](https://qiita-image-store.s3.amazonaws.com/0/100698/b7d34800-5a65-9162-dc6b-ab29b8124daf.png)
+
+簡単なモデルですが、後で紹介する翻訳モデルはRNNを組み合わせて作られています。またRNN単体でも、言語モデルに使用すると従来の*N*-gramモデルを簡単に凌駕する精度を叩き出してくれる優れ物です。[^2]
+
+上図を式に書き下すと、
+
+```math
+\begin{align}
+{\bf h}_n &amp; = \tanh \bigl( W_{xh} \cdot {\bf x}_n + W_{hh} \cdot {\bf h}_{n-1} \bigr), \\
+{\bf y}_n &amp; = {\rm softmax} \bigl( W_{hy} \cdot {\bf h}_n \bigr)
+\end{align}
+```
+
+となり、これをそのままChainer上の計算式として使います。
+
+とりあえずここでは「単語IDを入力して、次の単語IDを予測する」RNN言語モデルを考えましょう。[^3]
+まず**モデル**を定義します。モデルとは**学習可能なパラメータの集合**のことで、上図の$W_{\*\*}$がこれに相当します。この場合$W_{\*\*}$は全て線形作用素（行列）なので、`chainer.functions`内の`Linear`か`EmbedID`を使用します。`EmbedID`は入力側がone-hotベクトルの場合の`Linear`で、ベクトルの代わりに発火している要素のIDを渡すことができます。
+
+```py3
+from chainer import FunctionSet
+from chainer.functions import *
+
+model = FunctionSet(
+  w_xh = EmbedID(VOCAB_SIZE, HIDDEN_SIZE), # 入力層(one-hot) -&gt; 隠れ層
+  w_hh = Linear(HIDDEN_SIZE, HIDDEN_SIZE), # 隠れ層 -&gt; 隠れ層
+  w_hy = Linear(HIDDEN_SIZE, VOCAB_SIZE), # 隠れ層 -&gt; 出力層
+)  
+```
+
+`VOCAB_SIZE`は単語の種類数、`HIDDEN_SIZE`は隠れ層の次元を表します。
+
+次に実際の解析を行う`forward`関数を定義します。ここでは基本的にはモデルの定義と実際の入力データに従って上図のネットワーク構造を再現し、最終的に求めたい値を計算することになります。言語モデルの場合は次の式に表す**文の結合確率**を求めることになります。
+
+```math
+\begin{align}
+\log {\rm Pr} \bigl( {\bf w} \bigr) &amp; = \sum_{n=1}^{|{\bf w}|} \log {\rm Pr} \bigl( w_n \ \big| \ w_1, w_2, \cdots, w_{n-1} \bigr) \\
+&amp; = \sum_{n=1}^{|{\bf w}|} \log {\bf y}_n\big[ {\rm index} \bigl( w_n \bigr) \big]
+\end{align}
+```
+
+以下がコード例ですが、Chainerはミニバッチ処理が前提になっているので、データの次元がひとつ多くなっています（コード中でバッチ処理は行っていません）。
+
+```py3
+import math
+import numpy as np
+from chainer import Variable
+from chainer.functions import *
+
+def forward(sentence, model): # sentenceはstrの配列。MeCabなどの出力を想定。
+  sentence = [convert_to_your_word_id(word) for word in sentence] # 単語をIDに変換。自分で適当に実装する。
+  h = Variable(np.zeros((1, HIDDEN_SIZE), dtype=np.float32)) # 隠れ層の初期値
+  log_joint_prob = float(0) # 文の結合確率
+
+  for word in sentence:
+    x = Variable(np.array([[word]], dtype=np.int32)) # 次回の入力層
+    y = softmax(model.w_hy(h)) # 次の単語の確率分布
+    log_joint_prob += math.log(y.data[0][word]) # 結合確率の更新
+    h = tanh(model.w_xh(x) + model.w_hh(h)) # 隠れ層の更新
+
+  return log_joint_prob # 結合確率の計算結果を返す
+```
+
+これで文の確率を求めることができるようになりました。が、上記にはモデルを学習するための損失関数の計算が含まれていません。今回はsoftmax関数を最終段に使用しているので、`chainer.functions.softmax_cross_entropy`で正解とのクロスエントロピーを求めて損失関数とします。
+
+```py3
+def forward(sentence, model):
+  ...
+
+  accum_loss = Variable(np.zeros((), dtype=np.float32)) # 累積損失の初期値
+  ...
+
+  for word in sentence:
+    x = Variable(np.array([[word]], dtype=np.int32)) # 次回の入力層 (=今回の正解)
+    u = model.w_hy(h)
+    accum_loss += softmax_cross_entropy(u, x) # 損失の蓄積
+    y = softmax(u)
+    ...
+
+  return log_joint_prob, accum_loss # 累積損失も一緒に返す
+```
+
+これで学習ができるようになりました。
+
+```py3
+from chainer.optimizers import *
+...
+
+def train(sentence_set, model):
+  opt = SGD() # 確率的勾配法を使用
+  opt.setup(model) # 学習器の初期化
+  for sentence in sentence_set:
+    opt.zero_grad(); # 勾配の初期化
+    log_joint_prob, accum_loss = forward(sentence, model) # 損失の計算
+    accum_loss.backward() # 誤差逆伝播
+    opt.clip_grads(10) # 大きすぎる勾配を抑制
+    opt.update() # パラメータの更新
+```
+
+基本的にChainerの処理はこれだけです。従来はこのようなニューラルネットのためにウンザリするような行数のプログラムを記述していたわけですが、Chainerは面倒な計算がほぼ全てPythonの構文に隠蔽されているので、このように短い記述が可能となります。Chainerの使い方さえ覚えていれば、最近提案されたモデルや今思いついた独自モデルをサッと書いて試す、というような実験も可能となるわけです。[^4]
+
+# Encoder-decoder翻訳モデル
+
+RNNを応用した少し複雑な例として、ニューラルネットを使った機械翻訳の手法である**encoder-decoder翻訳モデル**を実装してみます。
+これは入力から出力までの全ての過程がニューラルネットで記述された翻訳モデルであり、そのシンプルさに反して従来の翻訳モデルに匹敵する精度を実現するため、発表時には研究者に驚きを以って迎えられました。
+
+Encoder-decoder翻訳モデルには色々な亜種がありますが、ここでは私のサンプル集でも実装している下図のモデルを書いてみます。
+
+![encdec.png](https://qiita-image-store.s3.amazonaws.com/0/100698/949b1930-5db2-008c-4db1-ad24b2eea4fe.png)
+
+考え方としては簡単で、入力言語側(encoder)と出力言語側(decoder)の2個のRNNを用意して、それを中間ノードで繋ぎ合わせたものです。このモデルの面白い点は、出力側で単語と一緒に終端記号を生成するため、**翻訳の終了をモデル自身が決めている**という点です。しかし逆に言うと、この終端記号の学習に失敗していると無限に単語を生成するようになってしまうため、実際には適当な単語数を生成しても終わらない場合は処理を打ち切る必要があります。
+
+${\bf i}$と${\bf j}$は**埋め込み(embedding)層**と呼ばれるもので、次元の圧縮された単語情報を表します。また入力の単語列が反転していますが、このようにすると実験的に良い翻訳結果が出ることが分かっています。なぜなのかはあまりはっきりと分かっていませんが、encoderとdecoderが変換・逆変換の関係にあるから、という風に解釈されていたりします。
+
+早速コードを書き進めて行きますが、まずは計算式に落とし込みましょう。これは次のようになります。
+
+```math
+\begin{align}
+{\bf i}_n &amp; = \tanh \bigl( W_{xi} \cdot {\bf x}_n \bigr), \\
+{\bf p}_n &amp; = {\rm LSTM} \bigl( W_{ip} \cdot {\bf i}_n + W_{pp} \cdot {\bf p}_{n-1} \bigr), \\
+{\bf q}_1 &amp; = {\rm LSTM} \bigl( W_{pq} \cdot {\bf p}_{|{\bf w}|} \bigr), \\
+{\bf q}_m &amp; = {\rm LSTM} \bigl( W_{yq} \cdot {\bf y}_{m-1} + W_{qq} \cdot {\bf q}_{m-1} \bigr), \\
+{\bf j}_m &amp; = \tanh \bigl( W_{qj} \cdot {\bf q}_m \bigr), \\
+{\bf y}_m &amp; = {\rm softmax} \bigl( W_{jy} \cdot {\bf j}_m \bigr).
+\end{align}
+```
+
+ここで隠れ層${\bf p}$と${\bf q}$の遷移にちゃっかりLSTMを使っています。[^5]というのも図を見て貰えば分かるのですが、encoder側は実際に損失が計算される位置${\bf y}$からかなり遠い場所にあるので、普通の活性化関数ではうまく学習できないという問題があるためです。このようなモデルでは重みの事前学習か、LSTMのような長距離の依存関係を記憶できる素子が必要となります。
+
+さて、上図や式を見てみると、遷移$W_{\*\*}$が8種類あることが分かります。これらが今回学習するパラメータで、モデルの定義にはこれを列挙します。
+
+```py3
+model = FunctionSet(
+  w_xi = EmbedID(SRC_VOCAB_SIZE, SRC_EMBED_SIZE), # 入力層(one-hot) -&gt; 入力埋め込み層
+  w_ip = Linear(SRC_EMBED_SIZE, 4 * HIDDEN_SIZE), # 入力埋め込み層 -&gt; 入力隠れ層
+  w_pp = Linear(HIDDEN_SIZE, 4 * HIDDEN_SIZE), # 入力隠れ層 -&gt; 入力隠れ層
+  w_pq = Linear(HIDDEN_SIZE, 4 * HIDDEN_SIZE), # 入力隠れ層 -&gt; 出力隠れ層
+  w_yq = EmbedID(TRG_VOCAB_SIZE, 4 * HIDDEN_SIZE), # 出力層(one-hot) -&gt; 出力隠れ層
+  w_qq = Linear(HIDDEN_SIZE, 4 * HIDDEN_SIZE), # 出力隠れ層 -&gt; 出力隠れ層
+  w_qj = Linear(HIDDEN_SIZE, TRG_EMBED_SIZE), # 出力隠れ層 -&gt; 出力埋め込み層
+  w_jy = Linear(TRG_EMBED_SIZE, TRG_VOCAB_SIZE), # 出力隠れ層 -&gt; 出力隠れ層
+)  
+```
+
+注意する必要があるのはLSTMの入力になる$W_{ip}, W_{pp}, W_{pq}, W_{yq}, W_{qq}$の各パラメータで、LSTMに入力される側の次元を4倍に増やす必要があります。Chainerの実装しているLSTMは通常の入力の他にinput gate, output gate, forget gateの3種類の入力があり、これを1個のベクトルとしてまとめているためにこのような実装が必要となっています。[^6]
+
+次に`forward`関数を書きます。LSTMは内部状態を持っているので、${\bf p}$と${\bf q}$の計算時にもう一つ`Variable`が必要となることに注意します。
+
+```py3
+
+# src_sentence: 翻訳したい単語列 e.g. [&#39;彼&#39;, &#39;は&#39;, &#39;走る&#39;]
+# trg_sentence: 正解の翻訳を表す単語列 e.g. [&#39;he&#39;, &#39;runs&#39;]
+# training: 学習か予測か。デコーダの挙動に影響する。
+def forward(src_sentence, trg_sentence, model, training):
+
+  # 単語IDへの変換（自分で適当に実装する）
+  # 正解の翻訳には終端記号を追加しておく。
+  src_sentence = [convert_to_your_src_id(word) for word in src_sentence]
+  trg_sentence = [convert_to_your_trg_id(word) for wprd in trg_sentence] + [END_OF_SENTENCE]
+
+  # LSTM内部状態の初期値
+  c = Variable(np.zeros((1, HIDDEN_SIZE), dtype=np.float32))
+
+  # エンコーダ
+  for word in reversed(src_sentence):
+    x = Variable(np.array([[word]], dtype=np.int32))
+    i = tanh(model.w_xi(x))
+    c, p = lstm(c, model.w_ip(i) + model.w_pp(p))
+
+  # エンコーダ -&gt; デコーダ
+  c, q = lstm(c, model.w_pq(p))
+
+  # デコーダ
+  if training:
+    # 学習時はyとして正解の翻訳を使い、forwardの結果として累積損失を返す。
+    accum_loss = np.zeros((), dtype=np.float32)
+    for word in trg_sentence:
+      j = tanh(model.w_qj(q))
+      y = model.w_jy(j)
+      t = Variable(np.array([[word]], dtype=np.int32))
+      accum_loss += softmax_cross_entropy(y, t)
+      c, q = lstm(c, model.w_yq(t), model.w_qq(q))
+    return accum_loss
+  else:
+    # 予測時には翻訳器が生成したyを次回の入力に使い、forwardの結果として生成された単語列を返す。
+    # yの中で最大の確率を持つ単語を選択していくが、softmaxを取る必要はない。
+    hyp_sentence = []
+    while len(hyp_sentence) &lt; 100: # 100単語以上は生成しないようにする
+      j = tanh(model.w_qj(q))
+      y = model.w_jy(j)
+      word = y.data.argmax(1)[0]
+      if word == END_OF_SENTENCE:
+        break # 終端記号が生成されたので終了
+      hyp_sentence.append(convert_to_your_trg_str(word))
+      c, q = lstm(c, model.w_yq(y), model.w_qq(q))
+    return hyp_sentence
+```
+
+少々長いですが、注意深く読むと上図の矢印とコードの各部分が対応していることが分かると思います。
+あとはこのコードの外側にRNNと同じような学習器を追加すれば、晴れて自前の翻訳データを学習できるようになるわけです。
+
+さて、果たしてこのモデルがどのように学習するかですが、[ここ](https://drive.google.com/open?id=0B3O7bgd3mym6VG9OVHRmRlBLbkk)に置いている日英翻訳のサンプルデータを用いて学習してみます。語彙数2000、埋め込み層100、隠れ層100として1万文程度を学習すると、概ね世代ごとに次のような翻訳結果が得られます（学習にはサンプル集の方のプログラムを使いました）。
+
+```
+入力: 休暇 は いかが で し た か 。
+出力:
+1: the is is a of of &lt;unk&gt; .
+2: the &#39;t is a &lt;unk&gt; of &lt;unk&gt; .
+3: it is a good of the &lt;unk&gt; .
+4: how is the &lt;unk&gt; to be ?
+5: how do you have a &lt;unk&gt; ?
+6: how do you have a &lt;unk&gt; ?
+7: how did you like the &lt;unk&gt; ?
+8: how did you like the weather ?
+9: how did you like the weather ?
+10: how did you like your work ?
+11: how did you like your vacation ?
+12: how did you like your vacation ?
+13: how did you the weather to drink ?
+14: how did you like your vacation ?
+15: how did you like your vacation ?
+16: how did you like your vacation ?
+17: how did you like your vacation ?
+18: how did you like your vacation ?
+19: how did you enjoy your vacation ?
+20: how did you enjoy your vacation now ?
+21: how did you enjoy your vacation for you ?
+22: how did you enjoy your vacation ?
+
+入力: 彼女 は 幸福 そう に 見え る 。
+出力:
+1: she is a of of of .
+2: she is a good of of .
+3: she is a good of &lt;unk&gt; .
+4: she is a good of &lt;unk&gt; .
+5: she is a good of &lt;unk&gt; .
+6: she is a good of his morning .
+7: she is a good of his morning .
+8: she is a good of his morning .
+9: she is a good of his morning .
+11: she is a good of his morning .
+12: she is a good of his morning .
+13: she is a good of his morning .
+14: she is a good of his morning .
+15: she is a good at tennis .
+16: she is a good at tennis .
+17: she is a good at tennis .
+18: she is a good of the time .
+19: she seems to be very very happy .
+20: she is going to be a student .
+21: she seems to be very very happy .
+22: she seems to be very very happy .
+23: she seems to be very happy .
+
+入力: 今朝 は 寒 く 感じ る 。
+出力:
+1: i &#39;m a of of of .
+2: i &#39;m a &lt;unk&gt; of the &lt;unk&gt; .
+3: it is a good of &lt;unk&gt; .
+4: it is a good of &lt;unk&gt; .
+5: it is a good of &lt;unk&gt; .
+6: it is a good of the day .
+7: it &#39;s a good of &lt;unk&gt; .
+8: it &#39;s a good of &lt;unk&gt; .
+9: it &#39;s a good of &lt;unk&gt; .
+10: it &#39;s a good of &lt;unk&gt; today .
+11: i &#39;m a good &lt;unk&gt; of time .
+12: i &#39;m a good &lt;unk&gt; of time .
+13: i &#39;m a good &lt;unk&gt; of time .
+14: i &#39;m very busy this &lt;unk&gt; today .
+15: i &#39;m very busy this morning time .
+16: i &#39;m very busy this morning time .
+17: i &#39;m very busy this time .
+18: i &#39;m very busy this time .
+19: i have a lot of cold here .
+20: i have a lot of &lt;unk&gt; here .
+21: i have a lot of &lt;unk&gt; time .
+22: i &#39;m very busy this morning time .
+23: i have a lot of cold here .
+24: i have a lot of cold here .
+25: i have a lot of that morning .
+26: i have a lot of cold here .
+27: i have a lot of cold here .
+28: i have a cold , will do .
+29: i feel cold this morning this morning .
+```
+
+結果を見て分かるのは、まず大まかな文法や意味の広い単語を生成するよう学習し、次第に具体的な単語を当てに行くよう調整されてゆく点です。これは、ニューラルネットの収束が進むにつれて単語同士の意味の違いをはっきりと捉えることができるようになってゆくためである、と考えることもできます。最後の例などは面白くて、「今朝は寒い(feel cold this morning)」と「風邪を引いた(have a cold)」を学習の最後まで間違えていたようです。このような意味的な間違いはニューラルネットに独特の現象で、従来の機械翻訳の手法ではまず起こることがありません。このような異なる特徴を持つ点も、ニューラルネットが自然言語処理で注目されている理由の一つと考えられます。
+
+
+[^1]: 両方ともRNNと略されるので紛らわしい。紛らわしさを逆手に取ったのか[R2NN (recursive recurrent neural network)](https://aclweb.org/anthology/P/P14/P14-1140.pdf)などというモデルもあったりする。
+[^2]: ただし、*N*-gramモデルのように文の一部だけを取り出してスコアを求めたりすることはできないので、少しずつスコアを求めながら解析を進める機械翻訳のような分野では使い方が限られるという問題もある。
+[^3]: 単語を単語IDに変換する方法は色々あり、採用する方法によってモデルの精度に直接影響が出る。ここまで説明すると記事の趣旨から逸脱するので、ここでは解説しない。
+[^4]: 学習時間がボトルネックとして効いてくるので、本当にtry-and-error的な開発がしたい場合はGPUを1枚持っていた方が良い。
+[^5]: 簡単のため、式上ではLSTMの内部状態を無視している。
+[^6]: 最近の実装である`chainer.links`にはこの辺りの実装を隠蔽したバージョンのLSTMが実装されている。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ChainerとRNNと機械翻訳 by @odashi_t on @Qiita" data-url="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ChainerとRNNと機械翻訳" href="http://b.hatena.ne.jp/entry/http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/odashi_t"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/100698/profile-images/1486983372" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/odashi_t">odashi_t</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">320</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;odashi_t&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-42738ff5-23e0-4ad7-aaeb-3d9a50b84dae"></div>
+    <div id="UserFollowButton-react-component-42738ff5-23e0-4ad7-aaeb-3d9a50b84dae"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/odashi_t/items/a1be7c4964fbea6a116e">ChainerとRNNと機械翻訳</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/odashi_t/items/237a34d56e5d2a1df7ae">ニューラルネットのフレームワークDyNetの紹介 </a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86%E3%81%A8%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88\&quot;\u003e自然言語処理とニューラルネット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#recurrent-neural-network\&quot;\u003eRecurrent Neural Network\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#encoder-decoder%E7%BF%BB%E8%A8%B3%E3%83%A2%E3%83%87%E3%83%AB\&quot;\u003eEncoder-decoder翻訳モデル\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-98537a43-c759-405a-bf3a-c174cacff1c6"></div>
+    <div id="Toc-react-component-98537a43-c759-405a-bf3a-c174cacff1c6"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:279,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;a1be7c4964fbea6a116e&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yukinoi"><a itemprop="url" href="/yukinoi"><img alt="yukinoi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/48207/profile-images/1473691268" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ntddk"><a itemprop="url" href="/ntddk"><img alt="ntddk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22237/profile-images/1473683530" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kodaira_"><a itemprop="url" href="/Kodaira_"><img alt="Kodaira_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86999/profile-images/1473703933" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hakuro"><a itemprop="url" href="/hakuro"><img alt="hakuro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38221/profile-images/1473687686" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="twipg"><a itemprop="url" href="/twipg"><img alt="twipg" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/88331/profile-images/1473704388" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="asahima_"><a itemprop="url" href="/asahima_"><img alt="asahima_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4453/profile-images/1473684031" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="k_ishiguro"><a itemprop="url" href="/k_ishiguro"><img alt="k_ishiguro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/12134/profile-images/1473682287" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mofoolog"><a itemprop="url" href="/mofoolog"><img alt="mofoolog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73019/profile-images/1473699355" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Takashi78364"><a itemprop="url" href="/Takashi78364"><img alt="Takashi78364" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/66781/profile-images/1473697319" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="akivajp"><a itemprop="url" href="/akivajp"><img alt="akivajp" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104262/profile-images/1473709246" /></a></div></div><div class="ArticleFooter__user"><a href="/odashi_t/items/a1be7c4964fbea6a116e/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/a1be7c4964fbea6a116e/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/odashi_t/items/a1be7c4964fbea6a116e.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.6</span> article of <a class="title" href="/advent-calendar/2015/chainer">Chainer Advent Calendar 2015</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 5:</span><span class="itemsShowBody_adventCalendar_title"><img alt="ichiroex" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/ichiroex/items/e0486a6dea1f14c2cfc2">深層学習フレームワークChainerの勉強に役立つページのまとめ</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 7:</span><span class="itemsShowBody_adventCalendar_title"><img alt="ichiroex" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/ichiroex/items/f225f6d8eceb6796cc7e">【Chainer】畳み込みニューラルネットワークによる文書分類</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 1 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/GushiSnow/items/c0dce54a1ed90fe16c26#_reference-058c270f915e05d1007f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" />Chainer ハンズオン ～事前準備編～ [Tech-Circle#11]</a><time class="references_datetime js-dateTimeView" datetime="2015-12-08T22:33:34+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/t_Signull/items/21b82be280b46f467d1b#_reference-25c77cd0e1ae0b242faf"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/60969/profile-images/1473695400" />わかるLSTM ～ 最近の動向と共に</a><time class="references_datetime js-dateTimeView" datetime="2015-12-14T14:24:11+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/GushiSnow/items/79ca7deeb976f50126d7#_reference-b11274a92dda7c94b9d7"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/10496/profile-images/1473757289" />Chainerで学習した対話用のボットをSlackで使用+Twitterから学習データを取得してファインチューニング</a><time class="references_datetime js-dateTimeView" datetime="2016-01-03T22:53:42+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ichiroex/items/e0486a6dea1f14c2cfc2#_reference-f33b8654a382da23f215"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" />深層学習フレームワークChainerの勉強に役立つページのまとめ</a><time class="references_datetime js-dateTimeView" datetime="2016-04-05T15:03:21+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/_329_/items/1d5de7b8213b112a3df7#_reference-c2b7a2c3782765776296"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/87943/profile-images/1473704263" />Chainerでシンプルな熊本弁翻訳</a><time class="references_datetime js-dateTimeView" datetime="2016-04-14T11:29:38+00:00">11 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/3a1116d3c77fad2ddd3a#_reference-952103ee77f5fe38b487"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />Convolutional LSTM Network の ライブラリ実装状況 〜 空間座標の位置特徴量 と 時間軸の時系列特徴量 を 両方、学習させる deep neural network モデル</a><time class="references_datetime js-dateTimeView" datetime="2017-02-26T14:04:30+00:00">21 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ChainerとRNNと機械翻訳 by @odashi_t on @Qiita" data-url="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ChainerとRNNと機械翻訳" href="http://b.hatena.ne.jp/entry/http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e大変参考になる投稿で、ありがたく活用させていただいております。\u003cbr\u003e\n（※python・deep learning、いずれも初心者のため、初歩的な質問であることをご容赦ください。）\u003c/p\u003e\n\n\u003cp\u003e上記、chainerサンプル集のchainer-1.5 / mt_s2s_encdec.pyの実行の際に、\u003cbr\u003e\n$ python mt_s2s_encdec.py mode \\&#39;train\\ source train1000.ja target train1000.en\u003c/p\u003e\n\n\u003cp\u003eとしますと、\u003cbr\u003e\nusage: mt_s2s_encdec.py [-h] [--vocab INT] [--embed INT] [--hidden INT]\u003cbr\u003e\n                        [--epoch INT] [--minibatch INT]\u003cbr\u003e\n                        [--generation-limit INT]\u003cbr\u003e\n                        mode source target model\u003cbr\u003e\nmt_s2s_encdec.py: error: unrecognized arguments: train1000.en\u003c/p\u003e\n\n\u003cp\u003eとErrorが返されるのですが、target部分で、何か書き方が間違っていますでしょうか？\u003cbr\u003e\n何卒よろしくお願いいたします。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-01-12T18:52:32+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:429812,&quot;is_team&quot;:false,&quot;item_id&quot;:348869,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;a1be7c4964fbea6a116e&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;大変参考になる投稿で、ありがたく活用させていただいております。\n（※python・deep learning、いずれも初心者のため、初歩的な質問であることをご容赦ください。）\n\n上記、chainerサンプル集のchainer-1.5 / mt_s2s_encdec.pyの実行の際に、\n$ python mt_s2s_encdec.py mode \\&#39;train\\ source train1000.ja target train1000.en\n\nとしますと、\nusage: mt_s2s_encdec.py [-h] [--vocab INT] [--embed INT] [--hidden INT]\n                        [--epoch INT] [--minibatch INT]\n                        [--generation-limit INT]\n                        mode source target model\nmt_s2s_encdec.py: error: unrecognized arguments: train1000.en\n\nとErrorが返されるのですが、target部分で、何か書き方が間違っていますでしょうか？\n何卒よろしくお願いいたします。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e#comment-7830892671aef73f1ad0&quot;,&quot;user&quot;:{&quot;contribution&quot;:19,&quot;created_at&quot;:&quot;2016-01-12T18:42:14+09:00&quot;,&quot;id&quot;:109118,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/109118/profile-images/1473710770&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;daichan1111&quot;},&quot;uuid&quot;:&quot;7830892671aef73f1ad0&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/daichan1111\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;daichan1111\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;daichan1111\&quot;\u003e@daichan1111\u003c/a\u003e mode, source, targetは単なる変数名で、記述する必要はありません。次のように起動して下さい。\u003cbr\u003e\npython3 mt_s2s_encdec.py train train1000.ja train1000.en\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-01-12T20:37:00+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:429959,&quot;is_team&quot;:false,&quot;item_id&quot;:348869,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;a1be7c4964fbea6a116e&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;@daichan1111 mode, source, targetは単なる変数名で、記述する必要はありません。次のように起動して下さい。\npython3 mt_s2s_encdec.py train train1000.ja train1000.en\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e#comment-ce1d2112a002672975b5&quot;,&quot;user&quot;:{&quot;contribution&quot;:320,&quot;created_at&quot;:&quot;2015-11-14T03:20:05+09:00&quot;,&quot;id&quot;:100698,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/100698/profile-images/1486983372&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;odashi_t&quot;},&quot;uuid&quot;:&quot;ce1d2112a002672975b5&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/odashi_t\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;odashi_t\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;odashi_t\&quot;\u003e@odashi_t\u003c/a\u003e \u003cbr\u003e\nご教示いただきありがとうございます。無事に起動できました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-01-13T09:30:20+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:430312,&quot;is_team&quot;:false,&quot;item_id&quot;:348869,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;a1be7c4964fbea6a116e&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@odashi_t \nご教示いただきありがとうございます。無事に起動できました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e#comment-3ce59e63301582e12190&quot;,&quot;user&quot;:{&quot;contribution&quot;:19,&quot;created_at&quot;:&quot;2016-01-12T18:42:14+09:00&quot;,&quot;id&quot;:109118,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/109118/profile-images/1473710770&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;daichan1111&quot;},&quot;uuid&quot;:&quot;3ce59e63301582e12190&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:348869,&quot;uuid&quot;:&quot;a1be7c4964fbea6a116e&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;odashi_t&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:100698,&quot;url_name&quot;:&quot;odashi_t&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/100698/profile-images/1486983372&quot;},{&quot;id&quot;:109118,&quot;url_name&quot;:&quot;daichan1111&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/109118/profile-images/1473710770&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-997a2621-d496-4d3a-95fd-adaaa8112171"></div>
+    <div id="CommentListContainer-react-component-997a2621-d496-4d3a-95fd-adaaa8112171"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="ExOH7VrFe+aZYsqszm4rVXLJbAzY7oLEr4HkhgQVJb46UfTiiiaFf8RqdTefL5BbPWUgwhT6EE+qjELu/S5wnA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/odashi_t/items/a1be7c4964fbea6a116e" /><input type="hidden" name="item_uuid" id="item_uuid" value="a1be7c4964fbea6a116e" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/odashi_t/items/a1be7c4964fbea6a116e", "id": 348869, "uuid": "a1be7c4964fbea6a116e" }</script><script class="js-user" type="application/json">{&quot;id&quot;:100698,&quot;url_name&quot;:&quot;odashi_t&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/100698/profile-images/1486983372&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="CNvXGPSz5GPj37Rnjmqc+dk53/fn0cbXznXpccLqGVQhmaQXJFAa+r7XC/zfKyf3lpWTOSvFVFzLeE8ZO9FMdg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/odashi_t/items/a1be7c4964fbea6a116e" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

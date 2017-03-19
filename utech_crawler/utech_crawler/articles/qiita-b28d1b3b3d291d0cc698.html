@@ -1,0 +1,702 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【統計学】尤度って何？をグラフィカルに説明してみる。 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="統計学や機械学習をを勉強していると「尤度」という概念に出会います。まず読めないというコメントをいくつかいただきましたが、「尤度（ゆうど）」です。「尤もらしい（もっともらしい）」の「尤」ですね。犬 じゃありませんw 
+確率関数や確率密度関数を理解していれば数式的にはこの尤度を処理できると思うのですが、少し直感的な理解のためにグラフィカルに解説を試みたいと思います。
+
+コードの全文はGithub( https://github.com/matsuken92/Qiita_Co..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Kenmatsu4" name="twitter:creator" /><meta content="【統計学】尤度って何？をグラフィカルに説明してみる。 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="統計学や機械学習をを勉強していると「尤度」という概念に出会います。まず読めないというコメントをいくつかいただきましたが、「尤度（ゆうど）」です。「尤もらしい（もっともらしい）」の「尤」ですね。犬:dog: じゃありませんw 
+確率関数..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="9shdt2VeKSnlDpExRKkmaub6obaDXT7Qo5QH0nr6K27o+Rory4GlV3Go2FrFCKNL1BpGvzmiEeqlE2RV2ZV9QA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"kenmatsu4","type":"items","id":"b28d1b3b3d291d0cc698"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-ff616b09-9393-4783-bf27-f5006f4cbd9c"></div>
+    <div id="HeaderContainer-react-component-ff616b09-9393-4783-bf27-f5006f4cbd9c"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E7%B5%B1%E8%A8%88%E5%AD%A6",        "name": "統計学"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">【統計学】尤度って何？をグラフィカルに説明してみる。</h1><ul class="TagList"><li class="TagList__item" data-count="273"><a class="u-link-unstyled TagList__label" href="/tags/%E7%B5%B1%E8%A8%88%E5%AD%A6"><img alt="統計学" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/e017eced14ffa5296da5fe8d36d87cf5a7f7a2cb/medium.jpg?1426507599" /><span>統計学</span></a></li><li class="TagList__item" data-count="249"><a class="u-link-unstyled TagList__label" href="/tags/statistics"><img alt="statistics" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/5d1e309c4a0a4a3137569932976997f2518852f7/medium.jpg?1395228797" /><span>statistics</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">563</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="6 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>6</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:563,&quot;uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="b4b4r07"><a itemprop="url" href="/b4b4r07"><img alt="b4b4r07" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29787/profile-images/1473685392" /></a></li><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="32nm"><a itemprop="url" href="/32nm"><img alt="32nm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51497/profile-images/1473692459" /></a></li><li class="js-hovercard" data-hovercard-target-name="fuerasdejuego"><a itemprop="url" href="/fuerasdejuego"><img alt="fuerasdejuego" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83081/profile-images/1473702657" /></a></li><li class="js-hovercard" data-hovercard-target-name="soogie"><a itemprop="url" href="/soogie"><img alt="soogie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62278/profile-images/1473695902" /></a></li><li class="js-hovercard" data-hovercard-target-name="gon_phys"><a itemprop="url" href="/gon_phys"><img alt="gon_phys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98718/profile-images/1473707585" /></a></li><li class="js-hovercard" data-hovercard-target-name="driller"><a itemprop="url" href="/driller"><img alt="driller" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22023/profile-images/1477644793" /></a></li><li class="js-hovercard" data-hovercard-target-name="shiraco"><a itemprop="url" href="/shiraco"><img alt="shiraco" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5707/profile-images/1473682202" /></a></li><li><a href="/kenmatsu4/items/b28d1b3b3d291d0cc698/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/kenmatsu4"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" alt="1473692184" /></a> <a class="u-link-unstyled" href="/kenmatsu4">kenmatsu4</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-11-18T07:23:35+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-11-18">Edited at <time datetime="2015-12-02T12:28:20+09:00" itemprop="dateModified">2015-12-02</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/kenmatsu4/items/b28d1b3b3d291d0cc698/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">13</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/kenmatsu4/items/b28d1b3b3d291d0cc698/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(13)</span></a></li><li><a href="/kenmatsu4/items/b28d1b3b3d291d0cc698.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-b28d1b3b3d291d0cc698" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>統計学や機械学習をを勉強していると「尤度」という概念に出会います。まず読めないというコメントをいくつかいただきましたが、「尤度（ゆうど）」です。「尤もらしい（もっともらしい）」の「尤」ですね。犬<img alt=":dog:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f436.png" title=":dog:" width="20"> じゃありませんw <br>
+確率関数や確率密度関数を理解していれば数式的にはこの尤度を処理できると思うのですが、少し直感的な理解のためにグラフィカルに解説を試みたいと思います。</p>
+
+<p>コードの全文はGithub( <a href="https://github.com/matsuken92/Qiita_Contents/blob/master/General/Likelihood.ipynb" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/matsuken92/Qiita_Contents/blob/master/General/Likelihood.ipynb</a> )にも置いてあります。</p>
+
+<h1>
+<span id="正規分布を例にとって" class="fragment"></span><a href="#%E6%AD%A3%E8%A6%8F%E5%88%86%E5%B8%83%E3%82%92%E4%BE%8B%E3%81%AB%E3%81%A8%E3%81%A3%E3%81%A6"><i class="fa fa-link"></i></a>正規分布を例にとって</h1>
+
+<p>正規分布の確率密度関数は</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+f(x)={1 \over \sqrt{2\pi\sigma^{2}}} \exp \left(-{1 \over 2}{(x-\mu)^2 \over \sigma^2} \right)
+</pre></div></div>
+
+<p>と表せます。グラフにするとこんな感じですね。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/c0ae2048-1432-f6c8-e871-49da757055bf.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/c0ae2048-1432-f6c8-e871-49da757055bf.png" alt="normdist.png"></a></p>
+
+<p>（平均10, 標準偏差3の正規分布の図）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="kn">as</span> <span class="nn">cm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">numpy.random</span> <span class="kn">as</span> <span class="nn">rd</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">s</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">min_x</span> <span class="o">=</span> <span class="n">m</span><span class="o">-</span><span class="mi">4</span><span class="o">*</span><span class="n">s</span>
+<span class="n">max_x</span> <span class="o">=</span> <span class="n">m</span><span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">s</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">*</span><span class="mf">1.1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div></div>
+
+<p>この図は、平均$\mu$、標準偏差$\sigma$の２つのパラメーターの値が確定しており(上図の場合は平均$\mu=10$、標準偏差$\sigma=3$)、$x$を変数として横軸に取っているグラフになります。アウトプットとしての縦軸は確率密度$f(x)$となっています。</p>
+
+<p>尤度関数の基本概念は、「サンプリングしてデータが観測された後、そのデータは元々どういうパラメーターを持つ確率分布から生まれたものだったか？」と言う問いに答えるためのものです。なので、逆確率的なベイズの定理っぽさがあると自分は思っています。（実際、尤度はベイズの定理を構成する１要素となっています）</p>
+
+<p>（以下、ここでデータと言っていた用語は標本と記します）</p>
+
+<p>ここで、標本が１０個手に入り( ${\bf x} = (x_1, x_2,\cdots, x_{10})$ )、それが正規分布に従うことはわかっているが、平均$\mu$、標準偏差$\sigma$の２つのパラメーターの値がどれくらいなのか不明であると言う状況を考えます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/74835b4e-c740-8cd4-32d0-5f968bb3cbe0.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/74835b4e-c740-8cd4-32d0-5f968bb3cbe0.png" alt="data.png"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">rd</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s">"r"</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</pre></div></div>
+
+<p>「10個の標本がこの値となった同時分布」をまず考えていきます。<br>
+また、この10個の標本はiid(独立同一分布：同じ分布から独立に取られた標本）であると仮定します。独立なのでそれぞれの確率密度の積として表せるので、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+P(x_1, x_2,\cdots,x_{10}) = P(x_1)P(x_2)\cdots P(x_{10}) 
+</pre></div></div>
+
+<p>となります。ここで$P(x_i)$は全て正規分布としていたので、</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+P(x_1, x_2,\cdots,x_{10}) = f(x_1)f(x_2)\cdots f(x_{10}) 
+</pre></div></div>
+
+<p>としてもいいですね。これをさらに展開して書くと</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+P(x_1, x_2,\cdots,x_{10}) = \prod_{i=1}^{10} {1 \over \sqrt{2\pi\sigma^{2}}} \exp \left(-{1 \over 2}{(x_i-\mu)^2 \over \sigma^2} \right)
+</pre></div></div>
+
+<p>です。標本$x_i$は$\exp(\cdot)$の中に入りました。</p>
+
+<p>これで標本10個の同時確率密度関数ができました。しかしちょっと待ってください。いま標本は実現値として持っているのでもはや不確定な確率的な値ではありません。確定値です。むしろ分かっていないのは平均$\mu$、標準偏差$\sigma$の２つのパラメーターでした。なので、$x_i$は定数と考え、$\mu$、$\sigma$が変数であると言う風に発想を転換します。</p>
+
+<p>関数の形は全く同じで、変数を$\mu$、$\sigma$であると宣言し直したものを尤度(Likelihood)と定義し</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+L(\mu, \sigma) = \prod_{i=1}^{10} {1 \over \sqrt{2\pi\sigma^{2}}} \exp \left(-{1 \over 2}{(x_i-\mu)^2 \over \sigma^2} \right)
+</pre></div></div>
+
+<p>とします。右辺の形は全く変わりませんね。でも意味合いが変わっているのです。</p>
+
+<p>これをグラフにして理解していきます。</p>
+
+<h1>
+<span id="グラフを書いて理解する" class="fragment"></span><a href="#%E3%82%B0%E3%83%A9%E3%83%95%E3%82%92%E6%9B%B8%E3%81%84%E3%81%A6%E7%90%86%E8%A7%A3%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>グラフを書いて理解する</h1>
+
+<p>$\mu$、$\sigma$が不明なので、仮に$\mu=0$、$\sigma=1$だと思ってグラフを描くと、</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/72c268a2-3e9e-bdf7-3295-7a54e756bb3a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/72c268a2-3e9e-bdf7-3295-7a54e756bb3a.png" alt="data_dens01.png"></a><br>
+となります。まったくもって外してる感じですね。この時、尤度も値が小さいものとなっています。</p>
+
+<p>(尤度は確率（密度）を標本個数分だけ掛けてできたものなので、0〜1の間の数で何回もかけ算することになり、かなり小さい数、ほぼ０になってしまう。かけ算が足し算にできる計算のしやすさもあり対数尤度とすることが多く、その場合、上記グラフのタイトルにある数値を見てもわかりやすい数値とすることが出来る）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">m</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">s</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="n">min_x</span> <span class="o">=</span> <span class="n">m</span><span class="o">-</span><span class="mi">4</span><span class="o">*</span><span class="n">s</span>
+<span class="n">max_x</span> <span class="o">=</span> <span class="n">m</span><span class="o">+</span><span class="mi">4</span><span class="o">*</span><span class="n">s</span>
+
+<span class="k">def</span> <span class="nf">norm_dens</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">val</span><span class="o">-</span><span class="n">m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">norm_dens</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span><span class="n">norm_dens</span><span class="p">(</span><span class="n">x_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">*</span><span class="mf">1.1</span><span class="p">)</span>
+
+<span class="c"># 正規分布の密度関数の描画</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+<span class="c"># データ点の描画</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s">"r"</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">norm_dens</span><span class="p">(</span><span class="n">d</span><span class="p">)],</span> <span class="s">"k--"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Likelihood:{0:.5f}, log Likelihood:{1:.5f}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div></div>
+
+<p>確率密度関数がほとんど０の所ばかりに標本があるので、$L(\mu, \sigma)$もかなり小さい尤度となります（対数尤度: 約-568）</p>
+
+<p>試しに今度は、$\mu=5$、$\sigma=4$くらいにしてみましょう。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/50670/177a1816-a198-545e-8504-6c0f8985c299.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/177a1816-a198-545e-8504-6c0f8985c299.png" alt="data_dens02.png"></a><br>
+（コードは先ほどのものに$\mu=5$、$\sigma=4$のところだけ変更したもの）</p>
+
+<p>点線で示したところが、各標本に対応する尤度です。さっきよりちょっとあたってきている感じです。今回は対数尤度は約-20とだいぶ大きくなりました。</p>
+
+<h1>
+<span id="アニメーションにしてもっと直感的に" class="fragment"></span><a href="#%E3%82%A2%E3%83%8B%E3%83%A1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AB%E3%81%97%E3%81%A6%E3%82%82%E3%81%A3%E3%81%A8%E7%9B%B4%E6%84%9F%E7%9A%84%E3%81%AB"><i class="fa fa-link"></i></a>アニメーションにしてもっと直感的に</h1>
+
+<p>$\mu$が変化していくときに尤度がどう変わっていくかをアニメーションで見てみましょう。$\mu=10$で対数尤度が最大となっていることがわかりますね <img alt=":grin:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f601.png" title=":grin:" width="20"> </p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/47dcbd73-f540-ecb8-de72-072ff85dc3eb.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/47dcbd73-f540-ecb8-de72-072ff85dc3eb.gif" alt="likelihood.gif"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">animation</span> <span class="k">as</span> <span class="n">ani</span>
+
+<span class="n">num_frame</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="n">min_x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">11</span>
+<span class="n">max_x</span> <span class="o">=</span> <span class="mi">21</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">norm_dens</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">val</span><span class="o">-</span><span class="n">m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">animate</span><span class="p">(</span><span class="n">nframe</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">num_frame</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">nframe</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">num_frame</span><span class="p">)</span> <span class="o">*</span> <span class="mi">15</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">norm_dens</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span><span class="n">norm_dens</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">*</span><span class="mf">1.1</span><span class="p">)</span>
+
+    <span class="c"># 正規分布の密度関数の描画</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="c"># データ点の描画</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s">"r"</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">norm_dens</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)],</span> <span class="s">"k--"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"mu:{0}, Likelihood:{1:.5f}, log Likelihood:{2:.5f}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
+
+    <span class="c">#plt.show()</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">anim</span> <span class="o">=</span> <span class="n">ani</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">animate</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">num_frame</span><span class="p">),</span> <span class="n">blit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">anim</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">'likelihood.gif'</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="s">'imagemagick'</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+
+
+</pre></div></div>
+
+<p>$\sigma$が変わっていくときは、$\sigma=2.7$くらいのときに対数尤度が最大となっていることがわかります。元々データを生成したときは$\sigma=3$だったので、少し誤差がありますが、近しい値が取れていますね <img alt=":kissing_closed_eyes:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f61a.png" title=":kissing_closed_eyes:" width="20"> </p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/6fc1ad13-4d34-8cdc-33e0-14811f6617bc.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/6fc1ad13-4d34-8cdc-33e0-14811f6617bc.gif" alt="likelihood_s.gif"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">num_frame</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="n">min_x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">11</span>
+<span class="n">max_x</span> <span class="o">=</span> <span class="mi">21</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="mi">201</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">norm_dens</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">val</span><span class="o">-</span><span class="n">m</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">s</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">animate</span><span class="p">(</span><span class="n">nframe</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">num_frame</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">nframe</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">num_frame</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">norm_dens</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span><span class="n">norm_dens</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span><span class="o">.</span><span class="mi">6</span><span class="p">)</span>
+
+    <span class="c"># 正規分布の密度関数の描画</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="c"># データ点の描画</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s">"r"</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">norm_dens</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)],</span> <span class="s">"k--"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"sd:{0:.3f}, Likelihood:{1:.5f}, log Likelihood:{2:.5f}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
+
+    <span class="c">#plt.show()</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">anim</span> <span class="o">=</span> <span class="n">ani</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">animate</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">num_frame</span><span class="p">),</span> <span class="n">blit</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">anim</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">'likelihood_s.gif'</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="s">'imagemagick'</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
+</pre></div></div>
+
+<h1>
+<span id="最尤推定" class="fragment"></span><a href="#%E6%9C%80%E5%B0%A4%E6%8E%A8%E5%AE%9A"><i class="fa fa-link"></i></a>最尤推定</h1>
+
+<p>$\mu$を変化させたときの対数尤度の変化のグラフです。尤度を$\mu$で微分して0としたときの$\mu$の値が10あたりになっているだろうことがわかります。これが最尤推定ですね。（とりあえずはsが固定だとして）</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/dec522ec-2a0e-b662-5fa9-2a5cca001d74.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/dec522ec-2a0e-b662-5fa9-2a5cca001d74.png" alt="likelihood_mu.png"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># mを変化させる</span>
+
+<span class="n">list_L</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">s</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">mm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">300</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mm</span><span class="p">:</span>
+    <span class="n">list_L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span><span class="n">norm_dens</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]))</span>
+
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">mm</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">mm</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="p">(</span><span class="n">list_L</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Likelihood curve"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"mu"</span><span class="p">)</span>
+</pre></div></div>
+
+<p>同じく$s$の変化に対する尤度の変化グラフです。$s=3$あたりに最大値がありそうなことがやはり見てわかります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/f01615cc-6096-954f-d60f-9f0c24593899.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/f01615cc-6096-954f-d60f-9f0c24593899.png" alt="likelihood_s.png"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># sを変化させる</span>
+
+<span class="n">list_L</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">m</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="n">ss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">300</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ss</span><span class="p">:</span>
+    <span class="n">list_L</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span><span class="n">norm_dens</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]))</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">ss</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">ss</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="p">(</span><span class="n">list_L</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Likelihood curve"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"s"</span><span class="p">)</span>
+</pre></div></div>
+
+<p>最後に$\mu$と$\sigma$ 同時に見てみると、$\mu$は10ちょっと多め、$\sigma$はちょっと少なめくらいのところに最尤推定して得られる$\mu$と$\sigma$の値がありそうであることがわかります <img alt=":laughing:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f606.png" title=":laughing:" width="20"> </p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/50670/8aa00470-e327-3151-03d4-f0fd39fc0f68.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/50670/8aa00470-e327-3151-03d4-f0fd39fc0f68.png" alt="likelihood_contour.png"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># 等高線</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">MU</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+<span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">([</span><span class="n">norm_dens</span><span class="p">(</span><span class="n">x_i</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]))</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">MU</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">S</span><span class="o">.</span><span class="n">flatten</span><span class="p">())])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">MU</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">Z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">MU</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">Blues</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"mu"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"s"</span><span class="p">)</span>
+</pre></div></div>
+<div class="hidden"><form class="js-task-list-update" action="/kenmatsu4/items/b28d1b3b3d291d0cc698" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="K9wx1Rkt4FPQr9+m5sqAHZufMAOHeN0HvIbRm3Kx/Po17XZJt/JsLUQJls1nawU8qX/XCj2H8j26AbIc0d6q1A==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1449026900" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+統計学や機械学習をを勉強していると「尤度」という概念に出会います。まず読めないというコメントをいくつかいただきましたが、「尤度（ゆうど）」です。「尤もらしい（もっともらしい）」の「尤」ですね。犬:dog: じゃありませんw 
+確率関数や確率密度関数を理解していれば数式的にはこの尤度を処理できると思うのですが、少し直感的な理解のためにグラフィカルに解説を試みたいと思います。
+
+コードの全文はGithub( https://github.com/matsuken92/Qiita_Contents/blob/master/General/Likelihood.ipynb )にも置いてあります。
+
+# 正規分布を例にとって
+
+正規分布の確率密度関数は
+
+```math
+f(x)={1 \over \sqrt{2\pi\sigma^{2}}} \exp \left(-{1 \over 2}{(x-\mu)^2 \over \sigma^2} \right)
+```
+
+と表せます。グラフにするとこんな感じですね。
+
+![normdist.png](https://qiita-image-store.s3.amazonaws.com/0/50670/c0ae2048-1432-f6c8-e871-49da757055bf.png)
+
+（平均10, 標準偏差3の正規分布の図）
+
+```py
+%matplotlib inline
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+import seaborn as sns
+import numpy.random as rd
+
+m = 10
+s = 3
+
+min_x = m-4*s
+max_x = m+4*s
+
+x = np.linspace(min_x, max_x, 201)
+y = (1/np.sqrt(2*np.pi*s**2))*np.exp(-0.5*(x-m)**2/s**2)
+
+plt.figure(figsize=(8,5))
+plt.xlim(min_x, max_x)
+plt.ylim(0,max(y)*1.1)
+plt.plot(x,y)
+plt.show()
+```
+
+
+
+この図は、平均$\mu$、標準偏差$\sigma$の２つのパラメーターの値が確定しており(上図の場合は平均$\mu=10$、標準偏差$\sigma=3$)、$x$を変数として横軸に取っているグラフになります。アウトプットとしての縦軸は確率密度$f(x)$となっています。
+
+尤度関数の基本概念は、「サンプリングしてデータが観測された後、そのデータは元々どういうパラメーターを持つ確率分布から生まれたものだったか？」と言う問いに答えるためのものです。なので、逆確率的なベイズの定理っぽさがあると自分は思っています。（実際、尤度はベイズの定理を構成する１要素となっています）
+
+（以下、ここでデータと言っていた用語は標本と記します）
+
+ここで、標本が１０個手に入り( ${\bf x} = (x_1, x_2,\cdots, x_{10})$ )、それが正規分布に従うことはわかっているが、平均$\mu$、標準偏差$\sigma$の２つのパラメーターの値がどれくらいなのか不明であると言う状況を考えます。
+
+![data.png](https://qiita-image-store.s3.amazonaws.com/0/50670/74835b4e-c740-8cd4-32d0-5f968bb3cbe0.png)
+
+```py
+plt.figure(figsize=(8,2))
+rd.seed(7)
+data = rd.normal(10, 3, 10, )
+plt.scatter(data, np.zeros_like(data), c=&quot;r&quot;, s=50)
+```
+
+「10個の標本がこの値となった同時分布」をまず考えていきます。
+また、この10個の標本はiid(独立同一分布：同じ分布から独立に取られた標本）であると仮定します。独立なのでそれぞれの確率密度の積として表せるので、
+
+```math
+P(x_1, x_2,\cdots,x_{10}) = P(x_1)P(x_2)\cdots P(x_{10}) 
+```
+
+となります。ここで$P(x_i)$は全て正規分布としていたので、
+
+```math
+P(x_1, x_2,\cdots,x_{10}) = f(x_1)f(x_2)\cdots f(x_{10}) 
+```
+
+としてもいいですね。これをさらに展開して書くと
+
+```math
+P(x_1, x_2,\cdots,x_{10}) = \prod_{i=1}^{10} {1 \over \sqrt{2\pi\sigma^{2}}} \exp \left(-{1 \over 2}{(x_i-\mu)^2 \over \sigma^2} \right)
+```
+
+です。標本$x_i$は$\exp(\cdot)$の中に入りました。
+
+これで標本10個の同時確率密度関数ができました。しかしちょっと待ってください。いま標本は実現値として持っているのでもはや不確定な確率的な値ではありません。確定値です。むしろ分かっていないのは平均$\mu$、標準偏差$\sigma$の２つのパラメーターでした。なので、$x_i$は定数と考え、$\mu$、$\sigma$が変数であると言う風に発想を転換します。
+
+関数の形は全く同じで、変数を$\mu$、$\sigma$であると宣言し直したものを尤度(Likelihood)と定義し
+
+```math
+L(\mu, \sigma) = \prod_{i=1}^{10} {1 \over \sqrt{2\pi\sigma^{2}}} \exp \left(-{1 \over 2}{(x_i-\mu)^2 \over \sigma^2} \right)
+```
+
+とします。右辺の形は全く変わりませんね。でも意味合いが変わっているのです。
+
+これをグラフにして理解していきます。
+
+#グラフを書いて理解する
+$\mu$、$\sigma$が不明なので、仮に$\mu=0$、$\sigma=1$だと思ってグラフを描くと、
+
+![data_dens01.png](https://qiita-image-store.s3.amazonaws.com/0/50670/72c268a2-3e9e-bdf7-3295-7a54e756bb3a.png)
+となります。まったくもって外してる感じですね。この時、尤度も値が小さいものとなっています。
+
+(尤度は確率（密度）を標本個数分だけ掛けてできたものなので、0〜1の間の数で何回もかけ算することになり、かなり小さい数、ほぼ０になってしまう。かけ算が足し算にできる計算のしやすさもあり対数尤度とすることが多く、その場合、上記グラフのタイトルにある数値を見てもわかりやすい数値とすることが出来る）
+
+```py
+m = 0
+s = 1
+
+
+min_x = m-4*s
+max_x = m+4*s
+
+def norm_dens(val):
+    return (1/np.sqrt(2*np.pi*s**2))*np.exp(-0.5*(val-m)**2/s**2)
+                                      
+x = np.linspace(min_x, max_x, 201)
+y = norm_dens(x)
+
+L = np.prod([norm_dens(x_i) for x_i in data])
+l = np.log(L)
+
+plt.figure(figsize=(8,5))
+plt.xlim(min_x, 16)
+plt.ylim(-0.01,max(y)*1.1)
+
+# 正規分布の密度関数の描画
+plt.plot(x,y)
+
+# データ点の描画
+plt.scatter(data, np.zeros_like(data), c=&quot;r&quot;, s=50)
+for d in data:
+    plt.plot([d, d], [0, norm_dens(d)], &quot;k--&quot;, lw=1)
+    
+plt.title(&quot;Likelihood:{0:.5f}, log Likelihood:{1:.5f}&quot;.format(L, l))
+
+plt.show()
+```
+
+確率密度関数がほとんど０の所ばかりに標本があるので、$L(\mu, \sigma)$もかなり小さい尤度となります（対数尤度: 約-568）
+
+試しに今度は、$\mu=5$、$\sigma=4$くらいにしてみましょう。
+![data_dens02.png](https://qiita-image-store.s3.amazonaws.com/0/50670/177a1816-a198-545e-8504-6c0f8985c299.png)
+（コードは先ほどのものに$\mu=5$、$\sigma=4$のところだけ変更したもの）
+
+点線で示したところが、各標本に対応する尤度です。さっきよりちょっとあたってきている感じです。今回は対数尤度は約-20とだいぶ大きくなりました。
+
+# アニメーションにしてもっと直感的に
+
+$\mu$が変化していくときに尤度がどう変わっていくかをアニメーションで見てみましょう。$\mu=10$で対数尤度が最大となっていることがわかりますね :grin: 
+
+![likelihood.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/47dcbd73-f540-ecb8-de72-072ff85dc3eb.gif)
+
+
+
+
+```py
+from matplotlib import animation as ani
+
+num_frame = 30
+
+min_x = -11
+max_x = 21
+
+x = np.linspace(min_x, max_x, 201)
+
+    
+def norm_dens(val, m, s):
+    return (1/np.sqrt(2*np.pi*s**2))*np.exp(-0.5*(val-m)**2/s**2)
+    
+def animate(nframe):
+    global num_frame
+    plt.clf()
+    
+    m = nframe/float(num_frame) * 15
+    s = 3
+    y = norm_dens(x, m, s)
+    
+    L = np.prod([norm_dens(x_i, m, s) for x_i in data])
+    l = np.log(L)
+
+    plt.xlim(min_x, 16)
+    plt.ylim(-0.01,max(y)*1.1)
+
+    # 正規分布の密度関数の描画
+    plt.plot(x,y)
+
+    # データ点の描画
+    plt.scatter(data, np.zeros_like(data), c=&quot;r&quot;, s=50)
+    for d in data:
+        plt.plot([d, d], [0, norm_dens(d, m, s)], &quot;k--&quot;, lw=1)
+
+    plt.title(&quot;mu:{0}, Likelihood:{1:.5f}, log Likelihood:{2:.5f}&quot;.format(m, L, l))
+
+    #plt.show()
+    
+fig = plt.figure(figsize=(10,7))
+anim = ani.FuncAnimation(fig, animate, frames=int(num_frame), blit=True)
+anim.save(&#39;likelihood.gif&#39;, writer=&#39;imagemagick&#39;, fps=1, dpi=64)
+
+
+```
+
+$\sigma$が変わっていくときは、$\sigma=2.7$くらいのときに対数尤度が最大となっていることがわかります。元々データを生成したときは$\sigma=3$だったので、少し誤差がありますが、近しい値が取れていますね :kissing_closed_eyes: 
+
+![likelihood_s.gif](https://qiita-image-store.s3.amazonaws.com/0/50670/6fc1ad13-4d34-8cdc-33e0-14811f6617bc.gif)
+
+```py
+num_frame = 30
+
+min_x = -11
+max_x = 21
+
+x = np.linspace(min_x, max_x, 201)
+    
+def norm_dens(val, m, s):
+    return (1/np.sqrt(2*np.pi*s**2))*np.exp(-0.5*(val-m)**2/s**2)
+    
+def animate(nframe):
+    global num_frame
+    plt.clf()
+    
+    m = 10
+    s = nframe/float(num_frame) * 5
+    y = norm_dens(x, m, s)
+    
+    L = np.prod([norm_dens(x_i, m, s) for x_i in data])
+    l = np.log(L)
+
+    plt.xlim(min_x, 16)
+    plt.ylim(-0.01,.6)
+
+    # 正規分布の密度関数の描画
+    plt.plot(x,y)
+
+    # データ点の描画
+    plt.scatter(data, np.zeros_like(data), c=&quot;r&quot;, s=50)
+    for d in data:
+        plt.plot([d, d], [0, norm_dens(d, m, s)], &quot;k--&quot;, lw=1)
+
+    plt.title(&quot;sd:{0:.3f}, Likelihood:{1:.5f}, log Likelihood:{2:.5f}&quot;.format(s, L, l))
+
+    #plt.show()
+    
+fig = plt.figure(figsize=(10,7))
+anim = ani.FuncAnimation(fig, animate, frames=int(num_frame), blit=True)
+anim.save(&#39;likelihood_s.gif&#39;, writer=&#39;imagemagick&#39;, fps=1, dpi=64)
+```
+
+
+#最尤推定
+
+$\mu$を変化させたときの対数尤度の変化のグラフです。尤度を$\mu$で微分して0としたときの$\mu$の値が10あたりになっているだろうことがわかります。これが最尤推定ですね。（とりあえずはsが固定だとして）
+
+![likelihood_mu.png](https://qiita-image-store.s3.amazonaws.com/0/50670/dec522ec-2a0e-b662-5fa9-2a5cca001d74.png)
+
+
+```py
+# mを変化させる
+
+list_L = []
+s = 3
+
+mm = np.linspace(0, 20,300)
+for m in mm:
+    list_L.append(np.prod([norm_dens(x_i, m, s) for x_i in data]))
+    
+
+plt.figure(figsize=(8,5))
+plt.xlim(min(mm), max(mm))
+plt.plot(xx, (list_L))
+plt.title(&quot;Likelihood curve&quot;)
+plt.xlabel(&quot;mu&quot;)
+```
+
+同じく$s$の変化に対する尤度の変化グラフです。$s=3$あたりに最大値がありそうなことがやはり見てわかります。
+
+
+![likelihood_s.png](https://qiita-image-store.s3.amazonaws.com/0/50670/f01615cc-6096-954f-d60f-9f0c24593899.png)
+
+
+
+```py
+# sを変化させる
+
+list_L = []
+m = 10
+
+ss = np.linspace(0, 20,300)
+for s in ss:
+    list_L.append(np.prod([norm_dens(x_i, m, s) for x_i in data]))
+    
+plt.figure(figsize=(8,5))
+plt.xlim(min(ss), max(ss))
+plt.plot(ss, (list_L))
+plt.title(&quot;Likelihood curve&quot;)
+plt.xlabel(&quot;s&quot;)
+```
+
+最後に$\mu$と$\sigma$ 同時に見てみると、$\mu$は10ちょっと多め、$\sigma$はちょっと少なめくらいのところに最尤推定して得られる$\mu$と$\sigma$の値がありそうであることがわかります :satisfied: 
+
+![likelihood_contour.png](https://qiita-image-store.s3.amazonaws.com/0/50670/8aa00470-e327-3151-03d4-f0fd39fc0f68.png)
+
+
+```py
+# 等高線
+
+plt.figure(figsize=(8,5))
+mu = np.linspace(5, 15, 200)
+s = np.linspace(0, 5, 200)
+MU, S = np.meshgrid(mu, s)
+
+Z = np.array([(np.prod([norm_dens(x_i, a, b) for x_i in data])) for a, b in zip(MU.flatten(), S.flatten())])
+plt.contour(MU, S, Z.reshape(MU.shape), cmap=cm.Blues)
+plt.xlabel(&quot;mu&quot;)
+plt.ylabel(&quot;s&quot;)
+```
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【統計学】尤度って何？をグラフィカルに説明してみる。 by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【統計学】尤度って何？をグラフィカルに説明してみる。" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/kenmatsu4"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/kenmatsu4">kenmatsu4</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">8840</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;kenmatsu4&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-e331105f-2c3b-4fec-96ac-b30ff393cf0d"></div>
+    <div id="UserFollowButton-react-component-e331105f-2c3b-4fec-96ac-b30ff393cf0d"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/7b8d24d4c5144a686412">【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/e6c6acb289c02609e619">【統計学】初めての「標準偏差」（統計学に挫折しないために）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/2a8573e3c878fc2da306">【数学】固有値・固有ベクトルとは何かを可視化してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/b28d1b3b3d291d0cc698">【統計学】尤度って何？をグラフィカルに説明してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/23768cbe32fe381d54a2">スタバのTwitterデータをpythonで大量に取得し、データ分析を試みる その１</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%AD%A3%E8%A6%8F%E5%88%86%E5%B8%83%E3%82%92%E4%BE%8B%E3%81%AB%E3%81%A8%E3%81%A3%E3%81%A6\&quot;\u003e正規分布を例にとって\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B0%E3%83%A9%E3%83%95%E3%82%92%E6%9B%B8%E3%81%84%E3%81%A6%E7%90%86%E8%A7%A3%E3%81%99%E3%82%8B\&quot;\u003eグラフを書いて理解する\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%83%8B%E3%83%A1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AB%E3%81%97%E3%81%A6%E3%82%82%E3%81%A3%E3%81%A8%E7%9B%B4%E6%84%9F%E7%9A%84%E3%81%AB\&quot;\u003eアニメーションにしてもっと直感的に\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9C%80%E5%B0%A4%E6%8E%A8%E5%AE%9A\&quot;\u003e最尤推定\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-e1e16ad6-2a66-4274-bf9b-a590b8fd1d44"></div>
+    <div id="Toc-react-component-e1e16ad6-2a66-4274-bf9b-a590b8fd1d44"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:563,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="b4b4r07"><a itemprop="url" href="/b4b4r07"><img alt="b4b4r07" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29787/profile-images/1473685392" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="32nm"><a itemprop="url" href="/32nm"><img alt="32nm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51497/profile-images/1473692459" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fuerasdejuego"><a itemprop="url" href="/fuerasdejuego"><img alt="fuerasdejuego" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83081/profile-images/1473702657" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="soogie"><a itemprop="url" href="/soogie"><img alt="soogie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62278/profile-images/1473695902" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="gon_phys"><a itemprop="url" href="/gon_phys"><img alt="gon_phys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98718/profile-images/1473707585" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="driller"><a itemprop="url" href="/driller"><img alt="driller" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22023/profile-images/1477644793" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shiraco"><a itemprop="url" href="/shiraco"><img alt="shiraco" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5707/profile-images/1473682202" /></a></div></div><div class="ArticleFooter__user"><a href="/kenmatsu4/items/b28d1b3b3d291d0cc698/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/b28d1b3b3d291d0cc698/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/kenmatsu4/items/b28d1b3b3d291d0cc698.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmatsu4/items/183020c058feac6a779b#_reference-af7d67abcdedd14aeebf"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" />今までの投稿記事のまとめ（統計学/機械学習/数学 etc）</a><time class="references_datetime js-dateTimeView" datetime="2016-07-09T02:34:14+00:00">8 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/deaikei/items/8615362d320c76e2ce0b#_reference-1fb0f640e410242ead72"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/132984/profile-images/1473718815" />クラスタ数を自動推定するX-means法を調べてみた</a><time class="references_datetime js-dateTimeView" datetime="2016-08-21T11:05:47+00:00">7 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【統計学】尤度って何？をグラフィカルに説明してみる。 by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【統計学】尤度って何？をグラフィカルに説明してみる。" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cblockquote\u003e\n\u003cp\u003eアウトプットとしての縦軸は確率f(x)となっています。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e確率密度関数のグラフなので、縦軸は確率密度ではないでしょうか。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-25T10:03:25+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:393954,&quot;is_team&quot;:false,&quot;item_id&quot;:343604,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;\u003e アウトプットとしての縦軸は確率f(x)となっています。\n\n確率密度関数のグラフなので、縦軸は確率密度ではないでしょうか。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698#comment-11db674631d9f532e655&quot;,&quot;user&quot;:{&quot;contribution&quot;:1,&quot;created_at&quot;:&quot;2012-12-18T11:43:51+09:00&quot;,&quot;id&quot;:13378,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://secure.gravatar.com/avatar/f493faf1c64bf037da2543989dc657e7?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;chiku-samugari@github&quot;},&quot;uuid&quot;:&quot;11db674631d9f532e655&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/chiku-samugari@github\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;chiku-samugari@github\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;chiku-samugari@github\&quot;\u003e@chiku-samugari@github\u003c/a\u003e さん\u003cbr\u003e\nご指摘ありがとうございます！間違いを修正しました！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-25T10:16:35+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:393991,&quot;is_team&quot;:false,&quot;item_id&quot;:343604,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@chiku-samugari@github さん\nご指摘ありがとうございます！間違いを修正しました！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698#comment-c00454c856e6623d7e50&quot;,&quot;user&quot;:{&quot;contribution&quot;:8840,&quot;created_at&quot;:&quot;2014-08-01T17:56:53+09:00&quot;,&quot;id&quot;:50670,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;uuid&quot;:&quot;c00454c856e6623d7e50&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/Shiozawa\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;Shiozawa\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;Shiozawa\&quot;\u003e@Shiozawa\u003c/a\u003e さん、誤字訂正の編集リクエストありがとうございました！\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-12-02T12:29:10+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:400312,&quot;is_team&quot;:false,&quot;item_id&quot;:343604,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@Shiozawa さん、誤字訂正の編集リクエストありがとうございました！\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698#comment-f3e2a0f29a91dad3eb6d&quot;,&quot;user&quot;:{&quot;contribution&quot;:8840,&quot;created_at&quot;:&quot;2014-08-01T17:56:53+09:00&quot;,&quot;id&quot;:50670,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;uuid&quot;:&quot;f3e2a0f29a91dad3eb6d&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e勉強になります。投稿ありがとうございます。\u003c/p\u003e\n\n\u003cp\u003eコードを実行しようとすると、animation関数のところで、以下エラーが表示されて実行できないのですが、matplotlibのバージョンの問題なのでしょうか。サンプルコードをみても、今回のような使い方が見当たらないです。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nTypeError: &#39;NoneType&#39; object is not iterable\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eちなみに、Windows下でimagemagicは入れています。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-16T17:50:37+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:566524,&quot;is_team&quot;:false,&quot;item_id&quot;:343604,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;勉強になります。投稿ありがとうございます。\n\nコードを実行しようとすると、animation関数のところで、以下エラーが表示されて実行できないのですが、matplotlibのバージョンの問題なのでしょうか。サンプルコードをみても、今回のような使い方が見当たらないです。\n\n    TypeError: &#39;NoneType&#39; object is not iterable\n\nちなみに、Windows下でimagemagicは入れています。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698#comment-364e1f116a5c1febf675&quot;,&quot;user&quot;:{&quot;contribution&quot;:8,&quot;created_at&quot;:&quot;2015-04-12T12:18:46+09:00&quot;,&quot;id&quot;:75272,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/75272/profile-images/1473700109&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;fx-kirin&quot;},&quot;uuid&quot;:&quot;364e1f116a5c1febf675&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eanimate関数の引数の問題のようなので、中を以下のように変更したら一応いけました・・。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\nplot = plt.plot(....)\nreturn plot\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-16T18:29:12+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:566566,&quot;is_team&quot;:false,&quot;item_id&quot;:343604,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;animate関数の引数の問題のようなので、中を以下のように変更したら一応いけました・・。\n\n    plot = plt.plot(....)\n    return plot\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698#comment-76980e581217daad8d8b&quot;,&quot;user&quot;:{&quot;contribution&quot;:8,&quot;created_at&quot;:&quot;2015-04-12T12:18:46+09:00&quot;,&quot;id&quot;:75272,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/75272/profile-images/1473700109&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;fx-kirin&quot;},&quot;uuid&quot;:&quot;76980e581217daad8d8b&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/fx-kirin\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;fx-kirin\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;fx-kirin\&quot;\u003e@fx-kirin\u003c/a\u003e さん\u003c/p\u003e\n\n\u003cp\u003e記事を見ていただきありがとうございます。また、修正の情報提供ありがとうございます。\u003cbr\u003e\n自分はMacで下記のような設定を行った後、Jupyter Notebookで実行しています。\u003cbr\u003e\nもしかすると環境（OSの違いなど）により、若干挙動が違うのかもしれませんね・・・。\u003c/p\u003e\n\n\u003cp\u003eMacでPythonからアニメーションGIFを生成する環境設定\u003cbr\u003e\n\u003ca href=\&quot;http://qiita.com/kenmatsu4/items/573ca0733b192d919d0e\&quot; class=\&quot;autolink\&quot; id=\&quot;reference-0141fe064ffcad256f1f\&quot;\u003ehttp://qiita.com/kenmatsu4/items/573ca0733b192d919d0e\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-06-16T19:07:53+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:566613,&quot;is_team&quot;:false,&quot;item_id&quot;:343604,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@fx-kirin さん\n\n記事を見ていただきありがとうございます。また、修正の情報提供ありがとうございます。\n自分はMacで下記のような設定を行った後、Jupyter Notebookで実行しています。\nもしかすると環境（OSの違いなど）により、若干挙動が違うのかもしれませんね・・・。\n\nMacでPythonからアニメーションGIFを生成する環境設定\nhttp://qiita.com/kenmatsu4/items/573ca0733b192d919d0e\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698#comment-4b4e198ead94945dda99&quot;,&quot;user&quot;:{&quot;contribution&quot;:8840,&quot;created_at&quot;:&quot;2014-08-01T17:56:53+09:00&quot;,&quot;id&quot;:50670,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;uuid&quot;:&quot;4b4e198ead94945dda99&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:343604,&quot;uuid&quot;:&quot;b28d1b3b3d291d0cc698&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;},{&quot;id&quot;:13378,&quot;url_name&quot;:&quot;chiku-samugari@github&quot;,&quot;profile_image_url&quot;:&quot;https://secure.gravatar.com/avatar/f493faf1c64bf037da2543989dc657e7?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png&quot;},{&quot;id&quot;:75272,&quot;url_name&quot;:&quot;fx-kirin&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/75272/profile-images/1473700109&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-c3303495-fb30-4436-81c9-9743129e7ad9"></div>
+    <div id="CommentListContainer-react-component-c3303495-fb30-4436-81c9-9743129e7ad9"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="D17/+TxGdwGiNVEbqmsNozeDlWPvFqGgULVm93094zERb7hlkpn7fzaTGHAryoiCBWNyalXpjppWMgVw3lK1Hw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/b28d1b3b3d291d0cc698" /><input type="hidden" name="item_uuid" id="item_uuid" value="b28d1b3b3d291d0cc698" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/kenmatsu4/items/b28d1b3b3d291d0cc698", "id": 343604, "uuid": "b28d1b3b3d291d0cc698" }</script><script class="js-user" type="application/json">{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="zeYf9PXi9ior/dD2YF5GhgTBtW/u5mLF1EdfzO6GBKvT11hoWz16VL9bmZ3h/8OnNiFSZlQZTf/SwDxLTelShQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/b28d1b3b3d291d0cc698" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-60123434-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,1241 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="人工知能やデータ解析の領域で、膨大な量のデータから、物体概念（物体識別）や音声・体の運動スキーマ概念を自動的・自律的に獲得できる可能性をもった手法として、Deep Learning（ディープ・ラーニング、「深層学習」）と総称される手法が注目を集めています。
+
+こうした中、一部の研究者やベンチャー企業の経営者・エンジニアの中には、このDeep Learningのさらに先をいくデータ解析手法として、TDA：トポロジカル・データ・アナリシス (Topological data..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="人工知能やデータ解析の領域で、膨大な量のデータから、物体概念（物体識別）や音声・体の運動スキーマ概念を自動的・自律的に獲得できる可能性をもった手法として、Deep Learning（ディープ・ラーニング、「深層学習」）と総称される手法..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="bqAtDp8D9qm28aVtkZb9IOw1fV/OiBMQhFlt0el6jPU1bmA0rx9TDmoPd9AaX98LgC8fkmbs+TyUHh+JOD4QHA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"HirofumiYashima","type":"items","id":"b07483af7ef31c30dacc"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-31716258-2b91-45ac-845f-5074439a7580"></div>
+    <div id="HeaderContainer-react-component-31716258-2b91-45ac-845f-5074439a7580"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/DeepLearning",        "name": "DeepLearning"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた</h1><ul class="TagList"><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="229"><a class="u-link-unstyled TagList__label" href="/tags/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92"><img alt="深層学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/9594cfcb56d9180f74c468e56c69ce9f69cbe6ee/medium.jpg?1480640899" /><span>深層学習</span></a></li><li class="TagList__item" data-count="1612"><a class="u-link-unstyled TagList__label" href="/tags/R"><img alt="R" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/1fb278c84de62d15a2fb6df25dc66327756df67e/medium.jpg?1438084694" /><span>R</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">452</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:452,&quot;uuid&quot;:&quot;b07483af7ef31c30dacc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></li><li class="js-hovercard" data-hovercard-target-name="kumazo"><a itemprop="url" href="/kumazo"><img alt="kumazo" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/f1028eac1359f4c5b6d87584d0b99d2e?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></li><li class="js-hovercard" data-hovercard-target-name="NaohiroKashimoto"><a itemprop="url" href="/NaohiroKashimoto"><img alt="NaohiroKashimoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11055/profile-images/1473681901" /></a></li><li class="js-hovercard" data-hovercard-target-name="tt_w54s"><a itemprop="url" href="/tt_w54s"><img alt="tt_w54s" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52660/profile-images/1473692800" /></a></li><li class="js-hovercard" data-hovercard-target-name="stk2k"><a itemprop="url" href="/stk2k"><img alt="stk2k" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/17003/profile-images/1473682027" /></a></li><li class="js-hovercard" data-hovercard-target-name="heliac2000"><a itemprop="url" href="/heliac2000"><img alt="heliac2000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44994/profile-images/1473690106" /></a></li><li class="js-hovercard" data-hovercard-target-name="Yoo"><a itemprop="url" href="/Yoo"><img alt="Yoo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68106/profile-images/1473697737" /></a></li><li class="js-hovercard" data-hovercard-target-name="kou_tana77"><a itemprop="url" href="/kou_tana77"><img alt="kou_tana77" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45958/profile-images/1473690481" /></a></li><li class="js-hovercard" data-hovercard-target-name="kaolyn"><a itemprop="url" href="/kaolyn"><img alt="kaolyn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/41356/profile-images/1473688766" /></a></li><li class="js-hovercard" data-hovercard-target-name="neka-nat@github"><a itemprop="url" href="/neka-nat@github"><img alt="neka-nat@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14516/profile-images/1473683376" /></a></li><li><a href="/HirofumiYashima/items/b07483af7ef31c30dacc/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/HirofumiYashima"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" alt="1473689546" /></a> <a class="u-link-unstyled" href="/HirofumiYashima">HirofumiYashima</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-05-29T12:17:09+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-05-29">Edited at <time datetime="2016-12-14T19:14:52+09:00" itemprop="dateModified">2016-12-14</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/HirofumiYashima/items/b07483af7ef31c30dacc/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">40</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__gist"><span class="fa fa-github"></span><a target="_blank" href="https://gist.github.com/e527b21f3cad4e6e3ee3">Gist</a></div></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/HirofumiYashima/items/b07483af7ef31c30dacc/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(40)</span></a></li><li><a href="/HirofumiYashima/items/b07483af7ef31c30dacc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-b07483af7ef31c30dacc" itemprop="articleBody"><p>人工知能やデータ解析の領域で、膨大な量のデータから、物体概念（物体識別）や音声・体の運動スキーマ概念を自動的・自律的に獲得できる可能性をもった手法として、Deep Learning（ディープ・ラーニング、「深層学習」）と総称される手法が注目を集めています。</p>
+
+<p>こうした中、一部の研究者やベンチャー企業の経営者・エンジニアの中には、このDeep Learningのさらに先をいくデータ解析手法として、TDA：トポロジカル・データ・アナリシス (Topological data analysis) と呼ばれる手法に着目している方たちがいるようです。</p>
+
+<p>Deep Learningと同じく、人間が脳を使って、五感で得た周囲や自分の体についての感覚情報から、どのようにして周囲の環境空間に対する認識イメージや、物体概念、みずからの身体概念を得ているのか？という「問い」に対して、統計学や確率論のアプローチではなく、数学の一領域である<a href="http://ja.wikipedia.org/wiki/%E4%BD%8D%E7%9B%B8%E5%B9%BE%E4%BD%95%E5%AD%A6" rel="nofollow noopener" target="_blank">トポロジー（位相幾何学）</a>の知見から応えようとするなかから、生まれてきたようです。</p>
+
+<p>この記事では、Deep Learningのさらにその先をいく（可能性をもつ）データ解析手法としてのTDAについて、概要を解説したウェブサイトと、手元のPCマシンで、実際に R言語 や Python言語 で実データをもとに動作や精度を検証していくための実装環境についての参考ウェブサイトにインデックスを張ってみました。</p>
+
+<hr>
+
+<h1>
+<span id="tda-トポロジカルデータアナリシス-とは何か" class="fragment"></span><a href="#tda-%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%82%AB%E3%83%AB%E3%83%87%E3%83%BC%E3%82%BF%E3%82%A2%E3%83%8A%E3%83%AA%E3%82%B7%E3%82%B9-%E3%81%A8%E3%81%AF%E4%BD%95%E3%81%8B"><i class="fa fa-link"></i></a><strong>TDA: トポロジカル・データ・アナリシス とは何か？</strong>
+</h1>
+
+<h5>
+<span id="wikipedia-英語版" class="fragment"></span><a href="#wikipedia-%E8%8B%B1%E8%AA%9E%E7%89%88"><i class="fa fa-link"></i></a><strong>(Wikipedia 英語版）</strong>
+</h5>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Topological_data_analysis" rel="nofollow noopener" target="_blank">Topological data analysis</a></li>
+</ul>
+
+<blockquote>
+<p>Topological data analysis (TDA) is a new area of study aimed at having applications in areas such as data mining and computer vision. The main problems are:</p>
+
+<p>how one infers high-dimensional structure from low-dimensional representations; and<br>
+how one assembles discrete points into global structure.</p>
+
+<p>The human brain can easily extract global structure from representations in a strictly lower dimension, e.g. we infer a 3D environment from a 2D image from each eye. The inference of global structure also occurs when converting discrete data into continuous images, e.g. dot-matrix printers and televisions communicate images via arrays of discrete points.</p>
+
+<p>The main method used by topological data analysis is:</p>
+
+<p>Replace a set of data points with a family of simplicial complexes, indexed by a proximity parameter.<br>
+Analyse these topological complexes via algebraic topology — specifically, via the theory of persistent homology.[1]<br>
+Encode the persistent homology of a data set in the form of a parameterized version of a Betti number which is called a persistence diagram or barcode.[1]</p>
+</blockquote>
+
+<h5>
+<span id="試訳" class="fragment"></span><a href="#%E8%A9%A6%E8%A8%B3"><i class="fa fa-link"></i></a><strong>（試訳）</strong>
+</h5>
+
+<p>トポロジカル・データ・アナリシス（TDA)は、データ・マイニング や コンピュータ・ビジョン（CV)の分野での応用を念頭においた新しい研究領域です。</p>
+
+<p>この解析手法が解明しようと取り組んでいる問題は、たとえば、人間が 眼球（網膜）で得た2次元の視覚情報データから、3次元の空間構造認識を形成する際に、どのようにして、低次元のデータ構造で表現される対象（物）から、高次元のデータ構造体を獲得するのか、といった問題です。</p>
+
+<p>上記の例のように、人間の脳は、こともなげに（容易に）低次元のデータ対象から、（高次元で）広域的（global）なデータ構造体を形成する能力を持ちます。この能力は、離散的な（トビトビに互いに離れた）複数の点の集合をみて、連続的な形（輪郭）を帯びた像を認識（イメージ）する際にも発揮されるものです。</p>
+
+<hr>
+
+<h3>
+<span id="似た名称-の-領域-に情報幾何学というものがあるようですこちらはトポロジーを用いたtda-とは別物のようです" class="fragment"></span><a href="#%E4%BC%BC%E3%81%9F%E5%90%8D%E7%A7%B0-%E3%81%AE-%E9%A0%98%E5%9F%9F-%E3%81%AB%E6%83%85%E5%A0%B1%E5%B9%BE%E4%BD%95%E5%AD%A6%E3%81%A8%E3%81%84%E3%81%86%E3%82%82%E3%81%AE%E3%81%8C%E3%81%82%E3%82%8B%E3%82%88%E3%81%86%E3%81%A7%E3%81%99%E3%81%93%E3%81%A1%E3%82%89%E3%81%AF%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC%E3%82%92%E7%94%A8%E3%81%84%E3%81%9Ftda-%E3%81%A8%E3%81%AF%E5%88%A5%E7%89%A9%E3%81%AE%E3%82%88%E3%81%86%E3%81%A7%E3%81%99"><i class="fa fa-link"></i></a><strong>似た名称 の 領域 に、「情報幾何学」というものがあるようです。こちらは、「トポロジー」を用いたTDA とは別物のようです。</strong>
+</h3>
+
+<ul>
+<li><a href="http://blog.albert2005.co.jp/2016/02/12/%E4%BD%8D%E7%9B%B8%E7%9A%84%E3%83%87%E3%83%BC%E3%82%BF%E8%A7%A3%E6%9E%90%EF%BC%88topological-data-analysis%EF%BC%89%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6/" rel="nofollow noopener" target="_blank">ALBERT Official Blog （2016/02/12）「位相的データ解析（Topological Data Analysis）について」</a></li>
+</ul>
+
+<blockquote>
+<p>位相的データ解析とはデータの集合をトポロジーと呼ばれる「柔らかい」幾何を用いて解析する手法です。<br>
+幾何学を使った統計学ですと情報幾何学と呼ばれる分野がありますが、こちらはデータの集合ではなく確率分布に対して微分幾何という「硬い」幾何学を用いた分野です。</p>
+</blockquote>
+
+<p><strong>理化学研究所の甘利先生が創始された「情報幾何学」については、以下が参考になります。</strong></p>
+
+<ul>
+<li><a href="http://www.riken.jp/research/labs/aip/generic_tech/geometric_learn/" rel="nofollow noopener" target="_blank">理化学研究所 革新知能統合研究センター　幾何学的学習チーム　チームリーダー 竹之内 高志 (Ph.D.)</a></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/1c3d2f4d-aa22-df05-9616-a0f7ba91e82e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/1c3d2f4d-aa22-df05-9616-a0f7ba91e82e.png" alt="riken.PNG"></a></p>
+
+<ul>
+<li><a href="http://gcoe-mi.jp/temp/publish/84f2d96bd2f22a8968ab961e808ea8a1.pdf" rel="nofollow noopener" target="_blank">村田 昇（早稲田大学理工学術院）「Boosting Algorithmの情報幾何」</a></li>
+</ul>
+
+<blockquote>
+<p><strong>概要</strong></p>
+
+<p>KL-divergence のある種の一般化である Bregman divergence (U-divergence）を用いることによってboosting アルゴリズムを包括的に捉え，その幾何学的意味を考えるための方法論を紹介する．</p>
+</blockquote>
+
+<ul>
+<li><a href="http://www.airc.aist.go.jp/doc/seminar02-akaho.pdf" rel="nofollow noopener" target="_blank">赤穂 昭太郎（産業技術総合研究）「情報幾何で見る機械学習」</a></li>
+<li><a href="https://staff.aist.go.jp/s.akaho/papers/infogeo-sice.pdf" rel="nofollow noopener" target="_blank">赤穂 昭太郎（産業技術総合研究）「情報幾何と機械学習」</a></li>
+<li><a href="http://www.ism.ac.jp/%7Eeguchi/pdf/ronsetsu.pdf" rel="nofollow noopener" target="_blank">江口 真透 「情報幾何と統計的パタン認識」</a></li>
+<li><a href="http://www.slideshare.net/motivic/ss-14465676" rel="nofollow noopener" target="_blank">SlideShare motivic （Senior Researcher at Albert, Inc.）（2012/09/26）「幾何を使った統計のはなし」</a></li>
+<li><a href="http://language-and-engineering.hatenablog.jp/entry/20140619/InformationGeometryPDFPapers" rel="nofollow noopener" target="_blank">Hatena Blog 主に言語とシステム開発に関して 「情報幾何」に入門するための資料PDF。解説論文と機械学習への応用の紹介</a></li>
+<li><a href="http://www.murata.eb.waseda.ac.jp/noboru.murata/paper/mura03_ieice_nc7.pdf" rel="nofollow noopener" target="_blank">村田 昇（早稲田大学）「情報幾何入門」</a></li>
+<li><a href="http://xiangze.hatenablog.com/entry/2014/10/13/224825" rel="nofollow noopener" target="_blank">xiangze's sparse blog （2014/10/13）「情報幾何の新展開」のやばさ </a></li>
+</ul>
+
+<p><strong>（ 情報幾何学 紹介 以上 ）</strong></p>
+
+<hr>
+
+<ul>
+<li><a href="http://pantodon.shinshu-u.ac.jp/topology/literature/topological_data_analysis.html" rel="nofollow noopener" target="_blank">Algebraic Topology: A Gude to Literature, <em>Toplogical Data Analysis</em></a></li>
+</ul>
+
+<blockquote>
+<p>Topological data analysis という 分 野 がある 。 <strong>多 くの 数 値 デ ー タ を point cloud すな わち Euclid 空 間 に 配 置 された 点 の 成 す 離 散集 合 とみなし , それを topological な 道 具 で 調 べることによりその デ ー タ の 持 つ 情 報 を 取 り 出 すことを 研究 する 分 野</strong> , と 言 っ てよい だろう 。<br>
+そのような topological な 道 具 として 最 も 有名 なのは <strong>persistent homology</strong> で ある 。</p>
+</blockquote>
+
+<hr>
+
+<ul>
+<li><a href="http://blog.albert2005.co.jp/2016/02/12/%E4%BD%8D%E7%9B%B8%E7%9A%84%E3%83%87%E3%83%BC%E3%82%BF%E8%A7%A3%E6%9E%90%EF%BC%88topological-data-analysis%EF%BC%89%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6/" rel="nofollow noopener" target="_blank">ALBERT Official Blog （2016/02/12）「位相的データ解析（Topological Data Analysis）について」</a></li>
+</ul>
+
+<blockquote>
+<p>実際に上記のことをライブラリを用いてやってみましょう。位相的データ解析を行えるライブラリはいくつかありますが、今回はRのTDAというパッケージを用います。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+install.packages("TDA")
+library(MASS)
+library(TDA)
+
+#データの生成
+mu1 &lt;- c(0, 0)
+Sigma1 &lt;- matrix(c(1, 0.3, 0.3, 1), 2, 2)
+x1 &lt;- mvrnorm(30, mu1, Sigma1)
+mu2 &lt;- c(8, 0)
+Sigma2 &lt;- matrix(c(1, -0.2, -0.2, 1), 2, 2)
+x2 &lt;- mvrnorm(30, mu2, Sigma2)
+mu3 &lt;- c(4, 6)
+Sigma3 &lt;- matrix(c(1, 0, 0, 1), 2, 2)
+x3 &lt;- mvrnorm(30, mu3, Sigma3)
+x &lt;- rbind(x1,x2,x3)
+
+#TDAによる計算
+Diag &lt;- ripsDiag(X = x, maxdimension = 0, maxscale = 5, library = "Dionysus")
+
+#可視化（バーコードプロット）
+D &lt;- Diag[["diagram"]]
+n &lt;- nrow(D)
+plot(c(min(D[,2]), max(D[,3])-1.5), c(1,n + 1), type="n", xlab = "radius", ylab ="", xlim=c(min(D[,2]), max(D[,3])-1.5), ylim=c(1, n + 1), yaxt ='n')
+segments(D[,2], 1:n, sort(D[,3]), 1:n, lwd=2)
+</pre></div></div>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+library(TDA)
+
+#データの生成
+image_A &lt;- cbind(x= c(0,1,2,3,4,5,6,7,8,9,10,3.5,5,6.5) * 0.6 + 2,
+y =c(0,3,6,9,12,15,12,9,6,3,0,6,6,6)*0.55 + 1.25)
+image_L &lt;- cbind(x = c(0,0,0,0,0,0,0,0,0,1,0.25,0.5,0.75,1.25,1.5) * 4 + 2 ,
+y = c(0,1,2,3,4,5,6,7,8,0,0,0,0,0,0) + 1.25)
+image_B &lt;- cbind(x = c(0,0,0,0,0,0,0,0,0,1,1,1,1.25,1.25,1.5,1.5,1.5,0.25,0.25,0.25,0.5,0.5,0.5,0.75,0.75,0.75,1.25,1.25) * 4 +2,
+y = c(0,1,2,3,4,5,6,7,8,0,4,8,5.3,6.6,1,2,3,0,4,8,0,4,8,0,4,8,3.5,0.5) + 1.25)
+
+#TDAによる計算
+Diag_A &lt;- ripsDiag(X = image_A,maxdimension = 1,maxscale = 5)
+Diag_L &lt;- ripsDiag(X = image_L,maxdimension = 1,maxscale = 5)
+Diag_B &lt;- ripsDiag(X = image_B,maxdimension = 1,maxscale = 5)
+
+#可視化（パーシステント図）
+plot(Diag_A$diagram)
+plot(Diag_L$diagram)
+plot(Diag_B$diagram)
+</pre></div></div>
+</blockquote>
+
+<hr>
+
+<ul>
+<li><a href="http://ailab.ijs.si/primoz_skraba/papers/ICML_tutorial.pdf" rel="nofollow noopener" target="_blank">Primoz Skraba and Sayan Mukherjee(2013/6/16), <em>"Topological Data Analysis and Machine Learning"</em>, ICML tutorial  </a></li>
+</ul>
+
+<p><strong>【 データとデータの間の類似性（<em>similarity</em>）を、自動的に数値化・定量化（<em>quantify</em>）する手法（アルゴリズム）として紹介されている 】</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/6099c468-cc9a-c5b6-9713-be663358cc9e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/6099c468-cc9a-c5b6-9713-be663358cc9e.png" alt="new.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/daad78c0-8797-aa1e-de6f-9b40180b4231.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/daad78c0-8797-aa1e-de6f-9b40180b4231.png" alt="new2.PNG"></a></p>
+
+<p><strong>【 分類問題（クラスタリング問題）も、位相幾何学の世界の言語で、データ（点）とデータ（点）どうしを連結する（<em>connect</em>）させてつなげることで、つながったデータどうしを分類されたデータ集合（個々のクラスター）であるとみなしている？らしい 】</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/ef16348c-5b35-5b5d-9f43-9e248918ddfc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/ef16348c-5b35-5b5d-9f43-9e248918ddfc.png" alt="new3.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/a759948a-e2e4-b51d-794a-72e79b38e407.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/a759948a-e2e4-b51d-794a-72e79b38e407.png" alt="new4.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/38554292-9019-a5ed-bdd9-72665b7c35ad.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/38554292-9019-a5ed-bdd9-72665b7c35ad.png" alt="new5.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/5cae505a-38cf-a8b4-9134-837b1a2d64f0.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/5cae505a-38cf-a8b4-9134-837b1a2d64f0.png" alt="new6.PNG"></a></p>
+
+<hr>
+
+<ul>
+<li><p><a href="http://www.cs.dartmouth.edu/%7Eafra/papers/ams12/tda.pdf" rel="nofollow noopener" target="_blank">Afra Zomorodian, <em>"Topological Data Analysis"</em></a></p></li>
+<li><p><a href="http://www.slideshare.net/paul_kyeong/topological-data-analysis-with-examples" rel="nofollow noopener" target="_blank">(SlideShare) Sunghyon Kyeong, <em>"Topological data analysis"</em> </a></p></li>
+</ul>
+
+<p><strong>（以下、上記からスライドを一部 抜粋）</strong><br>
+<strong>【 TDA は、クラスタリング手法などと同じ「教師なし学習」に位置づけられるとのこと 】</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/6c7f0794-6741-1061-04ab-3fe567c1d384.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/6c7f0794-6741-1061-04ab-3fe567c1d384.png" alt="add1.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/2a04f79b-fbed-0894-524e-34b13976b140.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/2a04f79b-fbed-0894-524e-34b13976b140.png" alt="add2.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/dd32dea2-96c2-d697-ff33-cffc9603a0b8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/dd32dea2-96c2-d697-ff33-cffc9603a0b8.png" alt="add3.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/2bbc9c81-a61a-ca31-7b6b-b1075a1f227c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/2bbc9c81-a61a-ca31-7b6b-b1075a1f227c.png" alt="add4.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/a7decbfe-98fa-23d6-3d92-4d1fe66d4803.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/a7decbfe-98fa-23d6-3d92-4d1fe66d4803.png" alt="add5.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/66af6483-03b9-afd2-00cf-37202a88abdc.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/66af6483-03b9-afd2-00cf-37202a88abdc.png" alt="add6.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/357edb49-5fae-dc9b-c47c-bb0cce870d56.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/357edb49-5fae-dc9b-c47c-bb0cce870d56.png" alt="add7.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/1938a5ce-5860-3539-73c5-22fbc2fabe81.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/1938a5ce-5860-3539-73c5-22fbc2fabe81.png" alt="add8.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/745f3aa2-6f81-5c3f-3eef-941f77ff2577.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/745f3aa2-6f81-5c3f-3eef-941f77ff2577.png" alt="add9.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/cbc78aea-f79f-ea96-a381-6075dd92c819.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/cbc78aea-f79f-ea96-a381-6075dd92c819.png" alt="add10.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/488e6332-4072-1824-3995-7efe713cd00c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/488e6332-4072-1824-3995-7efe713cd00c.png" alt="add21.PNG"></a></p>
+
+<hr>
+
+<ul>
+<li><p><a href="http://www.nature.com/srep/2013/130207/srep01236/full/srep01236.html" rel="nofollow noopener" target="_blank">SCIENTIFIC REPORTS, (2012/9/13) <em>"Extracting insights from the shape of complex data using topology"</em> </a></p></li>
+<li><p><a href="http://www.ayasdi.com/blog/bigdata/why-topological-data-analysis-works/" rel="nofollow noopener" target="_blank">AYASDI, (2015/1/6) <em>"Why Topological Data Analysis Works"</em></a></p></li>
+<li><p><a href="https://speakerdeck.com/advanced_data_visualization/enhancing-topological-data-analysis-with-deep-learning-by-edward-kibardin-lead-data-scientist-at-badoo" rel="nofollow noopener" target="_blank">(Power Point) Advanced Data Visualization (2015/2/19), <em>"Enhancing Topological Data Analysis with Deep Learning" by Edward Kibardin, Lead Data Scientist at Badoo"</em></a></p></li>
+</ul>
+
+<p><strong>（以下、上記からスライドを一部 抜粋）</strong></p>
+
+<p><strong>【データセット事例】</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/7c6448e7-7210-156b-375b-aa1567277ddf.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/7c6448e7-7210-156b-375b-aa1567277ddf.png" alt="1.PNG"></a></p>
+
+<p><strong>（データ項目）</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/a02d00e6-a827-fe1c-c8e2-89b4b1b9cda8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/a02d00e6-a827-fe1c-c8e2-89b4b1b9cda8.png" alt="2.PNG"></a></p>
+
+<p><strong>データには、２０件の「ニュース・グループ」についての属性項目がある</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/5427f652-ef78-789d-8bb0-582068b2c935.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/5427f652-ef78-789d-8bb0-582068b2c935.png" alt="3.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/f6860c39-fe88-955d-4932-0084ea6163ec.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/f6860c39-fe88-955d-4932-0084ea6163ec.png" alt="4.PNG"></a></p>
+
+<p><strong>（ TDA分析モデルに渡すために、データを以下の流れで加工 ）</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/572befd7-7334-f0ee-9796-c29109e8163a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/572befd7-7334-f0ee-9796-c29109e8163a.png" alt="5.PNG"></a></p>
+
+<p><strong>【 データの「構造」を、数学の位相幾何学の言語で解釈して、表現して得られた結果 】</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/b0e7e05c-22c5-cb52-582c-03a6e7ce6ced.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/b0e7e05c-22c5-cb52-582c-03a6e7ce6ced.png" alt="6.PNG"></a></p>
+
+<p><strong>（ 全体像 ）</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/c562f1b9-5ccc-fdcd-222e-41f0d475cb17.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/c562f1b9-5ccc-fdcd-222e-41f0d475cb17.png" alt="7.PNG"></a></p>
+
+<p><strong>【 位相幾何学構造のなかの「ある特定の領域」が、「ある特定のニュースグループ」のデータが位置している領域 に対応しているらしい 】</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/88192cdd-9653-12d5-9136-f13e99b70dd3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/88192cdd-9653-12d5-9136-f13e99b70dd3.png" alt="8.PNG"></a></p>
+
+<p><strong>（ Ayasdi社の「クエリ言語を発行しないでデータ検索できる」DBは、このようにして、データを位相幾何学構造に変換したうえで、その構造体のなかの「特定の領域」＝特定抽出条件に絞って得られる目的のデータ部分集合 を得る仕組み？と思われる ）</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/c3969464-a844-f42d-ae1b-83a5f27da6bd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/c3969464-a844-f42d-ae1b-83a5f27da6bd.png" alt="9.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/bce9b478-03be-1923-0874-295d2c251b3f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/bce9b478-03be-1923-0874-295d2c251b3f.png" alt="10.PNG"></a></p>
+
+<p><strong>【 上記のPower Point資料には、TDA の精度を向上（<em>enhance</em>）させるために、Deep Learningをつかって、さらに手を加えている模様 】</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/545db7f0-0276-7a37-60fc-ca7277ab2c1e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/545db7f0-0276-7a37-60fc-ca7277ab2c1e.png" alt="11.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/f0467acb-2948-b730-1377-adb36c316d00.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/f0467acb-2948-b730-1377-adb36c316d00.png" alt="12.PNG"></a></p>
+
+<hr>
+
+<ul>
+<li><a href="http://www.slideshare.net/AnalyticsWeek/tda-33562822" rel="nofollow noopener" target="_blank">(SlideShare) <em>Using Topological Data Analysis on your BigData</em></a></li>
+</ul>
+
+<h2>
+<span id="-tda-が機械学習のフレームワークを提供しうることが説明されている-" class="fragment"></span><a href="#-tda-%E3%81%8C%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%81%AE%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%92%E6%8F%90%E4%BE%9B%E3%81%97%E3%81%86%E3%82%8B%E3%81%93%E3%81%A8%E3%81%8C%E8%AA%AC%E6%98%8E%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B-"><i class="fa fa-link"></i></a><strong>【 TDA が、機械学習のフレームワークを提供しうることが説明されている 】</strong>
+</h2>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/73b9dfd7-bd7f-c1cb-2e3a-a547fc8fbe22.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/73b9dfd7-bd7f-c1cb-2e3a-a547fc8fbe22.png" alt="キャプチャ.PNG"></a></p>
+
+<h2>
+<span id="-分析領域と分析手法指標統計解析と機械学習とgeometry位相幾何学との対応関係-" class="fragment"></span><a href="#-%E5%88%86%E6%9E%90%E9%A0%98%E5%9F%9F%E3%81%A8%E5%88%86%E6%9E%90%E6%89%8B%E6%B3%95%E6%8C%87%E6%A8%99%E7%B5%B1%E8%A8%88%E8%A7%A3%E6%9E%90%E3%81%A8%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%81%A8geometry%E4%BD%8D%E7%9B%B8%E5%B9%BE%E4%BD%95%E5%AD%A6%E3%81%A8%E3%81%AE%E5%AF%BE%E5%BF%9C%E9%96%A2%E4%BF%82-"><i class="fa fa-link"></i></a><strong>【 分析領域と分析手法・指標～「統計解析」と「機械学習」と"Geometry"（位相幾何学）との対応関係？ 】</strong>
+</h2>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/add090ff-ef62-833a-d780-e3277648d3d1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/add090ff-ef62-833a-d780-e3277648d3d1.png" alt="キャプチャ２.PNG"></a></p>
+
+<hr>
+
+<ul>
+<li><p><a href="http://www2.math.kyushu-u.ac.jp/%7Ehiraoka/hiraoka.pdf" rel="nofollow noopener" target="_blank">平岡 裕章（九州大学）「位相的データ解析と生命・材料・情報科学への応用」  </a></p></li>
+<li><p><a href="http://park.itc.u-tokyo.ac.jp/atstat/kakenhi/120120tsukuba/sakata.pdf" rel="nofollow noopener" target="_blank">坂田ほか（東京大学）「順位データ解析とＨｏｄｇｅ分解（理論、アルゴリズム、応用）」</a><br>
+　 </p></li>
+<li><p><a href="http://d.hatena.ne.jp/ryamada22/20150509/1431117149" rel="nofollow noopener" target="_blank">ryamadaの遺伝学・遺伝統計学メモ （2015/5/9）「ぱらぱらめくる『Topological and Statistical Methods for Complex」</a></p></li>
+</ul>
+
+<p><strong>（ 以下、平岡 PDF より一部を引用して転載 ）</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/b55082f0-f095-2a13-a154-3a25680e63b6.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/b55082f0-f095-2a13-a154-3a25680e63b6.png" alt="hiraoka_1.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/49be5ebc-91fc-d094-0e63-69c19f157b6c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/49be5ebc-91fc-d094-0e63-69c19f157b6c.png" alt="hiraoka_2.PNG"></a></p>
+
+<p><strong>（ 以下、坂田ほか（東京大学） SlideShareより一部を引用して転載 ）</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/cbe57e3b-b139-c3a1-6243-ccea9ce22fe1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/cbe57e3b-b139-c3a1-6243-ccea9ce22fe1.png" alt="TDA_1.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/e2898c6c-c26f-4d88-8559-392b99003e02.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/e2898c6c-c26f-4d88-8559-392b99003e02.png" alt="TDA_2.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/9df54e65-11a2-6e5a-6428-bb59fbd5883b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/9df54e65-11a2-6e5a-6428-bb59fbd5883b.png" alt="TDA_3.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/a419a65e-bee6-d1d3-dcd3-b131c1cccce9.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/a419a65e-bee6-d1d3-dcd3-b131c1cccce9.png" alt="TDA_4.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/170a25bf-7e3e-4bc7-391c-df063cf631f1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/170a25bf-7e3e-4bc7-391c-df063cf631f1.png" alt="TDA_5.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/e1906083-618b-1001-8fe8-6e9b0b779877.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/e1906083-618b-1001-8fe8-6e9b0b779877.png" alt="TDA_6.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/f34ef395-19f6-5428-826e-ca1b13bb4c87.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/f34ef395-19f6-5428-826e-ca1b13bb4c87.png" alt="TDA_7.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/424dfecd-23f7-d832-ec07-ce1feb9f4cc5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/424dfecd-23f7-d832-ec07-ce1feb9f4cc5.png" alt="TDA_8.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/cc67088c-e45d-9f42-66ca-1f77b4a1be62.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/cc67088c-e45d-9f42-66ca-1f77b4a1be62.png" alt="TDA_9.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/e4659c4d-3fe3-8242-e8bc-82520f4c3628.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/e4659c4d-3fe3-8242-e8bc-82520f4c3628.png" alt="TDA_10.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/e6417a78-237a-0f04-d72a-b6e626371c1d.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/e6417a78-237a-0f04-d72a-b6e626371c1d.png" alt="TDA_11.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/95d08c2f-78f0-c75b-4842-78f9a69a3d67.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/95d08c2f-78f0-c75b-4842-78f9a69a3d67.png" alt="TDA_12.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/de136537-52e6-005e-39ed-66e8d5525f95.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/de136537-52e6-005e-39ed-66e8d5525f95.png" alt="TDA_13.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/6f8431b5-6452-9431-1e63-d4b5c47802a3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/6f8431b5-6452-9431-1e63-d4b5c47802a3.png" alt="TDA_14.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/3868273e-89a6-7d0c-97de-a8623d874538.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/3868273e-89a6-7d0c-97de-a8623d874538.png" alt="TDA_15.PNG"></a></p>
+
+<hr>
+
+<h2>
+<span id="日本国内ベンチャーで社内勉強会を開いている会社があるらしい" class="fragment"></span><a href="#%E6%97%A5%E6%9C%AC%E5%9B%BD%E5%86%85%E3%83%99%E3%83%B3%E3%83%81%E3%83%A3%E3%83%BC%E3%81%A7%E7%A4%BE%E5%86%85%E5%8B%89%E5%BC%B7%E4%BC%9A%E3%82%92%E9%96%8B%E3%81%84%E3%81%A6%E3%81%84%E3%82%8B%E4%BC%9A%E7%A4%BE%E3%81%8C%E3%81%82%E3%82%8B%E3%82%89%E3%81%97%E3%81%84"><i class="fa fa-link"></i></a><strong>日本国内ベンチャーで、社内勉強会を開いている会社があるらしい</strong>
+</h2>
+
+<p><strong>（ 会社ウェブサイト ）</strong><br>
+<strong><a href="http://www.abeja.asia/index_jp.html" rel="nofollow noopener" target="_blank">株式会社ABEJA (アベジャ) ABEJA Inc. （本社：東京港区六本木 / 代表取締役：岡田 陽介 氏）</a></strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/0bd25330-58e0-fd4f-8b6a-7d9dee121dcb.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/0bd25330-58e0-fd4f-8b6a-7d9dee121dcb.png" alt="ABEJA.PNG"></a></p>
+
+<p><strong>（ 同社 紹介記事 ）</strong><br>
+<strong><a href="http://thewave.jp/archives/2286" rel="nofollow noopener" target="_blank">The Wave（2015年4月7日付記事）「国内AIトップ研究者とのタッグで世界最先端狙う26歳経営者　ABEJA岡田陽介氏」</a></strong></p>
+
+<blockquote>
+<p>Googleが、ロボット、人工知能、宇宙開発といった、一見突拍子もないような研究を続けるのは優秀な技術者を集めるため。GoogleのCEOのLarry Page氏がそう語っているのを聞いたことがある。高額の給料で引き寄せても、別の会社がより高額な給料を提示すれば、そうした人たちは去っていく。それよりも、ほかではできないような最先端のワクワクする仕事を与えれば、世界中から優秀な技術者が自然と集まってくる。Page氏はそう考えているわけだが、ABEJAに若い技術者が集まるのも同様の理由からなのだろう。 </p>
+
+<p>逆に言えば、優秀な人材を集めるには、常に最先端を走り続けなければならない。同社のモットーは、「5歩先の未来を想像し、４歩先を具体的に考え、３歩先の研究をし、２歩先の開発をし、１歩先でだれもが使えるような事業に落としこんでいく」というもの。「テクノロジーの最先端を走り続ければ、優秀な研究者、技術者が集まってくる。そうしたとんでもない技術を事業化できるようなビジネスプロデューサーも集まってくる。重要なものは、人。この仕組みを回していけば、無敵の企業になれるんじゃないかなって思っています」。 </p>
+
+<p>５歩先の未来を読むために、勉強は欠かせない。社内で論文の輪読を行っている。難しい論文を理解するのに必要なのは、努力の積み重ねとひらめき。専門的な知識を持った仲間のだれかが、「これはこういうことだ！」とひらめく。それを全員に共有する。輪読を行うことで、効率よく世界の最先端の研究動向を学べるのだという。</p>
+
+<p><strong>「実はわれわれは、既にDeep Learningの次を見ています。次の注目技術はTopological Data Analysis（TDA)です。インストア・マーケティングだけの会社で終るつもりはありません」と岡田氏は言う。TDAとは位相幾何学をベースにした新しい技術で、「計算リソースを少なくして今までの100倍くらいの性能でデータ解析ができるようになったり、従来手法では相関性が見えにくかったところが見えるようになるんです」。</strong> </p>
+
+<p><strong>では、果たしてその技術でどのようなことが可能になるのだろうか。どのようなビジネスに発展するのだろうか。</strong> </p>
+
+<p><strong>そのビジネス化こそがABEJAの役割だ、と岡田氏は言う。「技術の種からビジネスを作り出して、イノベーションを起こす。それで得た収益をまた研究開発に回して次の技術の種を作る。そのプロセスをぐるぐる回す。それがABEJAとして、やっていきたいことなんです」。</strong></p>
+</blockquote>
+
+<p><strong>（ ABEJA社 最近の動向 ）※ アクセス日： 2015/5/31</strong></p>
+
+<ul>
+<li><a href="http://www.abeja.asia/news.html" rel="nofollow noopener" target="_blank">（同社 コーポレート・ニュース 広報ウェブサイト）</a></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/a85cc317-977b-afd0-fce0-4020e85ab214.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/a85cc317-977b-afd0-fce0-4020e85ab214.png" alt="ABEJA_current.PNG"></a></p>
+
+<hr>
+
+<h1>
+<span id="プログラミング言語実装環境-手元で動かして自分で検証するために" class="fragment"></span><a href="#%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E8%A8%80%E8%AA%9E%E5%AE%9F%E8%A3%85%E7%92%B0%E5%A2%83-%E6%89%8B%E5%85%83%E3%81%A7%E5%8B%95%E3%81%8B%E3%81%97%E3%81%A6%E8%87%AA%E5%88%86%E3%81%A7%E6%A4%9C%E8%A8%BC%E3%81%99%E3%82%8B%E3%81%9F%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a><strong>プログラミング言語実装環境 ～手元で動かして、自分で検証するために</strong>
+</h1>
+
+<h3>
+<span id="実装環境-調査レポート" class="fragment"></span><a href="#%E5%AE%9F%E8%A3%85%E7%92%B0%E5%A2%83-%E8%AA%BF%E6%9F%BB%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88"><i class="fa fa-link"></i></a><strong>（実装環境 調査レポート）</strong>
+</h3>
+
+<ul>
+<li><a href="http://cv.mikael.johanssons.org/talks/2013-09-eccs.pdf" rel="nofollow noopener" target="_blank">Mikael Vejdemo-Johansson (Computer Vision and Active Perception Laboratory), <em>"Topological Data Analysis A software survey"</em></a></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/5e0bc7c5-6901-7afa-6686-6265757f750c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/5e0bc7c5-6901-7afa-6686-6265757f750c.png" alt="survey.PNG"></a></p>
+
+<hr>
+
+<h3>
+<span id="r言語" class="fragment"></span><a href="#r%E8%A8%80%E8%AA%9E"><i class="fa fa-link"></i></a><strong>（R言語）</strong>
+</h3>
+
+<h5>
+<span id="tda-package" class="fragment"></span><a href="#tda-package"><i class="fa fa-link"></i></a><strong>{TDA} Package</strong>
+</h5>
+
+<ul>
+<li>
+<p><a href="http://cran.r-project.org/web/packages/TDA/index.html" rel="nofollow noopener" target="_blank">CRAN, <em>TDA: Statistical Tools for Topological Data Analysis</em>  </a></p>
+
+<blockquote>
+<p><strong>TDA: Statistical Tools for Topological Data Analysis</strong></p>
+
+<p>This package provides tools for the statistical analysis of persistent homology and for density clustering.</p>
+</blockquote>
+</li>
+<li><p><a href="http://cran.r-project.org/web/packages/TDA/TDA.pdf" rel="nofollow noopener" target="_blank">CRAN: TDA manual (2015/2/19)</a></p></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/5c8b0adc-21b5-e403-8539-6a31cbcba43f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/5c8b0adc-21b5-e403-8539-6a31cbcba43f.png" alt="R_package_TDA.PNG"></a></p>
+
+<ul>
+<li><a href="http://cran.r-project.org/web/packages/TDA/vignettes/article.pdf" rel="nofollow noopener" target="_blank">Brittany T. Fasy, Jisu Kim, Fabrizio Lecci and Cl´ement Maria, <em>"Introduction to the R package TDA"</em></a></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/97f6735a-4120-a64a-09a6-d12727093de2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/97f6735a-4120-a64a-09a6-d12727093de2.png" alt="R_and_TDA.PNG"></a></p>
+
+<hr>
+
+<h3>
+<span id="python言語" class="fragment"></span><a href="#python%E8%A8%80%E8%AA%9E"><i class="fa fa-link"></i></a><strong>(Python言語）</strong>
+</h3>
+
+<ul>
+<li><a href="http://danifold.net/mapper/" rel="nofollow noopener" target="_blank">Python Mapper by Daniel Mullner</a></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/7dfc5745-1141-0af3-3975-fdb3d53f4f53.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/7dfc5745-1141-0af3-3975-fdb3d53f4f53.png" alt="daniforld.PNG"></a></p>
+
+<blockquote>
+<p><strong>What is Python Mapper?</strong></p>
+
+<p>The Mapper algorithm is a method for topological data analysis invented by &gt;Gurjeet Singh, Facundo Mémoli and Gunnar Carlsson. See the Reference [R1] for the publication.<br>
+While the Mapper algorithm alone does not constitute a &gt;complete data &gt;analysis tool itself, it is the key part of a processing chain with &gt;(minimally) filter functions, the Mapper algorithm itself and visualization &gt;of the results.</p>
+
+<p>Python Mapper is a realization of this toolchain, written by Daniel Müllner and Aravindakshan Babu. It is open source software and is released under the GNU GPLv3 license.<br>
+There is also a company, Ayasdi, which was founded by Gurjeet Singh, Gunnar Carlsson and Harlan Sexton and whose main product, the Ayasdi Iris software, has the Mapper algorithm at its core. Ayasdi also issues academic trial licenses.</p>
+
+<p>As much as Ayasdi covers the commercial uses of the Mapper algorithm with a polished and mature product, the authors of Python Mapper strive to provide the scientific community with a complete, extensible and fast toolchain. Since it is open source, it can be extended and modified by anyone with new ideas. The Python Mapper software also provides a graphical user interface, which hopefully makes it accessible to non-specialists and speeds up the workflow for beginners and experts alike.</p>
+
+<p>To get an idea about the Mapper algorithm, we recommend Gunnar Carlsson’s paper “Topology and Data” [R5] and the original Mapper paper [R1].</p>
+</blockquote>
+
+<h5>
+<span id="依存モジュール等" class="fragment"></span><a href="#%E4%BE%9D%E5%AD%98%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E7%AD%89"><i class="fa fa-link"></i></a><strong>(依存モジュール等）</strong>
+</h5>
+
+<ul>
+<li><a href="http://danifold.net/mapper/installation/index.html#requirements" rel="nofollow noopener" target="_blank">Daniel Müllner » Python Mapper documentation » Installation</a></li>
+</ul>
+
+<blockquote>
+<p><strong>Requirements</strong></p>
+
+<p>Python 2.6 or higher. The GUI needs Python 2 since it depends on wxPython and PyOpenGL; Python Mapper itself can be run under Python 2 and Python 3.</p>
+
+<p>NumPy and SciPy<br>
+Matplotlib<br>
+Graphviz<br>
+Optionally cmappertools. Python Mapper will run without this module, but with limited functionality.<br>
+cmappertools need the Boost C++ libraries.</p>
+
+<p>For the GUI:<br>
+wxPython<br>
+PyOpenGL</p>
+</blockquote>
+
+<h4>
+<span id="インストール方法" class="fragment"></span><a href="#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%96%B9%E6%B3%95"><i class="fa fa-link"></i></a><strong>（インストール方法）</strong>
+</h4>
+
+<h5>
+<span id="-highly-recommended-" class="fragment"></span><a href="#-highly-recommended-"><i class="fa fa-link"></i></a><strong>【 Highly recommended 】</strong>
+</h5>
+
+<ul>
+<li><strong>fastcluster</strong></li>
+</ul>
+
+<blockquote>
+<p>This is Daniel Müllner’s C++ library for fast hierarchical clustering, again wrapped as a Python module. If one of the methods below work, this is the quickest way to install fastcluster. Otherwise, please refer to the detailed installation instructions in the fastcluster distribution. You need the Python interface; the R interface can be ignored.</p>
+</blockquote>
+
+<ul>
+<li><strong>（方法１）</strong></li>
+</ul>
+
+<div class="code-frame" data-lang="Python">
+<div class="code-lang"><span class="bold">Python</span></div>
+<div class="highlight"><pre>
+<span class="n">easy_install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="o">--</span><span class="n">user</span> <span class="n">fastcluster</span>
+</pre></div>
+</div>
+
+<ul>
+<li><strong>（方法２）</strong></li>
+</ul>
+
+<div class="code-frame" data-lang="UNIX console">
+<div class="code-lang"><span class="bold">bash</span></div>
+<div class="highlight"><pre>
+wget https://pypi.python.org/packages/source/f/fastcluster/fastcluster-1.1.13.tar.gz
+tar -xf fastcluster-1.1.13.tar.gz
+cd fastcluster-1.1.13
+python setup.py install --user
+cd ..
+rm fastcluster-1.1.13.tar.gz
+rm -r fastcluster-1.1.13/
+</pre></div>
+</div>
+
+<hr>
+
+<h3>
+<span id="サードパーティ企業-リリース分析環境" class="fragment"></span><a href="#%E3%82%B5%E3%83%BC%E3%83%89%E3%83%91%E3%83%BC%E3%83%86%E3%82%A3%E4%BC%81%E6%A5%AD-%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E5%88%86%E6%9E%90%E7%92%B0%E5%A2%83"><i class="fa fa-link"></i></a><strong>(サード・パーティ企業 リリース分析環境）</strong>
+</h3>
+
+<ul>
+<li><strong><a href="http://www.ayasdi.com/wp-content/uploads/2015/01/ayasdi-core.pdf" rel="nofollow noopener" target="_blank">Ayasdi社 製品 「Ayasdi Core」</a></strong></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/36abbd30-1949-4f89-9fa3-01530030f06a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/36abbd30-1949-4f89-9fa3-01530030f06a.png" alt="Ayasdi_core_1.PNG"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/a9385b8b-b3b3-4f21-c214-192c45d9e90f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/a9385b8b-b3b3-4f21-c214-192c45d9e90f.png" alt="Ayasdi_ore_2.PNG"></a></p>
+
+<p><strong>※ ユーザ・インターフェイスは、Tableau を使って操作できる GUI環境 も可能？か</strong></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/918bb7f4-ccea-e5a3-7ab7-b949446664d7.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/918bb7f4-ccea-e5a3-7ab7-b949446664d7.png" alt="Ayasdi_core_3.PNG"></a></p>
+
+<ul>
+<li><a href="http://www.ayasdi.com/product/core/" rel="nofollow noopener" target="_blank">Ayasdi Core</a></li>
+</ul>
+
+<blockquote>
+<p>Ayasdi Core is an advanced analytics software application that helps you uncover critical business intelligence from dynamic, large, complex datasets. </p>
+
+<p>Unique in the market, Ayasdi Core simplifies the analysis of complex data <strong>by combining topological data analysis (TDA),</strong> a technique pioneered by our founders, <strong>with the latest machine learning algorithms.</strong> We call this approach machine intelligence and it starts with the data - not with an endless string of questions. </p>
+
+<p>Using data as the foundation, Ayasdi Core applies combinations of algorithms - from statistics, <strong>geometry</strong> and machine learning - to analyze <strong>thousands of attributes simultaneously.</strong>  </p>
+
+<p><strong>Because of the depth and breadth of its algorithmic reach, Ayasdi Core rapidly finds and explains all the significant patterns in your data - something other approaches cannot achieve. Using the geometry of the data, Ayasdi Core creates topological summaries that reveal subtle insights, insights that remain invisible to other approaches.</strong></p>
+</blockquote>
+
+<p><strong>（Ayasdi社 参考）</strong></p>
+
+<ul>
+<li><strong><a href="http://www.ayasdi.com/product/core/" rel="nofollow noopener" target="_blank">【同社 公式ウェブサイト】</a></strong></li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/dab62dfc-e7e3-6923-3fdf-f94a111eb06b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/43487/dab62dfc-e7e3-6923-3fdf-f94a111eb06b.png" alt="Ayasdi社.PNG"></a></p>
+
+<ul>
+<li><a href="http://www.infoq.com/jp/news/2014/06/ayasdi-tda" rel="nofollow noopener" target="_blank">InfoQ (2014年6月6日付 記事)「AyasdiがClouderaと業務提携」</a></li>
+</ul>
+
+<blockquote>
+<p>Ayasdi (チェロキー族の言葉で「探す」という意味) は、データ解析を行うスタートアップであり、高次元かつ多量のデータ集合から洞察を得る、ある革新的な手法を商業化するために、3人の数学者によって2008年に設立された。Topological Data Analysis(TDA) と呼ばれるこの手法は、国防高等研究計画局(DARPA)とアメリカ国立科学財団(NSF)との資金提供を受け、General Electric、 Merck、 アメリカ食品医薬品局(FDA)、アメリカ疾病予防管理センター(CDC)といった顧客に対して、<strong>クエリやアルゴリズムを記述することなく、彼らの持つデータの幾何学的構造を明らかにし、より可視化しやすく対話的に探索しやすい簡潔な要約データを作る</strong>ことを可能にしている。</p>
+
+<p><strong>背景となる基本的な考え方は、データには形状があり、形状には意味があるということだ。TDAでは、基本的にはデータは空間上の点の大きく有限な集合として表現される。そして、点が互いにどのように関係しているかを説明するために、形状が使われる。</strong></p>
+
+<p>たとえば、形状の単純な観点のひとつである「いくつの部分に分けられるか」あるいは、「どうやってクラスタに分けられるか」ということが、ある現象の、概念的に異なる部分を明らかにできる。また別の観点「ループが存在するか」は、繰り返しや周期性のある振る舞いを表す可能性がある。トポロジは、まさにこの形状についての考え方を研究する数学の一分野であり、TDAは、このように定性的な幾何情報を定義し測定するための数学的な定式化を、大きくてノイズを含む点の集団にまで拡張することを目指している。</p>
+</blockquote>
+
+<ul>
+<li><p><a href="http://9bot.jp/bigdatabi/ayasdi.html" rel="nofollow noopener" target="_blank">9bot.jp キュレーションサイト (2013年8月1日付 記事）「世界の最も複雑な問題を解決する Ayasdi」</a></p></li>
+<li><p><a href="http://open-groove.net/all-things-technology/big-data-startups-to-watch-2014/" rel="nofollow noopener" target="_blank">OpenGroove 『「注目すべきビッグデータ関連スタートアップ企業10」少々翻訳』</a></p></li>
+</ul>
+
+<blockquote>
+<p>城田真琴氏のTweetからたどった英文記事 – 10 Big Data startups to watch（注目すべきビッグデータ関連のスタートアップ企業10）。これはやはり記録しておくべきか、と眠い目をこすりつつ読んだのだが説明文全部は訳せないので（全部は読んでない）、一言説明と顧客企業、競合だけ挙げておく。</p>
+
+<p><strong>2. Ayasdi</strong></p>
+
+<p>癌やその他疾患の予兆発見、新しいエネルギーソースの探索、テロリズム防止、金融詐欺など、複合的な問題を解決するためにビッグデータ分析を用いる。</p>
+
+<p><strong>ユーザ企業:</strong><br>
+GE, Citi, Merck, USDA, Mt Sinai Hospital, the Miami Heat, the CDC.<br>
+競合：IBM’s Watson, SAS, Skytree</p>
+</blockquote>
+
+<hr>
+
+<h3>
+<span id="-追記-" class="fragment"></span><a href="#-%E8%BF%BD%E8%A8%98-"><i class="fa fa-link"></i></a><strong>【 追記 】</strong>
+</h3>
+
+<p><strong>以下のウェブページに、本記事が紹介されています。</strong></p>
+
+<ul>
+<li><a href="http://antena.tokyo/topological-data-analysis%E3%80%80%E7%95%A5%E3%81%97%E3%81%A6%E3%80%80tda%E3%80%80%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%82%AB%E3%83%AB%E3%80%80%E3%83%87%E3%83%BC%E3%82%BF%E3%80%80%E3%82%A2%E3%83%8A" rel="nofollow noopener" target="_blank">（2016/02/24）「Topological data analysis　略して　TDA　トポロジカル　データ　アナリシス　これめっちゃ興奮する。」</a></li>
+</ul>
+
+<p><strong>上記の記事 で 引用されている 富士通研究所 における TDA の 利用事例</strong> </p>
+
+<ul>
+<li><a href="http://www.atmarkit.co.jp/ait/articles/1602/17/news151.html" rel="nofollow noopener" target="_blank">atmarkIT （2016/02/17）「時系列データの「形状」で分類：
+トポロジカルデータ分析で時系列データを高精度分析、富士通研究所が開発」 </a></li>
+</ul>
+
+<blockquote>
+<p>富士通研究所は判別が困難なほど振れ幅が激しい時系列データでも、高精度解析を可能とするDeep Learning技術を開発した。</p>
+
+<p>富士通研究所は2016年2月16日、人による判別が困難なほど振れ幅が激しい時系列データでも、高精度解析を可能とするDeep Learning技術を開発したと発表した。最先端の数学を活用し、時系列データから「幾何的な特徴」を抽出することで解析を可能にしたとしている。</p>
+</blockquote>
+
+<p>（ 以下、上記 記事から一部を抜粋して転載 ）</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/58ef7138-9280-9464-164c-15b9f22df957.png" target="_blank" rel="nofollow noopener"><img width="703" alt="スクリーンショット 2016-03-10 17.00.36.png" src="https://qiita-image-store.s3.amazonaws.com/0/43487/58ef7138-9280-9464-164c-15b9f22df957.png"></a></p>
+
+<p>（ 中略 ）</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/43487/eaf41aa3-14cc-e2ee-fafa-2d745ac3116f.png" target="_blank" rel="nofollow noopener"><img width="696" alt="スクリーンショット 2016-03-10 17.00.47.png" src="https://qiita-image-store.s3.amazonaws.com/0/43487/eaf41aa3-14cc-e2ee-fafa-2d745ac3116f.png"></a></p>
+
+<ul>
+<li><a href="http://pr.fujitsu.com/jp/news/2016/02/16.html" rel="nofollow noopener" target="_blank">株式会社富士通研究所 PRESS RELEASE（技術）（2016年2月16日付け）「時系列データを高精度に分析する新たなDeep Learning技術を開発 IoTデータに適用し、既存技術に比べ約25％の大幅な精度向上を実現」</a></li>
+</ul>
+
+<hr>
+
+<h3>
+<span id="-その他-" class="fragment"></span><a href="#-%E3%81%9D%E3%81%AE%E4%BB%96-"><i class="fa fa-link"></i></a><strong>【 その他 】</strong>
+</h3>
+
+<ul>
+<li><a href="http://mathsoc.jp/outreach/2011aki/tamaki.pdf" rel="nofollow noopener" target="_blank">玉木 大（信州大学理学部数理・自然情報科学科）「トポロジーは応用できるか?」2011年10月1日 日本数学会秋季総合分科会 市民講演会 </a></li>
+</ul>
+
+<h3>
+<span id="-qiita関連記事-" class="fragment"></span><a href="#-qiita%E9%96%A2%E9%80%A3%E8%A8%98%E4%BA%8B-"><i class="fa fa-link"></i></a><strong>【 Qiita関連記事 】</strong>
+</h3>
+
+<ul>
+<li><a href="http://qiita.com/snuffkin/items/b032fa5a938e13275177" id="reference-9eb600f7215ae8d22cd0">snuffkinさん Qiita記事（2016/03/15）「Topological Data Analysis(TDA、位相的データ解析)の参考文献」</a></li>
+<li><a href="http://qiita.com/snuffkin/items/f71750d8c11dbf9a38a2" id="reference-7fb866fb8196ec1e4d8c">snuffkinさん Qiita記事（2016/04/06）「Topological Data Analysis(TDA、位相的データ解析)のサーベイの目次」</a></li>
+<li><a href="http://qiita.com/aokikenichi/items/8c86e0b498e5fbe5776a#_reference-1b95d1a5205970e89820" id="reference-362eb8dfbbaac60405d3">aokikenichiさん Qiita記事（2016/05/04）「機械学習の森、数学の剣～探索者による憧憬～：トポロジカルデータアナリシスに必要な数学」</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/HirofumiYashima/items/b07483af7ef31c30dacc" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="RQU9ixutxv9bde7UMD1hl/ucYHcUGIiPSzUJFDzHxT8ey3CxK7FjWIeLPGm79EO8l4YCurx8YqNbcntM7YNZ1g==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1481710492" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+人工知能やデータ解析の領域で、膨大な量のデータから、物体概念（物体識別）や音声・体の運動スキーマ概念を自動的・自律的に獲得できる可能性をもった手法として、Deep Learning（ディープ・ラーニング、「深層学習」）と総称される手法が注目を集めています。
+
+こうした中、一部の研究者やベンチャー企業の経営者・エンジニアの中には、このDeep Learningのさらに先をいくデータ解析手法として、TDA：トポロジカル・データ・アナリシス (Topological data analysis) と呼ばれる手法に着目している方たちがいるようです。
+
+Deep Learningと同じく、人間が脳を使って、五感で得た周囲や自分の体についての感覚情報から、どのようにして周囲の環境空間に対する認識イメージや、物体概念、みずからの身体概念を得ているのか？という「問い」に対して、統計学や確率論のアプローチではなく、数学の一領域である[トポロジー（位相幾何学）](http://ja.wikipedia.org/wiki/%E4%BD%8D%E7%9B%B8%E5%B9%BE%E4%BD%95%E5%AD%A6)の知見から応えようとするなかから、生まれてきたようです。
+
+この記事では、Deep Learningのさらにその先をいく（可能性をもつ）データ解析手法としてのTDAについて、概要を解説したウェブサイトと、手元のPCマシンで、実際に R言語 や Python言語 で実データをもとに動作や精度を検証していくための実装環境についての参考ウェブサイトにインデックスを張ってみました。
+
+___
+
+# **TDA: トポロジカル・データ・アナリシス とは何か？**
+
+##### **(Wikipedia 英語版）**
+
+* [Topological data analysis](http://en.wikipedia.org/wiki/Topological_data_analysis)
+
+&gt; Topological data analysis (TDA) is a new area of study aimed at having applications in areas such as data mining and computer vision. The main problems are:
+&gt;
+&gt;how one infers high-dimensional structure from low-dimensional representations; and
+how one assembles discrete points into global structure.
+&gt;
+&gt;The human brain can easily extract global structure from representations in a strictly lower dimension, e.g. we infer a 3D environment from a 2D image from each eye. The inference of global structure also occurs when converting discrete data into continuous images, e.g. dot-matrix printers and televisions communicate images via arrays of discrete points.
+&gt;
+&gt;The main method used by topological data analysis is:
+&gt;
+&gt;Replace a set of data points with a family of simplicial complexes, indexed by a proximity parameter.
+Analyse these topological complexes via algebraic topology — specifically, via the theory of persistent homology.[1]
+Encode the persistent homology of a data set in the form of a parameterized version of a Betti number which is called a persistence diagram or barcode.[1]
+
+##### **（試訳）**
+
+トポロジカル・データ・アナリシス（TDA)は、データ・マイニング や コンピュータ・ビジョン（CV)の分野での応用を念頭においた新しい研究領域です。
+
+この解析手法が解明しようと取り組んでいる問題は、たとえば、人間が 眼球（網膜）で得た2次元の視覚情報データから、3次元の空間構造認識を形成する際に、どのようにして、低次元のデータ構造で表現される対象（物）から、高次元のデータ構造体を獲得するのか、といった問題です。
+
+上記の例のように、人間の脳は、こともなげに（容易に）低次元のデータ対象から、（高次元で）広域的（global）なデータ構造体を形成する能力を持ちます。この能力は、離散的な（トビトビに互いに離れた）複数の点の集合をみて、連続的な形（輪郭）を帯びた像を認識（イメージ）する際にも発揮されるものです。
+
+___
+
+###__似た名称 の 領域 に、「情報幾何学」というものがあるようです。こちらは、「トポロジー」を用いたTDA とは別物のようです。__
+
+* [ALBERT Official Blog （2016/02/12）「位相的データ解析（Topological Data Analysis）について」](http://blog.albert2005.co.jp/2016/02/12/位相的データ解析（topological-data-analysis）について/)
+
+&gt;位相的データ解析とはデータの集合をトポロジーと呼ばれる「柔らかい」幾何を用いて解析する手法です。
+&gt;幾何学を使った統計学ですと情報幾何学と呼ばれる分野がありますが、こちらはデータの集合ではなく確率分布に対して微分幾何という「硬い」幾何学を用いた分野です。
+
+__理化学研究所の甘利先生が創始された「情報幾何学」については、以下が参考になります。__
+
+* [理化学研究所 革新知能統合研究センター　幾何学的学習チーム　チームリーダー 竹之内 高志 (Ph.D.)](http://www.riken.jp/research/labs/aip/generic_tech/geometric_learn/)
+
+![riken.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/1c3d2f4d-aa22-df05-9616-a0f7ba91e82e.png)
+
+* [村田 昇（早稲田大学理工学術院）「Boosting Algorithmの情報幾何」](http://gcoe-mi.jp/temp/publish/84f2d96bd2f22a8968ab961e808ea8a1.pdf)
+
+&gt; __概要__
+&gt;
+&gt; KL-divergence のある種の一般化である Bregman divergence (U-divergence）を用いることによってboosting アルゴリズムを包括的に捉え，その幾何学的意味を考えるための方法論を紹介する．
+
+* [赤穂 昭太郎（産業技術総合研究）「情報幾何で見る機械学習」](http://www.airc.aist.go.jp/doc/seminar02-akaho.pdf)
+* [赤穂 昭太郎（産業技術総合研究）「情報幾何と機械学習」](https://staff.aist.go.jp/s.akaho/papers/infogeo-sice.pdf)
+* [江口 真透 「情報幾何と統計的パタン認識」](http://www.ism.ac.jp/~eguchi/pdf/ronsetsu.pdf)
+* [SlideShare motivic （Senior Researcher at Albert, Inc.）（2012/09/26）「幾何を使った統計のはなし」](http://www.slideshare.net/motivic/ss-14465676)
+* [Hatena Blog 主に言語とシステム開発に関して 「情報幾何」に入門するための資料PDF。解説論文と機械学習への応用の紹介](http://language-and-engineering.hatenablog.jp/entry/20140619/InformationGeometryPDFPapers)
+* [村田 昇（早稲田大学）「情報幾何入門」](http://www.murata.eb.waseda.ac.jp/noboru.murata/paper/mura03_ieice_nc7.pdf)
+* [xiangze&#39;s sparse blog （2014/10/13）「情報幾何の新展開」のやばさ ](http://xiangze.hatenablog.com/entry/2014/10/13/224825)
+
+__（ 情報幾何学 紹介 以上 ）__
+
+___
+
+* [Algebraic Topology: A Gude to Literature, _Toplogical Data Analysis_](http://pantodon.shinshu-u.ac.jp/topology/literature/topological_data_analysis.html)
+
+&gt; Topological data analysis という 分 野 がある 。 **多 くの 数 値 デ ー タ を point cloud すな わち Euclid 空 間 に 配 置 された 点 の 成 す 離 散集 合 とみなし , それを topological な 道 具 で 調 べることによりその デ ー タ の 持 つ 情 報 を 取 り 出 すことを 研究 する 分 野** , と 言 っ てよい だろう 。
+そのような topological な 道 具 として 最 も 有名 なのは **persistent homology** で ある 。
+
+___
+
+
+
+* [ALBERT Official Blog （2016/02/12）「位相的データ解析（Topological Data Analysis）について」](http://blog.albert2005.co.jp/2016/02/12/位相的データ解析（topological-data-analysis）について/)
+ 
+&gt;実際に上記のことをライブラリを用いてやってみましょう。位相的データ解析を行えるライブラリはいくつかありますが、今回はRのTDAというパッケージを用います。
+&gt;
+&gt;```
+&gt;install.packages(&quot;TDA&quot;)
+&gt;library(MASS)
+&gt;library(TDA)
+&gt; 
+&gt;#データの生成
+&gt;mu1 &lt;- c(0, 0)
+&gt;Sigma1 &lt;- matrix(c(1, 0.3, 0.3, 1), 2, 2)
+&gt;x1 &lt;- mvrnorm(30, mu1, Sigma1)
+&gt;mu2 &lt;- c(8, 0)
+&gt;Sigma2 &lt;- matrix(c(1, -0.2, -0.2, 1), 2, 2)
+&gt;x2 &lt;- mvrnorm(30, mu2, Sigma2)
+&gt;mu3 &lt;- c(4, 6)
+&gt;Sigma3 &lt;- matrix(c(1, 0, 0, 1), 2, 2)
+&gt;x3 &lt;- mvrnorm(30, mu3, Sigma3)
+&gt;x &lt;- rbind(x1,x2,x3)
+&gt; 
+&gt;#TDAによる計算
+&gt;Diag &lt;- ripsDiag(X = x, maxdimension = 0, maxscale = 5, library = &quot;Dionysus&quot;)
+&gt; 
+&gt;#可視化（バーコードプロット）
+&gt;D &lt;- Diag[[&quot;diagram&quot;]]
+&gt;n &lt;- nrow(D)
+&gt;plot(c(min(D[,2]), max(D[,3])-1.5), c(1,n + 1), type=&quot;n&quot;, xlab = &quot;radius&quot;, ylab =&quot;&quot;, xlim=c(min(D[,2]), max(D[,3])-1.5), ylim=c(1, n + 1), yaxt =&#39;n&#39;)
+&gt;segments(D[,2], 1:n, sort(D[,3]), 1:n, lwd=2)
+&gt;```
+&gt;
+&gt;
+&gt;```
+&gt;library(TDA)
+&gt; 
+&gt;#データの生成
+&gt;image_A &lt;- cbind(x= c(0,1,2,3,4,5,6,7,8,9,10,3.5,5,6.5) * 0.6 + 2,
+&gt;y =c(0,3,6,9,12,15,12,9,6,3,0,6,6,6)*0.55 + 1.25)
+&gt;image_L &lt;- cbind(x = c(0,0,0,0,0,0,0,0,0,1,0.25,0.5,0.75,1.25,1.5) * 4 + 2 ,
+&gt;y = c(0,1,2,3,4,5,6,7,8,0,0,0,0,0,0) + 1.25)
+&gt;image_B &lt;- cbind(x = c(0,0,0,0,0,0,0,0,0,1,1,1,1.25,1.25,1.5,1.5,1.5,0.25,0.25,0.25,0.5,0.5,0.5,0.75,0.75,0.75,1.25,1.25) * 4 +2,
+&gt;y = c(0,1,2,3,4,5,6,7,8,0,4,8,5.3,6.6,1,2,3,0,4,8,0,4,8,0,4,8,3.5,0.5) + 1.25)
+&gt; 
+&gt;#TDAによる計算
+&gt;Diag_A &lt;- ripsDiag(X = image_A,maxdimension = 1,maxscale = 5)
+&gt;Diag_L &lt;- ripsDiag(X = image_L,maxdimension = 1,maxscale = 5)
+&gt;Diag_B &lt;- ripsDiag(X = image_B,maxdimension = 1,maxscale = 5)
+&gt; 
+&gt;#可視化（パーシステント図）
+&gt;plot(Diag_A$diagram)
+&gt;plot(Diag_L$diagram)
+&gt;plot(Diag_B$diagram)
+&gt;```
+
+
+___
+
+
+* [Primoz Skraba and Sayan Mukherjee(2013/6/16), _&quot;Topological Data Analysis and Machine Learning&quot;_, ICML tutorial  ](http://ailab.ijs.si/primoz_skraba/papers/ICML_tutorial.pdf)
+
+**【 データとデータの間の類似性（_similarity_）を、自動的に数値化・定量化（_quantify_）する手法（アルゴリズム）として紹介されている 】**
+
+![new.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/6099c468-cc9a-c5b6-9713-be663358cc9e.png)
+
+
+![new2.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/daad78c0-8797-aa1e-de6f-9b40180b4231.png)
+
+**【 分類問題（クラスタリング問題）も、位相幾何学の世界の言語で、データ（点）とデータ（点）どうしを連結する（_connect_）させてつなげることで、つながったデータどうしを分類されたデータ集合（個々のクラスター）であるとみなしている？らしい 】**
+
+![new3.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/ef16348c-5b35-5b5d-9f43-9e248918ddfc.png)
+
+![new4.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/a759948a-e2e4-b51d-794a-72e79b38e407.png)
+
+![new5.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/38554292-9019-a5ed-bdd9-72665b7c35ad.png)
+
+![new6.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/5cae505a-38cf-a8b4-9134-837b1a2d64f0.png)
+
+___
+
+* [Afra Zomorodian, _&quot;Topological Data Analysis&quot;_](http://www.cs.dartmouth.edu/~afra/papers/ams12/tda.pdf)
+
+* [(SlideShare) Sunghyon Kyeong, _&quot;Topological data analysis&quot;_ ](http://www.slideshare.net/paul_kyeong/topological-data-analysis-with-examples)
+
+**（以下、上記からスライドを一部 抜粋）**
+**【 TDA は、クラスタリング手法などと同じ「教師なし学習」に位置づけられるとのこと 】**
+
+![add1.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/6c7f0794-6741-1061-04ab-3fe567c1d384.png)
+
+![add2.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/2a04f79b-fbed-0894-524e-34b13976b140.png)
+
+![add3.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/dd32dea2-96c2-d697-ff33-cffc9603a0b8.png)
+
+![add4.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/2bbc9c81-a61a-ca31-7b6b-b1075a1f227c.png)
+
+![add5.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/a7decbfe-98fa-23d6-3d92-4d1fe66d4803.png)
+
+![add6.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/66af6483-03b9-afd2-00cf-37202a88abdc.png)
+
+![add7.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/357edb49-5fae-dc9b-c47c-bb0cce870d56.png)
+
+![add8.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/1938a5ce-5860-3539-73c5-22fbc2fabe81.png)
+
+![add9.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/745f3aa2-6f81-5c3f-3eef-941f77ff2577.png)
+
+![add10.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/cbc78aea-f79f-ea96-a381-6075dd92c819.png)
+
+![add21.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/488e6332-4072-1824-3995-7efe713cd00c.png)
+
+___
+
+
+* [SCIENTIFIC REPORTS, (2012/9/13) _&quot;Extracting insights from the shape of complex data using topology&quot;_ ](http://www.nature.com/srep/2013/130207/srep01236/full/srep01236.html)
+
+* [AYASDI, (2015/1/6) _&quot;Why Topological Data Analysis Works&quot;_](http://www.ayasdi.com/blog/bigdata/why-topological-data-analysis-works/)
+
+
+* [(Power Point) Advanced Data Visualization (2015/2/19), _&quot;Enhancing Topological Data Analysis with Deep Learning&quot; by Edward Kibardin, Lead Data Scientist at Badoo&quot;_](https://speakerdeck.com/advanced_data_visualization/enhancing-topological-data-analysis-with-deep-learning-by-edward-kibardin-lead-data-scientist-at-badoo)
+
+**（以下、上記からスライドを一部 抜粋）**
+
+**【データセット事例】**
+
+![1.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/7c6448e7-7210-156b-375b-aa1567277ddf.png)
+
+**（データ項目）**
+
+![2.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/a02d00e6-a827-fe1c-c8e2-89b4b1b9cda8.png)
+
+**データには、２０件の「ニュース・グループ」についての属性項目がある**
+
+![3.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/5427f652-ef78-789d-8bb0-582068b2c935.png)
+
+
+![4.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/f6860c39-fe88-955d-4932-0084ea6163ec.png)
+
+**（ TDA分析モデルに渡すために、データを以下の流れで加工 ）**
+
+![5.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/572befd7-7334-f0ee-9796-c29109e8163a.png)
+
+**【 データの「構造」を、数学の位相幾何学の言語で解釈して、表現して得られた結果 】**
+
+![6.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/b0e7e05c-22c5-cb52-582c-03a6e7ce6ced.png)
+
+**（ 全体像 ）**
+
+![7.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/c562f1b9-5ccc-fdcd-222e-41f0d475cb17.png)
+
+**【 位相幾何学構造のなかの「ある特定の領域」が、「ある特定のニュースグループ」のデータが位置している領域 に対応しているらしい 】**
+
+![8.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/88192cdd-9653-12d5-9136-f13e99b70dd3.png)
+
+**（ Ayasdi社の「クエリ言語を発行しないでデータ検索できる」DBは、このようにして、データを位相幾何学構造に変換したうえで、その構造体のなかの「特定の領域」＝特定抽出条件に絞って得られる目的のデータ部分集合 を得る仕組み？と思われる ）**
+
+![9.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/c3969464-a844-f42d-ae1b-83a5f27da6bd.png)
+
+
+![10.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/bce9b478-03be-1923-0874-295d2c251b3f.png)
+
+**【 上記のPower Point資料には、TDA の精度を向上（_enhance_）させるために、Deep Learningをつかって、さらに手を加えている模様 】**
+
+![11.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/545db7f0-0276-7a37-60fc-ca7277ab2c1e.png)
+
+
+![12.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/f0467acb-2948-b730-1377-adb36c316d00.png)
+
+___
+
+* [(SlideShare) _Using Topological Data Analysis on your BigData_](http://www.slideshare.net/AnalyticsWeek/tda-33562822)
+
+## **【 TDA が、機械学習のフレームワークを提供しうることが説明されている 】**
+
+![キャプチャ.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/73b9dfd7-bd7f-c1cb-2e3a-a547fc8fbe22.png)
+
+## **【 分析領域と分析手法・指標～「統計解析」と「機械学習」と&quot;Geometry&quot;（位相幾何学）との対応関係？ 】**
+
+![キャプチャ２.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/add090ff-ef62-833a-d780-e3277648d3d1.png)
+
+
+___
+
+* [平岡 裕章（九州大学）「位相的データ解析と生命・材料・情報科学への応用」  ](http://www2.math.kyushu-u.ac.jp/~hiraoka/hiraoka.pdf)
+    
+* [坂田ほか（東京大学）「順位データ解析とＨｏｄｇｅ分解（理論、アルゴリズム、応用）」](http://park.itc.u-tokyo.ac.jp/atstat/kakenhi/120120tsukuba/sakata.pdf)
+ 　 
+* [ryamadaの遺伝学・遺伝統計学メモ （2015/5/9）「ぱらぱらめくる『Topological and Statistical Methods for Complex」](http://d.hatena.ne.jp/ryamada22/20150509/1431117149)
+
+
+**（ 以下、平岡 PDF より一部を引用して転載 ）**
+
+![hiraoka_1.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/b55082f0-f095-2a13-a154-3a25680e63b6.png)
+
+![hiraoka_2.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/49be5ebc-91fc-d094-0e63-69c19f157b6c.png)
+
+**（ 以下、坂田ほか（東京大学） SlideShareより一部を引用して転載 ）**
+
+![TDA_1.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/cbe57e3b-b139-c3a1-6243-ccea9ce22fe1.png)
+
+![TDA_2.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/e2898c6c-c26f-4d88-8559-392b99003e02.png)
+
+![TDA_3.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/9df54e65-11a2-6e5a-6428-bb59fbd5883b.png)
+
+![TDA_4.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/a419a65e-bee6-d1d3-dcd3-b131c1cccce9.png)
+
+![TDA_5.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/170a25bf-7e3e-4bc7-391c-df063cf631f1.png)
+
+![TDA_6.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/e1906083-618b-1001-8fe8-6e9b0b779877.png)
+
+![TDA_7.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/f34ef395-19f6-5428-826e-ca1b13bb4c87.png)
+
+![TDA_8.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/424dfecd-23f7-d832-ec07-ce1feb9f4cc5.png)
+
+![TDA_9.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/cc67088c-e45d-9f42-66ca-1f77b4a1be62.png)
+
+![TDA_10.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/e4659c4d-3fe3-8242-e8bc-82520f4c3628.png)
+
+![TDA_11.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/e6417a78-237a-0f04-d72a-b6e626371c1d.png)
+
+![TDA_12.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/95d08c2f-78f0-c75b-4842-78f9a69a3d67.png)
+
+![TDA_13.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/de136537-52e6-005e-39ed-66e8d5525f95.png)
+
+![TDA_14.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/6f8431b5-6452-9431-1e63-d4b5c47802a3.png)
+
+![TDA_15.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/3868273e-89a6-7d0c-97de-a8623d874538.png)
+
+___
+
+
+## **日本国内ベンチャーで、社内勉強会を開いている会社があるらしい**
+
+**（ 会社ウェブサイト ）**
+**[株式会社ABEJA (アベジャ) ABEJA Inc. （本社：東京港区六本木 / 代表取締役：岡田 陽介 氏）](http://www.abeja.asia/index_jp.html)**
+
+![ABEJA.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/0bd25330-58e0-fd4f-8b6a-7d9dee121dcb.png)
+
+
+**（ 同社 紹介記事 ）**
+**[The Wave（2015年4月7日付記事）「国内AIトップ研究者とのタッグで世界最先端狙う26歳経営者　ABEJA岡田陽介氏」](http://thewave.jp/archives/2286)**
+
+&gt; Googleが、ロボット、人工知能、宇宙開発といった、一見突拍子もないような研究を続けるのは優秀な技術者を集めるため。GoogleのCEOのLarry Page氏がそう語っているのを聞いたことがある。高額の給料で引き寄せても、別の会社がより高額な給料を提示すれば、そうした人たちは去っていく。それよりも、ほかではできないような最先端のワクワクする仕事を与えれば、世界中から優秀な技術者が自然と集まってくる。Page氏はそう考えているわけだが、ABEJAに若い技術者が集まるのも同様の理由からなのだろう。 
+&gt;
+&gt;逆に言えば、優秀な人材を集めるには、常に最先端を走り続けなければならない。同社のモットーは、「5歩先の未来を想像し、４歩先を具体的に考え、３歩先の研究をし、２歩先の開発をし、１歩先でだれもが使えるような事業に落としこんでいく」というもの。「テクノロジーの最先端を走り続ければ、優秀な研究者、技術者が集まってくる。そうしたとんでもない技術を事業化できるようなビジネスプロデューサーも集まってくる。重要なものは、人。この仕組みを回していけば、無敵の企業になれるんじゃないかなって思っています」。 
+&gt;
+&gt;５歩先の未来を読むために、勉強は欠かせない。社内で論文の輪読を行っている。難しい論文を理解するのに必要なのは、努力の積み重ねとひらめき。専門的な知識を持った仲間のだれかが、「これはこういうことだ！」とひらめく。それを全員に共有する。輪読を行うことで、効率よく世界の最先端の研究動向を学べるのだという。
+&gt;
+&gt;**「実はわれわれは、既にDeep Learningの次を見ています。次の注目技術はTopological Data Analysis（TDA)です。インストア・マーケティングだけの会社で終るつもりはありません」と岡田氏は言う。TDAとは位相幾何学をベースにした新しい技術で、「計算リソースを少なくして今までの100倍くらいの性能でデータ解析ができるようになったり、従来手法では相関性が見えにくかったところが見えるようになるんです」。** 
+&gt;
+&gt;**では、果たしてその技術でどのようなことが可能になるのだろうか。どのようなビジネスに発展するのだろうか。** 
+&gt;
+&gt;**そのビジネス化こそがABEJAの役割だ、と岡田氏は言う。「技術の種からビジネスを作り出して、イノベーションを起こす。それで得た収益をまた研究開発に回して次の技術の種を作る。そのプロセスをぐるぐる回す。それがABEJAとして、やっていきたいことなんです」。**
+
+**（ ABEJA社 最近の動向 ）※ アクセス日： 2015/5/31**
+
+* [（同社 コーポレート・ニュース 広報ウェブサイト）](http://www.abeja.asia/news.html)
+
+![ABEJA_current.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/a85cc317-977b-afd0-fce0-4020e85ab214.png)
+
+___
+
+# **プログラミング言語実装環境 ～手元で動かして、自分で検証するために**
+
+### **（実装環境 調査レポート）**
+
+* [Mikael Vejdemo-Johansson (Computer Vision and Active Perception Laboratory), _&quot;Topological Data Analysis A software survey&quot;_](http://cv.mikael.johanssons.org/talks/2013-09-eccs.pdf)
+
+![survey.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/5e0bc7c5-6901-7afa-6686-6265757f750c.png)
+
+___
+
+### **（R言語）**
+
+##### **{TDA} Package**
+
+* [CRAN, _TDA: Statistical Tools for Topological Data Analysis_  ](http://cran.r-project.org/web/packages/TDA/index.html)
+&gt; **TDA: Statistical Tools for Topological Data Analysis**
+&gt;
+&gt; This package provides tools for the statistical analysis of persistent homology and for density clustering.
+
+* [CRAN: TDA manual (2015/2/19)](http://cran.r-project.org/web/packages/TDA/TDA.pdf)
+
+![R_package_TDA.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/5c8b0adc-21b5-e403-8539-6a31cbcba43f.png)
+
+* [Brittany T. Fasy, Jisu Kim, Fabrizio Lecci and Cl´ement Maria, _&quot;Introduction to the R package TDA&quot;_](http://cran.r-project.org/web/packages/TDA/vignettes/article.pdf)
+
+![R_and_TDA.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/97f6735a-4120-a64a-09a6-d12727093de2.png)
+
+___
+
+
+### **(Python言語）**
+
+* [Python Mapper by Daniel Mullner](http://danifold.net/mapper/)
+
+![daniforld.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/7dfc5745-1141-0af3-3975-fdb3d53f4f53.png)
+
+
+&gt;__What is Python Mapper?__
+&gt;
+&gt;The Mapper algorithm is a method for topological data analysis invented by &gt;Gurjeet Singh, Facundo Mémoli and Gunnar Carlsson. See the Reference [R1] for the publication.
+&gt; While the Mapper algorithm alone does not constitute a &gt;complete data &gt;analysis tool itself, it is the key part of a processing chain with &gt;(minimally) filter functions, the Mapper algorithm itself and visualization &gt;of the results.
+&gt;
+&gt;Python Mapper is a realization of this toolchain, written by Daniel Müllner and Aravindakshan Babu. It is open source software and is released under the GNU GPLv3 license.
+There is also a company, Ayasdi, which was founded by Gurjeet Singh, Gunnar Carlsson and Harlan Sexton and whose main product, the Ayasdi Iris software, has the Mapper algorithm at its core. Ayasdi also issues academic trial licenses.
+&gt;
+&gt;As much as Ayasdi covers the commercial uses of the Mapper algorithm with a polished and mature product, the authors of Python Mapper strive to provide the scientific community with a complete, extensible and fast toolchain. Since it is open source, it can be extended and modified by anyone with new ideas. The Python Mapper software also provides a graphical user interface, which hopefully makes it accessible to non-specialists and speeds up the workflow for beginners and experts alike.
+&gt;
+&gt;To get an idea about the Mapper algorithm, we recommend Gunnar Carlsson’s paper “Topology and Data” [R5] and the original Mapper paper [R1].
+
+##### **(依存モジュール等）**
+
+* [Daniel Müllner » Python Mapper documentation » Installation](http://danifold.net/mapper/installation/index.html#requirements)
+
+&gt; **Requirements**
+&gt;
+&gt;Python 2.6 or higher. The GUI needs Python 2 since it depends on wxPython and PyOpenGL; Python Mapper itself can be run under Python 2 and Python 3.
+&gt;
+&gt;NumPy and SciPy
+&gt;Matplotlib
+&gt;Graphviz
+&gt;Optionally cmappertools. Python Mapper will run without this module, but with limited functionality.
+cmappertools need the Boost C++ libraries.
+&gt;
+&gt;For the GUI:
+&gt;wxPython
+&gt;PyOpenGL
+
+#### **（インストール方法）**
+
+##### __【 Highly recommended 】__
+
+* __fastcluster__
+
+&gt;This is Daniel Müllner’s C++ library for fast hierarchical clustering, again wrapped as a Python module. If one of the methods below work, this is the quickest way to install fastcluster. Otherwise, please refer to the detailed installation instructions in the fastcluster distribution. You need the Python interface; the R interface can be ignored.
+
+* __（方法１）__
+
+```{Python:Python}
+easy_install --upgrade --user fastcluster
+```
+
+* __（方法２）__
+
+```{UNIX console:bash}
+wget https://pypi.python.org/packages/source/f/fastcluster/fastcluster-1.1.13.tar.gz
+tar -xf fastcluster-1.1.13.tar.gz
+cd fastcluster-1.1.13
+python setup.py install --user
+cd ..
+rm fastcluster-1.1.13.tar.gz
+rm -r fastcluster-1.1.13/
+```
+
+___
+
+### **(サード・パーティ企業 リリース分析環境）**
+
+* __[Ayasdi社 製品 「Ayasdi Core」](http://www.ayasdi.com/wp-content/uploads/2015/01/ayasdi-core.pdf)__
+
+![Ayasdi_core_1.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/36abbd30-1949-4f89-9fa3-01530030f06a.png)
+
+![Ayasdi_ore_2.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/a9385b8b-b3b3-4f21-c214-192c45d9e90f.png)
+
+__※ ユーザ・インターフェイスは、Tableau を使って操作できる GUI環境 も可能？か__
+
+![Ayasdi_core_3.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/918bb7f4-ccea-e5a3-7ab7-b949446664d7.png)
+
+
+
+* [Ayasdi Core](http://www.ayasdi.com/product/core/)
+
+&gt; Ayasdi Core is an advanced analytics software application that helps you uncover critical business intelligence from dynamic, large, complex datasets. 
+&gt;
+&gt; Unique in the market, Ayasdi Core simplifies the analysis of complex data **by combining topological data analysis (TDA),** a technique pioneered by our founders, **with the latest machine learning algorithms.** We call this approach machine intelligence and it starts with the data - not with an endless string of questions. 
+&gt;
+&gt;Using data as the foundation, Ayasdi Core applies combinations of algorithms - from statistics, **geometry** and machine learning - to analyze **thousands of attributes simultaneously.**  
+&gt;
+&gt;**Because of the depth and breadth of its algorithmic reach, Ayasdi Core rapidly finds and explains all the significant patterns in your data - something other approaches cannot achieve. Using the geometry of the data, Ayasdi Core creates topological summaries that reveal subtle insights, insights that remain invisible to other approaches.**
+
+**（Ayasdi社 参考）**
+
+* **[【同社 公式ウェブサイト】](http://www.ayasdi.com/product/core/)**
+
+![Ayasdi社.PNG](https://qiita-image-store.s3.amazonaws.com/0/43487/dab62dfc-e7e3-6923-3fdf-f94a111eb06b.png)
+
+
+* [InfoQ (2014年6月6日付 記事)「AyasdiがClouderaと業務提携」](http://www.infoq.com/jp/news/2014/06/ayasdi-tda)
+
+&gt; Ayasdi (チェロキー族の言葉で「探す」という意味) は、データ解析を行うスタートアップであり、高次元かつ多量のデータ集合から洞察を得る、ある革新的な手法を商業化するために、3人の数学者によって2008年に設立された。Topological Data Analysis(TDA) と呼ばれるこの手法は、国防高等研究計画局(DARPA)とアメリカ国立科学財団(NSF)との資金提供を受け、General Electric、 Merck、 アメリカ食品医薬品局(FDA)、アメリカ疾病予防管理センター(CDC)といった顧客に対して、**クエリやアルゴリズムを記述することなく、彼らの持つデータの幾何学的構造を明らかにし、より可視化しやすく対話的に探索しやすい簡潔な要約データを作る**ことを可能にしている。
+&gt;
+&gt;**背景となる基本的な考え方は、データには形状があり、形状には意味があるということだ。TDAでは、基本的にはデータは空間上の点の大きく有限な集合として表現される。そして、点が互いにどのように関係しているかを説明するために、形状が使われる。**
+&gt;
+&gt;たとえば、形状の単純な観点のひとつである「いくつの部分に分けられるか」あるいは、「どうやってクラスタに分けられるか」ということが、ある現象の、概念的に異なる部分を明らかにできる。また別の観点「ループが存在するか」は、繰り返しや周期性のある振る舞いを表す可能性がある。トポロジは、まさにこの形状についての考え方を研究する数学の一分野であり、TDAは、このように定性的な幾何情報を定義し測定するための数学的な定式化を、大きくてノイズを含む点の集団にまで拡張することを目指している。
+
+
+* [9bot.jp キュレーションサイト (2013年8月1日付 記事）「世界の最も複雑な問題を解決する Ayasdi」](http://9bot.jp/bigdatabi/ayasdi.html)
+
+
+* [OpenGroove 『「注目すべきビッグデータ関連スタートアップ企業10」少々翻訳』](http://open-groove.net/all-things-technology/big-data-startups-to-watch-2014/)
+
+&gt; 城田真琴氏のTweetからたどった英文記事 – 10 Big Data startups to watch（注目すべきビッグデータ関連のスタートアップ企業10）。これはやはり記録しておくべきか、と眠い目をこすりつつ読んだのだが説明文全部は訳せないので（全部は読んでない）、一言説明と顧客企業、競合だけ挙げておく。
+&gt;
+&gt; **2. Ayasdi**
+&gt;
+&gt;癌やその他疾患の予兆発見、新しいエネルギーソースの探索、テロリズム防止、金融詐欺など、複合的な問題を解決するためにビッグデータ分析を用いる。
+&gt;
+&gt;**ユーザ企業:**
+&gt;GE, Citi, Merck, USDA, Mt Sinai Hospital, the Miami Heat, the CDC.
+競合：IBM’s Watson, SAS, Skytree
+
+___
+
+###__【 追記 】__
+
+__以下のウェブページに、本記事が紹介されています。__
+
+* [（2016/02/24）「Topological data analysis　略して　TDA　トポロジカル　データ　アナリシス　これめっちゃ興奮する。」](http://antena.tokyo/topological-data-analysis%E3%80%80略して%E3%80%80tda%E3%80%80トポロジカル%E3%80%80データ%E3%80%80アナ)
+
+
+__上記の記事 で 引用されている 富士通研究所 における TDA の 利用事例__ 
+
+* [atmarkIT （2016/02/17）「時系列データの「形状」で分類：
+トポロジカルデータ分析で時系列データを高精度分析、富士通研究所が開発」 ](http://www.atmarkit.co.jp/ait/articles/1602/17/news151.html)
+
+&gt;富士通研究所は判別が困難なほど振れ幅が激しい時系列データでも、高精度解析を可能とするDeep Learning技術を開発した。
+&gt;
+&gt;富士通研究所は2016年2月16日、人による判別が困難なほど振れ幅が激しい時系列データでも、高精度解析を可能とするDeep Learning技術を開発したと発表した。最先端の数学を活用し、時系列データから「幾何的な特徴」を抽出することで解析を可能にしたとしている。
+
+（ 以下、上記 記事から一部を抜粋して転載 ）
+
+&lt;img width=&quot;703&quot; alt=&quot;スクリーンショット 2016-03-10 17.00.36.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/43487/58ef7138-9280-9464-164c-15b9f22df957.png&quot;&gt;
+
+（ 中略 ）
+
+&lt;img width=&quot;696&quot; alt=&quot;スクリーンショット 2016-03-10 17.00.47.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/43487/eaf41aa3-14cc-e2ee-fafa-2d745ac3116f.png&quot;&gt;
+
+* [株式会社富士通研究所 PRESS RELEASE（技術）（2016年2月16日付け）「時系列データを高精度に分析する新たなDeep Learning技術を開発 IoTデータに適用し、既存技術に比べ約25％の大幅な精度向上を実現」](http://pr.fujitsu.com/jp/news/2016/02/16.html)
+
+___
+
+###__【 その他 】__
+
+* [玉木 大（信州大学理学部数理・自然情報科学科）「トポロジーは応用できるか?」2011年10月1日 日本数学会秋季総合分科会 市民講演会 ](http://mathsoc.jp/outreach/2011aki/tamaki.pdf)
+
+
+###__【 Qiita関連記事 】__
+
+* [snuffkinさん Qiita記事（2016/03/15）「Topological Data Analysis(TDA、位相的データ解析)の参考文献」](http://qiita.com/snuffkin/items/b032fa5a938e13275177)
+* [snuffkinさん Qiita記事（2016/04/06）「Topological Data Analysis(TDA、位相的データ解析)のサーベイの目次」](http://qiita.com/snuffkin/items/f71750d8c11dbf9a38a2)
+* [aokikenichiさん Qiita記事（2016/05/04）「機械学習の森、数学の剣～探索者による憧憬～：トポロジカルデータアナリシスに必要な数学」](http://qiita.com/aokikenichi/items/8c86e0b498e5fbe5776a#_reference-1b95d1a5205970e89820)
+
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた on @Qiita" data-url="http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/HirofumiYashima"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/HirofumiYashima">HirofumiYashima</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">9854</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;HirofumiYashima&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-324e2623-8a55-4ca0-9062-073734ca05a3"></div>
+    <div id="UserFollowButton-react-component-324e2623-8a55-4ca0-9062-073734ca05a3"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/HirofumiYashima/items/ed17c83f26de3d510b93">クロージャってどんなときに使うの？ ～ 利用場面を ３つ 挙げてみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/HirofumiYashima/items/b07483af7ef31c30dacc">Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/HirofumiYashima/items/6a5ef1d4b592c51eedba">Deep Learning ライブラリ&amp;フレームワークをリストアップしてみた ～インストール・環境構築方法 と 使い方 解説ウェブサイトまとめ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/HirofumiYashima/items/b6dabe412c868d271410">時系列データ分析の初心者に必ず知ってもらいたい重要ポイント ～ 回帰分析 ・相関関係 分析を行う前に必ずやるべきこと（データの形のチェックと変形）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/HirofumiYashima/items/42494c78962c75c6c1cd">Python 3 で Webクローリング &amp; スクレイピング 初心者まとめ</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tda-%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%82%AB%E3%83%AB%E3%83%87%E3%83%BC%E3%82%BF%E3%82%A2%E3%83%8A%E3%83%AA%E3%82%B7%E3%82%B9-%E3%81%A8%E3%81%AF%E4%BD%95%E3%81%8B\&quot;\u003e\u003cstrong\u003eTDA: トポロジカル・データ・アナリシス とは何か？\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#wikipedia-%E8%8B%B1%E8%AA%9E%E7%89%88\&quot;\u003e\u003cstrong\u003e(Wikipedia 英語版）\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A9%A6%E8%A8%B3\&quot;\u003e\u003cstrong\u003e（試訳）\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#%E4%BC%BC%E3%81%9F%E5%90%8D%E7%A7%B0-%E3%81%AE-%E9%A0%98%E5%9F%9F-%E3%81%AB%E6%83%85%E5%A0%B1%E5%B9%BE%E4%BD%95%E5%AD%A6%E3%81%A8%E3%81%84%E3%81%86%E3%82%82%E3%81%AE%E3%81%8C%E3%81%82%E3%82%8B%E3%82%88%E3%81%86%E3%81%A7%E3%81%99%E3%81%93%E3%81%A1%E3%82%89%E3%81%AF%E3%83%88%E3%83%9D%E3%83%AD%E3%82%B8%E3%83%BC%E3%82%92%E7%94%A8%E3%81%84%E3%81%9Ftda-%E3%81%A8%E3%81%AF%E5%88%A5%E7%89%A9%E3%81%AE%E3%82%88%E3%81%86%E3%81%A7%E3%81%99\&quot;\u003e\u003cstrong\u003e似た名称 の 領域 に、「情報幾何学」というものがあるようです。こちらは、「トポロジー」を用いたTDA とは別物のようです。\u003c/strong\u003e\u003c/a\u003e\n\n\n\n\n\u003ca href=\&quot;#-tda-%E3%81%8C%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%81%AE%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%92%E6%8F%90%E4%BE%9B%E3%81%97%E3%81%86%E3%82%8B%E3%81%93%E3%81%A8%E3%81%8C%E8%AA%AC%E6%98%8E%E3%81%95%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B-\&quot;\u003e\u003cstrong\u003e【 TDA が、機械学習のフレームワークを提供しうることが説明されている 】\u003c/strong\u003e\u003c/a\u003e\n\n\n\u003ca href=\&quot;#-%E5%88%86%E6%9E%90%E9%A0%98%E5%9F%9F%E3%81%A8%E5%88%86%E6%9E%90%E6%89%8B%E6%B3%95%E6%8C%87%E6%A8%99%E7%B5%B1%E8%A8%88%E8%A7%A3%E6%9E%90%E3%81%A8%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92%E3%81%A8geometry%E4%BD%8D%E7%9B%B8%E5%B9%BE%E4%BD%95%E5%AD%A6%E3%81%A8%E3%81%AE%E5%AF%BE%E5%BF%9C%E9%96%A2%E4%BF%82-\&quot;\u003e\u003cstrong\u003e【 分析領域と分析手法・指標～「統計解析」と「機械学習」と\&quot;Geometry\&quot;（位相幾何学）との対応関係？ 】\u003c/strong\u003e\u003c/a\u003e\n\n\n\u003ca href=\&quot;#%E6%97%A5%E6%9C%AC%E5%9B%BD%E5%86%85%E3%83%99%E3%83%B3%E3%83%81%E3%83%A3%E3%83%BC%E3%81%A7%E7%A4%BE%E5%86%85%E5%8B%89%E5%BC%B7%E4%BC%9A%E3%82%92%E9%96%8B%E3%81%84%E3%81%A6%E3%81%84%E3%82%8B%E4%BC%9A%E7%A4%BE%E3%81%8C%E3%81%82%E3%82%8B%E3%82%89%E3%81%97%E3%81%84\&quot;\u003e\u003cstrong\u003e日本国内ベンチャーで、社内勉強会を開いている会社があるらしい\u003c/strong\u003e\u003c/a\u003e\n\n\n\n\n\u003ca href=\&quot;#%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E8%A8%80%E8%AA%9E%E5%AE%9F%E8%A3%85%E7%92%B0%E5%A2%83-%E6%89%8B%E5%85%83%E3%81%A7%E5%8B%95%E3%81%8B%E3%81%97%E3%81%A6%E8%87%AA%E5%88%86%E3%81%A7%E6%A4%9C%E8%A8%BC%E3%81%99%E3%82%8B%E3%81%9F%E3%82%81%E3%81%AB\&quot;\u003e\u003cstrong\u003eプログラミング言語実装環境 ～手元で動かして、自分で検証するために\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A3%85%E7%92%B0%E5%A2%83-%E8%AA%BF%E6%9F%BB%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88\&quot;\u003e\u003cstrong\u003e（実装環境 調査レポート）\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#r%E8%A8%80%E8%AA%9E\&quot;\u003e\u003cstrong\u003e（R言語）\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tda-package\&quot;\u003e\u003cstrong\u003e{TDA} Package\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\n\u003ca href=\&quot;#python%E8%A8%80%E8%AA%9E\&quot;\u003e\u003cstrong\u003e(Python言語）\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BE%9D%E5%AD%98%E3%83%A2%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E7%AD%89\&quot;\u003e\u003cstrong\u003e(依存モジュール等）\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\n\u003ca href=\&quot;#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%96%B9%E6%B3%95\&quot;\u003e\u003cstrong\u003e（インストール方法）\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-highly-recommended-\&quot;\u003e\u003cstrong\u003e【 Highly recommended 】\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\n\n\u003ca href=\&quot;#%E3%82%B5%E3%83%BC%E3%83%89%E3%83%91%E3%83%BC%E3%83%86%E3%82%A3%E4%BC%81%E6%A5%AD-%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E5%88%86%E6%9E%90%E7%92%B0%E5%A2%83\&quot;\u003e\u003cstrong\u003e(サード・パーティ企業 リリース分析環境）\u003c/strong\u003e\u003c/a\u003e\n\n\n\u003ca href=\&quot;#-%E8%BF%BD%E8%A8%98-\&quot;\u003e\u003cstrong\u003e【 追記 】\u003c/strong\u003e\u003c/a\u003e\n\n\n\u003ca href=\&quot;#-%E3%81%9D%E3%81%AE%E4%BB%96-\&quot;\u003e\u003cstrong\u003e【 その他 】\u003c/strong\u003e\u003c/a\u003e\n\n\n\u003ca href=\&quot;#-qiita%E9%96%A2%E9%80%A3%E8%A8%98%E4%BA%8B-\&quot;\u003e\u003cstrong\u003e【 Qiita関連記事 】\u003c/strong\u003e\u003c/a\u003e\n\n\n\n\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-04a4cf17-8084-4c0a-8054-9d371b05be1e"></div>
+    <div id="Toc-react-component-04a4cf17-8084-4c0a-8054-9d371b05be1e"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:452,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;b07483af7ef31c30dacc&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kumazo"><a itemprop="url" href="/kumazo"><img alt="kumazo" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/f1028eac1359f4c5b6d87584d0b99d2e?d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="NaohiroKashimoto"><a itemprop="url" href="/NaohiroKashimoto"><img alt="NaohiroKashimoto" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11055/profile-images/1473681901" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tt_w54s"><a itemprop="url" href="/tt_w54s"><img alt="tt_w54s" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/52660/profile-images/1473692800" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="stk2k"><a itemprop="url" href="/stk2k"><img alt="stk2k" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/17003/profile-images/1473682027" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="heliac2000"><a itemprop="url" href="/heliac2000"><img alt="heliac2000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44994/profile-images/1473690106" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Yoo"><a itemprop="url" href="/Yoo"><img alt="Yoo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/68106/profile-images/1473697737" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kou_tana77"><a itemprop="url" href="/kou_tana77"><img alt="kou_tana77" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45958/profile-images/1473690481" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kaolyn"><a itemprop="url" href="/kaolyn"><img alt="kaolyn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/41356/profile-images/1473688766" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="neka-nat@github"><a itemprop="url" href="/neka-nat@github"><img alt="neka-nat@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14516/profile-images/1473683376" /></a></div></div><div class="ArticleFooter__user"><a href="/HirofumiYashima/items/b07483af7ef31c30dacc/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/b07483af7ef31c30dacc/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/HirofumiYashima/items/b07483af7ef31c30dacc.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/f3306443e2f62f0f3743#_reference-1f56a3c5598f9d87e6a4"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />関数型プログラミング、Deep Learningの次にくるデータ解析アルゴリズム、「意識」をもった人工知能の創出、金融・生命科学シミュレーションの最先端を切り開くハイエンド人材になるために必要な数学を整理してみた</a><time class="references_datetime js-dateTimeView" datetime="2015-06-06T00:36:00+00:00">almost 2 years ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/aokikenichi/items/8c86e0b498e5fbe5776a#_reference-1b95d1a5205970e89820"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/116049/profile-images/1473713122" />機械学習の森、数学の剣～探索者による憧憬～：トポロジカルデータアナリシスに必要な数学</a><time class="references_datetime js-dateTimeView" datetime="2016-05-04T05:19:53+00:00">11 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/1fdb53007a80ae7fe236#_reference-789a568e1d58aa3cbcf9"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />いま注目している人工知能 A.I. 先端論文 １５本 ～ 静止画・音声・動画（行動内容解析＆予測）解析・ロボット制御・アルゴリズム自律学習</a><time class="references_datetime js-dateTimeView" datetime="2016-09-20T11:02:49+00:00">6 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/c1d6de78062fd24139c0#_reference-6658e0862c3ed002e599"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />（ 事例調査 ）トポロジー・ 微分幾何学・  情報幾何学 の 高み から、（深層）ニューラル・ネットワークモデル の 情報処理過程 を 可視化し、学習速度 を 早める 視座 の 有効性 を 考える</a><time class="references_datetime js-dateTimeView" datetime="2016-12-31T13:51:32+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた on @Qiita" data-url="http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Deep Learning の次は、TDA 「トポロジカル・データ・アナリシス」 (Topological data analysis) が来る ? ～ その概要と、R言語 / Python言語 実装ライブラリ をちらっと調べてみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:306236,&quot;uuid&quot;:&quot;b07483af7ef31c30dacc&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;HirofumiYashima&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:43487,&quot;url_name&quot;:&quot;HirofumiYashima&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-bf6015ce-63b8-4cef-84a5-22fcfc1175f5"></div>
+    <div id="CommentListContainer-react-component-bf6015ce-63b8-4cef-84a5-22fcfc1175f5"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="9lXQ5C6VvAkH2Q0yECnD1R6l/SeRRgb+sMfPafn/SlStm53eHokZrtsn34+b4OH+cr+f6jki7NKggL0xKLvWvQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/HirofumiYashima/items/b07483af7ef31c30dacc" /><input type="hidden" name="item_uuid" id="item_uuid" value="b07483af7ef31c30dacc" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/HirofumiYashima/items/b07483af7ef31c30dacc", "id": 306236, "uuid": "b07483af7ef31c30dacc" }</script><script class="js-user" type="application/json">{&quot;id&quot;:43487,&quot;url_name&quot;:&quot;HirofumiYashima&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="Ur9NLaeYyIzLrR56TpSSm171oQya/yZHIK3em8gL8hoJcQAXl4RtKxdTzMfFXbCwMu/DwTKbzGsw6qzDGU9u8w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/HirofumiYashima/items/b07483af7ef31c30dacc" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-51461328-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

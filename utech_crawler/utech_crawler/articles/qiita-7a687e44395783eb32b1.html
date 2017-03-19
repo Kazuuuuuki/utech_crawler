@@ -1,0 +1,290 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>手書きひらがなの認識で99.78%の精度をディープラーニングで - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="手書きひらがなの認識、教科書通りの畳み込みニューラルネットワーク（ディープラーニング）で、99.78%の精度が出ました。教科書通りである事が（独自性がない事が）逆に読む方・書く方にメリットがありそうなので、Qiitaで記事にします。
+
+
+ソースコード
+
+ソースコードは https://github.com/yukoba/CnnJapaneseCharacter です。
+
+
+いきさつ
+
+いきさつは、友人と手書きひらがなの認識の雑談をFacebookでしていて、ググったら、..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="yukoba" name="twitter:creator" /><meta content="手書きひらがなの認識で99.78%の精度をディープラーニングで - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/yukoba/items/7a687e44395783eb32b1" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="手書きひらがなの認識、教科書通りの畳み込みニューラルネットワーク（ディープラーニング）で、99.78%の精度が出ました。教科書通りである事が（独自性がない事が）逆に読む方・書く方にメリットがありそうなので、Qiitaで記事にします。
+..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="GsqJy9NYe30jOmj8+QwC6l2Nv5Hbu1yQ/KypAzLsGpoE+85XfYf3A7ecIZd4rYfLb21YmGFEc6r6K8qEkYNMtA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"yukoba","type":"items","id":"7a687e44395783eb32b1"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-a9c35107-3f62-415f-b1d4-90ba45016841"></div>
+    <div id="HeaderContainer-react-component-a9c35107-3f62-415f-b1d4-90ba45016841"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">手書きひらがなの認識で99.78%の精度をディープラーニングで</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="121"><a class="u-link-unstyled TagList__label" href="/tags/Keras"><img alt="Keras" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/45122f523cfcb2afd15e6e3054b41f5d34f7a558/medium.jpg?1460351964" /><span>Keras</span></a></li><li class="TagList__item" data-count="91"><a class="u-link-unstyled TagList__label" href="/tags/%E7%94%BB%E5%83%8F%E8%AA%8D%E8%AD%98"><img alt="画像認識" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>画像認識</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">593</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:593,&quot;uuid&quot;:&quot;7a687e44395783eb32b1&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></li><li class="js-hovercard" data-hovercard-target-name="14km_"><a itemprop="url" href="/14km_"><img alt="14km_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49027/profile-images/1473691575" /></a></li><li class="js-hovercard" data-hovercard-target-name="ymkz"><a itemprop="url" href="/ymkz"><img alt="ymkz" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/61078/profile-images/1473695426" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kazuhito"><a itemprop="url" href="/Kazuhito"><img alt="Kazuhito" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/140207/profile-images/1473727170" /></a></li><li class="js-hovercard" data-hovercard-target-name="nikumarutamago"><a itemprop="url" href="/nikumarutamago"><img alt="nikumarutamago" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60297/profile-images/1473695188" /></a></li><li class="js-hovercard" data-hovercard-target-name="toyolab"><a itemprop="url" href="/toyolab"><img alt="toyolab" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/131169/profile-images/1473718172" /></a></li><li class="js-hovercard" data-hovercard-target-name="n-oshiro"><a itemprop="url" href="/n-oshiro"><img alt="n-oshiro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24450/profile-images/1473684120" /></a></li><li class="js-hovercard" data-hovercard-target-name="yoya"><a itemprop="url" href="/yoya"><img alt="yoya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1798/profile-images/1473755697" /></a></li><li class="js-hovercard" data-hovercard-target-name="hdate"><a itemprop="url" href="/hdate"><img alt="hdate" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106331/profile-images/1473709899" /></a></li><li class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></li><li><a href="/yukoba/items/7a687e44395783eb32b1/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/yukoba"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8752/profile-images/1473681140" alt="1473681140" /></a> <a class="u-link-unstyled" href="/yukoba">yukoba</a> </div><div class="ArticleAsideHeader__date"><span>posted at <time datetime="2016-10-04T14:40:26+09:00" itemprop="datePublished">2016-10-04</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/yukoba/items/7a687e44395783eb32b1.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-7a687e44395783eb32b1" itemprop="articleBody"><p>手書きひらがなの認識、教科書通りの畳み込みニューラルネットワーク（ディープラーニング）で、99.78%の精度が出ました。教科書通りである事が（独自性がない事が）逆に読む方・書く方にメリットがありそうなので、Qiitaで記事にします。</p>
+
+<h1>
+<span id="ソースコード" class="fragment"></span><a href="#%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>ソースコード</h1>
+
+<p>ソースコードは <a href="https://github.com/yukoba/CnnJapaneseCharacter" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/yukoba/CnnJapaneseCharacter</a> です。</p>
+
+<h1>
+<span id="いきさつ" class="fragment"></span><a href="#%E3%81%84%E3%81%8D%E3%81%95%E3%81%A4"><i class="fa fa-link"></i></a>いきさつ</h1>
+
+<p>いきさつは、友人と手書きひらがなの認識の雑談をFacebookでしていて、ググったら、この2つが見つかりました。</p>
+
+<ul>
+<li>「Tensorflowを２ヶ月触ったので"手書きひらがな"の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説」 <a href="http://qiita.com/tawago/items/931bea2ff6d56e32d693" class="autolink" id="reference-bed32f77f476f1e4b498">http://qiita.com/tawago/items/931bea2ff6d56e32d693</a>
+</li>
+<li>スタンフォード大学の学生さんのレポート「Recognizing Handwritten Japanese Characters Using Deep Convolutional Neural Networks」 <a href="http://cs231n.stanford.edu/reports2016/262_Report.pdf" class="autolink" rel="nofollow noopener" target="_blank">http://cs231n.stanford.edu/reports2016/262_Report.pdf</a>
+</li>
+</ul>
+
+<p>どちらも2016年3月に書かれた物ですが、スタンフォード大学の学生さんの方が先かな。</p>
+
+<p>スタンフォード大学の学生さんのレポートでは、</p>
+
+<ul>
+<li>ひらがな：96.50%</li>
+<li>カタカナ：98.19%</li>
+<li>漢字：99.64%</li>
+</ul>
+
+<p>と、なっていました。</p>
+
+<p>別の友人の分析によると、漢字の方が手がかりが多いから簡単なんじゃないかという予想でした。この記事では、一番精度の悪い、ひらがなを99.78%に上げたという話をします。</p>
+
+<h1>
+<span id="データセット" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>データセット</h1>
+
+<p>データは皆さん、産総研の「ETL文字データベース」の ETL8G を使っていて、僕もそれを使ってます。具体的な手書き文字を観たい方は <a href="http://etlcdb.db.aist.go.jp/?page_id=2461" class="autolink" rel="nofollow noopener" target="_blank">http://etlcdb.db.aist.go.jp/?page_id=2461</a> からどうぞ。</p>
+
+<p>データは 128x127 pxで、4ビットのグレースケール画像で、160人分です。ひらがなは72種。</p>
+
+<h1>
+<span id="畳み込みニューラルネットワーク" class="fragment"></span><a href="#%E7%95%B3%E3%81%BF%E8%BE%BC%E3%81%BF%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF"><i class="fa fa-link"></i></a>畳み込みニューラルネットワーク</h1>
+
+<p>畳み込みニューラルネットワーク（ディープラーニング）とはなんぞや、という基本的な話は tawago さんの <a href="http://qiita.com/tawago/items/931bea2ff6d56e32d693" class="autolink">http://qiita.com/tawago/items/931bea2ff6d56e32d693</a> をご覧ください。あと、O'Reilly Japan の書籍「<a href="https://www.amazon.co.jp/dp/4873117585" rel="nofollow noopener" target="_blank">ゼロから作るDeep Learning - Pythonで学ぶディープラーニングの理論と実装</a>」も入門書として良い感じでした（立ち読みしかしてません、ごめんなさい）。</p>
+
+<h1>
+<span id="ライブラリ" class="fragment"></span><a href="#%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA"><i class="fa fa-link"></i></a>ライブラリ</h1>
+
+<p>ニューラルネットワークのライブラリとしては、今回は、</p>
+
+<ul>
+<li>高レイヤー： Keras <a href="https://keras.io/ja/" class="autolink" rel="nofollow noopener" target="_blank">https://keras.io/ja/</a> </li>
+<li>低レイヤー： Theano <a href="http://deeplearning.net/software/theano/" class="autolink" rel="nofollow noopener" target="_blank">http://deeplearning.net/software/theano/</a>
+</li>
+</ul>
+
+<p>を使いました。低レイヤーとしては TensorFlow でも動くようにコードを書きました。</p>
+
+<p>プログラミング言語は Python 3 です。</p>
+
+<h1>
+<span id="改善点" class="fragment"></span><a href="#%E6%94%B9%E5%96%84%E7%82%B9"><i class="fa fa-link"></i></a>改善点</h1>
+
+<p>で、tawago さんの 95.04% やスタンフォード大学の学生さんの 96.50% から何を変えたかという話。本当に基礎的な事しかやってないです。</p>
+
+<h3>
+<span id="反復回数" class="fragment"></span><a href="#%E5%8F%8D%E5%BE%A9%E5%9B%9E%E6%95%B0"><i class="fa fa-link"></i></a>反復回数</h3>
+
+<p>まずスタンフォード大学の学生さん、CPUでやったらしく、計算回数不足だったので、Amazon EC2 の GPU を使いました。エポック数（反復回数）を40回から400回に増やしました。</p>
+
+<p>機械学習は訓練データと評価データに分けます。訓練データに対して学習させるのですが、確率的勾配降下法は、乱数を使いますし、原理的に、細かく増えたり減ったりガタガタに推移するのですが、その話とは別の話として、学習結果を評価データに対して適用した時に、ある所まで改善し、ある所から悪くなる事が良くあるのですが、これを過学習といいます。</p>
+
+<p>反復回数（エポック数）は理想としては過学習が始まる所までやるべきで（早期終了）、今回は300～400回目くらいで過学習が始まるようなので（真面目に確認してないです）、400回にしてあります。</p>
+
+<p>訓練データと評価データの分割数は8:2です。これはスタンフォード大学の学生さんに従いました。</p>
+
+<h3>
+<span id="モデル" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB"><i class="fa fa-link"></i></a>モデル</h3>
+
+<p>モデルは俗に「VGG風」と呼ばれるやつを使いました。2014年9月に <a href="https://arxiv.org/abs/1409.1556" rel="nofollow noopener" target="_blank">Very Deep Convolutional Networks for Large-Scale Image Recognition</a> としてオックスフォード大学の人が発表した物です。これを元にして書かれた Keras のサンプルが <a href="https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py</a> で、僕はこれを改造しています。スタンフォード大学の学生さんも、VGG風です。tawago さんは不明。VGG風なのかな？</p>
+
+<p>VGG風というやつは「畳み込み → 畳み込み → Maxプーリング」を繰り返して最後に普通のニューラルネットワークです。</p>
+
+<p>畳み込みなどを軽く説明しますと、こうなります。詳細は書籍「ゼロから作るDeep Learning」をご覧ください。</p>
+
+<ul>
+<li>畳み込み：各点の近傍（3x3など）をとって、1次元ベクトルに変換してパラメータと内積</li>
+<li>Maxプーリング：各点の近傍（2x2など）をとって、その中の最大値</li>
+</ul>
+
+<p>ETL8G が160人分のデータしかなく、大きなデータセットではないです。一般的にデータが少ない時はパラメータ数の多い複雑なモデルを使っても上手く行かないので、僕は Keras のサンプルそのままの単純なやつを使いました。「畳み込み → 畳み込み → Maxプーリング」は2回です。</p>
+
+<h3>
+<span id="ノイズ関数" class="fragment"></span><a href="#%E3%83%8E%E3%82%A4%E3%82%BA%E9%96%A2%E6%95%B0"><i class="fa fa-link"></i></a>ノイズ関数</h3>
+
+<p>汎化能力を高める方法として、訓練時のみノイズを加えるという方法があります。僕が今回使ったのは、この2つです。</p>
+
+<ul>
+<li>Dropout（確率pで1/p倍、確率1-pで0倍して消す）</li>
+<li>教師画像に回転（±15度）、ズーム（0.8～1.2倍）</li>
+</ul>
+
+<p>Dropoutの方はスタンフォード大学の学生さんも使ってます。僕は全てp=0.5、つまり50%の確率で2倍、50%の確率で0にする、です。</p>
+
+<p>入力画像に回転・ズームは、回転・ズームしても文字としては同じだよ、ということを学習させるためで、Keras のサンプルコードでも使ってますし、僕も使いました。これも効果は大きいです。スタンフォード大学の学生さんは使ってませんでした。</p>
+
+<h3>
+<span id="残りの細かい話" class="fragment"></span><a href="#%E6%AE%8B%E3%82%8A%E3%81%AE%E7%B4%B0%E3%81%8B%E3%81%84%E8%A9%B1"><i class="fa fa-link"></i></a>残りの細かい話</h3>
+
+<ul>
+<li>画像は32x32に縮小しました。これだけあれば十分ですし、大きいと計算量が増えるので。スタンフォード大学の学生さんは64x64にしてました。あと、畳み込みの回数の関係のバランスで、ピクセル数が多い事が改善につながるというわけではないです。</li>
+<li>Keras のデフォルトだと、初期値がおかしく、学習が進まないので、標準偏差 0.1 の正規分布にしました。</li>
+<li>確率的勾配降下法は Adam のようなピョンピョン跳ねるやつは上手く行かないので、最初、穏やかな AdaGrad にしていたのですが、学習率を入れなくても良い AdaGrad の変形の AdaDelta の方が良かったのでそっちを使いました。</li>
+</ul>
+
+<h1>
+<span id="結論" class="fragment"></span><a href="#%E7%B5%90%E8%AB%96"><i class="fa fa-link"></i></a>結論</h1>
+
+<p>というわけで、教科書通りの事やって、99.78%になりました。手書き数字は MNIST のデータセットでは99.77%と報告されていて <a href="http://yann.lecun.com/exdb/mnist/" class="autolink" rel="nofollow noopener" target="_blank">http://yann.lecun.com/exdb/mnist/</a> ほぼ同じです。漢字とか他のは僕はやっていませんが、スタンフォード大学の学生さんが99.64%と言っていて、これよりは少しだけ良くなるでしょう。</p>
+
+<p>ディープラーニング、手書き文字は、ほぼ完璧に認識できちゃうんですね！</p>
+<div class="hidden"><form class="js-task-list-update" action="/yukoba/items/7a687e44395783eb32b1" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="dYLSoLQL7vAv52126YU50EMtdH0ryV8LAZbh/yAQitRrs5U8GtRijrtBJB1oJLzxcc2TdJE2cDEHEYJ4g3/c+g==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1475559626" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+手書きひらがなの認識、教科書通りの畳み込みニューラルネットワーク（ディープラーニング）で、99.78%の精度が出ました。教科書通りである事が（独自性がない事が）逆に読む方・書く方にメリットがありそうなので、Qiitaで記事にします。
+
+# ソースコード
+ソースコードは https://github.com/yukoba/CnnJapaneseCharacter です。
+
+# いきさつ
+いきさつは、友人と手書きひらがなの認識の雑談をFacebookでしていて、ググったら、この2つが見つかりました。
+
+- 「Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説」 http://qiita.com/tawago/items/931bea2ff6d56e32d693
+- スタンフォード大学の学生さんのレポート「Recognizing Handwritten Japanese Characters Using Deep Convolutional Neural Networks」 http://cs231n.stanford.edu/reports2016/262_Report.pdf
+
+どちらも2016年3月に書かれた物ですが、スタンフォード大学の学生さんの方が先かな。
+
+スタンフォード大学の学生さんのレポートでは、
+
+- ひらがな：96.50%
+- カタカナ：98.19%
+- 漢字：99.64%
+
+と、なっていました。
+
+別の友人の分析によると、漢字の方が手がかりが多いから簡単なんじゃないかという予想でした。この記事では、一番精度の悪い、ひらがなを99.78%に上げたという話をします。
+
+# データセット
+データは皆さん、産総研の「ETL文字データベース」の ETL8G を使っていて、僕もそれを使ってます。具体的な手書き文字を観たい方は http://etlcdb.db.aist.go.jp/?page_id=2461 からどうぞ。
+
+データは 128x127 pxで、4ビットのグレースケール画像で、160人分です。ひらがなは72種。
+
+# 畳み込みニューラルネットワーク
+畳み込みニューラルネットワーク（ディープラーニング）とはなんぞや、という基本的な話は tawago さんの http://qiita.com/tawago/items/931bea2ff6d56e32d693 をご覧ください。あと、O&#39;Reilly Japan の書籍「[ゼロから作るDeep Learning - Pythonで学ぶディープラーニングの理論と実装](https://www.amazon.co.jp/dp/4873117585)」も入門書として良い感じでした（立ち読みしかしてません、ごめんなさい）。
+
+# ライブラリ
+ニューラルネットワークのライブラリとしては、今回は、
+
+- 高レイヤー： Keras https://keras.io/ja/ 
+- 低レイヤー： Theano http://deeplearning.net/software/theano/
+
+を使いました。低レイヤーとしては TensorFlow でも動くようにコードを書きました。
+
+プログラミング言語は Python 3 です。
+
+# 改善点
+で、tawago さんの 95.04% やスタンフォード大学の学生さんの 96.50% から何を変えたかという話。本当に基礎的な事しかやってないです。
+
+### 反復回数
+まずスタンフォード大学の学生さん、CPUでやったらしく、計算回数不足だったので、Amazon EC2 の GPU を使いました。エポック数（反復回数）を40回から400回に増やしました。
+
+機械学習は訓練データと評価データに分けます。訓練データに対して学習させるのですが、確率的勾配降下法は、乱数を使いますし、原理的に、細かく増えたり減ったりガタガタに推移するのですが、その話とは別の話として、学習結果を評価データに対して適用した時に、ある所まで改善し、ある所から悪くなる事が良くあるのですが、これを過学習といいます。
+
+反復回数（エポック数）は理想としては過学習が始まる所までやるべきで（早期終了）、今回は300～400回目くらいで過学習が始まるようなので（真面目に確認してないです）、400回にしてあります。
+
+訓練データと評価データの分割数は8:2です。これはスタンフォード大学の学生さんに従いました。
+
+### モデル
+モデルは俗に「VGG風」と呼ばれるやつを使いました。2014年9月に [Very Deep Convolutional Networks for Large-Scale Image Recognition](https://arxiv.org/abs/1409.1556) としてオックスフォード大学の人が発表した物です。これを元にして書かれた Keras のサンプルが https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py で、僕はこれを改造しています。スタンフォード大学の学生さんも、VGG風です。tawago さんは不明。VGG風なのかな？
+
+VGG風というやつは「畳み込み → 畳み込み → Maxプーリング」を繰り返して最後に普通のニューラルネットワークです。
+
+畳み込みなどを軽く説明しますと、こうなります。詳細は書籍「ゼロから作るDeep Learning」をご覧ください。
+
+- 畳み込み：各点の近傍（3x3など）をとって、1次元ベクトルに変換してパラメータと内積
+- Maxプーリング：各点の近傍（2x2など）をとって、その中の最大値
+
+ETL8G が160人分のデータしかなく、大きなデータセットではないです。一般的にデータが少ない時はパラメータ数の多い複雑なモデルを使っても上手く行かないので、僕は Keras のサンプルそのままの単純なやつを使いました。「畳み込み → 畳み込み → Maxプーリング」は2回です。
+
+### ノイズ関数
+汎化能力を高める方法として、訓練時のみノイズを加えるという方法があります。僕が今回使ったのは、この2つです。
+
+- Dropout（確率pで1/p倍、確率1-pで0倍して消す）
+- 教師画像に回転（±15度）、ズーム（0.8～1.2倍）
+
+Dropoutの方はスタンフォード大学の学生さんも使ってます。僕は全てp=0.5、つまり50%の確率で2倍、50%の確率で0にする、です。
+
+入力画像に回転・ズームは、回転・ズームしても文字としては同じだよ、ということを学習させるためで、Keras のサンプルコードでも使ってますし、僕も使いました。これも効果は大きいです。スタンフォード大学の学生さんは使ってませんでした。
+
+### 残りの細かい話
+- 画像は32x32に縮小しました。これだけあれば十分ですし、大きいと計算量が増えるので。スタンフォード大学の学生さんは64x64にしてました。あと、畳み込みの回数の関係のバランスで、ピクセル数が多い事が改善につながるというわけではないです。
+- Keras のデフォルトだと、初期値がおかしく、学習が進まないので、標準偏差 0.1 の正規分布にしました。
+- 確率的勾配降下法は Adam のようなピョンピョン跳ねるやつは上手く行かないので、最初、穏やかな AdaGrad にしていたのですが、学習率を入れなくても良い AdaGrad の変形の AdaDelta の方が良かったのでそっちを使いました。
+
+# 結論
+というわけで、教科書通りの事やって、99.78%になりました。手書き数字は MNIST のデータセットでは99.77%と報告されていて http://yann.lecun.com/exdb/mnist/ ほぼ同じです。漢字とか他のは僕はやっていませんが、スタンフォード大学の学生さんが99.64%と言っていて、これよりは少しだけ良くなるでしょう。
+
+ディープラーニング、手書き文字は、ほぼ完璧に認識できちゃうんですね！
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="手書きひらがなの認識で99.78%の精度をディープラーニングで by @yukoba on @Qiita" data-url="http://qiita.com/yukoba/items/7a687e44395783eb32b1" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="手書きひらがなの認識で99.78%の精度をディープラーニングで" href="http://b.hatena.ne.jp/entry/http://qiita.com/yukoba/items/7a687e44395783eb32b1" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/yukoba/items/7a687e44395783eb32b1" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/yukoba/items/7a687e44395783eb32b1" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/yukoba"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/8752/profile-images/1473681140" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/yukoba">yukoba</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">706</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;yukoba&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-8ed6b688-1fe8-4b0c-8c28-510431a923fe"></div>
+    <div id="UserFollowButton-react-component-8ed6b688-1fe8-4b0c-8c28-510431a923fe"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/yukoba/items/7a687e44395783eb32b1">手書きひらがなの認識で99.78%の精度をディープラーニングで</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/yukoba/items/3692f1cb677b2383c983">Ubuntu 16.04へのCUDAインストール方法</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/yukoba/items/d36930f4b8149ca36d36">LinuxのUSB無線LAN子機の対応状況</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/yukoba/items/2281edf65f9b834ff7be">ニューラルネットワークのライブラリのインストール方法</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/yukoba/items/1394cd79a89af8a9b852">Pythonテクニック</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BD%E3%83%BC%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%89\&quot;\u003eソースコード\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%84%E3%81%8D%E3%81%95%E3%81%A4\&quot;\u003eいきさつ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88\&quot;\u003eデータセット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%95%B3%E3%81%BF%E8%BE%BC%E3%81%BF%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\&quot;\u003e畳み込みニューラルネットワーク\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA\&quot;\u003eライブラリ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%94%B9%E5%96%84%E7%82%B9\&quot;\u003e改善点\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%8D%E5%BE%A9%E5%9B%9E%E6%95%B0\&quot;\u003e反復回数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB\&quot;\u003eモデル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8E%E3%82%A4%E3%82%BA%E9%96%A2%E6%95%B0\&quot;\u003eノイズ関数\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%AE%8B%E3%82%8A%E3%81%AE%E7%B4%B0%E3%81%8B%E3%81%84%E8%A9%B1\&quot;\u003e残りの細かい話\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#%E7%B5%90%E8%AB%96\&quot;\u003e結論\u003c/a\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-43b3cc22-ce7b-4212-911c-353cc372bd76"></div>
+    <div id="Toc-react-component-43b3cc22-ce7b-4212-911c-353cc372bd76"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:593,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;7a687e44395783eb32b1&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="14km_"><a itemprop="url" href="/14km_"><img alt="14km_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49027/profile-images/1473691575" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ymkz"><a itemprop="url" href="/ymkz"><img alt="ymkz" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/61078/profile-images/1473695426" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kazuhito"><a itemprop="url" href="/Kazuhito"><img alt="Kazuhito" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/140207/profile-images/1473727170" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nikumarutamago"><a itemprop="url" href="/nikumarutamago"><img alt="nikumarutamago" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60297/profile-images/1473695188" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="toyolab"><a itemprop="url" href="/toyolab"><img alt="toyolab" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/131169/profile-images/1473718172" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="n-oshiro"><a itemprop="url" href="/n-oshiro"><img alt="n-oshiro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24450/profile-images/1473684120" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yoya"><a itemprop="url" href="/yoya"><img alt="yoya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1798/profile-images/1473755697" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hdate"><a itemprop="url" href="/hdate"><img alt="hdate" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/106331/profile-images/1473709899" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></div></div><div class="ArticleFooter__user"><a href="/yukoba/items/7a687e44395783eb32b1/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/7a687e44395783eb32b1/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/yukoba/items/7a687e44395783eb32b1.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="手書きひらがなの認識で99.78%の精度をディープラーニングで by @yukoba on @Qiita" data-url="http://qiita.com/yukoba/items/7a687e44395783eb32b1" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="手書きひらがなの認識で99.78%の精度をディープラーニングで" href="http://b.hatena.ne.jp/entry/http://qiita.com/yukoba/items/7a687e44395783eb32b1" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/yukoba/items/7a687e44395783eb32b1" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/yukoba/items/7a687e44395783eb32b1" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:427977,&quot;uuid&quot;:&quot;7a687e44395783eb32b1&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;yukoba&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:8752,&quot;url_name&quot;:&quot;yukoba&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/8752/profile-images/1473681140&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-adc20849-3050-4918-84fd-65b77a33df30"></div>
+    <div id="CommentListContainer-react-component-adc20849-3050-4918-84fd-65b77a33df30"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="RcoqcS37W3Yg2c8wssteOYvI0FnStLlBVHq5oPaQ2sdb+23tgyTXCLR/hlszatsYuSg3UGhLlntS/donVf+M6Q==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/yukoba/items/7a687e44395783eb32b1" /><input type="hidden" name="item_uuid" id="item_uuid" value="7a687e44395783eb32b1" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/yukoba/items/7a687e44395783eb32b1", "id": 427977, "uuid": "7a687e44395783eb32b1" }</script><script class="js-user" type="application/json">{&quot;id&quot;:8752,&quot;url_name&quot;:&quot;yukoba&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/8752/profile-images/1473681140&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="ZdlmayoHimR0DH1CMDQpM2MRMz9IgONSqP18qZSgSsF76CH3hNgGGuCqNCmxlawSUfHUNvJ/zGiueh8uN88c7w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/yukoba/items/7a687e44395783eb32b1" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-1488658-8', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,1102 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="これ書くだけで土日２日間まるまる潰れてしまった。
+学んだ内容に沿っているので、順に読み進めるに従ってコードの話になっていきます。
+Tensorflow触ってみたい/みたけど、いろいろまだ理解できてない！という方向けに書きました。
+
+※2016/09/25下らない追記
+GAによると、この記事の平均滞在時間は00:06:17らしいです。
+現在のview数掛け合わせるとおよそ8200時間ほど人の時間を搾取したようです☆
+やったね☆
+
+
+1: Deep Learningってそも..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Robobu_Bot" name="twitter:creator" /><meta content="特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/tawago/items/c977c79b76c5979874e8" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="これ書くだけで土日２日間まるまる潰れてしまった。
+学んだ内容に沿っているので、順に読み進めるに従ってコードの話になっていきます。
+Tensorflow触ってみたい/みたけど、いろいろまだ理解できてない！という方向けに書きました。
+
+※..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="XfMN+SoJiRtVbAa/TngxSRohI4nKp5jF8UIQxMl0NvyiDF0im8LtMDWwIAuhNqb92dNRVwyyIf2QaVxUFOdanA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"tawago","type":"items","id":"c977c79b76c5979874e8"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-183e8add-7f20-4f39-a268-4f49858ba576"></div>
+    <div id="HeaderContainer-react-component-183e8add-7f20-4f39-a268-4f49858ba576"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/TensorFlow",        "name": "TensorFlow"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説</h1><ul class="TagList"><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">2826</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="5 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>5</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:2826,&quot;uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="cb400sp2"><a itemprop="url" href="/cb400sp2"><img alt="cb400sp2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7821/profile-images/1473680740" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="kimihiro_n"><a itemprop="url" href="/kimihiro_n"><img alt="kimihiro_n" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25168/profile-images/1473684273" /></a></li><li class="js-hovercard" data-hovercard-target-name="kou-arw"><a itemprop="url" href="/kou-arw"><img alt="kou-arw" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47832/profile-images/1473691132" /></a></li><li class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></li><li class="js-hovercard" data-hovercard-target-name="alfort74"><a itemprop="url" href="/alfort74"><img alt="alfort74" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25549/profile-images/1473759603" /></a></li><li class="js-hovercard" data-hovercard-target-name="Toru3"><a itemprop="url" href="/Toru3"><img alt="Toru3" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51996/profile-images/1473692606" /></a></li><li class="js-hovercard" data-hovercard-target-name="nishiuke"><a itemprop="url" href="/nishiuke"><img alt="nishiuke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72313/profile-images/1488232747" /></a></li><li class="js-hovercard" data-hovercard-target-name="twitte_raru"><a itemprop="url" href="/twitte_raru"><img alt="twitte_raru" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38163/profile-images/1473687669" /></a></li><li class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></li><li><a href="/tawago/items/c977c79b76c5979874e8/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/tawago"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" alt="1473696298" /></a> <a class="u-link-unstyled" href="/tawago">tawago</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-03-06T21:52:25+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-03-06">Edited at <time datetime="2016-12-08T16:55:54+09:00" itemprop="dateModified">2016-12-08</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/tawago/items/c977c79b76c5979874e8/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">12</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/tawago/items/c977c79b76c5979874e8/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(12)</span></a></li><li><a href="/tawago/items/c977c79b76c5979874e8.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-c977c79b76c5979874e8" itemprop="articleBody"><p>これ書くだけで土日２日間まるまる潰れてしまった。<br>
+学んだ内容に沿っているので、順に読み進めるに従ってコードの話になっていきます。<br>
+Tensorflow触ってみたい/みたけど、いろいろまだ理解できてない！という方向けに書きました。</p>
+
+<p>※2016/09/25下らない追記<br>
+GAによると、この記事の平均滞在時間は<code>00:06:17</code>らしいです。<br>
+現在のview数掛け合わせるとおよそ8200時間ほど人の時間を搾取したようです☆<br>
+やったね☆</p>
+
+<h1>
+<span id="1-deep-learningってそもそも何してるの" class="fragment"></span><a href="#1-deep-learning%E3%81%A3%E3%81%A6%E3%81%9D%E3%82%82%E3%81%9D%E3%82%82%E4%BD%95%E3%81%97%E3%81%A6%E3%82%8B%E3%81%AE"><i class="fa fa-link"></i></a>1: Deep Learningってそもそも何してるの?</h1>
+
+<p>専門の人からはご指摘入りそうですが、要は回帰分析してくれるブラックボックスと言い切ってはどうでしょう。<br>
+"回帰"という単語が出てくるだけで <code>?</code>が出てきちゃいますよね。<br>
+求めたい"値"があってそれに限りなく近い数値を機械に計算させまくり学んでもらう。で、いいんじゃないでしょうか。 </p>
+
+<p>eg.適度な関数が知りたい<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/70bcbddc-02e2-f091-8e21-8de0d2855e6c.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63543/70bcbddc-02e2-f091-8e21-8de0d2855e6c.gif" alt="Non-Linear-Regression.gif"></a></p>
+
+<p>eg.適度なクラスターを知りたい<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/5a550314-d14d-a1c0-9d9a-3de7557a04e8.gif" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63543/5a550314-d14d-a1c0-9d9a-3de7557a04e8.gif" alt="K-Means-Clustering-Gif.gif"></a></p>
+
+<p>eg.適度な"顔"というものをpixelの集合で知りたい<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/843b819e-c7f1-4bbb-17b2-e518f4c7cf5a.png" target="_blank" rel="nofollow noopener"><img width="296" alt="Screen Shot 2016-03-06 at 4.44.13 PM.png" src="https://qiita-image-store.s3.amazonaws.com/0/63543/843b819e-c7f1-4bbb-17b2-e518f4c7cf5a.png"></a></p>
+
+<p>それなら自分だって知りたいことはたくさんあるよ！という方々は多いと思います。<br>
+アイドルの動画からすげーブサイクな顔になってる時(値)だけを求めて、キャプチャしたい！とか、<a href="http://qiita.com/summer4an/items/db0124eee8103c1d3b85" id="reference-afdc0d2de25f6b1279bc">Qiita: - ディープラーニングで顔写真から巨乳かどうかを判別してみる (うまくいったか微妙)</a>だとか。<br>
+偉大なる先人達は常にいるようですね。<br>
+というわけでDeep Learning始めてみよう！となりました。</p>
+
+<h1>
+<span id="2-フレームワーク選び---tensorflowの良いところ" class="fragment"></span><a href="#2-%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0%E3%83%AF%E3%83%BC%E3%82%AF%E9%81%B8%E3%81%B3---tensorflow%E3%81%AE%E8%89%AF%E3%81%84%E3%81%A8%E3%81%93%E3%82%8D"><i class="fa fa-link"></i></a>2: フレームワーク選び - Tensorflowの良いところ</h1>
+
+<p>結論から先に言うと<strong>情報量</strong></p>
+
+<p>最初の方はTensorflowの中身やら関数が何やってるか分からないので、途中Theanoに乗り換えを何度も考えましたが、今のところは大抵の疑問はすでに(英語で)Stackoverflowにあったり、Githubのイシューにも色々書いてあるので、やっぱりGoogleのネーム力って凄い。 Tensorflow本体のコードも普通に関数名でgoogle検索したりすると出てくるので、使ううちにどんどん本体の理解が勝手に深まります。</p>
+
+<p>そもそも触り始める前は<strong>なにができて、なにができないのか？も分かっていない状態だった</strong>ので、Deep Learning系フレームワークで色々な実験をされている方々のブログを読み漁りました。 </p>
+
+<p>ドキュメントの分かりやすさなどは <code>Tensorflow &gt; Theano &gt; Chainer</code>ですかね。</p>
+
+<p>その他に:<br>
+ - <a href="http://caffe.berkeleyvision.org/" rel="nofollow noopener" target="_blank">Caffe</a><br>
+ - 元GoogleのAndy Rubinが投資している<a href="http://www.nervanasys.com/" rel="nofollow noopener" target="_blank">Nervana</a><br>
+ - GUIベースのドラッグ&amp;ドロップで機械学習とかできちゃう<a href="https://azure.microsoft.com/en-us/services/machine-learning/" rel="nofollow noopener" target="_blank">Microsoft Azure Machine Learning</a><br>
+などなど見てみました。</p>
+
+<p>ただ中身の評価モデルなどを理解していない段階だとなにもできません。 なので結局情報が一番ありそうなTensorflowでスタートしました。<br>
+多分この分野に慣れてくると評価モデルの関数がたくさん用意されているとかが主な使用理由になるのではないでしょうか。</p>
+
+<p><strong>※2016/4/26追記</strong><br>
+日々githubにコミットされていく内容とかを追っていると、もうTensorflow以外はしばらく様子見でいいんじゃないかなぁーと思います。</p>
+
+<h3>
+<span id="読み漁ったブログ一覧" class="fragment"></span><a href="#%E8%AA%AD%E3%81%BF%E6%BC%81%E3%81%A3%E3%81%9F%E3%83%96%E3%83%AD%E3%82%B0%E4%B8%80%E8%A6%A7"><i class="fa fa-link"></i></a>読み漁ったブログ一覧</h3>
+
+<h4>
+<span id="-tensorflow" class="fragment"></span><a href="#-tensorflow"><i class="fa fa-link"></i></a>-Tensorflow</h4>
+
+<p><a href="http://kivantium.hateblo.jp/entry/2015/11/18/233834" rel="nofollow noopener" target="_blank">kivantium活動日記: - TensorFlowでアニメゆるゆりの制作会社を識別する</a><br>
+<a href="http://d.hatena.ne.jp/sugyan/20160112/1452558576" rel="nofollow noopener" target="_blank">すぎゃーんメモ: - TensorFlowによるディープラーニングで、アイドルの顔を識別する</a></p>
+
+<h4>
+<span id="-theano" class="fragment"></span><a href="#-theano"><i class="fa fa-link"></i></a>-Theano</h4>
+
+<p><a href="http://aidiary.hatenablog.com/entry/20150626/1435329581" rel="nofollow noopener" target="_blank">人工知能に関する断創録: - Theanoによる畳み込みニューラルネットワークの実装 (1)</a><br>
+<a href="http://sinhrks.hatenablog.com/entry/2014/12/07/203048" rel="nofollow noopener" target="_blank">StatsFragments: - Theano で Deep Learning &lt;3&gt; : 畳み込みニューラルネットワーク</a></p>
+
+<h4>
+<span id="-chainer" class="fragment"></span><a href="#-chainer"><i class="fa fa-link"></i></a>-Chainer</h4>
+
+<p><a href="http://www.sekailab.com/wp/2015/11/02/lstm-general-responce-bot/" rel="nofollow noopener" target="_blank">せかいらぼ: -LSTMで自然な受け答えができるボットをつくった</a><br>
+<a href="http://orientalrobotics.blogspot.jp/2015/08/rnn-aka-deepdazai.html" rel="nofollow noopener" target="_blank">Oriental Robotics: - RNNによる学習で文豪っぽいテキストを出力させる (aka DeepDazai)</a><br>
+<a href="https://research.preferred.jp/2015/06/distributed-deep-reinforcement-learning/" rel="nofollow noopener" target="_blank">Preferred Research: - 分散深層強化学習でロボット制御</a></p>
+
+<h1>
+<span id="3-hello-world的なmnist-ビギナー編" class="fragment"></span><a href="#3-hello-world%E7%9A%84%E3%81%AAmnist-%E3%83%93%E3%82%AE%E3%83%8A%E3%83%BC%E7%B7%A8"><i class="fa fa-link"></i></a>3: Hello, World!的なMNIST ビギナー編</h1>
+
+<p>※インストール的な話は沢山出てるので飛ばします。<br>
+※※ビギナーチュートリアルを読んでからがオススメです。</p>
+
+<p>ここから真面目な解説スタートです。</p>
+
+<p>機械学習のベンチマーク的なものMNIST。<br>
+Tensorflowの最初のチュートリアルとして 0〜9の手書き数字画像を大量に与えて、数字を理解させる練習です。 <br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/79e93ee0-0b17-a398-0ab6-56c0af06ecea.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63543/79e93ee0-0b17-a398-0ab6-56c0af06ecea.png" width="200"></a></p>
+
+<p><a href="https://www.tensorflow.org/versions/r0.7/tutorials/mnist/beginners/index.html" rel="nofollow noopener" target="_blank">ビギナー</a>も<a href="https://www.tensorflow.org/versions/r0.7/tutorials/mnist/pros/index.html" rel="nofollow noopener" target="_blank">エキスパート</a>もコピペすれば動くのですが... ここで学ぶべきことは直接のコードというより、Tensor, Rank, Scalar, Vector (テンソル、ランク, スカラー、ベクトル, シェイプ)などTensorflowにおける概念や処理、そして数学的な理解の再確認でした。</p>
+
+<p>まずは一番重要なTensorについて。<br>
+入力となるデータなどを取り扱ってくれる頼りになる<strong>Tensorはあくまでデータ構造で、学習処理の間でやりとりされるだけです。 Tensorはn次元の配列もしくはPython的にはlistと考えるのが良いそうな。</strong><br>
+学習のバッチ毎にTensorの中にデータを入れてあげる感じですね。 <br>
+なので学習処理以外の時に<code>print hoge_Tensor</code>なんてしてみても中身は入ってないんです。<br>
+"重み"など学んでいく過程の値はtf.Variable変数で持ち続けます。<br>
+<strong>そしてTensorにはRank, Shape, Typeが必ずあります。</strong> <br>
+エラーでよく言われるので、理解してからはだいぶ楽になりました。</p>
+
+<h2>
+<span id="rank" class="fragment"></span><a href="#rank"><i class="fa fa-link"></i></a>Rank</h2>
+
+<p><code>t = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</code> はRank2<br>
+要はTensor自身の次元数ですね。</p>
+
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>数学単位</th>
+<th>Python example</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td>Scalar (実数量のみ)</td>
+<td><code>s = 483</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Vector (量と方向)</td>
+<td><code>v = [1.1, 2.2, 3.3]</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Matrix (よくあるテーブル)</td>
+<td><code>m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>3-Tensor (三次元)</td>
+<td><code>t = [[[2], [4], [6]], [[8], [10], [12]], [[14], [16], [18]]]</code></td>
+</tr>
+<tr>
+<td>n</td>
+<td>n-Tensor (n次元)</td>
+<td><code>....</code></td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<span id="shape" class="fragment"></span><a href="#shape"><i class="fa fa-link"></i></a>Shape</h2>
+
+<p>先の<code>t = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]</code> Shapeは3次元x3次元なので<code>[3, 3]</code></p>
+
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Shape</th>
+<th>Dimension number</th>
+<th>Example</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>0</td>
+<td>[]</td>
+<td>0-D</td>
+<td>A 0-D tensor.  A scalar.</td>
+</tr>
+<tr>
+<td>1</td>
+<td>[D0]</td>
+<td>1-D</td>
+<td>A 1-D tensor with shape [5].</td>
+</tr>
+<tr>
+<td>2</td>
+<td>[D0, D1]</td>
+<td>2-D</td>
+<td>A 2-D tensor with shape [3, 4].</td>
+</tr>
+<tr>
+<td>3</td>
+<td>[D0, D1, D2]</td>
+<td>3-D</td>
+<td>A 3-D tensor with shape [1, 4, 3].</td>
+</tr>
+<tr>
+<td>n</td>
+<td>[D0, D1, ... Dn-1]</td>
+<td>n-D</td>
+<td>A tensor with shape [D0, D1, ... Dn-1].</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<span id="type" class="fragment"></span><a href="#type"><i class="fa fa-link"></i></a>Type</h2>
+
+<p>これはintやらfloatなので、あまり説明はいりません。</p>
+
+<h2>
+<span id="mnistでそれらtensorを見る" class="fragment"></span><a href="#mnist%E3%81%A7%E3%81%9D%E3%82%8C%E3%82%89tensor%E3%82%92%E8%A6%8B%E3%82%8B"><i class="fa fa-link"></i></a>MNISTでそれらTensorを見る</h2>
+
+<p>MNISTの例で言うと、55000枚の画像データ(images)Tensorと画像の答え(labels)Tensorがでてきます。</p>
+
+<p>Images Tensorは <code>Shape[55000, 784]</code>, <code>Rank2</code>, <code>dtype=tf.float32</code><br>
+Labels Tensorは <code>Shape[55000, 10]</code>, <code>Rank2</code>, <code>dtype=tf.float32</code></p>
+
+<p>チュートリアルでは<code>tf.placeholder</code>でまず挿入されています。(Tensor確保と言った方がわかりやすいかも)</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">input_Tensor達</span></div>
+<div class="highlight"><pre>
+<span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">784</span><span class="p">])</span> <span class="c">#images</span>
+<span class="n">y_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span> <span class="c">#labels</span>
+<span class="c">#None部分にはバッチの数が入る</span>
+</pre></div>
+</div>
+
+<p>なお<code>tf.placehoder()</code>は学習実行毎に必ず<code>feed_dict</code>引数でデータを与えてもらう必要があります。<br>
+チュートリアルの場合は最後の方で学習実行開始するのですが:</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">最後の方の学習実行開始コード</span></div>
+<div class="highlight"><pre>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+  <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+  <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">train_step</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+</pre></div>
+</div>
+
+<p>なので、実際にはTensor達は<code>x:Shape[100, 784]</code> <code>y_:Shape[100, 10]</code>の画像100枚ごとに処理されてますね。</p>
+
+<h4>
+<span id="余談-画像の次元数について" class="fragment"></span><a href="#%E4%BD%99%E8%AB%87-%E7%94%BB%E5%83%8F%E3%81%AE%E6%AC%A1%E5%85%83%E6%95%B0%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6"><i class="fa fa-link"></i></a><strong>余談: 画像の次元数について</strong>
+</h4>
+
+<p>画像データの方はもともと28x28pixelsのグレースケール = 1 channelですが、ビギナーチュートリアルでは簡単に考えるため784次元のベクトルにフラット変換(というか既にされてます。)<br>
+28*28*1 = 784-Dimension</p>
+
+<p><strong>- 図で見るとなんとなくわかる -</strong><br>
+縦横に並んでる数字を全部横にする的な。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/0819b8b1-ff1b-f765-9edc-37c6ff636fa8.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="mnist.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/63543/0819b8b1-ff1b-f765-9edc-37c6ff636fa8.jpeg"></a><br>
+<code>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000.6.7.7.50000000000.81111111.9.30000000.4.4.4.7111000000000000.1.10000000000000000000000000000000000000000000000000000000000</code><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/4b2aec34-2d8b-1c94-91f9-5240ff6048f0.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="mnist1.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/63543/4b2aec34-2d8b-1c94-91f9-5240ff6048f0.jpeg"></a><br>
+見える人には"1"に見えるらしい。 </p>
+
+<p>ちなみに画像をフラット化しない<code>[55000, 28, 28, 1]</code>の場合はRank4<br>
+カラー画像の場合でも3 channelsに変わるだけなので<code>[55000, 28, 28, 3]</code> Rank4</p>
+
+<h1>
+<span id="4-tensorflowの処理---ビギナーチュートリアルでしていること" class="fragment"></span><a href="#4-tensorflow%E3%81%AE%E5%87%A6%E7%90%86---%E3%83%93%E3%82%AE%E3%83%8A%E3%83%BC%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB%E3%81%A7%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%93%E3%81%A8"><i class="fa fa-link"></i></a>4: Tensorflowの処理: - ビギナーチュートリアルでしていること</h1>
+
+<p>さてさて、Tensorが理解できた所でやっとTensorflowの機械学習的な処理が追えるようになります。<br>
+用意したImage Tensor<code>x:[batch_num, 784]</code>ですが、784次元ベクトルから一体どうやって10通りある正解の中から正確な答えを導き出すのでしょうか？</p>
+
+<p>ここで<strong>行列演算と"重み", "バイアス", Softmax回帰</strong> 4つの存在を理解します。</p>
+
+<h2>
+<span id="行列演算" class="fragment"></span><a href="#%E8%A1%8C%E5%88%97%E6%BC%94%E7%AE%97"><i class="fa fa-link"></i></a>行列演算</h2>
+
+<p>行列演算は簡単な話です。<br>
+<code>x:[batch_num, 784]</code>に<code>[784, 10]</code>の行列演算をすると<code>[batch_num, 10]</code>の行列が生まれるので答えが10通りになります。</p>
+
+<p>wikipediaの画像を参考にすると;<br>
+<code>A:[4,2]</code>と<code>B:[2,3]</code>が<code>[4,3]</code>になっています。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/5e5e5b4c-1501-7875-de59-8873bccb8653.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/63543/5e5e5b4c-1501-7875-de59-8873bccb8653.png" alt="Matrix_multiplication_diagram_2.png"></a></p>
+
+<p>Tensorflowでいうと</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">行列演算matmul</span></div>
+<div class="highlight"><pre>
+<span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">)</span> <span class="c">#output is [4,3]</span>
+<span class="n">matmul</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">W</span><span class="p">)</span>
+<span class="sd">'''</span>
+<span class="sd">x: [batch_num, 784]</span>
+<span class="sd">W: [784, 10]</span>
+<span class="sd">matmul: [batch_num, 10]</span>
+<span class="sd">'''</span>
+</pre></div>
+</div>
+
+<p>このB<code>[2,3]</code>、MNISTでいうと<code>W:[784, 10]</code>が重要な<strong>重み</strong>となります。</p>
+
+<h2>
+<span id="重み" class="fragment"></span><a href="#%E9%87%8D%E3%81%BF"><i class="fa fa-link"></i></a>重み</h2>
+
+<p>重み<code>W:[784, 10]</code>が登場しました。 コードでいう部分は</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">重みW</span></div>
+<div class="highlight"><pre>
+<span class="n">W</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">784</span><span class="p">,</span> <span class="mi">10</span><span class="p">]))</span>
+</pre></div>
+</div>
+
+<p><code>tf.Variable()</code>は<i><a href="https://www.tensorflow.org/versions/r0.7/how_tos/variables/index.html" rel="nofollow noopener" target="_blank">in-memory buffers</a></i>ということで、学習に使いたいパラメーターが保持されつづけるTensorを含んだ変数です。<br>
+<code>tf.zeros()</code>は中身をすべて<code>0</code>で埋めているTensorを作ります。</p>
+
+<p><code>0</code>で埋めているのは学習の過程で随時アップデートされるので、<code>0</code>スタートなだけです。ランダムな数値を入れる<code>tf.random_normal()</code>もあります。</p>
+
+<h3>
+<span id="重みの役割" class="fragment"></span><a href="#%E9%87%8D%E3%81%BF%E3%81%AE%E5%BD%B9%E5%89%B2"><i class="fa fa-link"></i></a>重みの役割</h3>
+
+<p><code>W:[784, 10]</code>の中身は画像が持つ1pixel単位の数値に、0の可能性は0.XXX, 1の可能性は-0.XXX, 2の可能性は0.0XX....といった感じで数値を掛け合わせにきます。 </p>
+
+<p>例えば先の"1"の画像の場合、一番最初の左上のピクセルに対しては、実際の学習させた重み<code>W[0]</code>は<code>[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]</code>なことが多いです。理由は明快で0〜9の全数字でその左上ピクセルが意味をなすことがないからです。<br>
+ど真ん中あたりの重み<code>W[380]</code>を見てみると:<br>
+<code>[-0.23017341  0.03032022  0.02670325 -0.06415708  0.07344861 -0.05119878 0.03592584 -0.00460929  0.09520938  0.08853132]</code><br>
+となっています。 0の重み<code>-0.23017341</code>がマイナスということはつまり<strong>ど真ん中のピクセルが黒い時に”０”の可能性は低い。</strong>ということが理解できます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/63543/0819b8b1-ff1b-f765-9edc-37c6ff636fa8.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="mnist.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/63543/0819b8b1-ff1b-f765-9edc-37c6ff636fa8.jpeg"></a></p>
+
+<p>エキスパートチュートリアルの畳み込み層などの話になるとより思うのですが、<strong>個人的には重みというよりフィルターという言葉が一番しっくりする気がしている。</strong></p>
+
+<p>この重みをImages Tensorに行列演算すると</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">行列演算された後</span></div>
+<div class="highlight"><pre>
+<span class="n">matmul</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">W</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">"matmul"</span><span class="p">,</span> <span class="n">matmul</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c">#最初の画像(答えは7)</span>
+<span class="p">[</span>  <span class="mf">1.43326855</span> <span class="o">-</span><span class="mf">10.14613152</span>   <span class="mf">2.10967159</span>   <span class="mf">6.07900429</span>  <span class="o">-</span><span class="mf">3.25419664</span>  
+<span class="o">-</span><span class="mf">1.93730605</span>  <span class="o">-</span><span class="mf">8.57098293</span>  <span class="mf">10.21759605</span>   <span class="mf">1.16319525</span>   <span class="mf">2.90590048</span><span class="p">]</span>
+</pre></div>
+</div>
+
+<p>が返ってきます。　</p>
+
+<p>うーん、まだよくわかりませんね。</p>
+
+<h2>
+<span id="バイアス" class="fragment"></span><a href="#%E3%83%90%E3%82%A4%E3%82%A2%E3%82%B9"><i class="fa fa-link"></i></a>バイアス</h2>
+
+<p>バイアスはすごい感覚で言うため不適切かもしれないですが、<br>
+<code>y = x(sin(2+(x^1+exp(0.01)+exp(0.5)))+x^(2+tan(10)))+x(x/2x+x^3x)+0.12</code><br>
+みたいな関数があった場合の最後の<code>0.12</code>みたいなものでしょうか。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/63543/a5db70a1-a1dc-9442-33de-791e90ae88ad.jpeg" target="_blank" rel="nofollow noopener"><img width="300" alt="graph.jpg" src="https://qiita-image-store.s3.amazonaws.com/0/63543/a5db70a1-a1dc-9442-33de-791e90ae88ad.jpeg"></a></p>
+
+<p>もっと簡単にいうと<code>y = xa + b</code>の<code>b</code>?<br>
+あっ、だからbiasなんですかね。<br>
+ただチュートリアルの場合はバイアスなしでも答えの精度はあまり変わりませんでした。<br>
+仮にバイアスの真値が<code>b = 1e-10</code>とかだとあまり意味ないのかもしれませんね。</p>
+
+<p>コードでは重みと同じように作ってあげますが、画像Tensorと重みはすでに行列演算されているため、後から付け足すバイアスは<code>Rank1</code>の<code>Shape[10]</code>です。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">バイアス</span></div>
+<div class="highlight"><pre>
+<span class="n">b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">10</span><span class="p">]))</span>
+
+<span class="k">print</span> <span class="s">"b:"</span><span class="p">,</span><span class="n">b</span> <span class="c">#学習後のバイアス</span>
+<span class="n">b</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.98651898</span>  <span class="mf">0.82111627</span>  <span class="mf">0.23709664</span> <span class="o">-</span><span class="mf">0.55601585</span>  <span class="mf">0.00611385</span>  <span class="mf">2.46202803</span>
+<span class="o">-</span><span class="mf">0.34819031</span>  <span class="mf">1.39600098</span> <span class="o">-</span><span class="mf">2.53770232</span> <span class="o">-</span><span class="mf">0.49392569</span><span class="p">]</span>
+</pre></div>
+</div>
+
+<p>こっちもこれ単体だとよくわかりませんね。</p>
+
+<h2>
+<span id="softmax関数---答え合わせ--" class="fragment"></span><a href="#softmax%E9%96%A2%E6%95%B0---%E7%AD%94%E3%81%88%E5%90%88%E3%82%8F%E3%81%9B--"><i class="fa fa-link"></i></a>Softmax関数 - 答え合わせ -</h2>
+
+<p>元のImages Tensor <code>x:[batch_num, 784]</code>は、<br>
+<code>x</code> 重み<code>W:[784, 10]</code>と行列演算され<br>
+<code>=</code> <code>matmul:[batch_num, 10]</code>になった後、<br>
+<code>+</code> バイアス<code>b:[10]</code>を付け足されてしまいます。</p>
+
+<p>しかし、それなのにいまだこれら数値が示す意味がわかりません。<br>
+そこでこれらを<code>tf.nn.softmax()</code>に渡して人でもわかるような数値にさせます。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">softmax</span></div>
+<div class="highlight"><pre>
+<span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">"y"</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c">#最初の画像(答えは7)</span>
+<span class="n">y</span> <span class="p">[</span>  <span class="mf">2.04339485e-05</span>   <span class="mf">6.08732953e-10</span>   <span class="mf">5.19737077e-05</span>   <span class="mf">2.63350527e-03</span>
+<span class="mf">2.94665284e-07</span>   <span class="mf">2.85405549e-05</span>   <span class="mf">2.29651920e-09</span>   <span class="mf">9.96997833e-01</span>
+<span class="mf">1.14465665e-05</span>   <span class="mf">2.55984633e-04</span><span class="p">]</span>                                   
+</pre></div>
+</div>
+
+<p>見てみると7番目の数値が一番高いですね。どうやら<code>7</code>の確率が高そうです。<br>
+配列の中の確率というより単純に答えを合わせをしたい場合は</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">答えちょうだいな</span></div>
+<div class="highlight"><pre>
+<span class="n">x_answer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y_answer</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">"x"</span><span class="p">,</span><span class="n">x_answer</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span> <span class="c">#Tensorflowが思う最初の10画像の答え</span>
+<span class="k">print</span> <span class="s">"y"</span><span class="p">,</span><span class="n">y_answer</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span> <span class="c">#10画像の本当の答え</span>
+
+<span class="n">x</span> <span class="p">[</span><span class="mi">7</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">9</span> <span class="mi">6</span> <span class="mi">9</span><span class="p">]</span> 
+<span class="n">y</span> <span class="p">[</span><span class="mi">7</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">9</span> <span class="mi">5</span> <span class="mi">9</span><span class="p">]</span> 
+</pre></div>
+</div>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">精度が知りたいな</span></div>
+<div class="highlight"><pre>
+<span class="n">correct_prediction</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">tf</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">y_</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">correct_prediction</span><span class="p">,</span> <span class="s">"float"</span><span class="p">))</span>
+
+<span class="k">print</span> <span class="s">"accuracy:"</span><span class="p">,</span> <span class="n">accuracy</span>
+<span class="n">accuracy</span><span class="p">:</span> <span class="mf">0.9128</span>     
+</pre></div>
+</div>
+
+<p>※2016/05/19追記<br>
+Softmax関数はアービタリーな実数値のまとまりを<code>range(0, 1)</code>に押し潰してくれる関数です。<br>
+最初Softmax回帰と書いていたんですが、正確には確率に対する回帰を行うので"ロジスティック回帰"と呼ぶそうな。 Softmaxはあくまでも入力を入れると出力が帰ってくる関数なんですね。<br>
+MNISTは画像を分類する問題なので一連の処理としては、<br>
+"この画像に対する各ラベルの確率が知りたい" → "ロジスティック回帰(softmax)" →  "一番確率が高いものを答えとする(argmax)"　となります。<br>
+なので実数値を求めたい回帰分析の場合はsoftmaxを多分使いません。 </p>
+
+<h1>
+<span id="5-いつ学習しているの" class="fragment"></span><a href="#5-%E3%81%84%E3%81%A4%E5%AD%A6%E7%BF%92%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%AE"><i class="fa fa-link"></i></a>5: いつ学習しているの？</h1>
+
+<p>TensorflowがMNISTの答えを出してくれるまでの仕組みがこれで理解できました。<br>
+でも重み<code>W</code>やバイアス<code>b</code>の学習はどうやって進んでいるの？となりますよね。<br>
+ヒントはTensorflowの学習実行が繰り返される部分にあります。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">最後の方の学習実行開始コード</span></div>
+<div class="highlight"><pre>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+  <span class="n">batch_xs</span><span class="p">,</span> <span class="n">batch_ys</span> <span class="o">=</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">next_batch</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+  <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">train_step</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">batch_xs</span><span class="p">,</span> <span class="n">y_</span><span class="p">:</span> <span class="n">batch_ys</span><span class="p">})</span>
+</pre></div>
+</div>
+
+<p>この<code>train_step</code>がどうやらトレーニングしていそうです。中身は</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">学習方法</span></div>
+<div class="highlight"><pre>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+<span class="n">train_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">)</span>
+<span class="sd">'''</span>
+<span class="sd"> y: [batch_num, 10] y is a list of processed numbers of x(images)</span>
+<span class="sd">y_: [batch_num, 10] y_ is labels</span>
+<span class="sd">0.01 is a learning rate</span>
+<span class="sd">'''</span>
+</pre></div>
+</div>
+
+<p>となっていますが、もう少し噛み砕いてみましょう<br>
+<code>tf.log()</code>はわかりやすくlogを計算します。Tensor自体に変化はないので<code>log-y:[batch_num, 10]</code>です。<br>
+そして答えTensor<code>y_</code>と掛け合わせるのですが、<code>y_</code>は答え以外は全て0が入っているため掛け合わせると答え以外の<code>index</code>は値が<code>0</code>になります。 <br>
+掛け合わさったTensorも<code>Shape</code>は<code>[batch_num, 10]</code>ですが、答え部分以外は<code>0</code>のため実質的な次元は<code>[batch_num, 1]</code>と考えたほうがわかりやすいかもしれません。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">log</span><span class="o">-</span><span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">log</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span> <span class="o">-</span><span class="mf">1.06416254e+01</span>  <span class="o">-</span><span class="mf">2.04846172e+01</span>  <span class="o">-</span><span class="mf">8.92418385e+00</span>  <span class="o">-</span><span class="mf">5.71210337e+00</span>
+  <span class="o">-</span><span class="mf">1.47629070e+01</span>  <span class="o">-</span><span class="mf">1.18935766e+01</span>  <span class="o">-</span><span class="mf">1.92577553e+01</span>  <span class="o">-</span><span class="mf">3.63449310e-03</span>      
+  <span class="o">-</span><span class="mf">1.08472376e+01</span>  <span class="o">-</span><span class="mf">8.88469982e+00</span><span class="p">]</span>
+
+<span class="n">y_times_log</span><span class="o">-</span><span class="n">y</span> <span class="o">=</span> <span class="n">y_</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">y_times_log</span><span class="o">-</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c">#7の値のみが残る。</span>
+<span class="p">[</span><span class="o">-</span><span class="mf">0.</span>         <span class="o">-</span><span class="mf">0.</span>         <span class="o">-</span><span class="mf">0.</span>         <span class="o">-</span><span class="mf">0.</span>         <span class="o">-</span><span class="mf">0.</span>         <span class="o">-</span><span class="mf">0.</span> 
+<span class="o">-</span><span class="mf">0.</span>        <span class="o">-</span><span class="mf">0.00181153</span>        <span class="o">-</span><span class="mf">0.</span>         <span class="o">-</span><span class="mf">0.</span>        <span class="p">]</span> 
+</pre></div></div>
+
+<p><code>tf.reduce_sum()</code>は次元間すべてでの加算を行い、第２引数と<code>keep_dims=True</code>オプションがない場合は<code>Rank0</code>のTensor（スカラー）になります。 MNISTの場合は<code>[batch_num]</code>の保有する値を全部足した数ですね。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">例tf.reduce_sum()</span></div>
+<div class="highlight"><pre>
+<span class="c"># 'x' is [[1, 1, 1]</span>
+<span class="c">#         [1, 1, 1]]</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==&gt;</span> <span class="mi">6</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==&gt;</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==&gt;</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">keep_dims</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="o">==&gt;</span> <span class="p">[[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">==&gt;</span> <span class="mi">6</span>
+
+<span class="o">------</span>
+<span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+<span class="k">print</span> <span class="s">"cross_entropy:"</span><span class="p">,</span> <span class="n">cross_entropy</span> <span class="c">#y_*tf.log(y)の中身を全部足した数</span>
+<span class="n">cross_entropy</span> <span class="mf">23026.0</span> <span class="c">#最初の学習後の数値</span>
+<span class="o">.</span>
+<span class="o">.</span>
+<span class="o">.</span>
+<span class="n">cross_entropy</span><span class="p">:</span> <span class="mf">3089.6</span> <span class="c">#最後の学習後の数値</span>
+</pre></div>
+</div>
+
+<p>クロスエントロピーについてはこちらの記事がとても参考になります。<br>
+ニューラルネットワークと深層学習: -無料のオンライン書籍- チャプター３<br>
+<a href="http://nnadl-ja.github.io/nnadl_site_ja/chap3.html" class="autolink" rel="nofollow noopener" target="_blank">http://nnadl-ja.github.io/nnadl_site_ja/chap3.html</a></p>
+
+<p>要はどれだけ学習できているかの指標的なものですかね。<br>
+これを参考にしつつ<strong>重み</strong>や<strong>バイアス</strong>を最適化していけば学習成功のようです。</p>
+
+<p>実際の最適化を行っている<code>tf.train.GradientDescentOptimizer()</code>ですが、他にも選べるチョイス<code>class tf.train.Optimizer</code>がありますので、一度見てみるのも楽しいです。 <br>
+Tensorflow/api_docs - Optimizers:<br>
+<a href="https://www.tensorflow.org/versions/r0.7/api_docs/python/train.html#optimizers" class="autolink" rel="nofollow noopener" target="_blank">https://www.tensorflow.org/versions/r0.7/api_docs/python/train.html#optimizers</a></p>
+
+<p>追加で<code>.minimize()</code>を呼ぶとGradientの計算と<code>tf.Variables</code>への適用を一緒に行います。</p>
+
+<p>逆に<code>.compute_gradients()</code>を呼ぶことで最適化の際に<strong>重み</strong><code>W</code>や<strong>バイアス</strong><code>b</code>をアップデートするための値、つまりは誤差値/修正値をみることができます。<br>
+実際には±大きな数値でスタートしてアッチコッチ行ったり来たりしながら収束していくみたいです。</p>
+
+<div class="code-frame" data-lang="py">
+<div class="code-lang"><span class="bold">Gradient_values</span></div>
+<div class="highlight"><pre>
+<span class="c">#学習初期</span>
+<span class="n">cross_entropy</span> <span class="mf">23026.0</span>       
+<span class="n">grad</span> <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">[</span> <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span><span class="p">]</span>                               
+<span class="n">grad</span> <span class="n">W</span><span class="p">[</span><span class="mi">380</span><span class="p">]</span> <span class="p">[</span> <span class="mf">511.78765869</span>   <span class="mf">59.3368187</span>   <span class="o">-</span><span class="mf">34.74549103</span> <span class="o">-</span><span class="mf">163.8828125</span>  <span class="o">-</span><span class="mf">103.32589722</span>
+  <span class="mf">181.61528015</span>   <span class="mf">17.56824303</span>  <span class="o">-</span><span class="mf">60.38471603</span> <span class="o">-</span><span class="mf">175.52197266</span> <span class="o">-</span><span class="mf">232.44744873</span><span class="p">]</span>           
+<span class="n">grad</span> <span class="n">b</span> <span class="p">[</span>  <span class="mf">19.99900627</span> <span class="o">-</span><span class="mf">135.00904846</span>  <span class="o">-</span><span class="mf">32.00152588</span>   <span class="o">-</span><span class="mf">9.99949074</span>   <span class="mf">18.00206184</span>     
+  <span class="mf">107.99274445</span>   <span class="mf">41.992836</span>    <span class="o">-</span><span class="mf">27.99754715</span>   <span class="mf">26.00336075</span>   <span class="o">-</span><span class="mf">8.99738121</span><span class="p">]</span>           
+
+<span class="c">#学習最後</span>
+<span class="n">cross_entropy</span> <span class="mf">2870.42</span> 
+<span class="n">grad</span> <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">[</span> <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span><span class="p">]</span>                          
+<span class="n">grad</span> <span class="n">W</span><span class="p">[</span><span class="mi">380</span><span class="p">]</span> <span class="p">[</span>  <span class="mf">6.80800724</span>   <span class="mf">1.27235568</span>  <span class="o">-</span><span class="mf">6.85943699</span> <span class="o">-</span><span class="mf">22.70822525</span> <span class="o">-</span><span class="mf">17.48428154</span>
+  <span class="mf">13.11752224</span>  <span class="mf">19.7425499</span>  <span class="o">-</span><span class="mf">32.00106812</span> <span class="o">-</span><span class="mf">41.48160553</span>  <span class="mf">79.59416199</span><span class="p">]</span>           
+<span class="n">grad</span> <span class="n">b</span> <span class="p">[</span>  <span class="mf">19.52701187</span>    <span class="mf">3.17797041</span>  <span class="o">-</span><span class="mf">20.07606125</span>  <span class="o">-</span><span class="mf">48.88145447</span>  <span class="o">-</span><span class="mf">28.05920601</span>
+   <span class="mf">37.52313232</span>   <span class="mf">40.22808456</span>  <span class="o">-</span><span class="mf">34.04494858</span>  <span class="o">-</span><span class="mf">74.16973114</span>  <span class="mf">104.77211761</span><span class="p">]</span>      
+</pre></div>
+</div>
+
+<p>重み<code>W</code>に関しては最初のピクセルは完全に無視してるみたいですね...笑<br>
+これらの数値はまぁ機械に計算を任せて、我々はゆっくりお茶でも飲んでいるのがいいのではないでしょうか。</p>
+
+<h1>
+<span id="6-次回はエキスパートを詳しく解説するよっ" class="fragment"></span><a href="#6-%E6%AC%A1%E5%9B%9E%E3%81%AF%E3%82%A8%E3%82%AD%E3%82%B9%E3%83%91%E3%83%BC%E3%83%88%E3%82%92%E8%A9%B3%E3%81%97%E3%81%8F%E8%A7%A3%E8%AA%AC%E3%81%99%E3%82%8B%E3%82%88%E3%81%A3"><i class="fa fa-link"></i></a>6: 次回はエキスパートを詳しく解説するよっ！</h1>
+
+<p>私自身がやりたいことは実はまだ実現できていないのですが... 機械学習は"モノづくり心"を超刺激してくれるのですっかり魅了されてしまいました。 理解が深まるほど、次は"こうしてみよう"、"あーしてみよう"とアイデアが出てきます。</p>
+
+<p>うまくいかないけど楽しい。　なんだろう...この懐かしい感じ。</p>
+
+<p>次はチュートリアルのMNIST エキスパート編を解説したいと思います。<br>
+畳み込み、プーリングなどがイマイチわかっていない方にはオススメの内容にしたいです。</p>
+
+<p>ストック、ツイート、いいね、はてぶ、コメントなどなど、全て励みになるのでもしよければお願いします〜。</p>
+
+<p>※2016.3.29追記<br>
+エキスパート編の解説書きました。<br>
+- <a href="http://qiita.com/tawago/items/931bea2ff6d56e32d693" id="reference-00849755aae0ecedc026">Tensorflowを２ヶ月触ったので"手書きひらがな"の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説</a></p>
+
+<p>※2016.12.08追記<br>
+Advent CalenderでLSTMの解説を書きました。<br>
+<a href="http://qiita.com/tawago/items/ad4e30abba9528875908" id="reference-461f2dbb7e2bf6c1e766">これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/tawago/items/c977c79b76c5979874e8" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="0HtVZb/gxRVwEdvceA/34yo4vJQMVsXnvBfPruc4OaAvhAW+DiuhPhDN/WiXQWBX6crOSspDfN/dPIM+OqtVwA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1481183754" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+これ書くだけで土日２日間まるまる潰れてしまった。
+学んだ内容に沿っているので、順に読み進めるに従ってコードの話になっていきます。
+Tensorflow触ってみたい/みたけど、いろいろまだ理解できてない！という方向けに書きました。
+
+※2016/09/25下らない追記
+GAによると、この記事の平均滞在時間は`00:06:17`らしいです。
+現在のview数掛け合わせるとおよそ8200時間ほど人の時間を搾取したようです☆
+やったね☆
+
+
+#1: Deep Learningってそもそも何してるの?
+専門の人からはご指摘入りそうですが、要は回帰分析してくれるブラックボックスと言い切ってはどうでしょう。
+&quot;回帰&quot;という単語が出てくるだけで `?`が出てきちゃいますよね。
+求めたい&quot;値&quot;があってそれに限りなく近い数値を機械に計算させまくり学んでもらう。で、いいんじゃないでしょうか。 
+
+eg.適度な関数が知りたい
+![Non-Linear-Regression.gif](https://qiita-image-store.s3.amazonaws.com/0/63543/70bcbddc-02e2-f091-8e21-8de0d2855e6c.gif)
+
+eg.適度なクラスターを知りたい
+![K-Means-Clustering-Gif.gif](https://qiita-image-store.s3.amazonaws.com/0/63543/5a550314-d14d-a1c0-9d9a-3de7557a04e8.gif)
+
+eg.適度な&quot;顔&quot;というものをpixelの集合で知りたい
+&lt;img width=&quot;296&quot; alt=&quot;Screen Shot 2016-03-06 at 4.44.13 PM.png&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/843b819e-c7f1-4bbb-17b2-e518f4c7cf5a.png&quot;&gt;
+
+それなら自分だって知りたいことはたくさんあるよ！という方々は多いと思います。
+アイドルの動画からすげーブサイクな顔になってる時(値)だけを求めて、キャプチャしたい！とか、[Qiita: - ディープラーニングで顔写真から巨乳かどうかを判別してみる (うまくいったか微妙)](http://qiita.com/summer4an/items/db0124eee8103c1d3b85)だとか。
+偉大なる先人達は常にいるようですね。
+というわけでDeep Learning始めてみよう！となりました。
+
+#2: フレームワーク選び - Tensorflowの良いところ
+結論から先に言うと**情報量**
+
+最初の方はTensorflowの中身やら関数が何やってるか分からないので、途中Theanoに乗り換えを何度も考えましたが、今のところは大抵の疑問はすでに(英語で)Stackoverflowにあったり、Githubのイシューにも色々書いてあるので、やっぱりGoogleのネーム力って凄い。 Tensorflow本体のコードも普通に関数名でgoogle検索したりすると出てくるので、使ううちにどんどん本体の理解が勝手に深まります。
+
+そもそも触り始める前は**なにができて、なにができないのか？も分かっていない状態だった**ので、Deep Learning系フレームワークで色々な実験をされている方々のブログを読み漁りました。 
+
+ドキュメントの分かりやすさなどは `Tensorflow &gt; Theano &gt; Chainer`ですかね。
+
+
+その他に:
+ - [Caffe](http://caffe.berkeleyvision.org/)
+ - 元GoogleのAndy Rubinが投資している[Nervana](http://www.nervanasys.com/)
+ - GUIベースのドラッグ&amp;ドロップで機械学習とかできちゃう[Microsoft Azure Machine Learning](https://azure.microsoft.com/en-us/services/machine-learning/)
+などなど見てみました。
+
+
+ただ中身の評価モデルなどを理解していない段階だとなにもできません。 なので結局情報が一番ありそうなTensorflowでスタートしました。
+多分この分野に慣れてくると評価モデルの関数がたくさん用意されているとかが主な使用理由になるのではないでしょうか。
+
+
+**※2016/4/26追記**
+日々githubにコミットされていく内容とかを追っていると、もうTensorflow以外はしばらく様子見でいいんじゃないかなぁーと思います。
+
+
+
+
+###読み漁ったブログ一覧
+####-Tensorflow
+[kivantium活動日記: - TensorFlowでアニメゆるゆりの制作会社を識別する](http://kivantium.hateblo.jp/entry/2015/11/18/233834)
+[すぎゃーんメモ: - TensorFlowによるディープラーニングで、アイドルの顔を識別する](http://d.hatena.ne.jp/sugyan/20160112/1452558576)
+####-Theano
+[人工知能に関する断創録: - Theanoによる畳み込みニューラルネットワークの実装 (1)](http://aidiary.hatenablog.com/entry/20150626/1435329581)
+[StatsFragments: - Theano で Deep Learning &lt;3&gt; : 畳み込みニューラルネットワーク](http://sinhrks.hatenablog.com/entry/2014/12/07/203048)
+####-Chainer
+[せかいらぼ: -LSTMで自然な受け答えができるボットをつくった](http://www.sekailab.com/wp/2015/11/02/lstm-general-responce-bot/)
+[Oriental Robotics: - RNNによる学習で文豪っぽいテキストを出力させる (aka DeepDazai)](http://orientalrobotics.blogspot.jp/2015/08/rnn-aka-deepdazai.html)
+[Preferred Research: - 分散深層強化学習でロボット制御](https://research.preferred.jp/2015/06/distributed-deep-reinforcement-learning/)
+
+
+#3: Hello, World!的なMNIST ビギナー編
+※インストール的な話は沢山出てるので飛ばします。
+※※ビギナーチュートリアルを読んでからがオススメです。
+ 
+ここから真面目な解説スタートです。
+
+機械学習のベンチマーク的なものMNIST。
+Tensorflowの最初のチュートリアルとして 0〜9の手書き数字画像を大量に与えて、数字を理解させる練習です。 
+&lt;img src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/79e93ee0-0b17-a398-0ab6-56c0af06ecea.png&quot; width=&quot;200&quot; /&gt;
+
+[ビギナー](https://www.tensorflow.org/versions/r0.7/tutorials/mnist/beginners/index.html)も[エキスパート](https://www.tensorflow.org/versions/r0.7/tutorials/mnist/pros/index.html)もコピペすれば動くのですが... ここで学ぶべきことは直接のコードというより、Tensor, Rank, Scalar, Vector (テンソル、ランク, スカラー、ベクトル, シェイプ)などTensorflowにおける概念や処理、そして数学的な理解の再確認でした。
+
+まずは一番重要なTensorについて。
+入力となるデータなどを取り扱ってくれる頼りになる**Tensorはあくまでデータ構造で、学習処理の間でやりとりされるだけです。 Tensorはn次元の配列もしくはPython的にはlistと考えるのが良いそうな。**
+学習のバッチ毎にTensorの中にデータを入れてあげる感じですね。 
+なので学習処理以外の時に`print hoge_Tensor`なんてしてみても中身は入ってないんです。
+&quot;重み&quot;など学んでいく過程の値はtf.Variable変数で持ち続けます。
+**そしてTensorにはRank, Shape, Typeが必ずあります。** 
+エラーでよく言われるので、理解してからはだいぶ楽になりました。
+
+##Rank
+`t = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]` はRank2
+要はTensor自身の次元数ですね。
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Rank&lt;/th&gt;
+&lt;th&gt;数学単位&lt;/th&gt;
+&lt;th&gt;Python example&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;Scalar (実数量のみ)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;s = 483&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;Vector (量と方向)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;v = [1.1, 2.2, 3.3]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Matrix (よくあるテーブル)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;m = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;3-Tensor (三次元)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;t = [[[2], [4], [6]], [[8], [10], [12]], [[14], [16], [18]]]&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;n&lt;/td&gt;
+&lt;td&gt;n-Tensor (n次元)&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;....&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+##Shape
+先の`t = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]` Shapeは3次元x3次元なので`[3, 3]`
+
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Rank&lt;/th&gt;
+&lt;th&gt;Shape&lt;/th&gt;
+&lt;th&gt;Dimension number&lt;/th&gt;
+&lt;th&gt;Example&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;[]&lt;/td&gt;
+&lt;td&gt;0-D&lt;/td&gt;
+&lt;td&gt;A 0-D tensor.  A scalar.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;[D0]&lt;/td&gt;
+&lt;td&gt;1-D&lt;/td&gt;
+&lt;td&gt;A 1-D tensor with shape [5].&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;[D0, D1]&lt;/td&gt;
+&lt;td&gt;2-D&lt;/td&gt;
+&lt;td&gt;A 2-D tensor with shape [3, 4].&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;[D0, D1, D2]&lt;/td&gt;
+&lt;td&gt;3-D&lt;/td&gt;
+&lt;td&gt;A 3-D tensor with shape [1, 4, 3].&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;n&lt;/td&gt;
+&lt;td&gt;[D0, D1, ... Dn-1]&lt;/td&gt;
+&lt;td&gt;n-D&lt;/td&gt;
+&lt;td&gt;A tensor with shape [D0, D1, ... Dn-1].&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+##Type
+これはintやらfloatなので、あまり説明はいりません。
+
+##MNISTでそれらTensorを見る
+MNISTの例で言うと、55000枚の画像データ(images)Tensorと画像の答え(labels)Tensorがでてきます。
+
+Images Tensorは `Shape[55000, 784]`, `Rank2`, `dtype=tf.float32`
+Labels Tensorは `Shape[55000, 10]`, `Rank2`, `dtype=tf.float32`
+
+チュートリアルでは`tf.placeholder`でまず挿入されています。(Tensor確保と言った方がわかりやすいかも)
+
+```py:input_Tensor達
+x = tf.placeholder(tf.float32, [None, 784]) #images
+y_ = tf.placeholder(tf.float32, [None, 10]) #labels
+#None部分にはバッチの数が入る
+```
+
+なお`tf.placehoder()`は学習実行毎に必ず`feed_dict`引数でデータを与えてもらう必要があります。
+チュートリアルの場合は最後の方で学習実行開始するのですが:
+
+```py:最後の方の学習実行開始コード
+for i in range(1000):
+  batch_xs, batch_ys = mnist.train.next_batch(100)
+  sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+```
+なので、実際にはTensor達は`x:Shape[100, 784]` `y_:Shape[100, 10]`の画像100枚ごとに処理されてますね。
+
+####**余談: 画像の次元数について**
+画像データの方はもともと28x28pixelsのグレースケール = 1 channelですが、ビギナーチュートリアルでは簡単に考えるため784次元のベクトルにフラット変換(というか既にされてます。)
+28*28*1 = 784-Dimension
+
+**- 図で見るとなんとなくわかる -**
+縦横に並んでる数字を全部横にする的な。
+&lt;img width=&quot;300&quot; alt=&quot;mnist.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/0819b8b1-ff1b-f765-9edc-37c6ff636fa8.jpeg&quot;&gt;
+`00000000000000000000000000000000000000000000000000000000000000000000000000000000000000.6.7.7.50000000000.81111111.9.30000000.4.4.4.7111000000000000.1.10000000000000000000000000000000000000000000000000000000000`
+&lt;img width=&quot;300&quot; alt=&quot;mnist1.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/4b2aec34-2d8b-1c94-91f9-5240ff6048f0.jpeg&quot;&gt;
+見える人には&quot;1&quot;に見えるらしい。 
+
+ちなみに画像をフラット化しない`[55000, 28, 28, 1]`の場合はRank4
+カラー画像の場合でも3 channelsに変わるだけなので`[55000, 28, 28, 3]` Rank4
+
+
+#4: Tensorflowの処理: - ビギナーチュートリアルでしていること
+さてさて、Tensorが理解できた所でやっとTensorflowの機械学習的な処理が追えるようになります。
+用意したImage Tensor`x:[batch_num, 784]`ですが、784次元ベクトルから一体どうやって10通りある正解の中から正確な答えを導き出すのでしょうか？
+
+ここで**行列演算と&quot;重み&quot;, &quot;バイアス&quot;, Softmax回帰** 4つの存在を理解します。
+
+##行列演算
+行列演算は簡単な話です。
+`x:[batch_num, 784]`に`[784, 10]`の行列演算をすると`[batch_num, 10]`の行列が生まれるので答えが10通りになります。
+
+wikipediaの画像を参考にすると;
+`A:[4,2]`と`B:[2,3]`が`[4,3]`になっています。
+![Matrix_multiplication_diagram_2.png](https://qiita-image-store.s3.amazonaws.com/0/63543/5e5e5b4c-1501-7875-de59-8873bccb8653.png)
+
+Tensorflowでいうと
+
+```py:行列演算matmul
+tf.matmul(A,B) #output is [4,3]
+matmul = tf.matmul(x,W)
+&#39;&#39;&#39;
+x: [batch_num, 784]
+W: [784, 10]
+matmul: [batch_num, 10]
+&#39;&#39;&#39;
+```
+
+このB`[2,3]`、MNISTでいうと`W:[784, 10]`が重要な**重み**となります。
+
+##重み
+重み`W:[784, 10]`が登場しました。 コードでいう部分は
+
+```py:重みW
+W = tf.Variable(tf.zeros([784, 10]))
+```
+`tf.Variable()`は&lt;i&gt;[in-memory buffers](https://www.tensorflow.org/versions/r0.7/how_tos/variables/index.html)&lt;/i&gt;ということで、学習に使いたいパラメーターが保持されつづけるTensorを含んだ変数です。
+`tf.zeros()`は中身をすべて`0`で埋めているTensorを作ります。
+
+`0`で埋めているのは学習の過程で随時アップデートされるので、`0`スタートなだけです。ランダムな数値を入れる`tf.random_normal()`もあります。
+
+###重みの役割
+`W:[784, 10]`の中身は画像が持つ1pixel単位の数値に、0の可能性は0.XXX, 1の可能性は-0.XXX, 2の可能性は0.0XX....といった感じで数値を掛け合わせにきます。 
+
+例えば先の&quot;1&quot;の画像の場合、一番最初の左上のピクセルに対しては、実際の学習させた重み`W[0]`は`[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]`なことが多いです。理由は明快で0〜9の全数字でその左上ピクセルが意味をなすことがないからです。
+ど真ん中あたりの重み`W[380]`を見てみると:
+`[-0.23017341  0.03032022  0.02670325 -0.06415708  0.07344861 -0.05119878 0.03592584 -0.00460929  0.09520938  0.08853132]`
+となっています。 0の重み`-0.23017341`がマイナスということはつまり**ど真ん中のピクセルが黒い時に”０”の可能性は低い。**ということが理解できます。
+
+
+&lt;img width=&quot;300&quot; alt=&quot;mnist.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/0819b8b1-ff1b-f765-9edc-37c6ff636fa8.jpeg&quot;&gt;
+
+エキスパートチュートリアルの畳み込み層などの話になるとより思うのですが、**個人的には重みというよりフィルターという言葉が一番しっくりする気がしている。**
+
+この重みをImages Tensorに行列演算すると
+
+```py:行列演算された後
+matmul = tf.matmul(x,W)
+print &quot;matmul&quot;, matmul[0] #最初の画像(答えは7)
+[  1.43326855 -10.14613152   2.10967159   6.07900429  -3.25419664  
+-1.93730605  -8.57098293  10.21759605   1.16319525   2.90590048]
+```  
+が返ってきます。　
+
+うーん、まだよくわかりませんね。
+
+##バイアス
+バイアスはすごい感覚で言うため不適切かもしれないですが、
+`y = x(sin(2+(x^1+exp(0.01)+exp(0.5)))+x^(2+tan(10)))+x(x/2x+x^3x)+0.12`
+みたいな関数があった場合の最後の`0.12`みたいなものでしょうか。
+&lt;img width=&quot;300&quot; alt=&quot;graph.jpg&quot; src=&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/a5db70a1-a1dc-9442-33de-791e90ae88ad.jpeg&quot;&gt;
+
+もっと簡単にいうと`y = xa + b`の`b`?
+あっ、だからbiasなんですかね。
+ただチュートリアルの場合はバイアスなしでも答えの精度はあまり変わりませんでした。
+仮にバイアスの真値が`b = 1e-10`とかだとあまり意味ないのかもしれませんね。
+
+コードでは重みと同じように作ってあげますが、画像Tensorと重みはすでに行列演算されているため、後から付け足すバイアスは`Rank1`の`Shape[10]`です。
+
+```py:バイアス
+b = tf.Variable(tf.zeros([10]))
+
+print &quot;b:&quot;,b #学習後のバイアス
+b: [-0.98651898  0.82111627  0.23709664 -0.55601585  0.00611385  2.46202803
+-0.34819031  1.39600098 -2.53770232 -0.49392569]
+```
+こっちもこれ単体だとよくわかりませんね。
+
+##Softmax関数 - 答え合わせ -
+元のImages Tensor `x:[batch_num, 784]`は、
+`x` 重み`W:[784, 10]`と行列演算され
+`=` `matmul:[batch_num, 10]`になった後、
+`+` バイアス`b:[10]`を付け足されてしまいます。
+
+しかし、それなのにいまだこれら数値が示す意味がわかりません。
+そこでこれらを`tf.nn.softmax()`に渡して人でもわかるような数値にさせます。
+
+```py:softmax
+y = tf.nn.softmax(tf.matmul(x, W) + b)
+print &quot;y&quot;, y[0] #最初の画像(答えは7)
+y [  2.04339485e-05   6.08732953e-10   5.19737077e-05   2.63350527e-03
+2.94665284e-07   2.85405549e-05   2.29651920e-09   9.96997833e-01
+1.14465665e-05   2.55984633e-04]                                   
+```
+見てみると7番目の数値が一番高いですね。どうやら`7`の確率が高そうです。
+配列の中の確率というより単純に答えを合わせをしたい場合は
+
+```py:答えちょうだいな
+x_answer = tf.argmax(y,1)
+y_answer = tf.argmax(y_,1)
+
+print &quot;x&quot;,x_answer[0:10] #Tensorflowが思う最初の10画像の答え
+print &quot;y&quot;,y_answer[0:10] #10画像の本当の答え
+
+x [7 2 1 0 4 1 4 9 6 9] 
+y [7 2 1 0 4 1 4 9 5 9] 
+```
+```py:精度が知りたいな
+correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, &quot;float&quot;))
+
+print &quot;accuracy:&quot;, accuracy
+accuracy: 0.9128     
+```
+
+※2016/05/19追記
+Softmax関数はアービタリーな実数値のまとまりを`range(0, 1)`に押し潰してくれる関数です。
+最初Softmax回帰と書いていたんですが、正確には確率に対する回帰を行うので&quot;ロジスティック回帰&quot;と呼ぶそうな。 Softmaxはあくまでも入力を入れると出力が帰ってくる関数なんですね。
+MNISTは画像を分類する問題なので一連の処理としては、
+&quot;この画像に対する各ラベルの確率が知りたい&quot; → &quot;ロジスティック回帰(softmax)&quot; →  &quot;一番確率が高いものを答えとする(argmax)&quot;　となります。
+なので実数値を求めたい回帰分析の場合はsoftmaxを多分使いません。 
+
+#5: いつ学習しているの？
+TensorflowがMNISTの答えを出してくれるまでの仕組みがこれで理解できました。
+でも重み`W`やバイアス`b`の学習はどうやって進んでいるの？となりますよね。
+ヒントはTensorflowの学習実行が繰り返される部分にあります。
+
+```py:最後の方の学習実行開始コード
+for i in range(1000):
+  batch_xs, batch_ys = mnist.train.next_batch(100)
+  sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+```
+
+この`train_step`がどうやらトレーニングしていそうです。中身は
+
+```py:学習方法
+cross_entropy = -tf.reduce_sum(y_*tf.log(y))
+train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
+&#39;&#39;&#39;
+ y: [batch_num, 10] y is a list of processed numbers of x(images)
+y_: [batch_num, 10] y_ is labels
+0.01 is a learning rate
+&#39;&#39;&#39;
+```
+となっていますが、もう少し噛み砕いてみましょう
+`tf.log()`はわかりやすくlogを計算します。Tensor自体に変化はないので`log-y:[batch_num, 10]`です。
+そして答えTensor`y_`と掛け合わせるのですが、`y_`は答え以外は全て0が入っているため掛け合わせると答え以外の`index`は値が`0`になります。 
+掛け合わさったTensorも`Shape`は`[batch_num, 10]`ですが、答え部分以外は`0`のため実質的な次元は`[batch_num, 1]`と考えたほうがわかりやすいかもしれません。
+
+
+```py
+log-y = tf.log(y)
+print log-y[0]
+[ -1.06416254e+01  -2.04846172e+01  -8.92418385e+00  -5.71210337e+00
+  -1.47629070e+01  -1.18935766e+01  -1.92577553e+01  -3.63449310e-03      
+  -1.08472376e+01  -8.88469982e+00]
+
+y_times_log-y = y_*tf.log(y)
+print y_times_log-y[0] #7の値のみが残る。
+[-0.         -0.         -0.         -0.         -0.         -0. 
+-0.        -0.00181153        -0.         -0.        ] 
+```
+
+`tf.reduce_sum()`は次元間すべてでの加算を行い、第２引数と`keep_dims=True`オプションがない場合は`Rank0`のTensor（スカラー）になります。 MNISTの場合は`[batch_num]`の保有する値を全部足した数ですね。
+
+```py:例tf.reduce_sum()
+# &#39;x&#39; is [[1, 1, 1]
+#         [1, 1, 1]]
+tf.reduce_sum(x) ==&gt; 6
+tf.reduce_sum(x, 0) ==&gt; [2, 2, 2]
+tf.reduce_sum(x, 1) ==&gt; [3, 3]
+tf.reduce_sum(x, 1, keep_dims=True) ==&gt; [[3], [3]]
+tf.reduce_sum(x, [0, 1]) ==&gt; 6
+
+------
+cross_entropy = -tf.reduce_sum(y_*tf.log(y))
+
+print &quot;cross_entropy:&quot;, cross_entropy #y_*tf.log(y)の中身を全部足した数
+cross_entropy 23026.0 #最初の学習後の数値
+.
+.
+.
+cross_entropy: 3089.6 #最後の学習後の数値
+```
+クロスエントロピーについてはこちらの記事がとても参考になります。
+ニューラルネットワークと深層学習: -無料のオンライン書籍- チャプター３
+http://nnadl-ja.github.io/nnadl_site_ja/chap3.html
+
+要はどれだけ学習できているかの指標的なものですかね。
+これを参考にしつつ**重み**や**バイアス**を最適化していけば学習成功のようです。
+
+実際の最適化を行っている`tf.train.GradientDescentOptimizer()`ですが、他にも選べるチョイス`class tf.train.Optimizer`がありますので、一度見てみるのも楽しいです。 
+Tensorflow/api_docs - Optimizers:
+https://www.tensorflow.org/versions/r0.7/api_docs/python/train.html#optimizers
+
+追加で`.minimize()`を呼ぶとGradientの計算と`tf.Variables`への適用を一緒に行います。
+
+逆に`.compute_gradients()`を呼ぶことで最適化の際に**重み**`W`や**バイアス**`b`をアップデートするための値、つまりは誤差値/修正値をみることができます。
+実際には±大きな数値でスタートしてアッチコッチ行ったり来たりしながら収束していくみたいです。
+
+```py:Gradient_values
+#学習初期
+cross_entropy 23026.0       
+grad W[0] [ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]                               
+grad W[380] [ 511.78765869   59.3368187   -34.74549103 -163.8828125  -103.32589722
+  181.61528015   17.56824303  -60.38471603 -175.52197266 -232.44744873]           
+grad b [  19.99900627 -135.00904846  -32.00152588   -9.99949074   18.00206184     
+  107.99274445   41.992836    -27.99754715   26.00336075   -8.99738121]           
+
+#学習最後
+cross_entropy 2870.42 
+grad W[0] [ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]                          
+grad W[380] [  6.80800724   1.27235568  -6.85943699 -22.70822525 -17.48428154
+  13.11752224  19.7425499  -32.00106812 -41.48160553  79.59416199]           
+grad b [  19.52701187    3.17797041  -20.07606125  -48.88145447  -28.05920601
+   37.52313232   40.22808456  -34.04494858  -74.16973114  104.77211761]      
+```
+
+重み`W`に関しては最初のピクセルは完全に無視してるみたいですね...笑
+これらの数値はまぁ機械に計算を任せて、我々はゆっくりお茶でも飲んでいるのがいいのではないでしょうか。
+
+
+
+#6: 次回はエキスパートを詳しく解説するよっ！
+私自身がやりたいことは実はまだ実現できていないのですが... 機械学習は&quot;モノづくり心&quot;を超刺激してくれるのですっかり魅了されてしまいました。 理解が深まるほど、次は&quot;こうしてみよう&quot;、&quot;あーしてみよう&quot;とアイデアが出てきます。
+
+うまくいかないけど楽しい。　なんだろう...この懐かしい感じ。
+
+次はチュートリアルのMNIST エキスパート編を解説したいと思います。
+畳み込み、プーリングなどがイマイチわかっていない方にはオススメの内容にしたいです。
+
+ストック、ツイート、いいね、はてぶ、コメントなどなど、全て励みになるのでもしよければお願いします〜。
+
+
+※2016.3.29追記
+エキスパート編の解説書きました。
+- [Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説](http://qiita.com/tawago/items/931bea2ff6d56e32d693)
+
+※2016.12.08追記
+Advent CalenderでLSTMの解説を書きました。
+[これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説](http://qiita.com/tawago/items/ad4e30abba9528875908)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説 by @Robobu_Bot on @Qiita" data-url="http://qiita.com/tawago/items/c977c79b76c5979874e8" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説" href="http://b.hatena.ne.jp/entry/http://qiita.com/tawago/items/c977c79b76c5979874e8" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tawago/items/c977c79b76c5979874e8" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tawago/items/c977c79b76c5979874e8" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/tawago"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/tawago">tawago</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">3633</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;tawago&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-3a94e050-7c61-4d33-b8fb-7283671056ce"></div>
+    <div id="UserFollowButton-react-component-3a94e050-7c61-4d33-b8fb-7283671056ce"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/c977c79b76c5979874e8">特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/931bea2ff6d56e32d693">Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/15160c6aa0ebd1c61715">TensorflowでOSXのGPUが対応されたよ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/68bef63d8bb02797c669">【爆速なるか!?】OSXでTensorflowのGPU版を使うためのセットアップ</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/tawago/items/ad4e30abba9528875908">これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説 </a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/kaizenplatform"><img alt="Kaizen Platform, Inc." class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/8d4d656bc42e317dc06b0996426554deb5a75818/original.jpg?1438151620" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1-deep-learning%E3%81%A3%E3%81%A6%E3%81%9D%E3%82%82%E3%81%9D%E3%82%82%E4%BD%95%E3%81%97%E3%81%A6%E3%82%8B%E3%81%AE\&quot;\u003e1: Deep Learningってそもそも何してるの?\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-%E3%83%95%E3%83%AC%E3%83%BC%E3%83%A0%E3%83%AF%E3%83%BC%E3%82%AF%E9%81%B8%E3%81%B3---tensorflow%E3%81%AE%E8%89%AF%E3%81%84%E3%81%A8%E3%81%93%E3%82%8D\&quot;\u003e2: フレームワーク選び - Tensorflowの良いところ\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%AD%E3%81%BF%E6%BC%81%E3%81%A3%E3%81%9F%E3%83%96%E3%83%AD%E3%82%B0%E4%B8%80%E8%A6%A7\&quot;\u003e読み漁ったブログ一覧\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-tensorflow\&quot;\u003e-Tensorflow\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-theano\&quot;\u003e-Theano\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#-chainer\&quot;\u003e-Chainer\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#3-hello-world%E7%9A%84%E3%81%AAmnist-%E3%83%93%E3%82%AE%E3%83%8A%E3%83%BC%E7%B7%A8\&quot;\u003e3: Hello, World!的なMNIST ビギナー編\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rank\&quot;\u003eRank\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#shape\&quot;\u003eShape\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#type\&quot;\u003eType\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#mnist%E3%81%A7%E3%81%9D%E3%82%8C%E3%82%89tensor%E3%82%92%E8%A6%8B%E3%82%8B\&quot;\u003eMNISTでそれらTensorを見る\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%99%E8%AB%87-%E7%94%BB%E5%83%8F%E3%81%AE%E6%AC%A1%E5%85%83%E6%95%B0%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6\&quot;\u003e\u003cstrong\u003e余談: 画像の次元数について\u003c/strong\u003e\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\n\n\u003ca href=\&quot;#4-tensorflow%E3%81%AE%E5%87%A6%E7%90%86---%E3%83%93%E3%82%AE%E3%83%8A%E3%83%BC%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB%E3%81%A7%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%93%E3%81%A8\&quot;\u003e4: Tensorflowの処理: - ビギナーチュートリアルでしていること\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%A1%8C%E5%88%97%E6%BC%94%E7%AE%97\&quot;\u003e行列演算\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%87%8D%E3%81%BF\&quot;\u003e重み\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%87%8D%E3%81%BF%E3%81%AE%E5%BD%B9%E5%89%B2\&quot;\u003e重みの役割\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%90%E3%82%A4%E3%82%A2%E3%82%B9\&quot;\u003eバイアス\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#softmax%E9%96%A2%E6%95%B0---%E7%AD%94%E3%81%88%E5%90%88%E3%82%8F%E3%81%9B--\&quot;\u003eSoftmax関数 - 答え合わせ -\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#5-%E3%81%84%E3%81%A4%E5%AD%A6%E7%BF%92%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%AE\&quot;\u003e5: いつ学習しているの？\u003c/a\u003e\n\n\n\u003ca href=\&quot;#6-%E6%AC%A1%E5%9B%9E%E3%81%AF%E3%82%A8%E3%82%AD%E3%82%B9%E3%83%91%E3%83%BC%E3%83%88%E3%82%92%E8%A9%B3%E3%81%97%E3%81%8F%E8%A7%A3%E8%AA%AC%E3%81%99%E3%82%8B%E3%82%88%E3%81%A3\&quot;\u003e6: 次回はエキスパートを詳しく解説するよっ！\u003c/a\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-66067568-757b-490c-a8c9-65f7b67bd0f8"></div>
+    <div id="Toc-react-component-66067568-757b-490c-a8c9-65f7b67bd0f8"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:2826,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="cb400sp2"><a itemprop="url" href="/cb400sp2"><img alt="cb400sp2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7821/profile-images/1473680740" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kimihiro_n"><a itemprop="url" href="/kimihiro_n"><img alt="kimihiro_n" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25168/profile-images/1473684273" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kou-arw"><a itemprop="url" href="/kou-arw"><img alt="kou-arw" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47832/profile-images/1473691132" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yorksyo"><a itemprop="url" href="/yorksyo"><img alt="yorksyo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44317/profile-images/1473689856" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="alfort74"><a itemprop="url" href="/alfort74"><img alt="alfort74" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25549/profile-images/1473759603" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Toru3"><a itemprop="url" href="/Toru3"><img alt="Toru3" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51996/profile-images/1473692606" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nishiuke"><a itemprop="url" href="/nishiuke"><img alt="nishiuke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72313/profile-images/1488232747" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="twitte_raru"><a itemprop="url" href="/twitte_raru"><img alt="twitte_raru" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/38163/profile-images/1473687669" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="antimon2"><a itemprop="url" href="/antimon2"><img alt="antimon2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30400/profile-images/1473685489" /></a></div></div><div class="ArticleFooter__user"><a href="/tawago/items/c977c79b76c5979874e8/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/c977c79b76c5979874e8/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/tawago/items/c977c79b76c5979874e8.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><a class="references_toggleOldReferences js-toggleOldReferences" href="#"><i class="fa fa-expand js-toggleOldReferencesIcon"></i><span class="js-toggleOldReferencesText">Show old 2 links</span></a><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/tanishi/items/70a5085213b7eae32231#_reference-48072712b971b815f855"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/40921/profile-images/1473688600" />深層学習について何もわからないけどそういう系の勉強会に行った</a><time class="references_datetime js-dateTimeView" datetime="2016-03-18T17:23:08+00:00">about 1 year ago</time></li><li class="references_reference js-reference js-oldReference"><span>Linked from </span><a href="/tawago/items/931bea2ff6d56e32d693#_reference-d713d333f77e15273223"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" />Tensorflowを２ヶ月触ったので&quot;手書きひらがな&quot;の識別95.04%で畳み込みニューラルネットワークをわかりやすく解説</a><time class="references_datetime js-dateTimeView" datetime="2016-03-29T02:05:44+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/eve_yk/items/e42431200a1616c7d045#_reference-ce4033134aaf764d6091"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/110468/profile-images/1473711224" />自分用TensorFlowメモ</a><time class="references_datetime js-dateTimeView" datetime="2016-04-30T08:05:53+00:00">11 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/shngt/items/c84ddb034a2cc4c4632e#_reference-d5787e87ff57ceb4f828"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103085/profile-images/1479473183" />Azure Machine Learningをわかった気になるために細かいことは気にせずに機械学習のことをまとめてみる - ディープラーニングの手前まで</a><time class="references_datetime js-dateTimeView" datetime="2016-05-29T16:25:23+00:00">10 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ryo_grid/items/2fadb2b1d16f0eab1582#_reference-879fa07b96227d19ec7b"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/12325/profile-images/1473682364" />今度こそ理解するTensorFlow (MNISTを題材に)</a><time class="references_datetime js-dateTimeView" datetime="2016-11-04T01:31:01+00:00">5 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ryo_grid/items/d5d31b3ea13f096d043e#_reference-d0fda38522a6f01eed7e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/12325/profile-images/1473682364" />TensorFlow入門時に多分一番単純で実用的なコード例（1次元入力データ群からのクラス分類）</a><time class="references_datetime js-dateTimeView" datetime="2016-11-06T05:58:57+00:00">4 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/tawago/items/ad4e30abba9528875908#_reference-1c4342ec0718131a7458"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" />これを理解できれば自然言語処理もできちゃう？ MNISTでRNN(LSTM)を触りながら解説 </a><time class="references_datetime js-dateTimeView" datetime="2016-12-08T05:56:11+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説 by @Robobu_Bot on @Qiita" data-url="http://qiita.com/tawago/items/c977c79b76c5979874e8" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="特にプログラマーでもデータサイエンティストでもないけど、Tensorflowを1ヶ月触ったので超分かりやすく解説" href="http://b.hatena.ne.jp/entry/http://qiita.com/tawago/items/c977c79b76c5979874e8" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/tawago/items/c977c79b76c5979874e8" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/tawago/items/c977c79b76c5979874e8" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cblockquote\u003e\n\u003cp\u003etf.reduce_sum()は次元間すべてでの加算を行い、keep_dims=Trueオプションがない場合はRank1のTensorになります。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003eこちら、\&quot;Rank0\&quot;が正しいでしょうか？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-03-07T15:22:12+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:479729,&quot;is_team&quot;:false,&quot;item_id&quot;:375380,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:2,&quot;raw_body&quot;:&quot;\u003e tf.reduce_sum()は次元間すべてでの加算を行い、keep_dims=Trueオプションがない場合はRank1のTensorになります。\n\nこちら、\&quot;Rank0\&quot;が正しいでしょうか？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/c977c79b76c5979874e8#comment-ee647b4c20d00d77923c&quot;,&quot;user&quot;:{&quot;contribution&quot;:127,&quot;created_at&quot;:&quot;2016-01-19T21:19:16+09:00&quot;,&quot;id&quot;:109998,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/109998/profile-images/1473711069&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;miyosuda&quot;},&quot;uuid&quot;:&quot;ee647b4c20d00d77923c&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eわー修正しました！\u003cbr\u003e\nご指摘ありがとうございます。\u003cbr\u003e\n\u003ccode\u003etf.reduce_sum(input_tensor, reduction_indices=None, keep_dims=False, name=None)\u003c/code\u003e\u003cbr\u003e\n\u003ca href=\&quot;https://www.tensorflow.org/versions/r0.7/api_docs/python/math_ops.html#reduce_sum\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://www.tensorflow.org/versions/r0.7/api_docs/python/math_ops.html#reduce_sum\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003eなので\u003ccode\u003ereduction_indices\u003c/code\u003eと\u003ccode\u003ekeep_dims\u003c/code\u003e合わせて見ないとダメでした。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;py\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n\u003cspan class=\&quot;c\&quot;\u003e# x:Shape(3,2,4)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e],[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]],[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e],[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]],[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e],[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]]\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex_without_args\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etf\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereduce_sum\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex_0\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etf\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereduce_sum\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex_1\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etf\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereduce_sum\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex_2\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etf\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereduce_sum\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex_0_keep_dim\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etf\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereduce_sum\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ekeep_dims\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eTrue\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex_1_keep_dim\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etf\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereduce_sum\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ekeep_dims\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eTrue\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003cspan class=\&quot;n\&quot;\u003ex_2_keep_dim\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etf\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ereduce_sum\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ekeep_dims\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eTrue\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\n\u003cspan class=\&quot;n\&quot;\u003ex_without_args\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e24\u003c/span\u003e\n\n\u003cspan class=\&quot;n\&quot;\u003ex_0\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \n \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]\u003c/span\u003e    \n\n\u003cspan class=\&quot;n\&quot;\u003ex_1\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \n \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e     \n \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]\u003c/span\u003e    \n\n\u003cspan class=\&quot;n\&quot;\u003ex_2\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e \n \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e     \n \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]\u003c/span\u003e    \n\n\n\u003cspan class=\&quot;n\&quot;\u003ex_0_keep_dim\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n  \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e3\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]]\u003c/span\u003e \n\n\u003cspan class=\&quot;n\&quot;\u003ex_1_keep_dim\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]\u003c/span\u003e \n\n \u003cspan class=\&quot;p\&quot;\u003e[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]\u003c/span\u003e     \n\n \u003cspan class=\&quot;p\&quot;\u003e[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e \u003cspan class=\&quot;mi\&quot;\u003e2\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]]\u003c/span\u003e   \n\n\u003cspan class=\&quot;n\&quot;\u003er_2_keep_dim\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e        \n  \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]\u003c/span\u003e           \n\n \u003cspan class=\&quot;p\&quot;\u003e[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e            \n  \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]\u003c/span\u003e           \n\n \u003cspan class=\&quot;p\&quot;\u003e[[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e            \n  \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e4\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]]]\u003c/span\u003e          \n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-03-07T15:56:43+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:479764,&quot;is_team&quot;:false,&quot;item_id&quot;:375380,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;わー修正しました！\nご指摘ありがとうございます。\n`tf.reduce_sum(input_tensor, reduction_indices=None, keep_dims=False, name=None)`\nhttps://www.tensorflow.org/versions/r0.7/api_docs/python/math_ops.html#reduce_sum\n\nなので`reduction_indices`と`keep_dims`合わせて見ないとダメでした。\n\n```py\n# x:Shape(3,2,4)\nx = [[[1, 1, 1, 1],[1, 1, 1, 1]],[[1, 1, 1, 1],[1, 1, 1, 1]],[[1, 1, 1, 1],[1, 1, 1, 1]]]\nx_without_args = tf.reduce_sum(\u001bx)\nx_0 = tf.reduce_sum(\u001bx, 0)\nx_1 = tf.reduce_sum(\u001bx, 1)\nx_2 = tf.reduce_sum(x, 2)\nx_0_keep_dim = tf.reduce_sum(x, 0, keep_dims=True)\nx_1_keep_dim = tf.reduce_sum(x, 1, keep_dims=True)\nx_2_keep_dim = tf.reduce_sum(x, 2, keep_dims=True)\n\nx_without_args 24\n\nx_0 [[3 3 3 3] \n [3 3 3 3]]    \n\nx_1 [[2 2 2 2] \n [2 2 2 2]     \n [2 2 2 2]]    \n\nx_2 [[4 4] \n [4 4]     \n [4 4]]    \n\n\nx_0_keep_dim [[[3 3 3 3]\n  [3 3 3 3]]] \n \nx_1_keep_dim [[[2 2 2 2]] \n                 \n [[2 2 2 2]]     \n                 \n [[2 2 2 2]]]   \n \nr_2_keep_dim [[[4]        \n  [4]]           \n                 \n [[4]            \n  [4]]           \n                 \n [[4]            \n  [4]]]          \n```\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/c977c79b76c5979874e8#comment-86ed1f58f29e1b78a1fa&quot;,&quot;user&quot;:{&quot;contribution&quot;:3633,&quot;created_at&quot;:&quot;2014-12-19T17:57:52+09:00&quot;,&quot;id&quot;:63543,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;tawago&quot;},&quot;uuid&quot;:&quot;86ed1f58f29e1b78a1fa&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e「日々githubにコミットされていく内容とかを追っていると、もうTensorflow以外はしばらく様子見でいいんじゃないかなぁーと思います。」\u003cbr\u003e\nとは、どういう意味ですか？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-27T12:30:29+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:526359,&quot;is_team&quot;:false,&quot;item_id&quot;:375380,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;「日々githubにコミットされていく内容とかを追っていると、もうTensorflow以外はしばらく様子見でいいんじゃないかなぁーと思います。」\nとは、どういう意味ですか？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/c977c79b76c5979874e8#comment-2a862cef3b440e510bb6&quot;,&quot;user&quot;:{&quot;contribution&quot;:996,&quot;created_at&quot;:&quot;2016-04-17T21:35:39+09:00&quot;,&quot;id&quot;:121997,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/121997/profile-images/1473715093&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Algebra_nobu&quot;},&quot;uuid&quot;:&quot;2a862cef3b440e510bb6&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/Algebra_nobu\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;Algebra_nobu\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;Algebra_nobu\&quot;\u003e@Algebra_nobu\u003c/a\u003e \u003cbr\u003e\n開発速度が他と比べてもたぶん圧倒的に早いので、対抗馬が出てくるまではTensorflowだけ触っていれば良いかもしれない。という意味です。 Angular vs React のような構図になったら好みと用途で選べば良いかなと思います。\u003c/p\u003e\n\n\u003cp\u003e現状アカデミックで使われているのがCaffe, Torch, Theano(+Keras)あたりで、彼らはハードウェアもある程度あるので動かなそうですが、新規参入する人達(特にビジネス界隈)はクラウドで分散処理できるTensorflowに流れていくのかなと。\u003c/p\u003e\n\n\u003cp\u003eChainerも国内以外で伸びる気がしなかったので、革新的なリリースがない限り様子見です。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-27T16:16:23+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:526608,&quot;is_team&quot;:false,&quot;item_id&quot;:375380,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;@Algebra_nobu \n開発速度が他と比べてもたぶん圧倒的に早いので、対抗馬が出てくるまではTensorflowだけ触っていれば良いかもしれない。という意味です。 Angular vs React のような構図になったら好みと用途で選べば良いかなと思います。\n\n現状アカデミックで使われているのがCaffe, Torch, Theano(+Keras)あたりで、彼らはハードウェアもある程度あるので動かなそうですが、新規参入する人達(特にビジネス界隈)はクラウドで分散処理できるTensorflowに流れていくのかなと。\n \nChainerも国内以外で伸びる気がしなかったので、革新的なリリースがない限り様子見です。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/c977c79b76c5979874e8#comment-510d4cdfbccaf48517fd&quot;,&quot;user&quot;:{&quot;contribution&quot;:3633,&quot;created_at&quot;:&quot;2014-12-19T17:57:52+09:00&quot;,&quot;id&quot;:63543,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;tawago&quot;},&quot;uuid&quot;:&quot;510d4cdfbccaf48517fd&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e分かりやすい説明ありがとうございます。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-04-27T20:10:46+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:526920,&quot;is_team&quot;:false,&quot;item_id&quot;:375380,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;分かりやすい説明ありがとうございます。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/tawago/items/c977c79b76c5979874e8#comment-9d23efc601d4faac45b9&quot;,&quot;user&quot;:{&quot;contribution&quot;:996,&quot;created_at&quot;:&quot;2016-04-17T21:35:39+09:00&quot;,&quot;id&quot;:121997,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/121997/profile-images/1473715093&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Algebra_nobu&quot;},&quot;uuid&quot;:&quot;9d23efc601d4faac45b9&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:375380,&quot;uuid&quot;:&quot;c977c79b76c5979874e8&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;tawago&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:63543,&quot;url_name&quot;:&quot;tawago&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;},{&quot;id&quot;:109998,&quot;url_name&quot;:&quot;miyosuda&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/109998/profile-images/1473711069&quot;},{&quot;id&quot;:121997,&quot;url_name&quot;:&quot;Algebra_nobu&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/121997/profile-images/1473715093&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-f3e4caf3-6d5c-47e7-9df3-7e479df5b67c"></div>
+    <div id="CommentListContainer-react-component-f3e4caf3-6d5c-47e7-9df3-7e479df5b67c"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="KaUCjc4q8zi/XeEXwvecX9vBZoG4THkkkwCdPkknWfLWWlJWf+GXE9+Bx6MtuQvrGDMUX35ZwBzyK9GulLQ1kg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tawago/items/c977c79b76c5979874e8" /><input type="hidden" name="item_uuid" id="item_uuid" value="c977c79b76c5979874e8" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/tawago/items/c977c79b76c5979874e8", "id": 375380, "uuid": "c977c79b76c5979874e8" }</script><script class="js-user" type="application/json">{&quot;id&quot;:63543,&quot;url_name&quot;:&quot;tawago&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="XCZ/5GtMQRxBwCCz6sKbqHSSm39koxC5jP8ZBkxCleCj2S8/2oclNyEcBgcFjAwct2DpoaK2qYHt1FWWkdH5gA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/tawago/items/c977c79b76c5979874e8" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-62908913-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,1203 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>機械学習のためのOpenCV入門 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="機械学習を行うために、画像から特定の物体(領域)だけ切り出して認識したり学習データを作りたい、ということがよくあると思います。
+本稿では非常に多くの機能を持つOpenCVの中から、そうした機械学習のために利用する機能にフォーカスしてその利用方法を紹介していきたいと思います。具体的には、下記のモジュールを中心に扱います。
+
+
+CVPR 2015 Tutorials
+
+基本的な切り出しの手順は以下のようになります。以下では、このプロセスに則り解説を行っていこうと思います。
+..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="icoxfog417" name="twitter:creator" /><meta content="機械学習のためのOpenCV入門 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="機械学習を行うために、画像から特定の物体(領域)だけ切り出して認識したり学習データを作りたい、ということがよくあると思います。
+本稿では非常に多くの機能を持つOpenCVの中から、そうした機械学習のために利用する機能にフォーカスしてそ..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="em15OhRQQY0KD6gvwjx/ee4WIjRLWcxBE29OAC7I/bzJ6gPluqFef3ld7aYFYxatnRaKxjFI2tCftsj0PVD6og==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"icoxfog417","type":"items","id":"53e61496ad980c41a08e"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-156e36fd-ab4e-4a37-be2c-aa2c0b8e36af"></div>
+    <div id="HeaderContainer-react-component-156e36fd-ab4e-4a37-be2c-aa2c0b8e36af"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">機械学習のためのOpenCV入門</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="651"><a class="u-link-unstyled TagList__label" href="/tags/OpenCV"><img alt="OpenCV" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/52891c930a92eb009cc503c1c2165c866ad9d20a/medium.jpg?1470059263" /><span>OpenCV</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">362</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:362,&quot;uuid&quot;:&quot;53e61496ad980c41a08e&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="ShinichiMasuda"><a itemprop="url" href="/ShinichiMasuda"><img alt="ShinichiMasuda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76958/profile-images/1473700667" /></a></li><li class="js-hovercard" data-hovercard-target-name="ykoga"><a itemprop="url" href="/ykoga"><img alt="ykoga" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60470/profile-images/1473695235" /></a></li><li class="js-hovercard" data-hovercard-target-name="blackaplysia"><a itemprop="url" href="/blackaplysia"><img alt="blackaplysia" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21963/profile-images/1473683460" /></a></li><li class="js-hovercard" data-hovercard-target-name="TakashiNakagawa"><a itemprop="url" href="/TakashiNakagawa"><img alt="TakashiNakagawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11396/profile-images/1473682010" /></a></li><li class="js-hovercard" data-hovercard-target-name="ytakky"><a itemprop="url" href="/ytakky"><img alt="ytakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62018/profile-images/1473695825" /></a></li><li class="js-hovercard" data-hovercard-target-name="voogie01"><a itemprop="url" href="/voogie01"><img alt="voogie01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2368/profile-images/1473681463" /></a></li><li class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></li><li class="js-hovercard" data-hovercard-target-name="takano_tak"><a itemprop="url" href="/takano_tak"><img alt="takano_tak" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92260/profile-images/1485139358" /></a></li><li class="js-hovercard" data-hovercard-target-name="pomeranian"><a itemprop="url" href="/pomeranian"><img alt="pomeranian" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102822/profile-images/1473708817" /></a></li><li class="js-hovercard" data-hovercard-target-name="maemori"><a itemprop="url" href="/maemori"><img alt="maemori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73580/profile-images/1476495732" /></a></li><li><a href="/icoxfog417/items/53e61496ad980c41a08e/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/icoxfog417"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" alt="1484303516" /></a> <a class="u-link-unstyled" href="/icoxfog417">icoxfog417</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-05-13T17:16:18+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-05-13">Edited at <time datetime="2016-05-23T12:39:22+09:00" itemprop="dateModified">2016-05-23</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/icoxfog417/items/53e61496ad980c41a08e/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">5</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/icoxfog417/items/53e61496ad980c41a08e/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(5)</span></a></li><li><a href="/icoxfog417/items/53e61496ad980c41a08e.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-53e61496ad980c41a08e" itemprop="articleBody"><p>機械学習を行うために、画像から特定の物体(領域)だけ切り出して認識したり学習データを作りたい、ということがよくあると思います。<br>
+本稿では非常に多くの機能を持つOpenCVの中から、そうした機械学習のために利用する機能にフォーカスしてその利用方法を紹介していきたいと思います。具体的には、下記のモジュールを中心に扱います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/008fb3af-8d07-a18f-7c60-8eaf7766670f.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/008fb3af-8d07-a18f-7c60-8eaf7766670f.png" alt="image"></a><br>
+<a href="http://www.pamitc.org/cvpr15/tutorials.php" rel="nofollow noopener" target="_blank">CVPR 2015 Tutorials</a></p>
+
+<p>基本的な切り出しの手順は以下のようになります。以下では、このプロセスに則り解説を行っていこうと思います。</p>
+
+<ul>
+<li>前処理: 物体検出が行いやすいように、画像の前処理を行います</li>
+<li>物体検出: 物体の検出を行い、画像から切り出します
+
+<ul>
+<li>輪郭検出: 画像上の領域(輪郭)を認識することで、物体を検出します</li>
+<li>物体認識: OpenCVの学習済みモデルを利用して対象の物体を認識し、検出を行います</li>
+</ul>
+</li>
+<li>機械学習の準備: 切り出した画像を用い、予測や学習を行うための準備を行います</li>
+</ul>
+
+<p>また、OpenCVの環境構築については<a href="http://conda.pydata.org/miniconda.html" rel="nofollow noopener" target="_blank">miniconda</a>を利用しています。こちらをインストールし、以下のコマンドを打てば環境構築はもう完了です。</p>
+
+<ul>
+<li>conda create -n cv_env numpy jupyter matplotlib</li>
+<li><a href="https://anaconda.org/menpo/opencv3" rel="nofollow noopener" target="_blank">conda install -c https://conda.anaconda.org/menpo opencv3</a></li>
+<li>activate cv_env</li>
+</ul>
+
+<p>(※仮想環境の名前は<code>cv_env</code>である必要はありません。また、Mac/Linuxだとactivateが落ちるのでちょっと対応が必要です。詳しくは<a href="http://qiita.com/icoxfog417/items/950b8af9100b64c0d8f9" id="reference-0fe5613ce82bd3a0c89f">こちら</a>をご参照ください)</p>
+
+<p>今回ご紹介しているコードは以下のリポジトリで公開しています。必要に応じ参照いただければと思ます。</p>
+
+<p><a href="https://github.com/icoxfog417/cv_tutorial" rel="nofollow noopener" target="_blank">icoxfog417/cv_tutorial</a></p>
+
+<h1>
+<span id="前処理" class="fragment"></span><a href="#%E5%89%8D%E5%87%A6%E7%90%86"><i class="fa fa-link"></i></a>前処理</h1>
+
+<p>物体の検出を行う際には、「輪郭がはっきり」していて「連続している」と都合が良いです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/d23fb030-da2f-fa50-7a31-ac5f3398178b.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/d23fb030-da2f-fa50-7a31-ac5f3398178b.png" alt="image"></a></p>
+
+<p>このために効果的な手法が、「閾値処理」と「フィルター処理(ぼかし)」になります。このセクションではこの2つに重点を置き解説していきます。なお、画像処理を行う場合たいていは事前にグレースケール化を行うため、それについても触れておきます。</p>
+
+<h2>
+<span id="グレースケール化" class="fragment"></span><a href="#%E3%82%B0%E3%83%AC%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%AB%E5%8C%96"><i class="fa fa-link"></i></a>グレースケール化</h2>
+
+<p>画像処理においてカラー情報が必要になることはほとんどないため、事前にグレースケール化を行うことがとても多いです。ただし、最終的に機械学習で使用する際はRGB情報が必要なことが多いため、画像から切り出しを行う際はカラーの方から行わないといけない点に注意してください。</p>
+
+<p>OpenCVでカラー画像をグレースケール化するのはとても簡単です。<code>cv2.cvtColor</code>で<code>cv2.COLOR_BGR2GRAY</code>を指定するだけです。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+
+<span class="k">def</span> <span class="nf">to_grayscale</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">grayed</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">grayed</span>
+
+</pre></div></div>
+
+<p><code>cv2.COLOR_BGR2GRAY</code>の名前の通り、<code>cv2.imread</code>で読み込まれる画像は色情報が<code>BGR</code>(青緑赤)の順で読み込まれています。画像を読み込んだ変数は(numpyの)行列となっていますが、そのサイズを確認すると以下のようになっています。</p>
+
+<div class="code-frame" data-lang="pycon"><div class="highlight"><pre>
+<span class="go">img = cv2.imread(IMAGE_PATH)</span>
+<span class="go">img.shape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">348</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div></div>
+
+<p>これは、読み込んだ画像が348x800x3の行列で表現されていることを表しています。イメージ的には、下図のような感じになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/cbadf406-cf52-c6d2-964c-7fbc9d70adad.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/cbadf406-cf52-c6d2-964c-7fbc9d70adad.png" alt="image"></a></p>
+
+<p>なお、画像を表示したりするのに良く使うmatplotlibは、画像が<code>RGB</code>で入ってくることを期待しています。そのため、OpenCVで読み込んだ画像をそのままmatplotlibにぶっこむと以下のようになります(左が元の画像、右がOpenCVで読み込んだものをそのままmatplotlibで表示したもの)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/6a8d6d88-9e03-da8c-bb48-5501f221dc69.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/6a8d6d88-9e03-da8c-bb48-5501f221dc69.png" alt="image"></a><br>
+<a href="https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB:Birds_SJWS_(20140217-0374).JPG" rel="nofollow noopener" target="_blank">画像出典</a></p>
+
+<p>そのため、matplotlibで表示する際は以下のようにカラーの順番を変更する必要があります。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">to_matplotlib_format</span><span class="p">(</span><span class="n">img</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+</pre></div></div>
+
+<h2>
+<span id="閾値処理" class="fragment"></span><a href="#%E9%96%BE%E5%80%A4%E5%87%A6%E7%90%86"><i class="fa fa-link"></i></a>閾値処理</h2>
+
+<p>閾値処理とは、ある一定の閾値(threshold)を超えているか否かで画像処理を行うことです。例えば輝度が一定値に達していないところをすべて0にする、といったような処理です。これにより背景を落としたり輪郭を強調することができ、下図のような具合に加工することができます(左側が元の画像、右側が閾値処理を行ったもの)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/b9a86fb6-af33-8081-632b-dd4b48b89c80.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/b9a86fb6-af33-8081-632b-dd4b48b89c80.png" alt="image"></a></p>
+
+<p>OpenCVにおける閾値処理は、<a href="http://docs.opencv.org/3.0-beta/modules/imgproc/doc/miscellaneous_transformations.html?highlight=cv2.threshold#cv2.threshold" rel="nofollow noopener" target="_blank"><code>cv2.threshold</code></a>で実行することができます。ここでの主要なパラメーターは、閾値となる<code>thresh</code>、値の上限である<code>maxval</code>、閾値処理の種別である<code>type</code>になります。</p>
+
+<p>下表は、閾値処置の<code>type</code>の種別と、その際に閾値(thresh)/上限(maxValue)がどう使用されるのかについてまとめたものです。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">Threshold Type</th>
+<th style="text-align: left">over thresh <img alt=":arrow_up_small:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f53c.png" title=":arrow_up_small:" width="20">
+</th>
+<th style="text-align: center">under thresh <img alt=":arrow_down_small:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f53d.png" title=":arrow_down_small:" width="20">
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left"><code>THRESH_BINARY</code></td>
+<td style="text-align: left">maxValue</td>
+<td style="text-align: center">0</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>THRESH_BINARY_INV</code></td>
+<td style="text-align: left">0</td>
+<td style="text-align: center">maxValue</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>THRESH_TRUNC</code></td>
+<td style="text-align: left">threshold</td>
+<td style="text-align: center">(as is)</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>THRESH_TOZERO</code></td>
+<td style="text-align: left">(as is)</td>
+<td style="text-align: center">0</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>THRESH_TOZERO_INV</code></td>
+<td style="text-align: left">0</td>
+<td style="text-align: center">(as is)</td>
+</tr>
+</tbody>
+</table>
+
+<p><code>(as is)</code>は、元の画像の値がそのまま使用されるという意味です。閾値処理について詳細を知りたい方は、下記の資料が参考になります。</p>
+
+<p><a href="http://www.learnopencv.com/opencv-threshold-python-cpp/" rel="nofollow noopener" target="_blank">OpenCV Threshold ( Python , C++ )</a></p>
+
+<p>今回利用した鳥の画像は、背景の青色を落とす以外に、鳥の羽部分の境界(明るい)を明確にするようにしています。</p>
+
+<ul>
+<li>背景を落とす-&gt;THRESH_BINARY
+
+<ul>
+<li>閾値より大きい箇所(=明るい=薄い=背景): maxValue(255=白=消す)</li>
+<li>閾値未満: 0(黒=強調)</li>
+</ul>
+</li>
+<li>境界の明確化-&gt;THRESH_BINARY_INV
+
+<ul>
+<li>閾値より大きい箇所(=明るい=鳥の骨=境界): 0(黒=強調)</li>
+<li>閾値未満: maxValue(255=白=消す)</li>
+</ul>
+</li>
+</ul>
+
+<p>そして、最後にこの2つの処理結果をマージしています。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">binary_threshold</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">grayed</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+    <span class="n">under_thresh</span> <span class="o">=</span> <span class="mi">105</span>
+    <span class="n">upper_thresh</span> <span class="o">=</span> <span class="mi">145</span>
+    <span class="n">maxValue</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">th</span><span class="p">,</span> <span class="n">drop_back</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">grayed</span><span class="p">,</span> <span class="n">under_thresh</span><span class="p">,</span> <span class="n">maxValue</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
+    <span class="n">th</span><span class="p">,</span> <span class="n">clarify_born</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">grayed</span><span class="p">,</span> <span class="n">upper_thresh</span><span class="p">,</span> <span class="n">maxValue</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY_INV</span><span class="p">)</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">drop_back</span><span class="p">,</span> <span class="n">clarify_born</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">merged</span>
+</pre></div></div>
+
+<p><code>thresh</code>の値をどれぐらいにしたらいいかよく分からない場合は、ペイントツールなどで明るさを調べるとよいです。Windowsだと標準のペイントツールのスポイトで調べることができます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/c0ebfcd5-ddad-27a5-8698-6011d5c7f5c6.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/c0ebfcd5-ddad-27a5-8698-6011d5c7f5c6.png" alt="image"></a></p>
+
+<p>なお、<code>adaptiveThreshold</code>を利用すると周辺のピクセルを見ながら適度な閾値を決めてくれるので、いったんはこれで試してみるのもいいと思います。詳細は下記のドキュメントを参照してください。</p>
+
+<p><a href="http://docs.opencv.org/3.1.0/d7/d4d/tutorial_py_thresholding.html#gsc.tab=0" rel="nofollow noopener" target="_blank">Image Thresholding</a></p>
+
+<h3>
+<span id="カラーによる閾値処理" class="fragment"></span><a href="#%E3%82%AB%E3%83%A9%E3%83%BC%E3%81%AB%E3%82%88%E3%82%8B%E9%96%BE%E5%80%A4%E5%87%A6%E7%90%86"><i class="fa fa-link"></i></a>カラーによる閾値処理</h3>
+
+<p><a href="http://docs.opencv.org/3.0-beta/modules/core/doc/operations_on_arrays.html?highlight=cv2.inrange#cv2.inRange" rel="nofollow noopener" target="_blank"><code>cv2.inRange</code></a>を使用すれば、特定の色の部分を抜き出すことも可能です。以下では、背景の青色部分を検知してマスクをかけています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/c3008379-8033-23ae-913c-9c7a2b558e42.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/c3008379-8033-23ae-913c-9c7a2b558e42.png" alt="image"></a></p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">mask_blue</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2HSV</span><span class="p">)</span>
+
+    <span class="n">blue_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">170</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">blue_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">120</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">255</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="n">blue_region</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inRange</span><span class="p">(</span><span class="n">hsv</span><span class="p">,</span> <span class="n">blue_min</span><span class="p">,</span> <span class="n">blue_max</span><span class="p">)</span>
+    <span class="n">white</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="n">background</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">white</span><span class="p">,</span> <span class="n">white</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">blue_region</span><span class="p">)</span>  <span class="c"># detected blue area becomes white</span>
+
+    <span class="n">inv_mask</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_not</span><span class="p">(</span><span class="n">blue_region</span><span class="p">)</span>  <span class="c"># make mask for not-blue area</span>
+    <span class="n">extracted</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">inv_mask</span><span class="p">)</span>
+
+    <span class="n">masked</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">extracted</span><span class="p">,</span> <span class="n">background</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">masked</span>
+</pre></div></div>
+
+<p><code>cv2.inRange</code>によって得られた<code>blue_region</code>が指定したカラーの領域になっています。<code>blue_region</code>はグレースケールで表現されており、発見された箇所ほど値が高くなっている(255=白に近い)のに注意してください。なお、<code>cv2.inRange</code>を使用するに当たっては画像をHSV表現に変えておく必要があり、色の範囲の指定もそれに倣う必要があります。HSV表現とはなんぞや、というのは下図を見るとわかりやすいです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/e6bcc8ec-7912-57ec-2b41-bc6d62b4b3b2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/e6bcc8ec-7912-57ec-2b41-bc6d62b4b3b2.png" alt="image"></a><br>
+<a href="https://en.wikipedia.org/wiki/HSL_and_HSV" rel="nofollow noopener" target="_blank">HSL and HSV</a></p>
+
+<p>ただ、OpenCVで指定するHSVの値には少し癖があるので、上記のようにペイントツールから値を推定するのがかなり難しいです。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left"></th>
+<th style="text-align: left">一般的な値の範囲</th>
+<th style="text-align: center">OpenCV</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">H</td>
+<td style="text-align: left">0 - 360</td>
+<td style="text-align: center">0 - 180</td>
+</tr>
+<tr>
+<td style="text-align: left">S</td>
+<td style="text-align: left">0 - 100</td>
+<td style="text-align: center">0 - 255</td>
+</tr>
+<tr>
+<td style="text-align: left">V</td>
+<td style="text-align: left">0 - 100</td>
+<td style="text-align: center">0 - 255</td>
+</tr>
+</tbody>
+</table>
+
+<p>そのため、指定があまりうまくいかなようであれば実際に行列内の値を見た方が速いです。<code>img[10:20, 10:20]</code>という感じで所定の領域の行列値(カラー値)を切り出せるので、それで確認をするとピンポイントで指定が可能です(というか今回はペイントの値がどうにも役に立たなかったので、この手法で指定しました)。</p>
+
+<p>あとは、<code>blue_region</code>の領域をすべて白にする<code>background</code>と、<code>blue_region</code>以外の領域を抜き出した<code>extracted</code>を合算して画像を作成しています。<code>bitwise_and</code>/<code>bitwise_not</code>は、こうしたマスク処理を行うのに便利な関数になっています。</p>
+
+<p>以上が、閾値処理についての解説となります。</p>
+
+<h2>
+<span id="平滑化スムージング" class="fragment"></span><a href="#%E5%B9%B3%E6%BB%91%E5%8C%96%E3%82%B9%E3%83%A0%E3%83%BC%E3%82%B8%E3%83%B3%E3%82%B0"><i class="fa fa-link"></i></a>平滑化(スムージング)</h2>
+
+<p>画像の輪郭がはっきりしない場合や背景が濃かったりする場合、閾値処理をかけても輪郭が取れなかったり背景が残ってしまったりします。下図の例では、足元の砂利が細かく残ってしまっていて、輪郭もギザギザしています。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/e288e099-98c5-d24d-668c-0157aad29817.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/e288e099-98c5-d24d-668c-0157aad29817.png" alt="image"></a><br>
+<a href="https://en.wikipedia.org/wiki/Piping_plover" rel="nofollow noopener" target="_blank">Piping plover chick with band at two weeks</a></p>
+
+<p>こうした場合は、フィルターを使ったスムージングを行うとよいです。フィルター処理は端的に言えば画像をぼやかす処理になりますが、画像をぼかすことで「ぼけてもはっきり見える点」のみを検知し、逆にぼやかしたら消えてしまうような点を無視することができます。<br>
+以下は、<code>GaussianBlur</code>を利用しガウシアンフィルタを適用してから(左図)、閾値処理をした例になります(右図)。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+def blur(img):
+    filtered = cv2.GaussianBlur(img, (11, 11), 0)
+    return filtered
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/9437e5ba-e2fb-d5ed-ae23-448948fb1d02.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/9437e5ba-e2fb-d5ed-ae23-448948fb1d02.png" alt="image"></a></p>
+
+<p>画像の細かいディティールは失われていますが、特徴的な箇所はまとまって残り、背景に多くあったノイズが消えてくれているのが分かると思います。OpenCV公式の以下のドキュメントには、<code>GaussianBlur</code>以外のフィルタについても書かれているので参照してみてください。</p>
+
+<p><a href="http://docs.opencv.org/3.1.0/d4/d13/tutorial_py_filtering.html#gsc.tab=0" rel="nofollow noopener" target="_blank">Smoothing Images</a></p>
+
+<p>これ以外に画像の平滑化に使用される手法として、モルフォロジーがあります。これは、画像の膨張・収縮処理などを利用することでノイズを除去したり輪郭を強調したりする手法です。<br>
+以下は、モルフォロジーにおける代表的な手法のイメージを表したものです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/daa1f4dc-1c77-78f1-4b24-7940fc3f3615.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/daa1f4dc-1c77-78f1-4b24-7940fc3f3615.png" alt="image"></a><br>
+<a href="http://homepages.inf.ed.ac.uk/rbf/HIPR2/morops.htm" rel="nofollow noopener" target="_blank">Morphology</a></p>
+
+<ul>
+<li>Dialation: 境界領域を拡張する効果がある</li>
+<li>Erosion: 境界領域を侵食する効果がある</li>
+<li>Opening: Erosionと似ていて、境界を侵食するがErosionよりゆるやか。</li>
+<li>Closing: Dialationと似ていて、境界を拡張し背景を収縮させるがDialationよりゆるやか</li>
+</ul>
+
+<p>理論的な詳細はここでは割愛しますが、フィルタの一種と思っていただいて差し支えありません。OpenCVでは上記のモルフォロジー処理ができる<code>cv2.dilate</code>、<code>cv2.erode</code>、そしてOpening/Closingを連続的に適用できる便利な<code>cv2.morphologyEx</code>があります。今回は、<code>cv2.morphologyEx</code>を使って平滑化処理を行ってみます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+def morph(img):
+    kernel = np.ones((3, 3),np.uint8)
+    opened = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel, iterations=2)
+    return opened
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/417a766c-92bc-c7f5-048a-6f3daedb6be0.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/417a766c-92bc-c7f5-048a-6f3daedb6be0.png" alt="image"></a></p>
+
+<p>今回は背景の色が濃いためかCLOSEで領域を太らせると大変なことになったので、OPENにより領域間の距離がなるべく空くようにする方向で処理をかけてみました。ただ、まだノイズが残っているためフィルタと併用で処理をしています。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+def morph_and_blur(img):
+    kernel = np.ones((3, 3),np.uint8)
+    m = cv2.GaussianBlur(img, (3, 3), 0)
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, kernel, iterations=2)
+    m = cv2.GaussianBlur(m, (5, 5), 0)
+    return m
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/24bf9dca-d78b-38f1-b187-f7694d92bbee.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/24bf9dca-d78b-38f1-b187-f7694d92bbee.png" alt="image"></a></p>
+
+<p>単純にフィルタをかけるよりは情報が残っているかな・・・という感じですね。また、Openingをかけたことにより以前は繋がっていた領域がしっかり独立するようになっているのが分かると思います。<br>
+モルフォロジーの処理については以下が詳しいので、参考にしてみてください。</p>
+
+<ul>
+<li><a href="http://blog.christianperone.com/2014/06/simple-and-effective-coin-segmentation-using-python-and-opencv/" rel="nofollow noopener" target="_blank">Simple and effective coin segmentation using Python and OpenCV</a></li>
+<li><a href="http://docs.opencv.org/3.1.0/d3/db4/tutorial_py_watershed.html#gsc.tab=0" rel="nofollow noopener" target="_blank">Image Segmentation with Watershed Algorithm</a></li>
+</ul>
+
+<p>実際やってみると、背景が濃い場合グレースケールにしてしまうとそこから領域をはっきりさせるのはかなり難しいです。そのため、背景にそれとわかる色がついているなら色でマスクをかけて、その後に処理をした方がしっかりと区分できると思います。</p>
+
+<p>以上が前処理についての説明になります。ここから、前処理をした後の画像からいよいよ物体の検出を行っていきたいと思います。</p>
+
+<h1>
+<span id="物体検出" class="fragment"></span><a href="#%E7%89%A9%E4%BD%93%E6%A4%9C%E5%87%BA"><i class="fa fa-link"></i></a>物体検出</h1>
+
+<h2>
+<span id="輪郭検出" class="fragment"></span><a href="#%E8%BC%AA%E9%83%AD%E6%A4%9C%E5%87%BA"><i class="fa fa-link"></i></a>輪郭検出</h2>
+
+<p>ここまでで、前処理により認識したい物体を明確にすることができてきたと思うので、それを利用して輪郭の検出を行います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/b87a82b7-1660-dd67-f688-c9b0e7dfc819.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/b87a82b7-1660-dd67-f688-c9b0e7dfc819.png" alt="image"></a></p>
+
+<p>OpenCVでは、<code>cv2.findContours</code>を利用することで簡単に輪郭を検出することができます。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">detect_contour</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">min_size</span><span class="p">):</span>
+    <span class="n">contoured</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">forcrop</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="c"># make binary image</span>
+    <span class="n">birds</span> <span class="o">=</span> <span class="n">binary_threshold_for_birds</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">birds</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_not</span><span class="p">(</span><span class="n">birds</span><span class="p">)</span>
+
+    <span class="c"># detect contour</span>
+    <span class="n">im2</span><span class="p">,</span> <span class="n">contours</span><span class="p">,</span> <span class="n">hierarchy</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">birds</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
+
+    <span class="n">crops</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c"># draw contour</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cv2</span><span class="o">.</span><span class="n">contourArea</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_size</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c"># rectangle area</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">padding_position</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+        <span class="c"># crop the image</span>
+        <span class="n">cropped</span> <span class="o">=</span> <span class="n">forcrop</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">)]</span>
+        <span class="n">cropped</span> <span class="o">=</span> <span class="n">resize_image</span><span class="p">(</span><span class="n">cropped</span><span class="p">,</span> <span class="p">(</span><span class="mi">210</span><span class="p">,</span> <span class="mi">210</span><span class="p">))</span>
+        <span class="n">crops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cropped</span><span class="p">)</span>
+
+        <span class="c"># draw contour</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">contoured</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>  <span class="c"># contour</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">contoured</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>  <span class="c">#rectangle contour</span>
+
+    <span class="k">return</span> <span class="n">contoured</span><span class="p">,</span> <span class="n">crops</span>
+
+
+<span class="k">def</span> <span class="nf">padding_position</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">p</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">p</span><span class="p">,</span> <span class="n">w</span> <span class="o">+</span> <span class="n">p</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="n">p</span> <span class="o">*</span> <span class="mi">2</span>
+
+</pre></div></div>
+
+<p><code>binary_threshold_for_birds</code>は、今回利用している鳥の画像を閾値処理するための関数です(=前処理)。これで出力されるのは先ほど紹介した背景白の画像なので、これを反転して領域検知に使います。わかりにくいですが、白黒の場合「白」の方が値が高いため(255)、輪郭検出を行う場合輪郭が白で描画されている画像を入力として与える必要があります。<br>
+※白黒のかなりはっきりした画像でないと輪郭が検出されないので注意してください</p>
+
+<p>あとは、<code>cv2.findContours</code>を実行するだけです。これで検出された輪郭は、<code>cv2.drawContours</code>で簡単に画像上に描画することができます。また、<code>cv2.boundingRect</code>を利用することで輪郭が収まる矩形の座標を取得することができます。ただ、これはギリギリの接戦になっているので今回は<code>padding_position</code>でちょっと周りに余裕を持たせています。<br>
+<code>cv2.findContours</code>については、公式ドキュメントについても記載があるためご参照ください。</p>
+
+<p><a href="http://docs.opencv.org/3.1.0/d4/d73/tutorial_py_contours_begin.html#gsc.tab=0" rel="nofollow noopener" target="_blank">Contours : Getting Started</a></p>
+
+<p>なお、自動でなくユーザーがかこってくる場合、グラフカットという手法を用いて囲われた領域の中の物体を検出することができます。詳細は触れませんが、アノテーション用のツールなどを作る場合は有用だと思うので、興味がある方は以下を参照してみてください。</p>
+
+<p><a href="http://docs.opencv.org/3.1.0/d8/d83/tutorial_py_grabcut.html#gsc.tab=0" rel="nofollow noopener" target="_blank">Interactive Foreground Extraction using GrabCut Algorithm</a></p>
+
+<h3>
+<span id="輪郭の近似" class="fragment"></span><a href="#%E8%BC%AA%E9%83%AD%E3%81%AE%E8%BF%91%E4%BC%BC"><i class="fa fa-link"></i></a>輪郭の近似</h3>
+
+<p>OpenCVには、検出した輪郭を近似する関数がいくつか用意されています。例えば<code>approxPolyDP</code>は検出した輪郭を直線近似してくれるもので、輪郭が直線的な場合はこちらを使って切り出しを行うと良いです。以下は赤の点線が検出した輪郭で、緑線が直線近似したものになります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/2b51a375-8d41-d0b2-4ea2-c8041814bdc6.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/2b51a375-8d41-d0b2-4ea2-c8041814bdc6.png" alt="image"></a><br>
+<a href="http://www.officialpsds.com/Old-Plane-PSD100989.html" rel="nofollow noopener" target="_blank">画像出典</a></p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">various_contours</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">grayed</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">binary</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">grayed</span><span class="p">,</span> <span class="mi">218</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
+    <span class="n">inv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">bitwise_not</span><span class="p">(</span><span class="n">binary</span><span class="p">)</span>    
+    <span class="n">_</span><span class="p">,</span> <span class="n">contours</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">inv</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CHAIN_APPROX_SIMPLE</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cv2</span><span class="o">.</span><span class="n">contourArea</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">cv2</span><span class="o">.</span><span class="n">arcLength</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="k">True</span><span class="p">)</span>
+        <span class="n">approx</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">approxPolyDP</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="k">True</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">drawContours</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="p">[</span><span class="n">approx</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">))</span>
+
+<span class="n">various_contours</span><span class="p">(</span><span class="n">IMG_FOR_CONTOUR</span><span class="p">)</span>
+</pre></div></div>
+
+<p><code>cv2.arcLength</code>は輪郭の長さで、これを使い<code>epsilon</code>、最低限の直線の長さを計算しています。これでどれだけ細かい直線でくくるのかを調整できます。<br>
+この他の関数についても、下記のチュートリアルに使い方と説明が記載されているので参考にしてみてください。</p>
+
+<p><a href="http://docs.opencv.org/3.1.0/dd/d49/tutorial_py_contour_features.html#gsc.tab=0" rel="nofollow noopener" target="_blank">Contour Features</a></p>
+
+<h3>
+<span id="検出領域の切り出し" class="fragment"></span><a href="#%E6%A4%9C%E5%87%BA%E9%A0%98%E5%9F%9F%E3%81%AE%E5%88%87%E3%82%8A%E5%87%BA%E3%81%97"><i class="fa fa-link"></i></a>検出領域の切り出し</h3>
+
+<p>さて領域はわかりましたが、これを機械学習モデルへ適用するにはモデルが想定している所定のサイズに切り出す必要があります。これを行うため、今回<code>resize_image</code>という関数を作成しました。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">resize_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+    <span class="c"># size is enough to img</span>
+    <span class="n">img_size</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">img_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">img_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">"img is larger than size"</span><span class="p">)</span>
+
+    <span class="c"># centering</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">img_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">img_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">resized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">resized</span><span class="p">[</span><span class="n">row</span><span class="p">:(</span><span class="n">row</span> <span class="o">+</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">col</span><span class="p">:(</span><span class="n">col</span> <span class="o">+</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="n">img</span>
+
+    <span class="c"># filling</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">row</span><span class="p">:(</span><span class="n">row</span> <span class="o">+</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">col</span><span class="p">:(</span><span class="n">col</span> <span class="o">+</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">filled</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">inpaint</span><span class="p">(</span><span class="n">resized</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">INPAINT_TELEA</span><span class="p">)</span>    
+
+    <span class="k">return</span> <span class="n">filled</span>
+</pre></div></div>
+
+<p>この関数は、以下のステップで形成されています。</p>
+
+<ul>
+<li>resize: 所定のサイズのキャンバス(<code>resized</code>)を用意(学習データの画像のサイズか、後から切り取るためちょっと大きめにする)</li>
+<li>centering: 用意したキャンバスの中心に、切り出した画像をセット</li>
+<li>filling: セットした画像の周辺領域を、元の画像の情報を利用し埋める</li>
+</ul>
+
+<p>OpenCVにも<code>resize</code>関数がありますが、これを使うと切り出した画像を無理やり所定のサイズに合わせるため、画像が歪んでしまいます。そのため今回は切り出した画像が収まるサイズのキャンバスを用意してその中心に切り出した画像を置き、周りを埋めるという手法を取っています。穴埋めに使っている<a href="http://docs.opencv.org/3.0-beta/modules/photo/doc/inpainting.html" rel="nofollow noopener" target="_blank"><code>cv2.inpaint</code></a>は本来画像内の欠損を復元するための関数なのですが、今回は周りを埋めるのに使っています。</p>
+
+<p>実際に切り出した画像は以下のようになっています。概ねきっちり補完ができていると思いますが、2枚目はくちばしの色がちょっと伸びてしまっています。こうした場合、paddingを調整し背景色だけで穴埋めされるよう、調整する必要があります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/e338619f-8708-d174-d9b2-28e9f535f693.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/e338619f-8708-d174-d9b2-28e9f535f693.png" alt="image"></a></p>
+
+<h3>
+<span id="画像の位置揃え" class="fragment"></span><a href="#%E7%94%BB%E5%83%8F%E3%81%AE%E4%BD%8D%E7%BD%AE%E6%8F%83%E3%81%88"><i class="fa fa-link"></i></a>画像の位置揃え</h3>
+
+<p>画像上のどの位置に物体が移っているのかは、認識の際に重要なポイントとなります。最近利用されているCNNでは畳み込みにより多少ずれていてもしっかりやってくれますが、補正をしておくと精度がぐっと上がります。そのため、ここでは切り出した後の画像の位置補正について説明します。</p>
+
+<p>下図は、画像の位置揃えを行ってみた例です。一段目がベースの画像で、二段目以降が一段目の画像に位置を合わせるための補正をかけたものです(左側が補正前、右側が補正後)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/a6c94007-8bbe-6eb7-0d71-3dd8127a1213.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/a6c94007-8bbe-6eb7-0d71-3dd8127a1213.png" alt="image"></a><br>
+画像出典: <a href="http://www.publicdomainpictures.net/view-image.php?image=31919&amp;picture=&amp;jazyk=JP" rel="nofollow noopener" target="_blank">image 1</a>, <a href="http://www.publicdomainpictures.net/view-image.php?image=51893&amp;picture=&amp;jazyk=JP" rel="nofollow noopener" target="_blank">image 2</a>, <a href="http://lapisland.exblog.jp/tags/Robin/" rel="nofollow noopener" target="_blank">image 3</a> </p>
+
+<p>補正をかけた後は、鳥の位置がほぼそろっていると思います。これは、下記サイトを参考に<a href="http://docs.opencv.org/3.0-beta/modules/video/doc/motion_analysis_and_object_tracking.html" rel="nofollow noopener" target="_blank">findTransformECC</a>を利用して補正を行っています。</p>
+
+<p><a href="http://www.learnopencv.com/image-alignment-ecc-in-opencv-c-python/" rel="nofollow noopener" target="_blank">Image Alignment (ECC) in OpenCV ( C++ / Python )</a></p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">align</span><span class="p">(</span><span class="n">base_img</span><span class="p">,</span> <span class="n">target_img</span><span class="p">,</span> <span class="n">warp_mode</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">MOTION_TRANSLATION</span><span class="p">,</span> <span class="n">number_of_iterations</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">termination_eps</span><span class="o">=</span><span class="mi">1</span><span class="n">e</span><span class="o">-</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">base_gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">base_img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+    <span class="n">target_gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">target_img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+
+    <span class="c"># prepare transformation matrix</span>
+    <span class="k">if</span> <span class="n">warp_mode</span> <span class="o">==</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MOTION_HOMOGRAPHY</span><span class="p">:</span>
+        <span class="n">warp_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">warp_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="n">criteria</span> <span class="o">=</span> <span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">TERM_CRITERIA_EPS</span> <span class="o">|</span> <span class="n">cv2</span><span class="o">.</span><span class="n">TERM_CRITERIA_COUNT</span><span class="p">,</span> <span class="n">number_of_iterations</span><span class="p">,</span>  <span class="n">termination_eps</span><span class="p">)</span>
+    <span class="n">sz</span> <span class="o">=</span> <span class="n">base_img</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="c"># estimate transformation</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">warp_matrix</span><span class="p">)</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findTransformECC</span><span class="p">(</span><span class="n">base_gray</span><span class="p">,</span> <span class="n">target_gray</span><span class="p">,</span> <span class="n">warp_matrix</span><span class="p">,</span> <span class="n">warp_mode</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+
+        <span class="c"># execute transform</span>
+        <span class="k">if</span> <span class="n">warp_mode</span> <span class="o">==</span> <span class="n">cv2</span><span class="o">.</span><span class="n">MOTION_HOMOGRAPHY</span> <span class="p">:</span>
+            <span class="c"># Use warpPerspective for Homography </span>
+            <span class="n">aligned</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpPerspective</span><span class="p">(</span><span class="n">target_img</span><span class="p">,</span> <span class="n">warp_matrix</span><span class="p">,</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">flags</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span> <span class="o">+</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WARP_INVERSE_MAP</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="c"># Use warpAffine for Translation, Euclidean and Affine</span>
+            <span class="n">aligned</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">target_img</span><span class="p">,</span> <span class="n">warp_matrix</span><span class="p">,</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">flags</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span> <span class="o">+</span> <span class="n">cv2</span><span class="o">.</span><span class="n">WARP_INVERSE_MAP</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aligned</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s">"can not align the image"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target_img</span>
+</pre></div></div>
+
+<p><code>findTransformECC</code>は、端的に言えば2つの画像の似ている点を探して、どんな移動が行われたのかの推定結果を<code>warp_matrix</code>に入れてくれる関数です。元は動画などの連続するフレーム上で、どのような動きがあったか解析するためのものなのでかなり同じ画像でないと位置がそろわなかったりします。上記も何気なく揃っているように見えますが、相関がとれる写真を選ぶのが大変でした(相関がない場合、収束しない旨の例外が出る)。。。</p>
+
+<p>顔など全ての画像に共通する特徴点(目・鼻・口etc)が存在する場合は、各特徴点の位置を元に変換をかけることもできます。<code>estimateRigidTransform</code>は、このために使えます。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">face_align</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">base_position</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">target_position</span><span class="p">):</span>
+    <span class="n">sz</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">fsize</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">base_position</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_position</span><span class="p">))</span>  <span class="c"># adjust feature size</span>
+    <span class="n">tform</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">estimateRigidTransform</span><span class="p">(</span><span class="n">target_position</span><span class="p">[:</span><span class="n">fsize</span><span class="p">],</span> <span class="n">base_position</span><span class="p">[:</span><span class="n">fsize</span><span class="p">],</span> <span class="k">False</span><span class="p">)</span>
+    <span class="n">aligned</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">warpAffine</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">tform</span><span class="p">,</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">aligned</span>
+</pre></div></div>
+
+<p>写真によっては目が検出できない、といったケースがあるため上記では検出特徴量が小さい方に合わせて変換を行っています(ただし、この場合特徴量を入れる順番をそろえないといけない点に注意して下さい)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/90f9eb16-5227-d680-d3f0-f9d154b3a444.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/90f9eb16-5227-d680-d3f0-f9d154b3a444.png" alt="image"></a><br>
+<a href="https://www.microsoft.com/cognitive-services/en-us/face-api" rel="nofollow noopener" target="_blank">画像出典</a></p>
+
+<p>変換後は、顔の位置がしっかりそろっているのが分かると思います。以下にも顔の位置揃えについて詳細な紹介があるので、参考にしてみてください。</p>
+
+<p><a href="http://www.learnopencv.com/average-face-opencv-c-python-tutorial/" rel="nofollow noopener" target="_blank">Average Face : OpenCV ( C++ / Python ) Tutorial</a></p>
+
+<h2>
+<span id="物体認識" class="fragment"></span><a href="#%E7%89%A9%E4%BD%93%E8%AA%8D%E8%AD%98"><i class="fa fa-link"></i></a>物体認識</h2>
+
+<p>上記では輪郭の検出を自力で行いましたが、OpenCVには顔や体などよく検出を行う物体について学習済みモデルが用意されており、これを利用することで物体認識が行えます。この学習済みのモデルファイルをCascade Classifierといい、自前で作成することも可能です。公開されているものもいくつかあるので、興味がある方は下記でまとめてくださっているので参考にしてみてください。</p>
+
+<ul>
+<li><a href="http://qiita.com/shu223/items/ffd2202eaf92d342f83d" id="reference-cf8440f83bdb8e240eb3">「顔以外」のものを画像認識する</a></li>
+<li><a href="http://coding-robin.de/2013/07/22/train-your-own-opencv-haar-classifier.html" rel="nofollow noopener" target="_blank">TRAIN YOUR OWN OPENCV HAAR CLASSIFIER</a></li>
+</ul>
+
+<p>Cascade Classifierについては、pipでインストールした場合<code>(virtual environment folder)\Library\etc\haarcascades</code>の中に入ってます(Windows/minicondaの場合。環境によって差異があると思います)。目的に合いそうなものがあるか、いろいろ試してみるとよいでしょう。今回は、以下の公式のチュートリアルに倣い顔の検知を行ってみたいと思います。</p>
+
+<p><a href="http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_objdetect/py_face_detection/py_face_detection.html#face-detection" rel="nofollow noopener" target="_blank">Face Detection using Haar Cascades</a></p>
+
+<p>実際に検出を行ってみた結果が以下になります。髪で隠れてしまっているせいか、右目の検知に失敗していますが。。。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/44f1941d-d97a-0f97-bdeb-fac8b248512c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/44f1941d-d97a-0f97-bdeb-fac8b248512c.png" alt="image"></a><br>
+<a href="https://static.pexels.com/photos/28617/pexels-photo.jpg" rel="nofollow noopener" target="_blank">画像出典</a></p>
+
+<p>コードはほぼチュートリアル通りとなります。Cascade Fileの場所は上述の通り環境によって異なるため注意してください(上手くパスが通っていないと、<code>error: (-215) !empty() in function</code>といったエラーが出ます)。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">face_detection</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">face_cascade</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CascadeClassifier</span><span class="p">(</span><span class="n">CASCADE_DIR</span> <span class="o">+</span> <span class="s">"/haarcascade_frontalface_default.xml"</span><span class="p">)</span>
+    <span class="n">eye_cascade</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CascadeClassifier</span><span class="p">(</span><span class="n">CASCADE_DIR</span> <span class="o">+</span> <span class="s">"/haarcascade_eye.xml"</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">grayed</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">face_cascade</span><span class="o">.</span><span class="n">detectMultiScale</span><span class="p">(</span><span class="n">grayed</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">),</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">roi_gray</span> <span class="o">=</span> <span class="n">grayed</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">w</span><span class="p">]</span>
+        <span class="n">roi_color</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">y</span><span class="p">:</span><span class="n">y</span><span class="o">+</span><span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span><span class="n">x</span><span class="o">+</span><span class="n">w</span><span class="p">]</span>
+        <span class="n">eyes</span> <span class="o">=</span> <span class="n">eye_cascade</span><span class="o">.</span><span class="n">detectMultiScale</span><span class="p">(</span><span class="n">roi_gray</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">ey</span><span class="p">,</span> <span class="n">ew</span><span class="p">,</span> <span class="n">eh</span><span class="p">)</span> <span class="ow">in</span> <span class="n">eyes</span><span class="p">:</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">roi_color</span><span class="p">,</span> <span class="p">(</span><span class="n">ex</span><span class="p">,</span><span class="n">ey</span><span class="p">),</span> <span class="p">(</span><span class="n">ex</span> <span class="o">+</span> <span class="n">ew</span><span class="p">,</span> <span class="n">ey</span> <span class="o">+</span> <span class="n">eh</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">))</span>
+
+<span class="n">face_detection</span><span class="p">(</span><span class="n">IMG_FACE</span><span class="p">)</span>
+</pre></div></div>
+
+<p><code>cv2.CascadeClassifier</code>でファイルを読み込んで<code>Classifier</code>を作成し、<code>detectMultiScale</code>で検出を行う、というのが基本の流れになります。今回はグレースケール化しかしていませんが、上述の閾値処理などをおこなうことでよりしっかりとした検出ができると思います。また、検出した箇所の切り出しについては前項の「検出領域の切り出し」を参考にしてください。</p>
+
+<p>なお、顔が傾いていたりするとうまく検出されません。これについては、目/口を先に検出して傾きを割り出すアプローチか、単純に画像を徐々に回転させて検知を試みるかの2つの方法があります。前者の方が計算量が少ないが面倒、後者の方が簡単だが計算量が多い、とトレードオフになります。下記は画像を回転させながら検知する手法について詳細に書かれているので、参考にしてみてください。</p>
+
+<ul>
+<li><a href="http://qiita.com/bohemian916/items/5c6df004de723c567958" id="reference-b9d9d3df327624ec617f">OpenCVの物体検出を回転不変にさせる</a></li>
+<li><a href="http://stackoverflow.com/questions/5015124/rotated-face-detection" rel="nofollow noopener" target="_blank">rotated face detection</a></li>
+</ul>
+
+<h1>
+<span id="学習の準備" class="fragment"></span><a href="#%E5%AD%A6%E7%BF%92%E3%81%AE%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>学習の準備</h1>
+
+<p>ここまでで、画像から目的の物体が写った画像を切り出すことができました。あとは、集めた画像を機械学習モデルに投入するだけです。<br>
+ただ、学習モデルに画像を投入する際にはいろいろな前処理が必要です。この点については、以下にまとめてあります。</p>
+
+<p><a href="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac#%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%89%8D%E5%87%A6%E7%90%86" id="reference-3cb556e9a01ae83f05ca">Convolutional Neural Networkを実装する/データの前処理</a></p>
+
+<p>ポイントを抜粋すると、以下のような処理が必要です。</p>
+
+<ul>
+<li>行列変換: 学習モデルが想定している行列形式(大抵はK(深さ=色) x H(高さ) x W(幅))に変換する</li>
+<li>深さの調整: 学習モデルが想定しているカラーチャネルに変換する(グレースケールなのか、RGBなのか)</li>
+<li>画像データの正規化: 全画像を平均した平均画像を作っておき、画像を正規化する</li>
+<li>スケーリング: 0~255の値幅を、0~1に変換</li>
+</ul>
+
+<p>説明は以上となります。上手くOpenCVを利用して、色々な学習をさせてみてください。</p>
+
+<h1>
+<span id="参考文献" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><i class="fa fa-link"></i></a>参考文献</h1>
+
+<ul>
+<li><a href="http://www.buildinsider.net/small/opencv/001" rel="nofollow noopener" target="_blank">OpenCVとは？ 最新3.0の新機能概要とモジュール構成</a></li>
+<li><a href="http://postd.cc/image-processing-101/" rel="nofollow noopener" target="_blank">画像処理入門講座 : OpenCVとPythonで始める画像処理</a></li>
+<li><a href="http://www.learnopencv.com/" rel="nofollow noopener" target="_blank">Learn OpenCV</a></li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/icoxfog417/items/53e61496ad980c41a08e" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="TDx1bYUaNsmSB15uFcRXhLq2yWlkcGi/as7qhqPpNCb/uw+yK+spO+FVG+fSmz5QybZhmx5hfi7mF2xysHEzOA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1463974762" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+機械学習を行うために、画像から特定の物体(領域)だけ切り出して認識したり学習データを作りたい、ということがよくあると思います。
+本稿では非常に多くの機能を持つOpenCVの中から、そうした機械学習のために利用する機能にフォーカスしてその利用方法を紹介していきたいと思います。具体的には、下記のモジュールを中心に扱います。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/008fb3af-8d07-a18f-7c60-8eaf7766670f.png)
+[CVPR 2015 Tutorials](http://www.pamitc.org/cvpr15/tutorials.php)
+
+基本的な切り出しの手順は以下のようになります。以下では、このプロセスに則り解説を行っていこうと思います。
+
+* 前処理: 物体検出が行いやすいように、画像の前処理を行います
+* 物体検出: 物体の検出を行い、画像から切り出します
+ * 輪郭検出: 画像上の領域(輪郭)を認識することで、物体を検出します
+ * 物体認識: OpenCVの学習済みモデルを利用して対象の物体を認識し、検出を行います
+* 機械学習の準備: 切り出した画像を用い、予測や学習を行うための準備を行います
+
+また、OpenCVの環境構築については[miniconda](http://conda.pydata.org/miniconda.html)を利用しています。こちらをインストールし、以下のコマンドを打てば環境構築はもう完了です。
+
+* conda create -n cv_env numpy jupyter matplotlib
+* [conda install -c https://conda.anaconda.org/menpo opencv3](https://anaconda.org/menpo/opencv3)
+* activate cv_env
+
+(※仮想環境の名前は`cv_env`である必要はありません。また、Mac/Linuxだとactivateが落ちるのでちょっと対応が必要です。詳しくは[こちら](http://qiita.com/icoxfog417/items/950b8af9100b64c0d8f9)をご参照ください)
+
+今回ご紹介しているコードは以下のリポジトリで公開しています。必要に応じ参照いただければと思ます。
+
+[icoxfog417/cv_tutorial](https://github.com/icoxfog417/cv_tutorial)
+
+
+# 前処理
+
+物体の検出を行う際には、「輪郭がはっきり」していて「連続している」と都合が良いです。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/d23fb030-da2f-fa50-7a31-ac5f3398178b.png)
+
+このために効果的な手法が、「閾値処理」と「フィルター処理(ぼかし)」になります。このセクションではこの2つに重点を置き解説していきます。なお、画像処理を行う場合たいていは事前にグレースケール化を行うため、それについても触れておきます。
+
+## グレースケール化
+
+画像処理においてカラー情報が必要になることはほとんどないため、事前にグレースケール化を行うことがとても多いです。ただし、最終的に機械学習で使用する際はRGB情報が必要なことが多いため、画像から切り出しを行う際はカラーの方から行わないといけない点に注意してください。
+
+OpenCVでカラー画像をグレースケール化するのはとても簡単です。`cv2.cvtColor`で`cv2.COLOR_BGR2GRAY`を指定するだけです。
+
+```py3
+import cv2
+
+
+def to_grayscale(path):
+    img = cv2.imread(path)
+    grayed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    return grayed
+
+```
+
+`cv2.COLOR_BGR2GRAY`の名前の通り、`cv2.imread`で読み込まれる画像は色情報が`BGR`(青緑赤)の順で読み込まれています。画像を読み込んだ変数は(numpyの)行列となっていますが、そのサイズを確認すると以下のようになっています。
+
+```pycon
+img = cv2.imread(IMAGE_PATH)
+img.shape
+&gt;&gt;&gt; (348, 800, 3)
+```
+
+これは、読み込んだ画像が348x800x3の行列で表現されていることを表しています。イメージ的には、下図のような感じになります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/cbadf406-cf52-c6d2-964c-7fbc9d70adad.png)
+
+なお、画像を表示したりするのに良く使うmatplotlibは、画像が`RGB`で入ってくることを期待しています。そのため、OpenCVで読み込んだ画像をそのままmatplotlibにぶっこむと以下のようになります(左が元の画像、右がOpenCVで読み込んだものをそのままmatplotlibで表示したもの)。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/6a8d6d88-9e03-da8c-bb48-5501f221dc69.png)
+[画像出典](https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB:Birds_SJWS_(20140217-0374).JPG)
+
+そのため、matplotlibで表示する際は以下のようにカラーの順番を変更する必要があります。
+
+```py
+def to_matplotlib_format(img):
+    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+```
+
+## 閾値処理
+
+閾値処理とは、ある一定の閾値(threshold)を超えているか否かで画像処理を行うことです。例えば輝度が一定値に達していないところをすべて0にする、といったような処理です。これにより背景を落としたり輪郭を強調することができ、下図のような具合に加工することができます(左側が元の画像、右側が閾値処理を行ったもの)。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/b9a86fb6-af33-8081-632b-dd4b48b89c80.png)
+
+OpenCVにおける閾値処理は、[`cv2.threshold`](http://docs.opencv.org/3.0-beta/modules/imgproc/doc/miscellaneous_transformations.html?highlight=cv2.threshold#cv2.threshold)で実行することができます。ここでの主要なパラメーターは、閾値となる`thresh`、値の上限である`maxval`、閾値処理の種別である`type`になります。
+
+下表は、閾値処置の`type`の種別と、その際に閾値(thresh)/上限(maxValue)がどう使用されるのかについてまとめたものです。
+
+| Threshold Type | over thresh :arrow_up_small: | under thresh :arrow_down_small:|
+|:-----------|:------------|:------------:|
+| `THRESH_BINARY` | maxValue | 0 |
+| `THRESH_BINARY_INV` | 0 | maxValue |
+| `THRESH_TRUNC` | threshold | (as is) |
+| `THRESH_TOZERO`| (as is) | 0 |
+| `THRESH_TOZERO_INV`| 0 | (as is) |
+
+`(as is)`は、元の画像の値がそのまま使用されるという意味です。閾値処理について詳細を知りたい方は、下記の資料が参考になります。
+
+[OpenCV Threshold ( Python , C++ )](http://www.learnopencv.com/opencv-threshold-python-cpp/)
+
+今回利用した鳥の画像は、背景の青色を落とす以外に、鳥の羽部分の境界(明るい)を明確にするようにしています。
+
+* 背景を落とす-&gt;THRESH_BINARY
+ * 閾値より大きい箇所(=明るい=薄い=背景): maxValue(255=白=消す)
+ * 閾値未満: 0(黒=強調)
+* 境界の明確化-&gt;THRESH_BINARY_INV
+ * 閾値より大きい箇所(=明るい=鳥の骨=境界): 0(黒=強調)
+ * 閾値未満: maxValue(255=白=消す)
+
+そして、最後にこの2つの処理結果をマージしています。
+
+```py
+def binary_threshold(path):
+    img = cv2.imread(path)
+    grayed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    under_thresh = 105
+    upper_thresh = 145
+    maxValue = 255
+    th, drop_back = cv2.threshold(grayed, under_thresh, maxValue, cv2.THRESH_BINARY)
+    th, clarify_born = cv2.threshold(grayed, upper_thresh, maxValue, cv2.THRESH_BINARY_INV)
+    merged = np.minimum(drop_back, clarify_born)
+    return merged
+```
+
+`thresh`の値をどれぐらいにしたらいいかよく分からない場合は、ペイントツールなどで明るさを調べるとよいです。Windowsだと標準のペイントツールのスポイトで調べることができます。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/c0ebfcd5-ddad-27a5-8698-6011d5c7f5c6.png)
+
+なお、`adaptiveThreshold`を利用すると周辺のピクセルを見ながら適度な閾値を決めてくれるので、いったんはこれで試してみるのもいいと思います。詳細は下記のドキュメントを参照してください。
+
+[Image Thresholding](http://docs.opencv.org/3.1.0/d7/d4d/tutorial_py_thresholding.html#gsc.tab=0)
+
+
+### カラーによる閾値処理
+
+[`cv2.inRange`](http://docs.opencv.org/3.0-beta/modules/core/doc/operations_on_arrays.html?highlight=cv2.inrange#cv2.inRange)を使用すれば、特定の色の部分を抜き出すことも可能です。以下では、背景の青色部分を検知してマスクをかけています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/c3008379-8033-23ae-913c-9c7a2b558e42.png)
+
+```py
+def mask_blue(path):
+    img = cv2.imread(path)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    blue_min = np.array([100, 170, 200], np.uint8)
+    blue_max = np.array([120, 180, 255], np.uint8)
+    
+    blue_region = cv2.inRange(hsv, blue_min, blue_max)
+    white = np.full(img.shape, 255, dtype=img.dtype)
+    background = cv2.bitwise_and(white, white, mask=blue_region)  # detected blue area becomes white
+    
+    inv_mask = cv2.bitwise_not(blue_region)  # make mask for not-blue area
+    extracted = cv2.bitwise_and(img, img, mask=inv_mask)
+    
+    masked = cv2.add(extracted, background)
+    
+    return masked
+```
+
+`cv2.inRange`によって得られた`blue_region`が指定したカラーの領域になっています。`blue_region`はグレースケールで表現されており、発見された箇所ほど値が高くなっている(255=白に近い)のに注意してください。なお、`cv2.inRange`を使用するに当たっては画像をHSV表現に変えておく必要があり、色の範囲の指定もそれに倣う必要があります。HSV表現とはなんぞや、というのは下図を見るとわかりやすいです。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/e6bcc8ec-7912-57ec-2b41-bc6d62b4b3b2.png)
+[HSL and HSV](https://en.wikipedia.org/wiki/HSL_and_HSV)
+
+ただ、OpenCVで指定するHSVの値には少し癖があるので、上記のようにペイントツールから値を推定するのがかなり難しいです。
+
+|  | 一般的な値の範囲 | OpenCV|
+|:-----------|:------------|:------------:|
+| H | 0 - 360 | 0 - 180 |
+| S | 0 - 100 | 0 - 255 |
+| V | 0 - 100 | 0 - 255 |
+
+そのため、指定があまりうまくいかなようであれば実際に行列内の値を見た方が速いです。`img[10:20, 10:20]`という感じで所定の領域の行列値(カラー値)を切り出せるので、それで確認をするとピンポイントで指定が可能です(というか今回はペイントの値がどうにも役に立たなかったので、この手法で指定しました)。
+
+あとは、`blue_region`の領域をすべて白にする`background`と、`blue_region`以外の領域を抜き出した`extracted`を合算して画像を作成しています。`bitwise_and`/`bitwise_not`は、こうしたマスク処理を行うのに便利な関数になっています。
+
+以上が、閾値処理についての解説となります。
+
+
+## 平滑化(スムージング)
+
+画像の輪郭がはっきりしない場合や背景が濃かったりする場合、閾値処理をかけても輪郭が取れなかったり背景が残ってしまったりします。下図の例では、足元の砂利が細かく残ってしまっていて、輪郭もギザギザしています。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/e288e099-98c5-d24d-668c-0157aad29817.png)
+[Piping plover chick with band at two weeks](https://en.wikipedia.org/wiki/Piping_plover)
+
+
+こうした場合は、フィルターを使ったスムージングを行うとよいです。フィルター処理は端的に言えば画像をぼやかす処理になりますが、画像をぼかすことで「ぼけてもはっきり見える点」のみを検知し、逆にぼやかしたら消えてしまうような点を無視することができます。
+以下は、`GaussianBlur`を利用しガウシアンフィルタを適用してから(左図)、閾値処理をした例になります(右図)。
+
+```
+def blur(img):
+    filtered = cv2.GaussianBlur(img, (11, 11), 0)
+    return filtered
+```
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/9437e5ba-e2fb-d5ed-ae23-448948fb1d02.png)
+
+画像の細かいディティールは失われていますが、特徴的な箇所はまとまって残り、背景に多くあったノイズが消えてくれているのが分かると思います。OpenCV公式の以下のドキュメントには、`GaussianBlur`以外のフィルタについても書かれているので参照してみてください。
+
+[Smoothing Images](http://docs.opencv.org/3.1.0/d4/d13/tutorial_py_filtering.html#gsc.tab=0)
+
+これ以外に画像の平滑化に使用される手法として、モルフォロジーがあります。これは、画像の膨張・収縮処理などを利用することでノイズを除去したり輪郭を強調したりする手法です。
+以下は、モルフォロジーにおける代表的な手法のイメージを表したものです。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/daa1f4dc-1c77-78f1-4b24-7940fc3f3615.png)
+[Morphology](http://homepages.inf.ed.ac.uk/rbf/HIPR2/morops.htm)
+
+* Dialation: 境界領域を拡張する効果がある
+* Erosion: 境界領域を侵食する効果がある
+* Opening: Erosionと似ていて、境界を侵食するがErosionよりゆるやか。
+* Closing: Dialationと似ていて、境界を拡張し背景を収縮させるがDialationよりゆるやか
+
+理論的な詳細はここでは割愛しますが、フィルタの一種と思っていただいて差し支えありません。OpenCVでは上記のモルフォロジー処理ができる`cv2.dilate`、`cv2.erode`、そしてOpening/Closingを連続的に適用できる便利な`cv2.morphologyEx`があります。今回は、`cv2.morphologyEx`を使って平滑化処理を行ってみます。
+
+```
+def morph(img):
+    kernel = np.ones((3, 3),np.uint8)
+    opened = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel, iterations=2)
+    return opened
+```
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/417a766c-92bc-c7f5-048a-6f3daedb6be0.png)
+
+今回は背景の色が濃いためかCLOSEで領域を太らせると大変なことになったので、OPENにより領域間の距離がなるべく空くようにする方向で処理をかけてみました。ただ、まだノイズが残っているためフィルタと併用で処理をしています。
+
+
+```
+def morph_and_blur(img):
+    kernel = np.ones((3, 3),np.uint8)
+    m = cv2.GaussianBlur(img, (3, 3), 0)
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, kernel, iterations=2)
+    m = cv2.GaussianBlur(m, (5, 5), 0)
+    return m
+```
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/24bf9dca-d78b-38f1-b187-f7694d92bbee.png)
+
+単純にフィルタをかけるよりは情報が残っているかな・・・という感じですね。また、Openingをかけたことにより以前は繋がっていた領域がしっかり独立するようになっているのが分かると思います。
+モルフォロジーの処理については以下が詳しいので、参考にしてみてください。
+
+* [Simple and effective coin segmentation using Python and OpenCV](http://blog.christianperone.com/2014/06/simple-and-effective-coin-segmentation-using-python-and-opencv/)
+* [Image Segmentation with Watershed Algorithm](http://docs.opencv.org/3.1.0/d3/db4/tutorial_py_watershed.html#gsc.tab=0)
+
+実際やってみると、背景が濃い場合グレースケールにしてしまうとそこから領域をはっきりさせるのはかなり難しいです。そのため、背景にそれとわかる色がついているなら色でマスクをかけて、その後に処理をした方がしっかりと区分できると思います。
+
+以上が前処理についての説明になります。ここから、前処理をした後の画像からいよいよ物体の検出を行っていきたいと思います。
+
+# 物体検出
+
+## 輪郭検出
+
+ここまでで、前処理により認識したい物体を明確にすることができてきたと思うので、それを利用して輪郭の検出を行います。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/b87a82b7-1660-dd67-f688-c9b0e7dfc819.png)
+
+OpenCVでは、`cv2.findContours`を利用することで簡単に輪郭を検出することができます。
+
+```py3
+def detect_contour(path, min_size):
+    contoured = cv2.imread(path)
+    forcrop = cv2.imread(path)
+
+    # make binary image
+    birds = binary_threshold_for_birds(path)
+    birds = cv2.bitwise_not(birds)
+    
+    # detect contour
+    im2, contours, hierarchy = cv2.findContours(birds, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    crops = []
+    # draw contour
+    for c in contours:
+        if cv2.contourArea(c) &lt; min_size:
+            continue
+        
+        # rectangle area
+        x, y, w, h = cv2.boundingRect(c)
+        x, y, w, h = padding_position(x, y, w, h, 5)
+        
+        # crop the image
+        cropped = forcrop[y:(y + h), x:(x + w)]
+        cropped = resize_image(cropped, (210, 210))
+        crops.append(cropped)
+        
+        # draw contour
+        cv2.drawContours(contoured, c, -1, (0, 0, 255), 3)  # contour
+        cv2.rectangle(contoured, (x, y), (x + w, y + h), (0, 255, 0), 3)  #rectangle contour
+                
+    return contoured, crops
+
+
+def padding_position(x, y, w, h, p):
+    return x - p, y - p, w + p * 2, h + p * 2
+
+```
+
+`binary_threshold_for_birds`は、今回利用している鳥の画像を閾値処理するための関数です(=前処理)。これで出力されるのは先ほど紹介した背景白の画像なので、これを反転して領域検知に使います。わかりにくいですが、白黒の場合「白」の方が値が高いため(255)、輪郭検出を行う場合輪郭が白で描画されている画像を入力として与える必要があります。
+※白黒のかなりはっきりした画像でないと輪郭が検出されないので注意してください
+
+あとは、`cv2.findContours`を実行するだけです。これで検出された輪郭は、`cv2.drawContours`で簡単に画像上に描画することができます。また、`cv2.boundingRect`を利用することで輪郭が収まる矩形の座標を取得することができます。ただ、これはギリギリの接戦になっているので今回は`padding_position`でちょっと周りに余裕を持たせています。
+`cv2.findContours`については、公式ドキュメントについても記載があるためご参照ください。
+
+[Contours : Getting Started](http://docs.opencv.org/3.1.0/d4/d73/tutorial_py_contours_begin.html#gsc.tab=0)
+
+なお、自動でなくユーザーがかこってくる場合、グラフカットという手法を用いて囲われた領域の中の物体を検出することができます。詳細は触れませんが、アノテーション用のツールなどを作る場合は有用だと思うので、興味がある方は以下を参照してみてください。
+
+[Interactive Foreground Extraction using GrabCut Algorithm](http://docs.opencv.org/3.1.0/d8/d83/tutorial_py_grabcut.html#gsc.tab=0)
+
+
+### 輪郭の近似
+
+OpenCVには、検出した輪郭を近似する関数がいくつか用意されています。例えば`approxPolyDP`は検出した輪郭を直線近似してくれるもので、輪郭が直線的な場合はこちらを使って切り出しを行うと良いです。以下は赤の点線が検出した輪郭で、緑線が直線近似したものになります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/2b51a375-8d41-d0b2-4ea2-c8041814bdc6.png)
+[画像出典](http://www.officialpsds.com/Old-Plane-PSD100989.html)
+
+```py3
+def various_contours(path):
+    color = cv2.imread(path)
+    grayed = cv2.cvtColor(color, cv2.COLOR_BGR2GRAY)
+    _, binary = cv2.threshold(grayed, 218, 255, cv2.THRESH_BINARY)
+    inv = cv2.bitwise_not(binary)    
+    _, contours, _ = cv2.findContours(inv, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    for c in contours:
+        if cv2.contourArea(c) &lt; 90:
+            continue
+        
+        epsilon = 0.01 * cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, epsilon, True)
+        cv2.drawContours(color, c, -1, (0, 0, 255), 3)
+        cv2.drawContours(color, [approx], -1, (0, 255, 0), 3)
+        
+    plt.imshow(cv2.cvtColor(color, cv2.COLOR_BGR2RGB))
+    
+various_contours(IMG_FOR_CONTOUR)
+```
+
+`cv2.arcLength`は輪郭の長さで、これを使い`epsilon`、最低限の直線の長さを計算しています。これでどれだけ細かい直線でくくるのかを調整できます。
+この他の関数についても、下記のチュートリアルに使い方と説明が記載されているので参考にしてみてください。
+
+[Contour Features](http://docs.opencv.org/3.1.0/dd/d49/tutorial_py_contour_features.html#gsc.tab=0)
+
+
+### 検出領域の切り出し
+
+さて領域はわかりましたが、これを機械学習モデルへ適用するにはモデルが想定している所定のサイズに切り出す必要があります。これを行うため、今回`resize_image`という関数を作成しました。
+
+```py3
+def resize_image(img, size):
+    # size is enough to img
+    img_size = img.shape[:2]
+    if img_size[0] &gt; size[1] or img_size[1] &gt; size[0]:
+        raise Exception(&quot;img is larger than size&quot;)
+    
+    # centering
+    row = (size[1] - img_size[0]) // 2
+    col = (size[0] - img_size[1]) // 2
+    resized = np.zeros(list(size) + [img.shape[2]], dtype=np.uint8)
+    resized[row:(row + img.shape[0]), col:(col + img.shape[1])] = img
+        
+    # filling
+    mask = np.full(size, 255, dtype=np.uint8)
+    mask[row:(row + img.shape[0]), col:(col + img.shape[1])] = 0
+    filled = cv2.inpaint(resized, mask, 3, cv2.INPAINT_TELEA)    
+    
+    return filled
+```
+
+この関数は、以下のステップで形成されています。
+
+* resize: 所定のサイズのキャンバス(`resized`)を用意(学習データの画像のサイズか、後から切り取るためちょっと大きめにする)
+* centering: 用意したキャンバスの中心に、切り出した画像をセット
+* filling: セットした画像の周辺領域を、元の画像の情報を利用し埋める
+
+OpenCVにも`resize`関数がありますが、これを使うと切り出した画像を無理やり所定のサイズに合わせるため、画像が歪んでしまいます。そのため今回は切り出した画像が収まるサイズのキャンバスを用意してその中心に切り出した画像を置き、周りを埋めるという手法を取っています。穴埋めに使っている[`cv2.inpaint`](http://docs.opencv.org/3.0-beta/modules/photo/doc/inpainting.html)は本来画像内の欠損を復元するための関数なのですが、今回は周りを埋めるのに使っています。
+
+実際に切り出した画像は以下のようになっています。概ねきっちり補完ができていると思いますが、2枚目はくちばしの色がちょっと伸びてしまっています。こうした場合、paddingを調整し背景色だけで穴埋めされるよう、調整する必要があります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/e338619f-8708-d174-d9b2-28e9f535f693.png)
+
+### 画像の位置揃え
+
+画像上のどの位置に物体が移っているのかは、認識の際に重要なポイントとなります。最近利用されているCNNでは畳み込みにより多少ずれていてもしっかりやってくれますが、補正をしておくと精度がぐっと上がります。そのため、ここでは切り出した後の画像の位置補正について説明します。
+
+下図は、画像の位置揃えを行ってみた例です。一段目がベースの画像で、二段目以降が一段目の画像に位置を合わせるための補正をかけたものです(左側が補正前、右側が補正後)。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/a6c94007-8bbe-6eb7-0d71-3dd8127a1213.png)
+画像出典: [image 1](http://www.publicdomainpictures.net/view-image.php?image=31919&amp;picture=&amp;jazyk=JP), [image 2](http://www.publicdomainpictures.net/view-image.php?image=51893&amp;picture=&amp;jazyk=JP), [image 3](http://lapisland.exblog.jp/tags/Robin/) 
+
+補正をかけた後は、鳥の位置がほぼそろっていると思います。これは、下記サイトを参考に[findTransformECC](http://docs.opencv.org/3.0-beta/modules/video/doc/motion_analysis_and_object_tracking.html)を利用して補正を行っています。
+
+[Image Alignment (ECC) in OpenCV ( C++ / Python )](http://www.learnopencv.com/image-alignment-ecc-in-opencv-c-python/)
+
+```py3
+def align(base_img, target_img, warp_mode=cv2.MOTION_TRANSLATION, number_of_iterations=5000, termination_eps=1e-10):
+    base_gray = cv2.cvtColor(base_img, cv2.COLOR_BGR2GRAY)
+    target_gray = cv2.cvtColor(target_img, cv2.COLOR_BGR2GRAY)
+    
+    # prepare transformation matrix
+    if warp_mode == cv2.MOTION_HOMOGRAPHY:
+        warp_matrix = np.eye(3, 3, dtype=np.float32)
+    else :
+        warp_matrix = np.eye(2, 3, dtype=np.float32)
+    
+    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, number_of_iterations,  termination_eps)
+    sz = base_img.shape
+    
+    # estimate transformation
+    try:
+        (cc, warp_matrix) = cv2.findTransformECC(base_gray, target_gray, warp_matrix, warp_mode, criteria)
+
+        # execute transform
+        if warp_mode == cv2.MOTION_HOMOGRAPHY :
+            # Use warpPerspective for Homography 
+            aligned = cv2.warpPerspective(target_img, warp_matrix, (sz[1], sz[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+        else :
+            # Use warpAffine for Translation, Euclidean and Affine
+            aligned = cv2.warpAffine(target_img, warp_matrix, (sz[1],sz[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
+    
+        return aligned
+    except Exception as ex:
+        print(&quot;can not align the image&quot;)
+        return target_img
+```
+
+`findTransformECC`は、端的に言えば2つの画像の似ている点を探して、どんな移動が行われたのかの推定結果を`warp_matrix`に入れてくれる関数です。元は動画などの連続するフレーム上で、どのような動きがあったか解析するためのものなのでかなり同じ画像でないと位置がそろわなかったりします。上記も何気なく揃っているように見えますが、相関がとれる写真を選ぶのが大変でした(相関がない場合、収束しない旨の例外が出る)。。。
+
+顔など全ての画像に共通する特徴点(目・鼻・口etc)が存在する場合は、各特徴点の位置を元に変換をかけることもできます。`estimateRigidTransform`は、このために使えます。
+
+```py3
+def face_align(base, base_position, target, target_position):
+    sz = base.shape
+    fsize = min(len(base_position), len(target_position))  # adjust feature size
+    tform = cv2.estimateRigidTransform(target_position[:fsize], base_position[:fsize], False)
+    aligned = cv2.warpAffine(target, tform, (sz[1], sz[0]))
+    return aligned
+```
+
+写真によっては目が検出できない、といったケースがあるため上記では検出特徴量が小さい方に合わせて変換を行っています(ただし、この場合特徴量を入れる順番をそろえないといけない点に注意して下さい)。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/90f9eb16-5227-d680-d3f0-f9d154b3a444.png)
+[画像出典](https://www.microsoft.com/cognitive-services/en-us/face-api)
+
+変換後は、顔の位置がしっかりそろっているのが分かると思います。以下にも顔の位置揃えについて詳細な紹介があるので、参考にしてみてください。
+
+[Average Face : OpenCV ( C++ / Python ) Tutorial](http://www.learnopencv.com/average-face-opencv-c-python-tutorial/)
+
+
+## 物体認識
+
+上記では輪郭の検出を自力で行いましたが、OpenCVには顔や体などよく検出を行う物体について学習済みモデルが用意されており、これを利用することで物体認識が行えます。この学習済みのモデルファイルをCascade Classifierといい、自前で作成することも可能です。公開されているものもいくつかあるので、興味がある方は下記でまとめてくださっているので参考にしてみてください。
+
+* [「顔以外」のものを画像認識する](http://qiita.com/shu223/items/ffd2202eaf92d342f83d)
+* [TRAIN YOUR OWN OPENCV HAAR CLASSIFIER](http://coding-robin.de/2013/07/22/train-your-own-opencv-haar-classifier.html)
+
+Cascade Classifierについては、pipでインストールした場合`(virtual environment folder)\Library\etc\haarcascades`の中に入ってます(Windows/minicondaの場合。環境によって差異があると思います)。目的に合いそうなものがあるか、いろいろ試してみるとよいでしょう。今回は、以下の公式のチュートリアルに倣い顔の検知を行ってみたいと思います。
+
+[Face Detection using Haar Cascades](http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_objdetect/py_face_detection/py_face_detection.html#face-detection)
+
+実際に検出を行ってみた結果が以下になります。髪で隠れてしまっているせいか、右目の検知に失敗していますが。。。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/44f1941d-d97a-0f97-bdeb-fac8b248512c.png)
+[画像出典](https://static.pexels.com/photos/28617/pexels-photo.jpg)
+
+コードはほぼチュートリアル通りとなります。Cascade Fileの場所は上述の通り環境によって異なるため注意してください(上手くパスが通っていないと、`error: (-215) !empty() in function`といったエラーが出ます)。
+
+```py3
+def face_detection(path):
+    face_cascade = cv2.CascadeClassifier(CASCADE_DIR + &quot;/haarcascade_frontalface_default.xml&quot;)
+    eye_cascade = cv2.CascadeClassifier(CASCADE_DIR + &quot;/haarcascade_eye.xml&quot;)
+    
+    img = cv2.imread(path)
+    grayed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    faces = face_cascade.detectMultiScale(grayed, 1.3, 5)
+    for (x, y, w, h) in faces:
+        img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        roi_gray = grayed[y:y+h, x:x+w]
+        roi_color = img[y:y+h, x:x+w]
+        eyes = eye_cascade.detectMultiScale(roi_gray)
+        for (ex, ey, ew, eh) in eyes:
+            cv2.rectangle(roi_color, (ex,ey), (ex + ew, ey + eh), (0, 255, 0), 2)
+
+    plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+
+face_detection(IMG_FACE)
+```
+
+`cv2.CascadeClassifier`でファイルを読み込んで`Classifier`を作成し、`detectMultiScale`で検出を行う、というのが基本の流れになります。今回はグレースケール化しかしていませんが、上述の閾値処理などをおこなうことでよりしっかりとした検出ができると思います。また、検出した箇所の切り出しについては前項の「検出領域の切り出し」を参考にしてください。
+
+なお、顔が傾いていたりするとうまく検出されません。これについては、目/口を先に検出して傾きを割り出すアプローチか、単純に画像を徐々に回転させて検知を試みるかの2つの方法があります。前者の方が計算量が少ないが面倒、後者の方が簡単だが計算量が多い、とトレードオフになります。下記は画像を回転させながら検知する手法について詳細に書かれているので、参考にしてみてください。
+
+* [OpenCVの物体検出を回転不変にさせる](http://qiita.com/bohemian916/items/5c6df004de723c567958)
+* [rotated face detection](http://stackoverflow.com/questions/5015124/rotated-face-detection)
+
+
+# 学習の準備
+
+ここまでで、画像から目的の物体が写った画像を切り出すことができました。あとは、集めた画像を機械学習モデルに投入するだけです。
+ただ、学習モデルに画像を投入する際にはいろいろな前処理が必要です。この点については、以下にまとめてあります。
+
+[Convolutional Neural Networkを実装する/データの前処理](http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac#%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%89%8D%E5%87%A6%E7%90%86)
+
+ポイントを抜粋すると、以下のような処理が必要です。
+
+* 行列変換: 学習モデルが想定している行列形式(大抵はK(深さ=色) x H(高さ) x W(幅))に変換する
+* 深さの調整: 学習モデルが想定しているカラーチャネルに変換する(グレースケールなのか、RGBなのか)
+* 画像データの正規化: 全画像を平均した平均画像を作っておき、画像を正規化する
+* スケーリング: 0~255の値幅を、0~1に変換
+
+
+説明は以上となります。上手くOpenCVを利用して、色々な学習をさせてみてください。
+
+# 参考文献
+
+* [OpenCVとは？ 最新3.0の新機能概要とモジュール構成](http://www.buildinsider.net/small/opencv/001)
+* [画像処理入門講座 : OpenCVとPythonで始める画像処理](http://postd.cc/image-processing-101/)
+* [Learn OpenCV](http://www.learnopencv.com/)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="機械学習のためのOpenCV入門 by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="機械学習のためのOpenCV入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/icoxfog417"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/icoxfog417">icoxfog417</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">20387</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;icoxfog417&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-d323346d-5e51-448f-8999-62646662c2e6"></div>
+    <div id="UserFollowButton-react-component-d323346d-5e51-448f-8999-62646662c2e6"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/e8f97a6acad07903b5b0">Pythonを書き始める前に見るべきTips</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/adbbf445d357c924b8fc">画像処理の数式を見て石になった時のための、金の針</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/242439ecd1a477ece312">ゼロからDeepまで学ぶ強化学習</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/65e800c3a2094457c3a0">はじめるDeep learning</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/5d79b3336226aa51e30d">React.js 実戦投入への道</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%89%8D%E5%87%A6%E7%90%86\&quot;\u003e前処理\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B0%E3%83%AC%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%AB%E5%8C%96\&quot;\u003eグレースケール化\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%96%BE%E5%80%A4%E5%87%A6%E7%90%86\&quot;\u003e閾値処理\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%AB%E3%83%A9%E3%83%BC%E3%81%AB%E3%82%88%E3%82%8B%E9%96%BE%E5%80%A4%E5%87%A6%E7%90%86\&quot;\u003eカラーによる閾値処理\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%B9%B3%E6%BB%91%E5%8C%96%E3%82%B9%E3%83%A0%E3%83%BC%E3%82%B8%E3%83%B3%E3%82%B0\&quot;\u003e平滑化(スムージング)\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%89%A9%E4%BD%93%E6%A4%9C%E5%87%BA\&quot;\u003e物体検出\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%BC%AA%E9%83%AD%E6%A4%9C%E5%87%BA\&quot;\u003e輪郭検出\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%BC%AA%E9%83%AD%E3%81%AE%E8%BF%91%E4%BC%BC\&quot;\u003e輪郭の近似\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A4%9C%E5%87%BA%E9%A0%98%E5%9F%9F%E3%81%AE%E5%88%87%E3%82%8A%E5%87%BA%E3%81%97\&quot;\u003e検出領域の切り出し\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%94%BB%E5%83%8F%E3%81%AE%E4%BD%8D%E7%BD%AE%E6%8F%83%E3%81%88\&quot;\u003e画像の位置揃え\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%89%A9%E4%BD%93%E8%AA%8D%E8%AD%98\&quot;\u003e物体認識\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AD%A6%E7%BF%92%E3%81%AE%E6%BA%96%E5%82%99\&quot;\u003e学習の準備\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE\&quot;\u003e参考文献\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-68b733d4-7a8b-4fb8-bd98-7a9d2c2bd380"></div>
+    <div id="Toc-react-component-68b733d4-7a8b-4fb8-bd98-7a9d2c2bd380"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:362,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;53e61496ad980c41a08e&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ShinichiMasuda"><a itemprop="url" href="/ShinichiMasuda"><img alt="ShinichiMasuda" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/76958/profile-images/1473700667" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ykoga"><a itemprop="url" href="/ykoga"><img alt="ykoga" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/60470/profile-images/1473695235" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="blackaplysia"><a itemprop="url" href="/blackaplysia"><img alt="blackaplysia" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21963/profile-images/1473683460" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TakashiNakagawa"><a itemprop="url" href="/TakashiNakagawa"><img alt="TakashiNakagawa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/11396/profile-images/1473682010" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ytakky"><a itemprop="url" href="/ytakky"><img alt="ytakky" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62018/profile-images/1473695825" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="voogie01"><a itemprop="url" href="/voogie01"><img alt="voogie01" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/2368/profile-images/1473681463" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="takano_tak"><a itemprop="url" href="/takano_tak"><img alt="takano_tak" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92260/profile-images/1485139358" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="pomeranian"><a itemprop="url" href="/pomeranian"><img alt="pomeranian" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/102822/profile-images/1473708817" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="maemori"><a itemprop="url" href="/maemori"><img alt="maemori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/73580/profile-images/1476495732" /></a></div></div><div class="ArticleFooter__user"><a href="/icoxfog417/items/53e61496ad980c41a08e/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/53e61496ad980c41a08e/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/icoxfog417/items/53e61496ad980c41a08e.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/daisukenagata/items/88f41d9f0fe862e97975#_reference-2bf7305723dbe9b5e1c2"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/131469/profile-images/1479736488" />Cocoa Advent Calendar 2016 23日目openCVをiOS Swift3.0.1で活用する。</a><time class="references_datetime js-dateTimeView" datetime="2016-12-22T11:15:29+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="機械学習のためのOpenCV入門 by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="機械学習のためのOpenCV入門" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/53e61496ad980c41a08e" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eimread関数で画像ファイルを読み込む際に、第２引数でcv2.IMREAD_GRAYSCALEを指定すれば、\u003cbr\u003e\ncvtColor関数を使わずにグレイスケール画像として読み込むことが出来ますよ。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;text\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n# グレイスケール画像として読み込み\nimg = cv2.imread(&#39;hoge.jpg&#39;, cv2.IMREAD_GRAYSCALE)\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003e第二引数に関する詳細は下のサイトにも載ってますので、参考までにどうぞ\u003cbr\u003e\n\u003ca href=\&quot;https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_image_display/py_image_display.html#display-image\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttps://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_image_display/py_image_display.html#display-image\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-05-19T09:52:25+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:541267,&quot;is_team&quot;:false,&quot;item_id&quot;:392205,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;53e61496ad980c41a08e&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:2,&quot;raw_body&quot;:&quot;imread関数で画像ファイルを読み込む際に、第２引数でcv2.IMREAD_GRAYSCALEを指定すれば、\ncvtColor関数を使わずにグレイスケール画像として読み込むことが出来ますよ。\n\n```\n# グレイスケール画像として読み込み\nimg = cv2.imread(&#39;hoge.jpg&#39;, cv2.IMREAD_GRAYSCALE)\n```\n\n第二引数に関する詳細は下のサイトにも載ってますので、参考までにどうぞ\nhttps://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_gui/py_image_display/py_image_display.html#display-image\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/icoxfog417/items/53e61496ad980c41a08e#comment-c47e81b1e1fc080b3ae5&quot;,&quot;user&quot;:{&quot;contribution&quot;:127,&quot;created_at&quot;:&quot;2012-12-19T23:02:59+09:00&quot;,&quot;id&quot;:13490,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/13490/profile-images/1473682858&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;ligerbolt&quot;},&quot;uuid&quot;:&quot;c47e81b1e1fc080b3ae5&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:392205,&quot;uuid&quot;:&quot;53e61496ad980c41a08e&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;icoxfog417&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;},{&quot;id&quot;:13490,&quot;url_name&quot;:&quot;ligerbolt&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/13490/profile-images/1473682858&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-8929f57c-7522-45a4-91ad-354f1c481b84"></div>
+    <div id="CommentListContainer-react-component-8929f57c-7522-45a4-91ad-354f1c481b84"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="0eNTIe8L3M4UXr/Yc6PvaUVzZidQpHiBfzx18uIQ9cFiZCn+QfrDPGcM+lG0/Ia9NnPO1Sq1bhDz5fMG8Yjy3w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/53e61496ad980c41a08e" /><input type="hidden" name="item_uuid" id="item_uuid" value="53e61496ad980c41a08e" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/icoxfog417/items/53e61496ad980c41a08e", "id": 392205, "uuid": "53e61496ad980c41a08e" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="vaeevWOWrgqVYnjsd1pwWIZhLKOGD68FAoE+noLeje0OIORizWex+OYwPWWwBRmM9WGEUfweuZSOWLhqkUaK8w==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/53e61496ad980c41a08e" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

@@ -1,0 +1,925 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>基本的なRecurrent Neural Networkモデルを実装してみた - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Recurrent Neural Network（再帰型ニューラルネット）に関心はあるが，なかなかコード作成に手がつかない，このようなケースが多くないだろうか？理由はいくつかあるが，私の場合は次のようなものが思い当たる．  
+
+
+単純にネットワークの構成が複雑．MLP(Multi-layer Perceptron)から入門してCNN(Convolutional-NN)に進むまでは，特殊なLayerがあるにせよ，信号の流れは順方向のみであった．（誤差の計算は除く．）
+ML..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="TomokIshii" name="twitter:creator" /><meta content="基本的なRecurrent Neural Networkモデルを実装してみた - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+Recurrent Neural Network（再帰型ニューラルネット）に関心はあるが，なかなかコード作成に手がつかない，このようなケースが多くないだろうか？理由はいくつかあるが，私の場合は次のようなものが思い当たる．  
+
+1...." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="JA+O/CDCtThDF6g+UogcECWAA+ImwzOnw34DWk1055vc6rAwtgQ030hD26gjsFsHXDkeyQHzf1MiS8hUfZiYNw==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"TomokIshii","type":"items","id":"01c2171f4def1a128fd3"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-b567e665-5fd0-4780-884e-678ab375470d"></div>
+    <div id="HeaderContainer-react-component-b567e665-5fd0-4780-884e-678ab375470d"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">基本的なRecurrent Neural Networkモデルを実装してみた</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="38"><a class="u-link-unstyled TagList__label" href="/tags/Theano"><img alt="Theano" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/d6b3b30cd76a6c49ba613f686e19e778c6714c64/medium.jpg?1481535923" /><span>Theano</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">107</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:107,&quot;uuid&quot;:&quot;01c2171f4def1a128fd3&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="coporlock"><a itemprop="url" href="/coporlock"><img alt="coporlock" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4351/profile-images/1473683919" /></a></li><li class="js-hovercard" data-hovercard-target-name="tsuchiya"><a itemprop="url" href="/tsuchiya"><img alt="tsuchiya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32544/profile-images/1473685925" /></a></li><li class="js-hovercard" data-hovercard-target-name="shimo_t"><a itemprop="url" href="/shimo_t"><img alt="shimo_t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64100/profile-images/1473696475" /></a></li><li class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></li><li class="js-hovercard" data-hovercard-target-name="upfields"><a itemprop="url" href="/upfields"><img alt="upfields" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/107526/profile-images/1473710272" /></a></li><li class="js-hovercard" data-hovercard-target-name="neka-nat@github"><a itemprop="url" href="/neka-nat@github"><img alt="neka-nat@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14516/profile-images/1473683376" /></a></li><li class="js-hovercard" data-hovercard-target-name="dontsentouin"><a itemprop="url" href="/dontsentouin"><img alt="dontsentouin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104176/profile-images/1473763341" /></a></li><li class="js-hovercard" data-hovercard-target-name="Furebe"><a itemprop="url" href="/Furebe"><img alt="Furebe" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90573/profile-images/1473705134" /></a></li><li class="js-hovercard" data-hovercard-target-name="unokun"><a itemprop="url" href="/unokun"><img alt="unokun" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5247/profile-images/1473681853" /></a></li><li class="js-hovercard" data-hovercard-target-name="rooa"><a itemprop="url" href="/rooa"><img alt="rooa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45416/profile-images/1473690275" /></a></li><li><a href="/TomokIshii/items/01c2171f4def1a128fd3/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/TomokIshii"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" alt="1473699746" /></a> <a class="u-link-unstyled" href="/TomokIshii">TomokIshii</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-01-12T14:22:36+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-01-12">Edited at <time datetime="2016-05-26T12:43:31+09:00" itemprop="dateModified">2016-05-26</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/TomokIshii/items/01c2171f4def1a128fd3/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">8</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/TomokIshii/items/01c2171f4def1a128fd3/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(8)</span></a></li><li><a href="/TomokIshii/items/01c2171f4def1a128fd3.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-01c2171f4def1a128fd3" itemprop="articleBody"><p>Recurrent Neural Network（再帰型ニューラルネット）に関心はあるが，なかなかコード作成に手がつかない，このようなケースが多くないだろうか？理由はいくつかあるが，私の場合は次のようなものが思い当たる．  </p>
+
+<ol>
+<li>単純にネットワークの構成が複雑．MLP(Multi-layer Perceptron)から入門してCNN(Convolutional-NN)に進むまでは，特殊なLayerがあるにせよ，信号の流れは順方向のみであった．（誤差の計算は除く．）</li>
+<li>MLPやCNNにおいては分かりやすい例題，（Deep Learningの’Hello World'と称される）"MNIST" があったが，そのような標準的な(スタンダードな）例題がRNNにはない．</li>
+</ol>
+
+<p>因みにTheanoのDeep LearningやTensorFlowのTutorialは，言語モデルを扱ったものである．言語モデルに精通されている方はすぐに取りかかれるかもしれないが，初心者はまず「例題が何を解こうとしているか」について理解する必要がある．</p>
+
+<p>今回は，言語モデルでない，より単純な数列を扱う例題を取り上げ，簡単なRecurrent Neural Network（RNN)を実装してみることにした．</p>
+
+<p>(使用したプログラミング環境は，python 2.7.11, Theano 0.7.0になります．）</p>
+
+<h2>
+<span id="シンプルなrnn構造" class="fragment"></span><a href="#%E3%82%B7%E3%83%B3%E3%83%97%E3%83%AB%E3%81%AArnn%E6%A7%8B%E9%80%A0"><i class="fa fa-link"></i></a>シンプルなRNN構造</h2>
+
+<p>RNNを調べるにあたり，初めに"TensorFlow"のTutorial(ptb_word_lm.py)を動かしてみたが，<br>
+"epoch"の数値が増すにしたがい"perplexity"(複雑さ?)の変数が減っていく様子が見られる．しかしながら，それが何を解いているかについては，詳細は理解できなかった．RNNのモデルとしてもLSTM(Long Short-term Memory)を用いているので，これでRNN入門というのは敷居が高いと感じた．</p>
+
+<p>文献「深層学習」ではシンプルなRNNとしてElmanネットが紹介されている．また，"Elman RNN"をキーワードに調べたところ，SimpleなRNNを紹介する"Peter's note"（<a href="http://peterroelants.github.io/" class="autolink" rel="nofollow noopener" target="_blank">http://peterroelants.github.io/</a>) というブログが参考になったので，これをベースにプログラムを検討した．</p>
+
+<p>上記サイトからRNNの図を引用する．</p>
+
+<p><strong>Fig. Simple RNN structure</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/74152/96fd7330-4d43-5e3f-5c52-d60330476d98.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/74152/96fd7330-4d43-5e3f-5c52-d60330476d98.png" alt="SRNmodel2.png"></a></p>
+
+<p>入力ユニットxからデータが入り，重み W_in を乗じた後，隠れ層ユニットsに入る．ユニットSの出力について再帰の流れがあって，重み W_rec をかけた結果が次の時刻にユニットsに戻る．また，出力に対しては通常，重み W_out を考慮する必要があるが，構造をより単純化するために，W_out=1.0 と固定するとユニットSの状態がそのまま出力される構成となる．</p>
+
+<p>左図の状態に対して，BPTT法(Backpropagation through time)を適用するため右側の「展開された」状態を考える．隠れユニットの初期値 s_0 の状態は，時刻が進むにつれ重み W_rec を乗じながら右方向へ状態が遷移する．また各時刻において [x_1, x_2, ... x_n] が入力される．最終時刻に s_n の状態がユニットｙに出力される．</p>
+
+<p>以上示したモデルをPythonコードに直すと以下のようになる．（"Peter's note" から引用．）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">update_state</span><span class="p">(</span><span class="n">xk</span><span class="p">,</span> <span class="n">sk</span><span class="p">,</span> <span class="n">wx</span><span class="p">,</span> <span class="n">wRec</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">xk</span> <span class="o">*</span> <span class="n">wx</span> <span class="o">+</span> <span class="n">sk</span> <span class="o">*</span> <span class="n">wRec</span>
+
+<span class="k">def</span> <span class="nf">forward_states</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">wx</span><span class="p">,</span> <span class="n">wRec</span><span class="p">):</span>
+    <span class="c"># Initialise the matrix that holds all states for all input sequences.</span>
+    <span class="c"># The initial state s0 is set to 0.</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c"># Use the recurrence relation defined by update_state to update the </span>
+    <span class="c">#  states trough time.</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="c"># S[k] = S[k-1] * wRec + X[k] * wx</span>
+        <span class="n">S</span><span class="p">[:,</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">update_state</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span><span class="n">k</span><span class="p">],</span> <span class="n">S</span><span class="p">[:,</span><span class="n">k</span><span class="p">],</span> <span class="n">wx</span><span class="p">,</span> <span class="n">wRec</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">S</span>
+</pre></div></div>
+
+<h2>
+<span id="例題はどのような内容か" class="fragment"></span><a href="#%E4%BE%8B%E9%A1%8C%E3%81%AF%E3%81%A9%E3%81%AE%E3%82%88%E3%81%86%E3%81%AA%E5%86%85%E5%AE%B9%E3%81%8B"><i class="fa fa-link"></i></a>例題はどのような内容か？</h2>
+
+<p>また，「上記のRNNモデルでどのような問題を扱っているか」であるが，入力として X_k = 0. or 1.のバイナリーの数値を入力する．出力は，これらのバイナリーの合計値を出力するネットワークモデルとする．例えば，<br><br>
+X = [ 0.  1.  0.  0.  0.  0.  0.  0.  0.  1.]　に対して，（このリストXの合計値が2.なので）<br>
+Y = 2. の出力が正しい値と設定する．<br><br>
+もちろん，「数値をカウントするというアルゴリズム」は使わずにRNN(含む2つの重み係数）で推定するのが例題の内容である．</p>
+
+<p>出力値が連続の値をとる数値なので，「分類」の問題でなく，「回帰」の問題の一種と考えることができる．したがって，コスト関数としてはMSE(mean square error)を用い，Activation関数は通さず，そのままユニットのデータを通すようにしている．</p>
+
+<p>まず（事前に作成した）Trainデータで学習を行い，2の重み係数[W_in, W_rec]を求めることになるが，上図を見れば容易に推定できるが，正解は <code>[W_in, W_rec] = [1.0, 1.0]</code> である．</p>
+
+<h2>
+<span id="モデル実装の事前検討" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB%E5%AE%9F%E8%A3%85%E3%81%AE%E4%BA%8B%E5%89%8D%E6%A4%9C%E8%A8%8E"><i class="fa fa-link"></i></a>モデル実装の事前検討</h2>
+
+<p>参考にした"Peter's note"の記事では，Deep Learningのライブラリを用いることなく，python (with numpy) を用いてIPython Notebookにまとめている．これをこのまま写経すれば，ブログ記事通りの結果を得られるが，発展性を考慮してDeep Learningのライブラリを用いる実装を試みた．選択肢として以下を考えた．</p>
+
+<ol>
+<li>"TensorFlow" を用いる．</li>
+<li>”Theano" を用いる．</li>
+<li>よりハイレベルな（抽象化した）ライブラリ "Keras", "Pylearn2" 等を用いる．</li>
+</ol>
+
+<p>最初，オリジナルのpythonコードを "one by one" でTensorFlow版にしようと試みたが，</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="c"># S[k] = S[k-1] * wRec + X[k] * wx</span>
+        <span class="n">S</span><span class="p">[:,</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">update_state</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span><span class="n">k</span><span class="p">],</span> <span class="n">S</span><span class="p">[:,</span><span class="n">k</span><span class="p">],</span> <span class="n">wx</span><span class="p">,</span> <span class="n">wRec</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">S</span>
+</pre></div></div>
+
+<p>の部分のループ処理がうまく（TensorFlow版に）直せないことが分かった．TensorFlowのTutorialコード(ptb_word_lm.pyなど) を参考にすれば，当然今回の簡単なRNNモデルも実装できるはずであるが，関連するクラスライブラリが複雑で理解が難しかったので，今回はTensorFlowの使用を見送った．</p>
+
+<p>また，選択肢3の"Keras", "Pylearn2"等については，「RNNの実装を理解する」という目的から外れるため今回は選ばなかった．</p>
+
+<p>結局，選択肢2の"Theano"版のコードを作成することにした．</p>
+
+<h2>
+<span id="rnnのためのtheano-scan" class="fragment"></span><a href="#rnn%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AEtheano-scan"><i class="fa fa-link"></i></a>RNNのための”Theano scan”</h2>
+
+<p>ネットで見かけるTheanoによるRNNコードに共通しているのは，ほとんどのコードで"Theano scan"を用いていることである．Theano scanは，TheanoフレームワークのなかでLoop処理（反復処理），Iteration処理（収束計算）を行うために機能である．仕様が複雑で，また本家ドキュメント(Theano Documentation)を見てもすぐには理解が難しい．日本語情報はかなり限られるが，sinhrks氏のブログ記事を参考に，小さいコードをJupyter Notebookで試しながら，Theano scanの挙動調査を進めた．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">n</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">iscalar</span><span class="p">(</span><span class="s">'n'</span><span class="p">)</span>
+<span class="n">result</span><span class="p">,</span> <span class="n">updates</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">prior</span><span class="p">,</span> <span class="n">nonseq</span><span class="p">:</span> <span class="n">prior</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+                              <span class="n">sequences</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                              <span class="n">outputs_info</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="c"># 一つ前のLoopにおける値を参照 --&gt; prior</span>
+                              <span class="n">non_sequences</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="c"># シーケンスでない値 --&gt; nonseq</span>
+                              <span class="n">n_steps</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">myfun1</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="n">updates</span><span class="p">)</span>
+<span class="n">myfun1</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="c"># array([10, 20, 40])</span>
+<span class="c"># return-1 = 5 * 2</span>
+<span class="c"># return-2 = return-1 * 2</span>
+<span class="c"># return-3 = return-2 * 2 </span>
+</pre></div></div>
+
+<p>実行結果：</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt;&gt;&gt; array([10, 20, 40], dtype=int32)
+</pre></div></div>
+
+<p>とても詳細を説明しきれないので，使用例をいくつか取り上げる．theano.scan()は，上記の通り，5種類の引数をとる．</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center">Key Word</th>
+<th style="text-align: left">内容　　　</th>
+<th style="text-align: left">使用例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center">fn</td>
+<td style="text-align: left">反復処理のための関数</td>
+<td style="text-align: left">fn=lambda prior, nonseq: prior * 2</td>
+</tr>
+<tr>
+<td style="text-align: center">sequences</td>
+<td style="text-align: left">逐次処理の際，要素を進めながら入力を行うList, Matrixタイプの変数</td>
+<td style="text-align: left">sequences=T.arange(x)</td>
+</tr>
+<tr>
+<td style="text-align: center">outputs_info</td>
+<td style="text-align: left">逐次処理の初期値を与える</td>
+<td style="text-align: left">outputs_info=a</td>
+</tr>
+<tr>
+<td style="text-align: center">non_sequences</td>
+<td style="text-align: left">シーケンスでない（反復処理で不変の）固定値</td>
+<td style="text-align: left">non_sequences=a</td>
+</tr>
+<tr>
+<td style="text-align: center">n_steps</td>
+<td style="text-align: left">繰り返し関数</td>
+<td style="text-align: left">n_steps=n</td>
+</tr>
+</tbody>
+</table>
+
+<p>上のコードでは，theano.scan() に対し，（シーケンスではない）初期値 5 と回数 ３ が与えられ，反復処理の度に，前回の処理の結果に対し 2 を乗ずる，という処理を行っている．<br><br>
+1回目の反復処理 ： 5 x 2 = 10<br>
+2回目の反復処理 ： 10 x 2 = 20<br>
+3回目の反復処理 ： 20 x 2 = 40<br>
+この結果，result = [10, 20, 40] と算定されている．</p>
+
+<p>もう少しRNNを意識したテストが以下である．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">v</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="s">'v'</span><span class="p">)</span>
+<span class="n">s0</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">'s0'</span><span class="p">)</span>
+<span class="n">result</span><span class="p">,</span> <span class="n">updates</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="k">lambda</span> <span class="n">seq</span><span class="p">,</span> <span class="n">prior</span><span class="p">:</span> <span class="n">seq</span> <span class="o">+</span> <span class="n">prior</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
+                                             <span class="n">sequences</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+                                             <span class="n">outputs_info</span><span class="o">=</span><span class="n">s0</span><span class="p">,</span>
+                                             <span class="n">non_sequences</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">myfun2</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">s0</span><span class="p">],</span> <span class="n">outputs</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">updates</span><span class="o">=</span><span class="n">updates</span><span class="p">)</span>
+
+<span class="n">myfun2</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+</pre></div></div>
+
+<p>実行結果：</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+&gt;&gt;&gt; array([[ 2.,  1.],
+       [ 4.,  3.],
+       [ 9.,  7.]], dtype=float32)
+</pre></div></div>
+
+<p>初期値 [0.5, 0.5] が関数に入力される．$$ fn=\texttt{lambda}\ seq, prior:\ seq + prior * 2$$ と定義したので，<br>
+1回目の反復処理 ： [1., 0.] + [0.5, 0.5] x 2 = [2., 1.]<br>
+2回目の反復処理 ： [0., 1.] + [2., 1.] x 2 = [4., 3.]<br>
+3回目の反復処理 ： [1., 1.] + [4., 3.] x 2 = [9., 7.]<br>
+という流れで計算されている．</p>
+
+<p>"theano.scan()" は，RNNで必要な処理のフローコントロールをサポートする機能である．TensorFlowについて同様の機能は現段階でサポートされていないが，</p>
+
+<blockquote>
+<p>Our white paper mentions a number of control flow operations that we've experimented with<br>
+ -- I think once we're happy with its API and confident in its implementation we will try<br>
+  to make it available through the public API -- we're just not quite there yet. <br>
+  It's still early days for us :)</p>
+
+<p>(GitHub TensorFlow issue #208 のdiscussionより引用．）</p>
+</blockquote>
+
+<p>とのことなので，将来のサポートを待ちたい．</p>
+
+<p>（TensorFlow のRNN modelについてどのような実装が行われているか理解できていませんが，すでにRNNの計算を実現させているということは，このような"theano.scan()"ライクの機能が「必須」ではない，ということを表しています．この件，もう少しTenforFlowのサンプルコードを勉強する必要があると考えています．）</p>
+
+<h2>
+<span id="theanoを用いたsimple-rnnのコード詳細" class="fragment"></span><a href="#theano%E3%82%92%E7%94%A8%E3%81%84%E3%81%9Fsimple-rnn%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E8%A9%B3%E7%B4%B0"><i class="fa fa-link"></i></a>Theanoを用いたSimple RNNのコード詳細</h2>
+
+<p>Theano Scan()が分かったところで，Simple RNNのコードを見ていく．まず，simpleRNNのクラスを定義する．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">class</span> <span class="nc">simpleRNN</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="c">#   members:  slen  : state length</span>
+    <span class="c">#             w_x   : weight of input--&gt;hidden layer</span>
+    <span class="c">#             w_rec : weight of recurrnce </span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slen</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">nrec</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">len</span> <span class="o">=</span> <span class="n">slen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_x</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">shared</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">nx</span><span class="p">)),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_rec</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">shared</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">nrec</span><span class="p">)),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">theano</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">floatX</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">state_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_t</span><span class="p">,</span> <span class="n">s0</span><span class="p">):</span>
+        <span class="c"># this is the network updater for simpleRNN</span>
+        <span class="k">def</span> <span class="nf">inner_fn</span><span class="p">(</span><span class="n">xv</span><span class="p">,</span> <span class="n">s_tm1</span><span class="p">,</span> <span class="n">wx</span><span class="p">,</span> <span class="n">wr</span><span class="p">):</span>
+            <span class="n">s_t</span> <span class="o">=</span> <span class="n">xv</span> <span class="o">*</span> <span class="n">wx</span> <span class="o">+</span> <span class="n">s_tm1</span> <span class="o">*</span> <span class="n">wr</span>
+            <span class="n">y_t</span> <span class="o">=</span> <span class="n">s_t</span>
+
+            <span class="k">return</span> <span class="p">[</span><span class="n">s_t</span><span class="p">,</span> <span class="n">y_t</span><span class="p">]</span>
+
+        <span class="n">w_x_vec</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'float32'</span><span class="p">)</span>
+        <span class="n">w_rec_vec</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_rec</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'float32'</span><span class="p">)</span>
+
+        <span class="p">[</span><span class="n">s_t</span><span class="p">,</span> <span class="n">y_t</span><span class="p">],</span> <span class="n">updates</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">inner_fn</span><span class="p">,</span>
+                                    <span class="n">sequences</span><span class="o">=</span><span class="n">x_t</span><span class="p">,</span>
+                                    <span class="n">outputs_info</span><span class="o">=</span><span class="p">[</span><span class="n">s0</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span>
+                                    <span class="n">non_sequences</span><span class="o">=</span><span class="p">[</span><span class="n">w_x_vec</span><span class="p">,</span> <span class="n">w_rec_vec</span><span class="p">]</span>
+                                   <span class="p">)</span>
+        <span class="k">return</span> <span class="n">y_t</span>
+
+</pre></div></div>
+
+<p>クラスメンバとして，状態(state)の長さと重み(w_x, w_rec)を与えてクラスを定義する．クラスメソッド state_update() は，stateの初期値 s0 と入力系列 x_t が与えられたときにネットワークの状態を更新し，y_t （出力系列） を算定する．y_t はベクトルであるが，メインの処理では，<code>y = y_t[-1]</code> のように最終値のみを取り出してコスト関数の算定に用いる．</p>
+
+<p>メインの処理では，まず学習に用いるデータを作成する．（ほぼ，ネタ元"Peter's note"の通り．）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c"># Create Dataset by program</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">seq_len</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="n">trX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">row_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+        <span class="n">trX</span><span class="p">[</span><span class="n">row_idx</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">seq_len</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">trY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">trX</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">trX</span> <span class="o">=</span> <span class="n">trX</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">trX</span> <span class="o">=</span> <span class="n">trX</span><span class="o">.</span><span class="n">T</span>                    <span class="c"># need 'List of vector' shape dataset</span>
+    <span class="n">trY</span> <span class="o">=</span> <span class="n">trY</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="c"># s0 is time-zero state </span>
+    <span class="n">s0np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_samples</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+</pre></div></div>
+
+<p>trXが，長さ10の系列データ，20サンプルとなる．ここでポイントは，<code>trX = trX.T</code> とマトリクスを転置させていることである．一般的な機械学習のデータセットとしては，横方向（column)に１つのデータの特徴量を並べ，それを縦方向（row)にサンプル数分，並べることが多いと思われる．</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+  Data Set Shape
+                  feature1   feature2   feature3  ...
+     sample1:        -          -          -
+     sample2:        -          -          -
+     sample3:        -          -          -
+       .
+       .
+</pre></div></div>
+
+<p>しかしながら，今回は，時系列データを theano.scan() で更新させる際，縦方向にグルーピングしてデータを渡す必要があった．</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+（以下のようにグループ化することで，theano.scan() の動作と整合性をとる．）
+  Data Set Shape (updated)
+               [  time1[sample1,  time2[sample1,  time3[sample1 ...    ]
+                        sample2,        sample2,        sample2,
+                        sample3,        sample3,        sample3,
+                         ...    ]         ...   ]         ...    ]
+</pre></div></div>
+
+<p>これを簡便に実現するために，マトリクスの転置を行い，theano.scan()への入力として処理している．</p>
+
+<p>この後，Theanoのグラフ，モデル算定値 <code>y_hypo</code> とTrainデータラベル <code>y_</code> からコスト <code>loss</code> を求めている．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+    <span class="c"># Tensor Declaration</span>
+    <span class="n">x_t</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="s">'x_t'</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="s">'x'</span><span class="p">)</span>
+    <span class="n">y_</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">'y_'</span><span class="p">)</span>
+    <span class="n">s0</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">'s0'</span><span class="p">)</span>
+    <span class="n">y_hypo</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">vector</span><span class="p">(</span><span class="s">'y_hypo'</span><span class="p">)</span>
+
+    <span class="n">net</span> <span class="o">=</span> <span class="n">simpleRNN</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  
+    <span class="n">y_t</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">state_update</span><span class="p">(</span><span class="n">x_t</span><span class="p">,</span> <span class="n">s0</span><span class="p">)</span>
+    <span class="n">y_hypo</span> <span class="o">=</span> <span class="n">y_t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">((</span><span class="n">y_</span> <span class="o">-</span> <span class="n">y_hypo</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+</pre></div></div>
+
+<p>ここまで来れば，後はお馴染みの方法で学習を進めることができる．</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Train Net Model</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">net</span><span class="o">.</span><span class="n">w_x</span><span class="p">,</span> <span class="n">net</span><span class="o">.</span><span class="n">w_rec</span><span class="p">]</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">GradientDescentOptimizer</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">)</span>
+    <span class="n">train_op</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+
+    <span class="c"># Compile ... define theano.function </span>
+    <span class="n">train_model</span> <span class="o">=</span> <span class="n">theano</span><span class="o">.</span><span class="n">function</span><span class="p">(</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">outputs</span><span class="o">=</span><span class="p">[</span><span class="n">loss</span><span class="p">],</span>
+        <span class="n">updates</span><span class="o">=</span><span class="n">train_op</span><span class="p">,</span>
+        <span class="n">givens</span><span class="o">=</span><span class="p">[(</span><span class="n">x_t</span><span class="p">,</span> <span class="n">trX</span><span class="p">),</span> <span class="p">(</span><span class="n">y_</span><span class="p">,</span> <span class="n">trY</span><span class="p">),</span> <span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">s0np</span><span class="p">)],</span>
+        <span class="n">allow_input_downcast</span><span class="o">=</span><span class="bp">True</span>
+    <span class="p">)</span>
+
+    <span class="n">n_epochs</span> <span class="o">=</span> <span class="mi">2001</span>
+    <span class="n">epoch</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">w_x_ini</span> <span class="o">=</span> <span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">w_x</span><span class="p">)</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+    <span class="n">w_rec_ini</span> <span class="o">=</span> <span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">w_rec</span><span class="p">)</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Initial weights: wx = </span><span class="si">%8.4f</span><span class="s">, wRec = </span><span class="si">%8.4f</span><span class="s">'</span> \
+                <span class="o">%</span> <span class="p">(</span><span class="n">w_x_ini</span><span class="p">,</span> <span class="n">w_rec_ini</span><span class="p">))</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">epoch</span> <span class="o">&lt;</span> <span class="n">n_epochs</span><span class="p">):</span>
+        <span class="n">epoch</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'epoch[</span><span class="si">%5d</span><span class="s">] : cost =</span><span class="si">%8.4f</span><span class="s">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">loss</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">w_x_final</span> <span class="o">=</span> <span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">w_x</span><span class="p">)</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+    <span class="n">w_rec_final</span> <span class="o">=</span> <span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">w_rec</span><span class="p">)</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Final weights : wx = </span><span class="si">%8.4f</span><span class="s">, wRec = </span><span class="si">%8.4f</span><span class="s">'</span> \
+                <span class="o">%</span> <span class="p">(</span><span class="n">w_x_final</span><span class="p">,</span> <span class="n">w_rec_final</span><span class="p">))</span>
+</pre></div></div>
+
+<p>今回，オプティマイザは，GradientDecent（勾配降下法）とRMSPropOptimizer(RMSProp法)の2つ用意して用いた．（オプティマイザの部分のコードは，今回省略いたします．RMSProp法については，後に示すWebサイトを参照しました．）</p>
+
+<h2>
+<span id="実行結果" class="fragment"></span><a href="#%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>実行結果</h2>
+
+<p>「RNNは一般的に学習を進ませるがの難しい」という記述は，いろいろなところで見受けられるが，それを実感させる結果となった．</p>
+
+<h4>
+<span id="条件１勾配降下法gradientdescent-学習率-10e-5" class="fragment"></span><a href="#%E6%9D%A1%E4%BB%B6%EF%BC%91%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95gradientdescent-%E5%AD%A6%E7%BF%92%E7%8E%87-10e-5"><i class="fa fa-link"></i></a>条件１．勾配降下法(GradientDescent), 学習率= 1.0e-5</h4>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+Initial weights: wx =   0.0900, wRec =   0.0113
+epoch[  100] : cost =529.6915
+epoch[  200] : cost =504.5684
+epoch[  300] : cost =475.3019
+epoch[  400] : cost =435.9507
+epoch[  500] : cost =362.6525
+epoch[  600] : cost =  0.2677
+epoch[  700] : cost =  0.1585
+epoch[  800] : cost =  0.1484
+epoch[  900] : cost =  0.1389
+epoch[ 1000] : cost =  0.1300
+epoch[ 1100] : cost =  0.1216
+epoch[ 1200] : cost =  0.1138
+epoch[ 1300] : cost =  0.1064
+epoch[ 1400] : cost =  0.0995
+epoch[ 1500] : cost =  0.0930
+epoch[ 1600] : cost =  0.0870
+epoch[ 1700] : cost =  0.0813
+epoch[ 1800] : cost =  0.0760
+epoch[ 1900] : cost =  0.0710
+epoch[ 2000] : cost =  0.0663
+Final weights : wx =   1.0597, wRec =   0.9863
+
+</pre></div></div>
+
+<p>学習の結果，正解 [w_x, w_rec] = [1.0, 1.0] の近似値を得ることができている．下の図は，コスト関数が低減する様子を示している．</p>
+
+<p><strong>Fig. Loss curve (GradientDescent)</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/74152/e71b7399-604b-052c-f71c-08099a9a3918.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/74152/e71b7399-604b-052c-f71c-08099a9a3918.png" alt="rnn_loss_log1.PNG"></a></p>
+
+<h4>
+<span id="条件2-rmsprop法学習率0001" class="fragment"></span><a href="#%E6%9D%A1%E4%BB%B62-rmsprop%E6%B3%95%E5%AD%A6%E7%BF%92%E7%8E%870001"><i class="fa fa-link"></i></a>条件2. RMSProp法，学習率=0.001</h4>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+Initial weights: wx =   0.0900, wRec =   0.0113
+epoch[  100] : cost =  5.7880
+epoch[  200] : cost =  0.3313
+epoch[  300] : cost =  0.0181
+epoch[  400] : cost =  0.0072
+epoch[  500] : cost =  0.0068
+epoch[  600] : cost =  0.0068
+epoch[  700] : cost =  0.0068
+epoch[  800] : cost =  0.0068
+epoch[  900] : cost =  0.0068
+epoch[ 1000] : cost =  0.0068
+epoch[ 1100] : cost =  0.0068
+epoch[ 1200] : cost =  0.0068
+epoch[ 1300] : cost =  0.0068
+epoch[ 1400] : cost =  0.0068
+epoch[ 1500] : cost =  0.0068
+epoch[ 1600] : cost =  0.0068
+epoch[ 1700] : cost =  0.0068
+epoch[ 1800] : cost =  0.0068
+epoch[ 1900] : cost =  0.0068
+epoch[ 2000] : cost =  0.0068
+Final weights : wx =   0.9995, wRec =   0.9993
+
+</pre></div></div>
+
+<p><strong>Fig. Loss curve (RMSProp)</strong><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/74152/55ddd3a0-102b-eb4f-d03e-5a6666391902.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/74152/55ddd3a0-102b-eb4f-d03e-5a6666391902.png" alt="rnn_loss_log2.PNG"></a></p>
+
+<p>今回のモデルでは，コスト関数 vs. parameters の非線形性が非常に強いものとなっている．学習率を大きくとるとすぐに数値が発散してしまうため，勾配降下法(Gradient Descent) では，学習率 = 1.0e-5 とかなり小さく設定する必要があった．一方で，RNNに向くと言われるRMSProp法では，学習率 = 0.001 でも問題なく学習を進めることができている．</p>
+
+<p>（補足）<br>
+参考にした "Peter's note" のブログでは，コスト関数の状況とRMSProp（引用元のブログでは"Rprop"という呼び名）について詳しい説明が掲載されています．コスト関数の非線形性が色の濃淡でVisual化されていますので関心のある方は参照してみてください．（下リンクになります．）</p>
+
+<h2>
+<span id="参考文献-web-site" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE-web-site"><i class="fa fa-link"></i></a>参考文献 (web site)</h2>
+
+<ul>
+<li>Peter's note - How to implement a recurrent neural network
+<a href="http://peterroelants.github.io/" class="autolink" rel="nofollow noopener" target="_blank">http://peterroelants.github.io/</a>
+</li>
+<li>Python Theano function / scan の挙動まとめ - StatsFragments(sinhrksさんブログ）
+<a href="http://sinhrks.hatenablog.com/entry/2015/04/25/233025" class="autolink" rel="nofollow noopener" target="_blank">http://sinhrks.hatenablog.com/entry/2015/04/25/233025</a>
+</li>
+<li>Theano scan　- Looping in Theano
+<a href="http://deeplearning.net/software/theano/library/scan.html" class="autolink" rel="nofollow noopener" target="_blank">http://deeplearning.net/software/theano/library/scan.html</a>
+</li>
+<li>Theano optimizers - Gist/ kastnerkyle/opimizers.py
+<a href="https://gist.github.com/kastnerkyle/816134462577399ee8b2" class="autolink" rel="nofollow noopener" target="_blank">https://gist.github.com/kastnerkyle/816134462577399ee8b2</a>
+(RMSProp法オプティマイザーの実装例です．今回，これを参考にさせていただきました．）</li>
+<li>深層学習，講談社機械学習プロフェッショナルシリーズ</li>
+<li>今一度Theanoの基本を学ぶ - Qiita 
+<a href="http://qiita.com/TomokIshii/items/1f483e9d4bfeb05ae231" class="autolink" id="reference-d65d70e08ecf0e91965f">http://qiita.com/TomokIshii/items/1f483e9d4bfeb05ae231</a>
+</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/TomokIshii/items/01c2171f4def1a128fd3" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="aPNgi76cCWJmOiQ39WHlNgJasNzYmN9wx8CiKPSj8nqQFl5HKFqIhW1uV6GEWaIhe+Ot9/+ok4Qm9WkmxE+N1g==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1464234211" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+Recurrent Neural Network（再帰型ニューラルネット）に関心はあるが，なかなかコード作成に手がつかない，このようなケースが多くないだろうか？理由はいくつかあるが，私の場合は次のようなものが思い当たる．  
+
+1. 単純にネットワークの構成が複雑．MLP(Multi-layer Perceptron)から入門してCNN(Convolutional-NN)に進むまでは，特殊なLayerがあるにせよ，信号の流れは順方向のみであった．（誤差の計算は除く．）
+2. MLPやCNNにおいては分かりやすい例題，（Deep Learningの’Hello World&#39;と称される）&quot;MNIST&quot; があったが，そのような標準的な(スタンダードな）例題がRNNにはない．
+
+因みにTheanoのDeep LearningやTensorFlowのTutorialは，言語モデルを扱ったものである．言語モデルに精通されている方はすぐに取りかかれるかもしれないが，初心者はまず「例題が何を解こうとしているか」について理解する必要がある．
+
+今回は，言語モデルでない，より単純な数列を扱う例題を取り上げ，簡単なRecurrent Neural Network（RNN)を実装してみることにした．
+
+(使用したプログラミング環境は，python 2.7.11, Theano 0.7.0になります．）
+
+## シンプルなRNN構造
+
+RNNを調べるにあたり，初めに&quot;TensorFlow&quot;のTutorial(ptb_word_lm.py)を動かしてみたが，
+&quot;epoch&quot;の数値が増すにしたがい&quot;perplexity&quot;(複雑さ?)の変数が減っていく様子が見られる．しかしながら，それが何を解いているかについては，詳細は理解できなかった．RNNのモデルとしてもLSTM(Long Short-term Memory)を用いているので，これでRNN入門というのは敷居が高いと感じた．
+
+文献「深層学習」ではシンプルなRNNとしてElmanネットが紹介されている．また，&quot;Elman RNN&quot;をキーワードに調べたところ，SimpleなRNNを紹介する&quot;Peter&#39;s note&quot;（http://peterroelants.github.io/) というブログが参考になったので，これをベースにプログラムを検討した．
+
+上記サイトからRNNの図を引用する．
+
+**Fig. Simple RNN structure**
+![SRNmodel2.png](https://qiita-image-store.s3.amazonaws.com/0/74152/96fd7330-4d43-5e3f-5c52-d60330476d98.png)
+
+入力ユニットxからデータが入り，重み W_in を乗じた後，隠れ層ユニットsに入る．ユニットSの出力について再帰の流れがあって，重み W_rec をかけた結果が次の時刻にユニットsに戻る．また，出力に対しては通常，重み W_out を考慮する必要があるが，構造をより単純化するために，W_out=1.0 と固定するとユニットSの状態がそのまま出力される構成となる．
+
+左図の状態に対して，BPTT法(Backpropagation through time)を適用するため右側の「展開された」状態を考える．隠れユニットの初期値 s_0 の状態は，時刻が進むにつれ重み W_rec を乗じながら右方向へ状態が遷移する．また各時刻において [x_1, x_2, ... x_n] が入力される．最終時刻に s_n の状態がユニットｙに出力される．
+
+以上示したモデルをPythonコードに直すと以下のようになる．（&quot;Peter&#39;s note&quot; から引用．）
+
+```py
+def update_state(xk, sk, wx, wRec):
+
+    return xk * wx + sk * wRec
+
+def forward_states(X, wx, wRec):
+    # Initialise the matrix that holds all states for all input sequences.
+    # The initial state s0 is set to 0.
+    S = np.zeros((X.shape[0], X.shape[1]+1))
+    # Use the recurrence relation defined by update_state to update the 
+    #  states trough time.
+    for k in range(0, X.shape[1]):
+        # S[k] = S[k-1] * wRec + X[k] * wx
+        S[:,k+1] = update_state(X[:,k], S[:,k], wx, wRec)
+    
+    return S
+```
+
+## 例題はどのような内容か？
+
+また，「上記のRNNモデルでどのような問題を扱っているか」であるが，入力として X_k = 0. or 1.のバイナリーの数値を入力する．出力は，これらのバイナリーの合計値を出力するネットワークモデルとする．例えば，  
+X = [ 0.  1.  0.  0.  0.  0.  0.  0.  0.  1.]　に対して，（このリストXの合計値が2.なので）
+Y = 2. の出力が正しい値と設定する．  
+もちろん，「数値をカウントするというアルゴリズム」は使わずにRNN(含む2つの重み係数）で推定するのが例題の内容である．
+
+出力値が連続の値をとる数値なので，「分類」の問題でなく，「回帰」の問題の一種と考えることができる．したがって，コスト関数としてはMSE(mean square error)を用い，Activation関数は通さず，そのままユニットのデータを通すようにしている．
+
+まず（事前に作成した）Trainデータで学習を行い，2の重み係数[W_in, W_rec]を求めることになるが，上図を見れば容易に推定できるが，正解は `[W_in, W_rec] = [1.0, 1.0]` である．
+
+## モデル実装の事前検討
+
+参考にした&quot;Peter&#39;s note&quot;の記事では，Deep Learningのライブラリを用いることなく，python (with numpy) を用いてIPython Notebookにまとめている．これをこのまま写経すれば，ブログ記事通りの結果を得られるが，発展性を考慮してDeep Learningのライブラリを用いる実装を試みた．選択肢として以下を考えた．
+
+1. &quot;TensorFlow&quot; を用いる．
+2. ”Theano&quot; を用いる．
+3. よりハイレベルな（抽象化した）ライブラリ &quot;Keras&quot;, &quot;Pylearn2&quot; 等を用いる．
+
+最初，オリジナルのpythonコードを &quot;one by one&quot; でTensorFlow版にしようと試みたが，
+
+```py
+    for k in range(0, X.shape[1]):
+        # S[k] = S[k-1] * wRec + X[k] * wx
+        S[:,k+1] = update_state(X[:,k], S[:,k], wx, wRec)
+    
+    return S
+```
+の部分のループ処理がうまく（TensorFlow版に）直せないことが分かった．TensorFlowのTutorialコード(ptb_word_lm.pyなど) を参考にすれば，当然今回の簡単なRNNモデルも実装できるはずであるが，関連するクラスライブラリが複雑で理解が難しかったので，今回はTensorFlowの使用を見送った．
+
+また，選択肢3の&quot;Keras&quot;, &quot;Pylearn2&quot;等については，「RNNの実装を理解する」という目的から外れるため今回は選ばなかった．
+
+結局，選択肢2の&quot;Theano&quot;版のコードを作成することにした．
+
+
+## RNNのための”Theano scan”
+
+ネットで見かけるTheanoによるRNNコードに共通しているのは，ほとんどのコードで&quot;Theano scan&quot;を用いていることである．Theano scanは，TheanoフレームワークのなかでLoop処理（反復処理），Iteration処理（収束計算）を行うために機能である．仕様が複雑で，また本家ドキュメント(Theano Documentation)を見てもすぐには理解が難しい．日本語情報はかなり限られるが，sinhrks氏のブログ記事を参考に，小さいコードをJupyter Notebookで試しながら，Theano scanの挙動調査を進めた．
+
+```py
+n = T.iscalar(&#39;n&#39;)
+result, updates = theano.scan(fn=lambda prior, nonseq: prior * 2,
+                              sequences=None,
+                              outputs_info=a, # 一つ前のLoopにおける値を参照 --&gt; prior
+                              non_sequences=a, # シーケンスでない値 --&gt; nonseq
+                              n_steps=n)
+
+myfun1 = theano.function(inputs=[a, n], outputs=result, updates=updates)
+myfun1(5, 3)
+# array([10, 20, 40])
+# return-1 = 5 * 2
+# return-2 = return-1 * 2
+# return-3 = return-2 * 2 
+```
+実行結果：
+
+```
+&gt;&gt;&gt; array([10, 20, 40], dtype=int32)
+```
+
+とても詳細を説明しきれないので，使用例をいくつか取り上げる．theano.scan()は，上記の通り，5種類の引数をとる．
+
+|  Key Word  |   内容　　　|  使用例  |
+|:----------:|:---------|:-------|
+| fn         | 反復処理のための関数 |  fn=lambda prior, nonseq: prior * 2 |
+| sequences  | 逐次処理の際，要素を進めながら入力を行うList, Matrixタイプの変数 | sequences=T.arange(x) |
+| outputs_info | 逐次処理の初期値を与える | outputs_info=a |
+| non_sequences | シーケンスでない（反復処理で不変の）固定値 | non_sequences=a |
+| n_steps   | 繰り返し関数 | n_steps=n |
+
+上のコードでは，theano.scan() に対し，（シーケンスではない）初期値 5 と回数 ３ が与えられ，反復処理の度に，前回の処理の結果に対し 2 を乗ずる，という処理を行っている．  
+1回目の反復処理 ： 5 x 2 = 10
+2回目の反復処理 ： 10 x 2 = 20
+3回目の反復処理 ： 20 x 2 = 40
+この結果，result = [10, 20, 40] と算定されている．
+
+もう少しRNNを意識したテストが以下である．
+
+```py
+v = T.matrix(&#39;v&#39;)
+s0 = T.vector(&#39;s0&#39;)
+result, updates = theano.scan(fn=lambda seq, prior: seq + prior * 2,
+                                             sequences=v,
+                                             outputs_info=s0,
+                                             non_sequences=None)
+myfun2 = theano.function(inputs=[v, s0], outputs=result, updates=updates)
+
+myfun2([[1., 0.], [0., 1.], [1., 1.]], [0.5, 0.5])
+```
+
+実行結果：
+
+```
+&gt;&gt;&gt; array([[ 2.,  1.],
+       [ 4.,  3.],
+       [ 9.,  7.]], dtype=float32)
+```
+
+初期値 [0.5, 0.5] が関数に入力される．$$ fn=\texttt{lambda}\ seq, prior:\ seq + prior * 2$$ と定義したので，
+1回目の反復処理 ： [1., 0.] + [0.5, 0.5] x 2 = [2., 1.]
+2回目の反復処理 ： [0., 1.] + [2., 1.] x 2 = [4., 3.]
+3回目の反復処理 ： [1., 1.] + [4., 3.] x 2 = [9., 7.]
+という流れで計算されている．
+
+&quot;theano.scan()&quot; は，RNNで必要な処理のフローコントロールをサポートする機能である．TensorFlowについて同様の機能は現段階でサポートされていないが，
+
+&gt;Our white paper mentions a number of control flow operations that we&#39;ve experimented with
+ -- I think once we&#39;re happy with its API and confident in its implementation we will try
+  to make it available through the public API -- we&#39;re just not quite there yet. 
+  It&#39;s still early days for us :)
+&gt;  
+&gt; (GitHub TensorFlow issue #208 のdiscussionより引用．）
+
+とのことなので，将来のサポートを待ちたい．
+
+（TensorFlow のRNN modelについてどのような実装が行われているか理解できていませんが，すでにRNNの計算を実現させているということは，このような&quot;theano.scan()&quot;ライクの機能が「必須」ではない，ということを表しています．この件，もう少しTenforFlowのサンプルコードを勉強する必要があると考えています．）
+
+## Theanoを用いたSimple RNNのコード詳細
+
+Theano Scan()が分かったところで，Simple RNNのコードを見ていく．まず，simpleRNNのクラスを定義する．
+
+```py
+class simpleRNN(object):
+    #   members:  slen  : state length
+    #             w_x   : weight of input--&gt;hidden layer
+    #             w_rec : weight of recurrnce 
+    def __init__(self, slen, nx, nrec):
+        self.len = slen
+        self.w_x = theano.shared(
+            np.asarray(np.random.uniform(-.1, .1, (nx)),
+            dtype=theano.config.floatX)
+        )
+        self.w_rec = theano.shared(
+            np.asarray(np.random.uniform(-.1, .1, (nrec)),
+            dtype=theano.config.floatX)
+        )
+    
+    def state_update(self, x_t, s0):
+        # this is the network updater for simpleRNN
+        def inner_fn(xv, s_tm1, wx, wr):
+            s_t = xv * wx + s_tm1 * wr
+            y_t = s_t
+            
+            return [s_t, y_t]
+        
+        w_x_vec = T.cast(self.w_x[0], &#39;float32&#39;)
+        w_rec_vec = T.cast(self.w_rec[0], &#39;float32&#39;)
+
+        [s_t, y_t], updates = theano.scan(fn=inner_fn,
+                                    sequences=x_t,
+                                    outputs_info=[s0, None],
+                                    non_sequences=[w_x_vec, w_rec_vec]
+                                   )
+        return y_t
+
+```
+
+クラスメンバとして，状態(state)の長さと重み(w_x, w_rec)を与えてクラスを定義する．クラスメソッド state_update() は，stateの初期値 s0 と入力系列 x_t が与えられたときにネットワークの状態を更新し，y_t （出力系列） を算定する．y_t はベクトルであるが，メインの処理では，`y = y_t[-1]` のように最終値のみを取り出してコスト関数の算定に用いる．
+
+メインの処理では，まず学習に用いるデータを作成する．（ほぼ，ネタ元&quot;Peter&#39;s note&quot;の通り．）
+
+```py
+    np.random.seed(seed=1)
+
+    # Create Dataset by program
+    num_samples = 20
+    seq_len = 10
+    
+    trX = np.zeros((num_samples, seq_len))
+    for row_idx in range(num_samples):
+        trX[row_idx,:] = np.around(np.random.rand(seq_len)).astype(int)
+    trY = np.sum(trX, axis=1)
+    trX = trX.astype(np.float32)
+    trX = trX.T                    # need &#39;List of vector&#39; shape dataset
+    trY = trY.astype(np.float32)
+    # s0 is time-zero state 
+    s0np = np.zeros((num_samples), dtype=np.float32)
+
+```
+
+trXが，長さ10の系列データ，20サンプルとなる．ここでポイントは，`trX = trX.T` とマトリクスを転置させていることである．一般的な機械学習のデータセットとしては，横方向（column)に１つのデータの特徴量を並べ，それを縦方向（row)にサンプル数分，並べることが多いと思われる．
+
+```
+  Data Set Shape
+                  feature1   feature2   feature3  ...
+     sample1:        -          -          -
+     sample2:        -          -          -
+     sample3:        -          -          -
+       .
+       .
+```
+
+しかしながら，今回は，時系列データを theano.scan() で更新させる際，縦方向にグルーピングしてデータを渡す必要があった．
+
+```
+（以下のようにグループ化することで，theano.scan() の動作と整合性をとる．）
+  Data Set Shape (updated)
+               [  time1[sample1,  time2[sample1,  time3[sample1 ...    ]
+                        sample2,        sample2,        sample2,
+                        sample3,        sample3,        sample3,
+                         ...    ]         ...   ]         ...    ]
+```
+
+これを簡便に実現するために，マトリクスの転置を行い，theano.scan()への入力として処理している．
+
+この後，Theanoのグラフ，モデル算定値 `y_hypo` とTrainデータラベル `y_` からコスト `loss` を求めている．
+
+
+```py
+    # Tensor Declaration
+    x_t = T.matrix(&#39;x_t&#39;)
+    x = T.matrix(&#39;x&#39;)
+    y_ = T.vector(&#39;y_&#39;)
+    s0 = T.vector(&#39;s0&#39;)
+    y_hypo = T.vector(&#39;y_hypo&#39;)
+
+    net = simpleRNN(seq_len, 1, 1)  
+    y_t = net.state_update(x_t, s0)
+    y_hypo = y_t[-1]
+    loss = ((y_ - y_hypo) ** 2).sum()
+
+```
+
+ここまで来れば，後はお馴染みの方法で学習を進めることができる．
+
+```py
+# Train Net Model
+    params = [net.w_x, net.w_rec]
+    optimizer = GradientDescentOptimizer(params, learning_rate=1.e-5)
+    train_op = optimizer.minimize(loss)
+
+    # Compile ... define theano.function 
+    train_model = theano.function(
+        inputs=[],
+        outputs=[loss],
+        updates=train_op,
+        givens=[(x_t, trX), (y_, trY), (s0, s0np)],
+        allow_input_downcast=True
+    )
+    
+    n_epochs = 2001
+    epoch = 0
+    
+    w_x_ini = (net.w_x).get_value()
+    w_rec_ini = (net.w_rec).get_value()
+    print(&#39;Initial weights: wx = %8.4f, wRec = %8.4f&#39; \
+                % (w_x_ini, w_rec_ini))
+    
+    while (epoch &lt; n_epochs):
+        epoch += 1
+        loss = train_model()
+        if epoch % 100 == 0:
+            print(&#39;epoch[%5d] : cost =%8.4f&#39; % (epoch, loss[0]))
+    
+    w_x_final = (net.w_x).get_value()
+    w_rec_final = (net.w_rec).get_value()
+    print(&#39;Final weights : wx = %8.4f, wRec = %8.4f&#39; \
+                % (w_x_final, w_rec_final))
+```
+
+今回，オプティマイザは，GradientDecent（勾配降下法）とRMSPropOptimizer(RMSProp法)の2つ用意して用いた．（オプティマイザの部分のコードは，今回省略いたします．RMSProp法については，後に示すWebサイトを参照しました．）
+
+## 実行結果
+
+「RNNは一般的に学習を進ませるがの難しい」という記述は，いろいろなところで見受けられるが，それを実感させる結果となった．
+
+#### 条件１．勾配降下法(GradientDescent), 学習率= 1.0e-5
+
+```text
+Initial weights: wx =   0.0900, wRec =   0.0113
+epoch[  100] : cost =529.6915
+epoch[  200] : cost =504.5684
+epoch[  300] : cost =475.3019
+epoch[  400] : cost =435.9507
+epoch[  500] : cost =362.6525
+epoch[  600] : cost =  0.2677
+epoch[  700] : cost =  0.1585
+epoch[  800] : cost =  0.1484
+epoch[  900] : cost =  0.1389
+epoch[ 1000] : cost =  0.1300
+epoch[ 1100] : cost =  0.1216
+epoch[ 1200] : cost =  0.1138
+epoch[ 1300] : cost =  0.1064
+epoch[ 1400] : cost =  0.0995
+epoch[ 1500] : cost =  0.0930
+epoch[ 1600] : cost =  0.0870
+epoch[ 1700] : cost =  0.0813
+epoch[ 1800] : cost =  0.0760
+epoch[ 1900] : cost =  0.0710
+epoch[ 2000] : cost =  0.0663
+Final weights : wx =   1.0597, wRec =   0.9863
+
+```
+
+学習の結果，正解 [w_x, w_rec] = [1.0, 1.0] の近似値を得ることができている．下の図は，コスト関数が低減する様子を示している．
+
+**Fig. Loss curve (GradientDescent)**
+![rnn_loss_log1.PNG](https://qiita-image-store.s3.amazonaws.com/0/74152/e71b7399-604b-052c-f71c-08099a9a3918.png)
+
+#### 条件2. RMSProp法，学習率=0.001
+
+```text
+Initial weights: wx =   0.0900, wRec =   0.0113
+epoch[  100] : cost =  5.7880
+epoch[  200] : cost =  0.3313
+epoch[  300] : cost =  0.0181
+epoch[  400] : cost =  0.0072
+epoch[  500] : cost =  0.0068
+epoch[  600] : cost =  0.0068
+epoch[  700] : cost =  0.0068
+epoch[  800] : cost =  0.0068
+epoch[  900] : cost =  0.0068
+epoch[ 1000] : cost =  0.0068
+epoch[ 1100] : cost =  0.0068
+epoch[ 1200] : cost =  0.0068
+epoch[ 1300] : cost =  0.0068
+epoch[ 1400] : cost =  0.0068
+epoch[ 1500] : cost =  0.0068
+epoch[ 1600] : cost =  0.0068
+epoch[ 1700] : cost =  0.0068
+epoch[ 1800] : cost =  0.0068
+epoch[ 1900] : cost =  0.0068
+epoch[ 2000] : cost =  0.0068
+Final weights : wx =   0.9995, wRec =   0.9993
+
+```
+
+**Fig. Loss curve (RMSProp)**
+![rnn_loss_log2.PNG](https://qiita-image-store.s3.amazonaws.com/0/74152/55ddd3a0-102b-eb4f-d03e-5a6666391902.png)
+
+今回のモデルでは，コスト関数 vs. parameters の非線形性が非常に強いものとなっている．学習率を大きくとるとすぐに数値が発散してしまうため，勾配降下法(Gradient Descent) では，学習率 = 1.0e-5 とかなり小さく設定する必要があった．一方で，RNNに向くと言われるRMSProp法では，学習率 = 0.001 でも問題なく学習を進めることができている．
+
+（補足）
+参考にした &quot;Peter&#39;s note&quot; のブログでは，コスト関数の状況とRMSProp（引用元のブログでは&quot;Rprop&quot;という呼び名）について詳しい説明が掲載されています．コスト関数の非線形性が色の濃淡でVisual化されていますので関心のある方は参照してみてください．（下リンクになります．）
+
+
+## 参考文献 (web site)
+- Peter&#39;s note - How to implement a recurrent neural network
+    http://peterroelants.github.io/
+- Python Theano function / scan の挙動まとめ - StatsFragments(sinhrksさんブログ）
+    http://sinhrks.hatenablog.com/entry/2015/04/25/233025
+- Theano scan　- Looping in Theano
+    http://deeplearning.net/software/theano/library/scan.html
+- Theano optimizers - Gist/ kastnerkyle/opimizers.py
+    https://gist.github.com/kastnerkyle/816134462577399ee8b2
+  (RMSProp法オプティマイザーの実装例です．今回，これを参考にさせていただきました．）
+- 深層学習，講談社機械学習プロフェッショナルシリーズ
+- 今一度Theanoの基本を学ぶ - Qiita 
+    http://qiita.com/TomokIshii/items/1f483e9d4bfeb05ae231
+ 
+
+  
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="基本的なRecurrent Neural Networkモデルを実装してみた by @TomokIshii on @Qiita" data-url="http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="基本的なRecurrent Neural Networkモデルを実装してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/TomokIshii"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/TomokIshii">TomokIshii</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1011</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;TomokIshii&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-1bea71f6-3f9c-4c2f-b8f6-d3439a095f7b"></div>
+    <div id="UserFollowButton-react-component-1bea71f6-3f9c-4c2f-b8f6-d3439a095f7b"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/92a266b805d7eee02b1d">落ちこぼれないためのTensorFlow Tutorialコード</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/f355d8e87d23ee8e0c7a">初めてのTensorFlow - イントロダクションとしての線形回帰</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/01c2171f4def1a128fd3">基本的なRecurrent Neural Networkモデルを実装してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/26b7414bdb3cd3052786">TensorFlowでAutoencoderを実装してみた</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/TomokIshii/items/ff14771ac0e77632969a">pandasで様々な日付フォーマットを取り扱う</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B7%E3%83%B3%E3%83%97%E3%83%AB%E3%81%AArnn%E6%A7%8B%E9%80%A0\&quot;\u003eシンプルなRNN構造\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BE%8B%E9%A1%8C%E3%81%AF%E3%81%A9%E3%81%AE%E3%82%88%E3%81%86%E3%81%AA%E5%86%85%E5%AE%B9%E3%81%8B\&quot;\u003e例題はどのような内容か？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB%E5%AE%9F%E8%A3%85%E3%81%AE%E4%BA%8B%E5%89%8D%E6%A4%9C%E8%A8%8E\&quot;\u003eモデル実装の事前検討\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#rnn%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AEtheano-scan\&quot;\u003eRNNのための”Theano scan”\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#theano%E3%82%92%E7%94%A8%E3%81%84%E3%81%9Fsimple-rnn%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E8%A9%B3%E7%B4%B0\&quot;\u003eTheanoを用いたSimple RNNのコード詳細\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C\&quot;\u003e実行結果\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9D%A1%E4%BB%B6%EF%BC%91%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95gradientdescent-%E5%AD%A6%E7%BF%92%E7%8E%87-10e-5\&quot;\u003e条件１．勾配降下法(GradientDescent), 学習率= 1.0e-5\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9D%A1%E4%BB%B62-rmsprop%E6%B3%95%E5%AD%A6%E7%BF%92%E7%8E%870001\&quot;\u003e条件2. RMSProp法，学習率=0.001\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE-web-site\&quot;\u003e参考文献 (web site)\u003c/a\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-be0fe0af-72a3-4666-a4cc-aaade52d37cf"></div>
+    <div id="Toc-react-component-be0fe0af-72a3-4666-a4cc-aaade52d37cf"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:107,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;01c2171f4def1a128fd3&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="coporlock"><a itemprop="url" href="/coporlock"><img alt="coporlock" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/4351/profile-images/1473683919" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tsuchiya"><a itemprop="url" href="/tsuchiya"><img alt="tsuchiya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32544/profile-images/1473685925" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shimo_t"><a itemprop="url" href="/shimo_t"><img alt="shimo_t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64100/profile-images/1473696475" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="upfields"><a itemprop="url" href="/upfields"><img alt="upfields" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/107526/profile-images/1473710272" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="neka-nat@github"><a itemprop="url" href="/neka-nat@github"><img alt="neka-nat@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14516/profile-images/1473683376" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dontsentouin"><a itemprop="url" href="/dontsentouin"><img alt="dontsentouin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/104176/profile-images/1473763341" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Furebe"><a itemprop="url" href="/Furebe"><img alt="Furebe" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90573/profile-images/1473705134" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="unokun"><a itemprop="url" href="/unokun"><img alt="unokun" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5247/profile-images/1473681853" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="rooa"><a itemprop="url" href="/rooa"><img alt="rooa" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45416/profile-images/1473690275" /></a></div></div><div class="ArticleFooter__user"><a href="/TomokIshii/items/01c2171f4def1a128fd3/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/01c2171f4def1a128fd3/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/TomokIshii/items/01c2171f4def1a128fd3.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/yukiB/items/f6314d2861fc8d9b739f#_reference-1adce73641d88358fded"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/59864/profile-images/1473695058" />TensorFlowのRNNを基本的なモデルで試す</a><time class="references_datetime js-dateTimeView" datetime="2016-05-29T23:58:42+00:00">10 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="基本的なRecurrent Neural Networkモデルを実装してみた by @TomokIshii on @Qiita" data-url="http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="基本的なRecurrent Neural Networkモデルを実装してみた" href="http://b.hatena.ne.jp/entry/http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:360831,&quot;uuid&quot;:&quot;01c2171f4def1a128fd3&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;TomokIshii&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:74152,&quot;url_name&quot;:&quot;TomokIshii&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-bf3e6592-0e3c-43a1-a554-05732c2a426a"></div>
+    <div id="CommentListContainer-react-component-bf3e6592-0e3c-43a1-a554-05732c2a426a"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="Ze3bvSZcQHjA9WBWidSII/yo9QFVgCpFNFYWwNcR5nWdCOVxsJrBn8uhE8D47M80hRHoKnKwZrHVY93O5/2Z2Q==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/TomokIshii/items/01c2171f4def1a128fd3" /><input type="hidden" name="item_uuid" id="item_uuid" value="01c2171f4def1a128fd3" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/TomokIshii/items/01c2171f4def1a128fd3", "id": 360831, "uuid": "01c2171f4def1a128fd3" }</script><script class="js-user" type="application/json">{&quot;id&quot;:74152,&quot;url_name&quot;:&quot;TomokIshii&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="0Mdy2wkxVXh4kGhhth2fVc4wlzqmqlbLWVERiG0CiKUoIkwXn/fUn3PEG/fHJdhCt4mKEYGaGj+4ZNqGXe73CQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/TomokIshii/items/01c2171f4def1a128fd3" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

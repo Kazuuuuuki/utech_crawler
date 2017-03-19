@@ -1,0 +1,538 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>ライブラリーを使わずにPythonでニューラルネットワークを構築してみる - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="コードはこちら: 全てのコードはGithub上のIpython Notebookでも公開しています。
+
+この投稿では、1から3階層のシンプルなニューラルネットワークを構築します。出てくる全ての数学の解説はしませんが、可能な限り必要な部分は、わかりやすく説明したいと思います。数学の詳細が気になる方は、英語が多いですが参考になるリンクを下記で記載します。
+
+※この投稿の読者は最低限、微分と機械学習の基礎（クラシフィケーションや正則化など）を知っていると仮定します。更にGra..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="ライブラリーを使わずにPythonでニューラルネットワークを構築してみる - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/kiminaka/items/9ae195739093277490fe" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="[コードはこちら: 全てのコードはGithub上のIpython Notebookでも公開しています。](https://github.com/dennybritz/nn-from-scratch)
+
+この投稿では、1から3階層のシン..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="Cuvtn2axynWR+h/AuMgYC8HKYG3Gwtr2i2ti1pKDpPnyDtNT8HdLkpqubFbJ8F8cuHN9RuHylgJqXqnYom/bVQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"kiminaka","type":"items","id":"9ae195739093277490fe"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-9e76ac72-35ef-4de7-93c3-abd8c81e4599"></div>
+    <div id="HeaderContainer-react-component-9e76ac72-35ef-4de7-93c3-abd8c81e4599"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">ライブラリーを使わずにPythonでニューラルネットワークを構築してみる</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="126"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%87%E3%82%A3%E3%83%BC%E3%83%97%E3%83%A9%E3%83%BC%E3%83%8B%E3%83%B3%E3%82%B0"><img alt="ディープラーニング" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>ディープラーニング</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="254"><a class="u-link-unstyled TagList__label" href="/tags/%E4%BA%BA%E5%B7%A5%E7%9F%A5%E8%83%BD"><img alt="人工知能" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/2e7c05efd215b716c8372e4bf0388a3084c98f53/medium.jpg?1433343003" /><span>人工知能</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">341</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="1 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>1</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:341,&quot;uuid&quot;:&quot;9ae195739093277490fe&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="k_tada000"><a itemprop="url" href="/k_tada000"><img alt="k_tada000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64308/profile-images/1473696541" /></a></li><li class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></li><li class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></li><li class="js-hovercard" data-hovercard-target-name="TakashiNaito1"><a itemprop="url" href="/TakashiNaito1"><img alt="TakashiNaito1" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/87669/profile-images/1473704167" /></a></li><li class="js-hovercard" data-hovercard-target-name="twipg"><a itemprop="url" href="/twipg"><img alt="twipg" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/88331/profile-images/1473704388" /></a></li><li class="js-hovercard" data-hovercard-target-name="Fu-Om"><a itemprop="url" href="/Fu-Om"><img alt="Fu-Om" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/91291/profile-images/1473705259" /></a></li><li class="js-hovercard" data-hovercard-target-name="ksyundo"><a itemprop="url" href="/ksyundo"><img alt="ksyundo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29029/profile-images/1473685285" /></a></li><li class="js-hovercard" data-hovercard-target-name="deltam"><a itemprop="url" href="/deltam"><img alt="deltam" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33386/profile-images/1473686114" /></a></li><li class="js-hovercard" data-hovercard-target-name="dkt"><a itemprop="url" href="/dkt"><img alt="dkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/89459/profile-images/1473704760" /></a></li><li class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></li><li><a href="/kiminaka/items/9ae195739093277490fe/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/kiminaka"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/107310/profile-images/1477882714" alt="1477882714" /></a> <a class="u-link-unstyled" href="/kiminaka">kiminaka</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-31T18:07:58+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-31">Edited at <time datetime="2016-07-31T01:50:14+09:00" itemprop="dateModified">2016-07-31</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/kiminaka/items/9ae195739093277490fe/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">8</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/kiminaka/items/9ae195739093277490fe/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(8)</span></a></li><li><a href="/kiminaka/items/9ae195739093277490fe.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-9ae195739093277490fe" itemprop="articleBody"><p><a href="https://github.com/dennybritz/nn-from-scratch" rel="nofollow noopener" target="_blank">コードはこちら: 全てのコードはGithub上のIpython Notebookでも公開しています。</a></p>
+
+<p>この投稿では、1から3階層のシンプルなニューラルネットワークを構築します。出てくる全ての数学の解説はしませんが、可能な限り必要な部分は、わかりやすく説明したいと思います。数学の詳細が気になる方は、英語が多いですが参考になるリンクを下記で記載します。</p>
+
+<p>※この投稿の読者は最低限、微分と機械学習の基礎（クラシフィケーションや正則化など）を知っていると仮定します。更にGradient Descent（勾配降下法）のような最適化技術を知っていれば、なお良しです。ただ上記を知らなくても、ニューラルネットワークに興味のある方なら楽しめる内容だと思います。</p>
+
+<p>それではまず、なぜライブラリーを使わずに一からニューラルネットワークを構築する必要があるのでしょうか？後の投稿で<a href="http://pybrain.org/" rel="nofollow noopener" target="_blank">PyBrain</a>や<a href="https://tensorflow.org/" rel="nofollow noopener" target="_blank">Tensorflow</a>のようなニューラルネットワーク・ライブラリーを使う予定ですが、その理由としては、1度でも一からニューラルネットワークを構築するという経験はすごく価値があるからです。どのようにしてニューラルネットワークは動くのか・構築されているのかを知ることによって、いざモデルをデザインするぞ！という時に役立ちます。</p>
+
+<p>1つ注意点として、この投稿では理解しやすさに重きをおいているため、下記のコードは効率的に書かれていません。効率的なコードの書き方は後の投稿で解説します。その時は、<a href="http://deeplearning.net/software/theano/" rel="nofollow noopener" target="_blank">Theano</a>を使います。</p>
+
+<h1>
+<span id="データを生成する" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E7%94%9F%E6%88%90%E3%81%99%E3%82%8B"><i class="fa fa-link"></i></a>データを生成する</h1>
+
+<p>さて、まずはデータを生成します。ラッキーな事に<a href="http://scikit-learn.org/" rel="nofollow noopener" target="_blank">Scikit-learn</a>は使えるデータセットの生成キットがあるので、わざわざ自分たちでコードを書く必要がありません。今回は、<a href="http://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_moons.html" rel="nofollow noopener" target="_blank">make_moons</a>機能を使って月型のデータを作ってみましょう。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+# データを生成してプロットする
+np.random.seed(0)
+X, y = sklearn.datasets.make_moons(200, noise=0.20)
+plt.scatter(X[:,0], X[:,1], s=40, c=y, cmap=plt.cm.Spectral)
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/107310/e05c61e1-8a05-3f63-5f0a-dd5289eb716c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/e05c61e1-8a05-3f63-5f0a-dd5289eb716c.png" alt="nn-from-scratch-dataset.png"></a></p>
+
+<p>生成したデータのクラスは、二通りあります (グラフ上の赤と青の点)。例えば、青い点を男性、赤い点を女性の患者データサンプルとして、XとY軸を特定の測定数値と考えてみてください。</p>
+
+<p>私達の目標は分類モデルを機械学習させて、サンプルポイント毎に正しいクラスを予測して与えることです。注意しないといけないのは、このデータは直線では分類が不可能であるという点です。そのため、ロジスティック回帰のようなLinear Classifiers (線形分類器)では、多項式などNon-linear features (非線形特性)を自分で作るなどしない限り、良いモデルを作ることはできません。ただし、今回のデータに関しては、多項式特性を率いれば良いモデルを作ることは可能です。</p>
+
+<p>ニューラルネットワークを率いれば、この問題を解決できます。なぜならFeature Engineering (特性エンジニアリング)をする必要がないからです。ニューラルネットワークの隠れ層が特性を探しだしてくれます。</p>
+
+<h1>
+<span id="ロジスティック回帰" class="fragment"></span><a href="#%E3%83%AD%E3%82%B8%E3%82%B9%E3%83%86%E3%82%A3%E3%83%83%E3%82%AF%E5%9B%9E%E5%B8%B0"><i class="fa fa-link"></i></a>ロジスティック回帰</h1>
+
+<p>ニューラルネットワークの説明をする前にまず、ロジスティック回帰モデルを学習させてみましょう。インプットデータはX/Y軸上のポイントでアウトプットデータはそのクラス (0または1)です。ここでは下記のニューラルネットワークの解説の下準備なのでschikit-learnを使ってロジスティック回帰モデルを構築してみましょう。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+# ロジスティック回帰モデルを学習させる
+clf = sklearn.linear_model.LogisticRegressionCV()
+clf.fit(X, y)
+
+# 決定境界をプロットする
+plot_decision_boundary(lambda x: clf.predict(x))
+plt.title("Logistic Regression")
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/107310/3b2764cb-7226-8c58-c6fd-c85afa58ed20.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/3b2764cb-7226-8c58-c6fd-c85afa58ed20.png" alt="nn-from-scratch-lr-decision-boundary.png"></a></p>
+
+<p>直上のグラフではロジスティック回帰モデルを学習させてDecision Boundary (決定境界)を境にクラスの分類をしています。この境界線は直線を率いて可能な限りクラス分けをしていますが、データの「月型」を認識することはできていません。</p>
+
+<h1>
+<span id="ニューラルネットワークを学習させる" class="fragment"></span><a href="#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%92%E5%AD%A6%E7%BF%92%E3%81%95%E3%81%9B%E3%82%8B"><i class="fa fa-link"></i></a>ニューラルネットワークを学習させる</h1>
+
+<p>それでは、3層のニューラルネットワーク (1インプット層、1隠れ層、1アウトプット層)を構築してみましょう。インプット層のノード (下記図の円)の数はデータの次元数です (今回は2)。そしてアウトプット層のノードの数はクラスの数で、今回はこちらも2つ (ちなみに2つのクラスなので1か0の1つをアウトプット・ノードにすることも可能ですが、後で複数のクラスを扱うのを考慮して今回は2つのノードを使います)。ネットワークのインプットはポイント(X、Y)で、アウトプットはクラス0 (女性)、クラス1 (男性)のどちらかになる確率です。下記の図を参照してみてください。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/107310/ccb32887-677e-a041-dbe0-b2693381d053.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/ccb32887-677e-a041-dbe0-b2693381d053.png" alt="nn-from-scratch-3-layer-network-1024x693.png"></a></p>
+
+<p>次に、隠れ層の次元 (ノードの数)を決めます。隠れ層ノードの数が増えれば増えるほど複雑なモデル構築が可能です。一方で、ノードの数が増えるほど、パラメーターの学習と予測にコンピューティングパワーが必要になります。また、パラメーターの数が増えるほどオーバーフィットのリスクが増してしまうため注意する必要があります。</p>
+
+<p>隠れ層の数はどうやって選べば良いでしょうか。一般的なガイドラインはあるものの、選び方はケースバイケースで、サイエンスというよりもアートに近いと考えてください。下記では、いくつか違う隠れ層のノード数を試してみて、どのようにアウトプットに影響をあたえるのかを見てみます。</p>
+
+<p>もう一つ決めないといけないのが、隠れ層のアクティベーション関数です。これはインプットデータを変形 (transform)させてアウトプットするための関数です。非線形アクティベーション関数を率いることで非線形データを学習させることができます。アクティベーション関数の一般的な例として、<a href="https://reference.wolfram.com/language/ref/Tanh.html" rel="nofollow noopener" target="_blank">Tanh</a>、<a href="https://en.wikipedia.org/wiki/Sigmoid_function" rel="nofollow noopener" target="_blank">シグモイド関数</a>、そして<a href="https://en.wikipedia.org/wiki/Rectifier_(neural_networks)" rel="nofollow noopener" target="_blank">ReLUs</a>があります。今回は様々なケースで比較的よい成果を出せるtanhを使ってみます。この関数の便利な特性として元の値を率いて微分した値を計算できる点です。例えば、$tanhx$の微分値は、$1 - tanh^2x$です。そのため、$tanhx$を一度計算すると後で再利用が可能です。</p>
+
+<p>今回は、アウトプットに確率を与えたいので、アウトプット層のアクティベーション関数にSoftmax関数を使います。この関数を率いることで非確率な数値から確率に変換できます。ロジスティック回帰モデルに詳しい方は、<a href="https://en.wikipedia.org/wiki/Softmax_function" rel="nofollow noopener" target="_blank">Softmax関数</a>を複数クラスの汎化版として考えてみてください。</p>
+
+<h1>
+<span id="ニューラルネットワークの予測のしくみ" class="fragment"></span><a href="#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E4%BA%88%E6%B8%AC%E3%81%AE%E3%81%97%E3%81%8F%E3%81%BF"><i class="fa fa-link"></i></a>ニューラルネットワークの予測のしくみ</h1>
+
+<p>今回のニューラルネットワークはforward propagationという一種の行列乗算と上記で定義したアクティベーション関数の応用を使います。インプットxが2次元の場合、予測値 $\hat{y}$（こちらも2次元）は下記のように計算します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/107310/a8c46421-a6ce-b278-15db-2e91340920b3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/a8c46421-a6ce-b278-15db-2e91340920b3.png" alt="latex.png"></a></p>
+
+<p>$z_i$はインプット層i、$a_i$はアクティベーション関数で変換後のアウトプット層iです。$W_1$ ,$b_1$, $W_2$, $b_2$はネットワークのパラメターで、学習用データから学ぶ必要があります。ネットワーク層間の行列変換と考えてよいでしょう。上記の行列乗算を見てみると行列の次元数が見て取れます。例えば隠れ層500ノードを使うと、$W_1 \in \mathbb{R}^{2 \times 500}$, $b_1 \in \mathbb{R}^{500}$, $W_2 \in \mathbb{R}^{2 \times 500}$, $b_2 \in \mathbb{R}^{2}$となります。そのため、隠れ層のサイズを増やすとパラメーターも増える理由がわかりますね。</p>
+
+<h1>
+<span id="パラメーターを学習させる" class="fragment"></span><a href="#%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%83%BC%E3%82%92%E5%AD%A6%E7%BF%92%E3%81%95%E3%81%9B%E3%82%8B"><i class="fa fa-link"></i></a>パラメーターを学習させる</h1>
+
+<p>パラメーターを学習させるということは、学習用データ上のエラー値を最小化するパラメーター ($W_1$ ,$b_1$, $W_2$, $b_2$)を探す、ということです。さてエラー値はどうやって定義するのでしょう？エラー値を測る関数をLoss関数と言います。Softmaxの場合、一般的に使われるLoss関数<a href="https://ja.wikipedia.org/wiki/%E4%BA%A4%E5%B7%AE%E3%82%A8%E3%83%B3%E3%83%88%E3%83%AD%E3%83%94%E3%83%BC" rel="nofollow noopener" target="_blank">交差エントロピー最小化</a> (negative log likelihoodとも呼ばれています)を率います。もし、N学習用データがありCクラスがある時の正解値yに対して予測値$\hat{y}$のLoss関数は下記のように書くことができます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/107310/22dc4354-f9f7-312b-e0ac-f9116ace4f7e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/22dc4354-f9f7-312b-e0ac-f9116ace4f7e.png" alt="latex-1.png"></a></p>
+
+<p>この方式は複雑なように見えますが、その役割は、学習用データを足し合わせ間違えてクラスを予測した時に、その値をLossに足す、というシンプルなものです。そのため予測値$\hat{y}$と正解値yの2つの確率分布が遠く離れていればいるほど、Lossは大きくなります。そのため、Lossを最小化するパラメーターを探すということは、学習用データの尤度を最大化させることと同じことです。</p>
+
+<p>Loss最小値を計算するには、Gradient Descent (勾配降下)を使います。今回はシンプルなバッチ勾配降下 (学習率は定数)を率いますが、<a href="https://ja.wikipedia.org/wiki/%E7%A2%BA%E7%8E%87%E7%9A%84%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95" rel="nofollow noopener" target="_blank">確率的勾配降下</a>やミニバッチ勾配降下がより実用的でしょう。また<a href="http://cs231n.github.io/neural-networks-3/#anneal" rel="nofollow noopener" target="_blank">学習率も徐々に小さくしていく方がより実践的</a>です。</p>
+
+<p>インプットとして、勾配降下のパラメーター($\frac{\partial{L}}{\partial{W_1}}$,$ \frac{\partial{L}}{\partial{b_1}}$,$ \frac{\partial{L}}{\partial{W_2}}$, $\frac{\partial{L}}{\partial{b_2}}$)に対してLoss関数の傾斜 (ベクトルの微分値)を計算する必要があります。この傾斜を計算するためにback-propagationアルゴリズムを使います。このアルゴリズムは、アウトプットから傾斜を効率的に計算する方法です。この数学的解説に興味のある人は<a href="http://colah.github.io/posts/2015-08-Backprop/" rel="nofollow noopener" target="_blank">こちら</a>と<a href="http://cs231n.github.io/optimization-2/" rel="nofollow noopener" target="_blank">こちら</a>の解説を読んでみてください (英語)。</p>
+
+<p>back-propagationを使うと下記が成り立ちます。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/107310/26776d28-9d14-7af8-6cc7-1cf1f209e047.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/26776d28-9d14-7af8-6cc7-1cf1f209e047.png" alt="latex-2.png"></a></p>
+
+<h1>
+<span id="実際にコードを書いてみる" class="fragment"></span><a href="#%E5%AE%9F%E9%9A%9B%E3%81%AB%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E6%9B%B8%E3%81%84%E3%81%A6%E3%81%BF%E3%82%8B"><i class="fa fa-link"></i></a>実際にコードを書いてみる</h1>
+
+<p>これまでの学問的な知識はおしまいにして、実際にコードを書いてみましょう！まずは勾配降下のための変数とパラメーターを設定してみましょう。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+ num_examples = len(X) # 学習用データサイズ
+ nn_input_dim = 2 # インプット層の次元数
+ nn_output_dim = 2 # アウトプット層の次元数
+
+# Gradient descent parameters (数値は一般的に使われる値を採用)
+ epsilon = 0.01 # gradient descentの学習率
+ reg_lambda = 0.01 # regularizationの強さ
+</pre></div></div>
+
+<p>上記で定義したLoss関数を書いてみます。これを率いてモデルの性能をチェックできます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+# 全Lossを計算するためのHelper function 
+def calculate_loss(model):
+    W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
+    # 予測を算出するためのForward propagation
+    z1 = X.dot(W1) + b1
+    a1 = np.tanh(z1)
+    z2 = a1.dot(W2) + b2
+    exp_scores = np.exp(z2)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    # Lossを計算
+    corect_logprobs = -np.log(probs[range(num_examples), y])
+    data_loss = np.sum(corect_logprobs)
+    # Lossにregulatization termを与える (optional)
+    data_loss += reg_lambda/2 * (np.sum(np.square(W1)) + np.sum(np.square(W2)))
+    return 1./num_examples * data_loss
+</pre></div></div>
+
+<p>アウトプット層を算出するためのHelper関数を書きます。上記で解説したforward propagationを率いて、一番高い確率を返します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+# Helper function to predict an output (0 or 1)
+def predict(model, x):
+    W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
+    # Forward propagation
+    z1 = x.dot(W1) + b1
+    a1 = np.tanh(z1)
+    z2 = a1.dot(W2) + b2
+    exp_scores = np.exp(z2)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    return np.argmax(probs, axis=1)
+</pre></div></div>
+
+<p>最後に、ニューラルネットワークを生成するコードを書きます。上記で解説したbackpropagationの微分値を使ってバッチ勾配降下を書きます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+# This function learns parameters for the neural network and returns the model.
+# - nn_hdim: Number of nodes in the hidden layer
+# - num_passes: Number of passes through the training data for gradient descent
+# - print_loss: If True, print the loss every 1000 iterations
+def build_model(nn_hdim, num_passes=20000, print_loss=False):
+
+    # Initialize the parameters to random values. We need to learn these.
+    np.random.seed(0)
+    W1 = np.random.randn(nn_input_dim, nn_hdim) / np.sqrt(nn_input_dim)
+    b1 = np.zeros((1, nn_hdim))
+    W2 = np.random.randn(nn_hdim, nn_output_dim) / np.sqrt(nn_hdim)
+    b2 = np.zeros((1, nn_output_dim))
+
+    # This is what we return at the end
+    model = {}
+
+    # Gradient descent. For each batch...
+    for i in xrange(0, num_passes):
+
+        # Forward propagation
+        z1 = X.dot(W1) + b1
+        a1 = np.tanh(z1)
+        z2 = a1.dot(W2) + b2
+        exp_scores = np.exp(z2)
+        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+        # Backpropagation
+        delta3 = probs
+        delta3[range(num_examples), y] -= 1
+        dW2 = (a1.T).dot(delta3)
+        db2 = np.sum(delta3, axis=0, keepdims=True)
+        delta2 = delta3.dot(W2.T) * (1 - np.power(a1, 2))
+        dW1 = np.dot(X.T, delta2)
+        db1 = np.sum(delta2, axis=0)
+
+        # Add regularization terms (b1 and b2 don't have regularization terms)
+        dW2 += reg_lambda * W2
+        dW1 += reg_lambda * W1
+
+        # Gradient descent parameter update
+        W1 += -epsilon * dW1
+        b1 += -epsilon * db1
+        W2 += -epsilon * dW2
+        b2 += -epsilon * db2
+
+        # Assign new parameters to the model
+        model = { 'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
+
+        # Optionally print the loss.
+        # This is expensive because it uses the whole dataset, so we don't want to do it too often.
+        if print_loss and i % 1000 == 0:
+          print "Loss after iteration %i: %f" %(i, calculate_loss(model))
+
+    return model
+</pre></div></div>
+
+<h1>
+<span id="隠れ層が3つのニューラルネットワーク" class="fragment"></span><a href="#%E9%9A%A0%E3%82%8C%E5%B1%A4%E3%81%8C3%E3%81%A4%E3%81%AE%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF"><i class="fa fa-link"></i></a>隠れ層が3つのニューラルネットワーク</h1>
+
+<p>それでは、隠れ層が3つの場合のネットワークを生成します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+# 3次元の隠れ層を持つモデルを構築
+model = build_model(3, print_loss=True)
+
+# 決定境界をプロットする
+plot_decision_boundary(lambda x: predict(model, x))
+plt.title("Decision Boundary for hidden layer size 3")
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/107310/f8f47758-4661-fcc4-191f-18fc872225d1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/f8f47758-4661-fcc4-191f-18fc872225d1.png" alt="nn-from-scratch-h3.png"></a></p>
+
+<p>うまく月形を認識しました！ニューラルネットワークによってクラスを程よく分けることができていますね。</p>
+
+<h1>
+<span id="隠れ層の適合サイズをチェック" class="fragment"></span><a href="#%E9%9A%A0%E3%82%8C%E5%B1%A4%E3%81%AE%E9%81%A9%E5%90%88%E3%82%B5%E3%82%A4%E3%82%BA%E3%82%92%E3%83%81%E3%82%A7%E3%83%83%E3%82%AF"><i class="fa fa-link"></i></a>隠れ層の適合サイズをチェック</h1>
+
+<p>上記では隠れ層3つを選びました。下記では隠れ層の数を変えながら比較してみましょう。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+plt.figure(figsize=(16, 32))
+hidden_layer_dimensions = [1, 2, 3, 4, 5, 20, 50]
+for i, nn_hdim in enumerate(hidden_layer_dimensions):
+    plt.subplot(5, 2, i+1)
+    plt.title('Hidden Layer size %d' % nn_hdim)
+    model = build_model(nn_hdim)
+    plot_decision_boundary(lambda x: predict(model, x))
+plt.show()
+</pre></div></div>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/107310/483bba3a-3ade-9a3b-291d-8de5dba086b8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/107310/483bba3a-3ade-9a3b-291d-8de5dba086b8.png" alt="nn-from-scratch-hidden-layer-varying-1.png"></a></p>
+
+<p>上記の図を見てみると、低次元の隠れ層の場合 (3,4あたり)データのパターンをうまくつかめています。一方で、高次元だとオーバーフィットの恐れがあるようです。そうなってしまえば、データの真の形を捉えるのではなくデータの丸暗記をしているようなものです。もしテストデータを率いてモデルをチェックする場合、低次元の隠れ層だとより正確に予測できるはずです。オーバーフィットを強めに正則化するよりも、ちょうど良いサイズの隠れ層を選んだ方がより(コンピューター的に)「経済的」でしょう。</p>
+
+<p>さて、今回は一からライブラリーを使わずにネットワークを作ってみました。次はニューラルネットワーク・ライブラリーを使って更に深くディープラーニングを解説してみます。</p>
+
+<p>*wildMLブログを書いているDenny Britzと共に執筆</p>
+<div class="hidden"><form class="js-task-list-update" action="/kiminaka/items/9ae195739093277490fe" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="DgBflbgLPqRjlPBaeWOLk7wDNQfFRyrt1j1W+zWkcgr25WFZLs2/Q2jAg8wIW8yExbooLOJ3Zhk3CJ31BUgNpg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1469897414" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+[コードはこちら: 全てのコードはGithub上のIpython Notebookでも公開しています。](https://github.com/dennybritz/nn-from-scratch)
+
+この投稿では、1から3階層のシンプルなニューラルネットワークを構築します。出てくる全ての数学の解説はしませんが、可能な限り必要な部分は、わかりやすく説明したいと思います。数学の詳細が気になる方は、英語が多いですが参考になるリンクを下記で記載します。
+
+※この投稿の読者は最低限、微分と機械学習の基礎（クラシフィケーションや正則化など）を知っていると仮定します。更にGradient Descent（勾配降下法）のような最適化技術を知っていれば、なお良しです。ただ上記を知らなくても、ニューラルネットワークに興味のある方なら楽しめる内容だと思います。
+
+それではまず、なぜライブラリーを使わずに一からニューラルネットワークを構築する必要があるのでしょうか？後の投稿で[PyBrain](http://pybrain.org/)や[Tensorflow](https://tensorflow.org/)のようなニューラルネットワーク・ライブラリーを使う予定ですが、その理由としては、1度でも一からニューラルネットワークを構築するという経験はすごく価値があるからです。どのようにしてニューラルネットワークは動くのか・構築されているのかを知ることによって、いざモデルをデザインするぞ！という時に役立ちます。
+
+1つ注意点として、この投稿では理解しやすさに重きをおいているため、下記のコードは効率的に書かれていません。効率的なコードの書き方は後の投稿で解説します。その時は、[Theano](http://deeplearning.net/software/theano/)を使います。
+
+# データを生成する
+さて、まずはデータを生成します。ラッキーな事に[Scikit-learn](http://scikit-learn.org/)は使えるデータセットの生成キットがあるので、わざわざ自分たちでコードを書く必要がありません。今回は、[make_moons](http://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_moons.html)機能を使って月型のデータを作ってみましょう。
+
+```
+# データを生成してプロットする
+np.random.seed(0)
+X, y = sklearn.datasets.make_moons(200, noise=0.20)
+plt.scatter(X[:,0], X[:,1], s=40, c=y, cmap=plt.cm.Spectral)
+```
+![nn-from-scratch-dataset.png](https://qiita-image-store.s3.amazonaws.com/0/107310/e05c61e1-8a05-3f63-5f0a-dd5289eb716c.png)
+
+生成したデータのクラスは、二通りあります (グラフ上の赤と青の点)。例えば、青い点を男性、赤い点を女性の患者データサンプルとして、XとY軸を特定の測定数値と考えてみてください。
+
+私達の目標は分類モデルを機械学習させて、サンプルポイント毎に正しいクラスを予測して与えることです。注意しないといけないのは、このデータは直線では分類が不可能であるという点です。そのため、ロジスティック回帰のようなLinear Classifiers (線形分類器)では、多項式などNon-linear features (非線形特性)を自分で作るなどしない限り、良いモデルを作ることはできません。ただし、今回のデータに関しては、多項式特性を率いれば良いモデルを作ることは可能です。
+
+ニューラルネットワークを率いれば、この問題を解決できます。なぜならFeature Engineering (特性エンジニアリング)をする必要がないからです。ニューラルネットワークの隠れ層が特性を探しだしてくれます。
+
+# ロジスティック回帰
+ニューラルネットワークの説明をする前にまず、ロジスティック回帰モデルを学習させてみましょう。インプットデータはX/Y軸上のポイントでアウトプットデータはそのクラス (0または1)です。ここでは下記のニューラルネットワークの解説の下準備なのでschikit-learnを使ってロジスティック回帰モデルを構築してみましょう。
+
+```
+# ロジスティック回帰モデルを学習させる
+clf = sklearn.linear_model.LogisticRegressionCV()
+clf.fit(X, y)
+ 
+# 決定境界をプロットする
+plot_decision_boundary(lambda x: clf.predict(x))
+plt.title(&quot;Logistic Regression&quot;)
+```
+![nn-from-scratch-lr-decision-boundary.png](https://qiita-image-store.s3.amazonaws.com/0/107310/3b2764cb-7226-8c58-c6fd-c85afa58ed20.png)
+
+直上のグラフではロジスティック回帰モデルを学習させてDecision Boundary (決定境界)を境にクラスの分類をしています。この境界線は直線を率いて可能な限りクラス分けをしていますが、データの「月型」を認識することはできていません。
+
+# ニューラルネットワークを学習させる
+それでは、3層のニューラルネットワーク (1インプット層、1隠れ層、1アウトプット層)を構築してみましょう。インプット層のノード (下記図の円)の数はデータの次元数です (今回は2)。そしてアウトプット層のノードの数はクラスの数で、今回はこちらも2つ (ちなみに2つのクラスなので1か0の1つをアウトプット・ノードにすることも可能ですが、後で複数のクラスを扱うのを考慮して今回は2つのノードを使います)。ネットワークのインプットはポイント(X、Y)で、アウトプットはクラス0 (女性)、クラス1 (男性)のどちらかになる確率です。下記の図を参照してみてください。
+![nn-from-scratch-3-layer-network-1024x693.png](https://qiita-image-store.s3.amazonaws.com/0/107310/ccb32887-677e-a041-dbe0-b2693381d053.png)
+
+次に、隠れ層の次元 (ノードの数)を決めます。隠れ層ノードの数が増えれば増えるほど複雑なモデル構築が可能です。一方で、ノードの数が増えるほど、パラメーターの学習と予測にコンピューティングパワーが必要になります。また、パラメーターの数が増えるほどオーバーフィットのリスクが増してしまうため注意する必要があります。
+
+隠れ層の数はどうやって選べば良いでしょうか。一般的なガイドラインはあるものの、選び方はケースバイケースで、サイエンスというよりもアートに近いと考えてください。下記では、いくつか違う隠れ層のノード数を試してみて、どのようにアウトプットに影響をあたえるのかを見てみます。
+
+もう一つ決めないといけないのが、隠れ層のアクティベーション関数です。これはインプットデータを変形 (transform)させてアウトプットするための関数です。非線形アクティベーション関数を率いることで非線形データを学習させることができます。アクティベーション関数の一般的な例として、[Tanh](https://reference.wolfram.com/language/ref/Tanh.html)、[シグモイド関数](https://en.wikipedia.org/wiki/Sigmoid_function)、そして[ReLUs](https://en.wikipedia.org/wiki/Rectifier_(neural_networks) )があります。今回は様々なケースで比較的よい成果を出せるtanhを使ってみます。この関数の便利な特性として元の値を率いて微分した値を計算できる点です。例えば、$tanhx$の微分値は、$1 - tanh^2x$です。そのため、$tanhx$を一度計算すると後で再利用が可能です。
+
+今回は、アウトプットに確率を与えたいので、アウトプット層のアクティベーション関数にSoftmax関数を使います。この関数を率いることで非確率な数値から確率に変換できます。ロジスティック回帰モデルに詳しい方は、[Softmax関数](https://en.wikipedia.org/wiki/Softmax_function)を複数クラスの汎化版として考えてみてください。
+
+# ニューラルネットワークの予測のしくみ
+今回のニューラルネットワークはforward propagationという一種の行列乗算と上記で定義したアクティベーション関数の応用を使います。インプットxが2次元の場合、予測値 $\hat{y}$（こちらも2次元）は下記のように計算します。
+
+![latex.png](https://qiita-image-store.s3.amazonaws.com/0/107310/a8c46421-a6ce-b278-15db-2e91340920b3.png)
+
+$z_i$はインプット層i、$a_i$はアクティベーション関数で変換後のアウトプット層iです。$W_1$ ,$b_1$, $W_2$, $b_2$はネットワークのパラメターで、学習用データから学ぶ必要があります。ネットワーク層間の行列変換と考えてよいでしょう。上記の行列乗算を見てみると行列の次元数が見て取れます。例えば隠れ層500ノードを使うと、$W_1 \in \mathbb{R}^{2 \times 500}$, $b_1 \in \mathbb{R}^{500}$, $W_2 \in \mathbb{R}^{2 \times 500}$, $b_2 \in \mathbb{R}^{2}$となります。そのため、隠れ層のサイズを増やすとパラメーターも増える理由がわかりますね。
+
+# パラメーターを学習させる
+パラメーターを学習させるということは、学習用データ上のエラー値を最小化するパラメーター ($W_1$ ,$b_1$, $W_2$, $b_2$)を探す、ということです。さてエラー値はどうやって定義するのでしょう？エラー値を測る関数をLoss関数と言います。Softmaxの場合、一般的に使われるLoss関数[交差エントロピー最小化](https://ja.wikipedia.org/wiki/%E4%BA%A4%E5%B7%AE%E3%82%A8%E3%83%B3%E3%83%88%E3%83%AD%E3%83%94%E3%83%BC) (negative log likelihoodとも呼ばれています)を率います。もし、N学習用データがありCクラスがある時の正解値yに対して予測値$\hat{y}$のLoss関数は下記のように書くことができます。
+
+![latex-1.png](https://qiita-image-store.s3.amazonaws.com/0/107310/22dc4354-f9f7-312b-e0ac-f9116ace4f7e.png)
+
+この方式は複雑なように見えますが、その役割は、学習用データを足し合わせ間違えてクラスを予測した時に、その値をLossに足す、というシンプルなものです。そのため予測値$\hat{y}$と正解値yの2つの確率分布が遠く離れていればいるほど、Lossは大きくなります。そのため、Lossを最小化するパラメーターを探すということは、学習用データの尤度を最大化させることと同じことです。
+
+Loss最小値を計算するには、Gradient Descent (勾配降下)を使います。今回はシンプルなバッチ勾配降下 (学習率は定数)を率いますが、[確率的勾配降下](https://ja.wikipedia.org/wiki/%E7%A2%BA%E7%8E%87%E7%9A%84%E5%8B%BE%E9%85%8D%E9%99%8D%E4%B8%8B%E6%B3%95)やミニバッチ勾配降下がより実用的でしょう。また[学習率も徐々に小さくしていく方がより実践的](http://cs231n.github.io/neural-networks-3/#anneal)です。
+
+インプットとして、勾配降下のパラメーター($\frac{\partial{L}}{\partial{W_1}}$,$ \frac{\partial{L}}{\partial{b_1}}$,$ \frac{\partial{L}}{\partial{W_2}}$, $\frac{\partial{L}}{\partial{b_2}}$)に対してLoss関数の傾斜 (ベクトルの微分値)を計算する必要があります。この傾斜を計算するためにback-propagationアルゴリズムを使います。このアルゴリズムは、アウトプットから傾斜を効率的に計算する方法です。この数学的解説に興味のある人は[こちら](http://colah.github.io/posts/2015-08-Backprop/)と[こちら](http://cs231n.github.io/optimization-2/)の解説を読んでみてください (英語)。
+
+back-propagationを使うと下記が成り立ちます。
+
+![latex-2.png](https://qiita-image-store.s3.amazonaws.com/0/107310/26776d28-9d14-7af8-6cc7-1cf1f209e047.png)
+
+# 実際にコードを書いてみる
+これまでの学問的な知識はおしまいにして、実際にコードを書いてみましょう！まずは勾配降下のための変数とパラメーターを設定してみましょう。
+
+```
+ num_examples = len(X) # 学習用データサイズ
+ nn_input_dim = 2 # インプット層の次元数
+ nn_output_dim = 2 # アウトプット層の次元数
+
+# Gradient descent parameters (数値は一般的に使われる値を採用)
+ epsilon = 0.01 # gradient descentの学習率
+ reg_lambda = 0.01 # regularizationの強さ
+```
+上記で定義したLoss関数を書いてみます。これを率いてモデルの性能をチェックできます。
+
+```
+# 全Lossを計算するためのHelper function 
+def calculate_loss(model):
+    W1, b1, W2, b2 = model[&#39;W1&#39;], model[&#39;b1&#39;], model[&#39;W2&#39;], model[&#39;b2&#39;]
+    # 予測を算出するためのForward propagation
+    z1 = X.dot(W1) + b1
+    a1 = np.tanh(z1)
+    z2 = a1.dot(W2) + b2
+    exp_scores = np.exp(z2)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    # Lossを計算
+    corect_logprobs = -np.log(probs[range(num_examples), y])
+    data_loss = np.sum(corect_logprobs)
+    # Lossにregulatization termを与える (optional)
+    data_loss += reg_lambda/2 * (np.sum(np.square(W1)) + np.sum(np.square(W2)))
+    return 1./num_examples * data_loss
+```
+
+アウトプット層を算出するためのHelper関数を書きます。上記で解説したforward propagationを率いて、一番高い確率を返します。
+
+```
+# Helper function to predict an output (0 or 1)
+def predict(model, x):
+    W1, b1, W2, b2 = model[&#39;W1&#39;], model[&#39;b1&#39;], model[&#39;W2&#39;], model[&#39;b2&#39;]
+    # Forward propagation
+    z1 = x.dot(W1) + b1
+    a1 = np.tanh(z1)
+    z2 = a1.dot(W2) + b2
+    exp_scores = np.exp(z2)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    return np.argmax(probs, axis=1)
+```
+
+最後に、ニューラルネットワークを生成するコードを書きます。上記で解説したbackpropagationの微分値を使ってバッチ勾配降下を書きます。
+
+```
+# This function learns parameters for the neural network and returns the model.
+# - nn_hdim: Number of nodes in the hidden layer
+# - num_passes: Number of passes through the training data for gradient descent
+# - print_loss: If True, print the loss every 1000 iterations
+def build_model(nn_hdim, num_passes=20000, print_loss=False):
+     
+    # Initialize the parameters to random values. We need to learn these.
+    np.random.seed(0)
+    W1 = np.random.randn(nn_input_dim, nn_hdim) / np.sqrt(nn_input_dim)
+    b1 = np.zeros((1, nn_hdim))
+    W2 = np.random.randn(nn_hdim, nn_output_dim) / np.sqrt(nn_hdim)
+    b2 = np.zeros((1, nn_output_dim))
+ 
+    # This is what we return at the end
+    model = {}
+     
+    # Gradient descent. For each batch...
+    for i in xrange(0, num_passes):
+ 
+        # Forward propagation
+        z1 = X.dot(W1) + b1
+        a1 = np.tanh(z1)
+        z2 = a1.dot(W2) + b2
+        exp_scores = np.exp(z2)
+        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+ 
+        # Backpropagation
+        delta3 = probs
+        delta3[range(num_examples), y] -= 1
+        dW2 = (a1.T).dot(delta3)
+        db2 = np.sum(delta3, axis=0, keepdims=True)
+        delta2 = delta3.dot(W2.T) * (1 - np.power(a1, 2))
+        dW1 = np.dot(X.T, delta2)
+        db1 = np.sum(delta2, axis=0)
+ 
+        # Add regularization terms (b1 and b2 don&#39;t have regularization terms)
+        dW2 += reg_lambda * W2
+        dW1 += reg_lambda * W1
+ 
+        # Gradient descent parameter update
+        W1 += -epsilon * dW1
+        b1 += -epsilon * db1
+        W2 += -epsilon * dW2
+        b2 += -epsilon * db2
+         
+        # Assign new parameters to the model
+        model = { &#39;W1&#39;: W1, &#39;b1&#39;: b1, &#39;W2&#39;: W2, &#39;b2&#39;: b2}
+         
+        # Optionally print the loss.
+        # This is expensive because it uses the whole dataset, so we don&#39;t want to do it too often.
+        if print_loss and i % 1000 == 0:
+          print &quot;Loss after iteration %i: %f&quot; %(i, calculate_loss(model))
+     
+    return model
+```
+
+# 隠れ層が3つのニューラルネットワーク
+それでは、隠れ層が3つの場合のネットワークを生成します。
+
+```
+# 3次元の隠れ層を持つモデルを構築
+model = build_model(3, print_loss=True)
+ 
+# 決定境界をプロットする
+plot_decision_boundary(lambda x: predict(model, x))
+plt.title(&quot;Decision Boundary for hidden layer size 3&quot;)
+```
+
+![nn-from-scratch-h3.png](https://qiita-image-store.s3.amazonaws.com/0/107310/f8f47758-4661-fcc4-191f-18fc872225d1.png)
+
+うまく月形を認識しました！ニューラルネットワークによってクラスを程よく分けることができていますね。
+
+# 隠れ層の適合サイズをチェック
+
+上記では隠れ層3つを選びました。下記では隠れ層の数を変えながら比較してみましょう。
+
+```
+plt.figure(figsize=(16, 32))
+hidden_layer_dimensions = [1, 2, 3, 4, 5, 20, 50]
+for i, nn_hdim in enumerate(hidden_layer_dimensions):
+    plt.subplot(5, 2, i+1)
+    plt.title(&#39;Hidden Layer size %d&#39; % nn_hdim)
+    model = build_model(nn_hdim)
+    plot_decision_boundary(lambda x: predict(model, x))
+plt.show()
+```
+
+![nn-from-scratch-hidden-layer-varying-1.png](https://qiita-image-store.s3.amazonaws.com/0/107310/483bba3a-3ade-9a3b-291d-8de5dba086b8.png)
+
+上記の図を見てみると、低次元の隠れ層の場合 (3,4あたり)データのパターンをうまくつかめています。一方で、高次元だとオーバーフィットの恐れがあるようです。そうなってしまえば、データの真の形を捉えるのではなくデータの丸暗記をしているようなものです。もしテストデータを率いてモデルをチェックする場合、低次元の隠れ層だとより正確に予測できるはずです。オーバーフィットを強めに正則化するよりも、ちょうど良いサイズの隠れ層を選んだ方がより(コンピューター的に)「経済的」でしょう。
+
+さて、今回は一からライブラリーを使わずにネットワークを作ってみました。次はニューラルネットワーク・ライブラリーを使って更に深くディープラーニングを解説してみます。
+
+*wildMLブログを書いているDenny Britzと共に執筆
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ライブラリーを使わずにPythonでニューラルネットワークを構築してみる on @Qiita" data-url="http://qiita.com/kiminaka/items/9ae195739093277490fe" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ライブラリーを使わずにPythonでニューラルネットワークを構築してみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/kiminaka/items/9ae195739093277490fe" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kiminaka/items/9ae195739093277490fe" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kiminaka/items/9ae195739093277490fe" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/kiminaka"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/107310/profile-images/1477882714" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/kiminaka">kiminaka</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">698</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;kiminaka&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-063e4ee7-9882-4bf0-b978-99f4940975fb"></div>
+    <div id="UserFollowButton-react-component-063e4ee7-9882-4bf0-b978-99f4940975fb"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kiminaka/items/9ae195739093277490fe">ライブラリーを使わずにPythonでニューラルネットワークを構築してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kiminaka/items/87afd4a433dc655d8cfd">再帰型ニューラルネットワーク: RNN入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kiminaka/items/cf860ee59128b3f83bd9">なぜ2015年はAI技術がアツかったのか考えてみる (+2016年のトレンド予測)</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E7%94%9F%E6%88%90%E3%81%99%E3%82%8B\&quot;\u003eデータを生成する\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%AD%E3%82%B8%E3%82%B9%E3%83%86%E3%82%A3%E3%83%83%E3%82%AF%E5%9B%9E%E5%B8%B0\&quot;\u003eロジスティック回帰\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%82%92%E5%AD%A6%E7%BF%92%E3%81%95%E3%81%9B%E3%82%8B\&quot;\u003eニューラルネットワークを学習させる\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%81%AE%E4%BA%88%E6%B8%AC%E3%81%AE%E3%81%97%E3%81%8F%E3%81%BF\&quot;\u003eニューラルネットワークの予測のしくみ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%83%BC%E3%82%92%E5%AD%A6%E7%BF%92%E3%81%95%E3%81%9B%E3%82%8B\&quot;\u003eパラメーターを学習させる\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%9A%9B%E3%81%AB%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E6%9B%B8%E3%81%84%E3%81%A6%E3%81%BF%E3%82%8B\&quot;\u003e実際にコードを書いてみる\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%9A%A0%E3%82%8C%E5%B1%A4%E3%81%8C3%E3%81%A4%E3%81%AE%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%A9%E3%83%AB%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF\&quot;\u003e隠れ層が3つのニューラルネットワーク\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%9A%A0%E3%82%8C%E5%B1%A4%E3%81%AE%E9%81%A9%E5%90%88%E3%82%B5%E3%82%A4%E3%82%BA%E3%82%92%E3%83%81%E3%82%A7%E3%83%83%E3%82%AF\&quot;\u003e隠れ層の適合サイズをチェック\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-60f7bef3-b800-4583-8fde-9e6ee2e34523"></div>
+    <div id="Toc-react-component-60f7bef3-b800-4583-8fde-9e6ee2e34523"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:341,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;9ae195739093277490fe&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="k_tada000"><a itemprop="url" href="/k_tada000"><img alt="k_tada000" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64308/profile-images/1473696541" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Tsutomu-KKE@github"><a itemprop="url" href="/Tsutomu-KKE@github"><img alt="Tsutomu-KKE@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13955/profile-images/1473683126" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TakashiNaito1"><a itemprop="url" href="/TakashiNaito1"><img alt="TakashiNaito1" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/87669/profile-images/1473704167" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="twipg"><a itemprop="url" href="/twipg"><img alt="twipg" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/88331/profile-images/1473704388" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Fu-Om"><a itemprop="url" href="/Fu-Om"><img alt="Fu-Om" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/91291/profile-images/1473705259" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ksyundo"><a itemprop="url" href="/ksyundo"><img alt="ksyundo" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29029/profile-images/1473685285" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="deltam"><a itemprop="url" href="/deltam"><img alt="deltam" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33386/profile-images/1473686114" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dkt"><a itemprop="url" href="/dkt"><img alt="dkt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/89459/profile-images/1473704760" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></div></div><div class="ArticleFooter__user"><a href="/kiminaka/items/9ae195739093277490fe/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/9ae195739093277490fe/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/kiminaka/items/9ae195739093277490fe.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/maueki/items/c5f2ff92a4dc18deca02#_reference-9987be316664eb92e25d"><img alt="" width="18" height="18" src="https://gravatar.com/avatar/9b420891042bb7322692f39306b48178?d=https%3A%2F%2Fidenticons.github.com%2Ff975aabd07c8ccd87409c251b6f7ec8b.png&amp;r=x" />chainerでニューラルネットワーク構築</a><time class="references_datetime js-dateTimeView" datetime="2016-06-09T06:19:52+00:00">9 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/koara-local/items/811fa03ee3731ffbe739#_reference-cb1ad3094d56e9230936"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/37721/profile-images/1486871566" />[TensorFlow][Keras] Kerasでニューラルネットワーク構築</a><time class="references_datetime js-dateTimeView" datetime="2017-03-06T14:17:04+00:00">13 days ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ライブラリーを使わずにPythonでニューラルネットワークを構築してみる on @Qiita" data-url="http://qiita.com/kiminaka/items/9ae195739093277490fe" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ライブラリーを使わずにPythonでニューラルネットワークを構築してみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/kiminaka/items/9ae195739093277490fe" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kiminaka/items/9ae195739093277490fe" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kiminaka/items/9ae195739093277490fe" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e初学者で大変参考にさせていただきました。質問が1点ございます。\u003cbr\u003e\n「ニューラルネットワークの予測のしくみ」の節で隠れ層500ノードを使って入力のxが2次元の場合、最初の入力層から隠れ層への重みベクトルWは2*500と表記されいました。しかし実際は500*2、ではないでしょうか。そして500次元のベクトルが発生し、最後の2*500を用いて2次元に戻して、関数を使って確率に戻すのですよね？\u003cbr\u003e\n理解不足で申し訳ないのですが、お手すきの際にご助言いただければ幸いです（理解できた場合は修正いたします）。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-02-19T11:03:58+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:742628,&quot;is_team&quot;:false,&quot;item_id&quot;:358256,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;9ae195739093277490fe&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;初学者で大変参考にさせていただきました。質問が1点ございます。\n「ニューラルネットワークの予測のしくみ」の節で隠れ層500ノードを使って入力のxが2次元の場合、最初の入力層から隠れ層への重みベクトルWは2*500と表記されいました。しかし実際は500*2、ではないでしょうか。そして500次元のベクトルが発生し、最後の2*500を用いて2次元に戻して、関数を使って確率に戻すのですよね？\n理解不足で申し訳ないのですが、お手すきの際にご助言いただければ幸いです（理解できた場合は修正いたします）。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kiminaka/items/9ae195739093277490fe#comment-c9112b4fd61cddc0353b&quot;,&quot;user&quot;:{&quot;contribution&quot;:7,&quot;created_at&quot;:&quot;2016-06-04T18:19:03+09:00&quot;,&quot;id&quot;:128391,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/128391/profile-images/1473717203&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kisyaman&quot;},&quot;uuid&quot;:&quot;c9112b4fd61cddc0353b&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:358256,&quot;uuid&quot;:&quot;9ae195739093277490fe&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;kiminaka&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:107310,&quot;url_name&quot;:&quot;kiminaka&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/107310/profile-images/1477882714&quot;},{&quot;id&quot;:128391,&quot;url_name&quot;:&quot;kisyaman&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/128391/profile-images/1473717203&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-299b5cd5-65f5-4c2d-a0f0-055fba10072b"></div>
+    <div id="CommentListContainer-react-component-299b5cd5-65f5-4c2d-a0f0-055fba10072b"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="/JQ9YrE5Cd1wmSbgsJfc3i81m7Gd0oL8Etvt9NGmh4EEcQOuJ/+IOnvNVXbBr5vJVoyGmrrizgjz7ib64Ur4LQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kiminaka/items/9ae195739093277490fe" /><input type="hidden" name="item_uuid" id="item_uuid" value="9ae195739093277490fe" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/kiminaka/items/9ae195739093277490fe", "id": 358256, "uuid": "9ae195739093277490fe" }</script><script class="js-user" type="application/json">{&quot;id&quot;:107310,&quot;url_name&quot;:&quot;kiminaka&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/107310/profile-images/1477882714&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="iR6YElmtqQQeypRIom8GbqC9jIJcnyOITzENKM++79Vx+6bez2so4xWe597TV0F52QSRqXuvb3yuBMYm/1KQeQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kiminaka/items/9ae195739093277490fe" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

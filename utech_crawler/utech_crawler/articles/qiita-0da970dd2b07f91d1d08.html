@@ -1,0 +1,397 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders) - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+Importance Weighted Autoencoders
+
+最近、深層生成モデルに興味あるのでICLRにも採択されていたIWAE(Importance Weighted Autoencoders)の実装をTensorFlowで行いました。ついでにBengio達の書いたDeepLearning本の20章(Deep generative models)を一部まとめました。
+
+
+深層生成モデルとは？
+
+深層生成モデルが何かと言われる難しいですがおそらくNeural..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders) - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/masasora/items/0da970dd2b07f91d1d08" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# Importance Weighted Autoencoders 
+
+最近、深層生成モデルに興味あるのでICLRにも採択されていたIWAE(Importance Weighted Autoencoders)の実装をTensorFl..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="0r9vTTFo/OlXzzAYh8ctLwqwqzROFWXVyDU3oBOuwPWNjmZbON2TuCeyVJJuAtW7RkVen0fZsWym1cJz90ZD2w==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"masasora","type":"items","id":"0da970dd2b07f91d1d08"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-e06e82c7-807b-435d-b700-131f6ead3e3e"></div>
+    <div id="HeaderContainer-react-component-e06e82c7-807b-435d-b700-131f6ead3e3e"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/TensorFlow",        "name": "TensorFlow"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders)</h1><ul class="TagList"><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">106</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:106,&quot;uuid&quot;:&quot;0da970dd2b07f91d1d08&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="nzw0301"><a itemprop="url" href="/nzw0301"><img alt="nzw0301" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72604/profile-images/1473699210" /></a></li><li class="js-hovercard" data-hovercard-target-name="yoavlt"><a itemprop="url" href="/yoavlt"><img alt="yoavlt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9647/profile-images/1473681496" /></a></li><li class="js-hovercard" data-hovercard-target-name="knsht"><a itemprop="url" href="/knsht"><img alt="knsht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83568/profile-images/1473702818" /></a></li><li class="js-hovercard" data-hovercard-target-name="n_kats_"><a itemprop="url" href="/n_kats_"><img alt="n_kats_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51820/profile-images/1473692552" /></a></li><li class="js-hovercard" data-hovercard-target-name="tawago"><a itemprop="url" href="/tawago"><img alt="tawago" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" /></a></li><li class="js-hovercard" data-hovercard-target-name="ueno3"><a itemprop="url" href="/ueno3"><img alt="ueno3" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/75359/profile-images/1473700135" /></a></li><li class="js-hovercard" data-hovercard-target-name="midoriya"><a itemprop="url" href="/midoriya"><img alt="midoriya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/61692/profile-images/1473695734" /></a></li><li class="js-hovercard" data-hovercard-target-name="TomokIshii"><a itemprop="url" href="/TomokIshii"><img alt="TomokIshii" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a></li><li class="js-hovercard" data-hovercard-target-name="koher"><a itemprop="url" href="/koher"><img alt="koher" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868" /></a></li><li class="js-hovercard" data-hovercard-target-name="tttamaki"><a itemprop="url" href="/tttamaki"><img alt="tttamaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44835/profile-images/1473690046" /></a></li><li><a href="/masasora/items/0da970dd2b07f91d1d08/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/masasora"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/118139/profile-images/1473713822" alt="1473713822" /></a> <a class="u-link-unstyled" href="/masasora">masasora</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-05-29T16:22:34+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-05-29">Edited at <time datetime="2016-08-15T07:52:26+09:00" itemprop="dateModified">2016-08-15</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/masasora/items/0da970dd2b07f91d1d08/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">3</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/masasora/items/0da970dd2b07f91d1d08/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(3)</span></a></li><li><a href="/masasora/items/0da970dd2b07f91d1d08.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-0da970dd2b07f91d1d08" itemprop="articleBody">
+<h1>
+<span id="importance-weighted-autoencoders" class="fragment"></span><a href="#importance-weighted-autoencoders"><i class="fa fa-link"></i></a>Importance Weighted Autoencoders</h1>
+
+<p>最近、深層生成モデルに興味あるのでICLRにも採択されていたIWAE(Importance Weighted Autoencoders)の実装をTensorFlowで行いました。ついでにBengio達の書いたDeepLearning本の20章(Deep generative models)を一部まとめました。</p>
+
+<h2>
+<span id="深層生成モデルとは" class="fragment"></span><a href="#%E6%B7%B1%E5%B1%A4%E7%94%9F%E6%88%90%E3%83%A2%E3%83%87%E3%83%AB%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>深層生成モデルとは？</h2>
+
+<p>深層生成モデルが何かと言われる難しいですがおそらくNeural Networkを使った生成モデルです。<br>
+Bengio本にも書かれていますがDeepLearningの中でも最重要研究の一つです。実際、DeepLearning系の国際会議ICLRにも結構それ系の話が出ています。<br>
+例えば深層生成モデルを使うと下のようなことができます。具体的には例えばだんだん元の数字に対して0を足しこんでいくということができるようになります。(下の画像は上の行が元の(reconstructした)数字でだんだん行が下がるにつれ0の成分を足しこんでいったものです)<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/118139/4916f7fd-bbdc-68d8-f798-22345b177c7c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/118139/4916f7fd-bbdc-68d8-f798-22345b177c7c.png" alt="my.png"></a></p>
+
+<p>日頃生成モデルのことも含めて色々教えて頂いている先輩が作ったものを使うと次のようなことも出来ます。(<a href="http://deeplearning.jp/suzuki/" class="autolink" rel="nofollow noopener" target="_blank">http://deeplearning.jp/suzuki/</a> のDemoのところから遊ぶことができます。)<br>
+今回はモナリザの画像に右にいくにつれSmiling成分と女性成分を加えていっています。他にも色々な成分を加えることができます。肖像権的な問題が不安なので今回はモナリザにしましたが自然画像で色々やると遊べて楽しいです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/118139/cb830df9-5eb8-e787-31af-9aa1474447b8.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/118139/cb830df9-5eb8-e787-31af-9aa1474447b8.png" alt="Screen Shot 2016-05-29 at 09.06.36.png"></a></p>
+
+<h2>
+<span id="最近の深層生成モデルの二三大柱" class="fragment"></span><a href="#%E6%9C%80%E8%BF%91%E3%81%AE%E6%B7%B1%E5%B1%A4%E7%94%9F%E6%88%90%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E4%BA%8C%E4%B8%89%E5%A4%A7%E6%9F%B1"><i class="fa fa-link"></i></a>最近の深層生成モデルの二(三?)大柱</h2>
+
+<p>深層生成モデルの基本となる二大柱としてVAE(Variatioinal Autoencoder)とGAN(Generative Adversarial Nets)があります。少々、言い過ぎかもしれませんが最近の深層生成モデルの研究の大体がこれらと関係していると言っても過言ではないくらい重要なものです。もう一つ全然違う考え方の生成モデルとしてGMMがあります。<br>
+Boltzmann machineは...？ってなっている方もいるかもしれませんが対数尤度を見ると上の３つの方がいいので最近は(自分の知る範囲内では)あまり研究はされていない気がします。<br>
+ここではBengio達のDeep learning本に沿ってその３つに関して簡単に個条書きしていきます。<br>
+また自分が日頃色々教えて頂いている先輩の書いたパワポとかが文献[2]にあるのでそれも概要を掴むのにお勧めです。とりあえずこの説明だけを読んでも分からない可能性が高いので参考文献達を色々読んだり実装すると理解が深まると思います。</p>
+
+<h3>
+<span id="vae" class="fragment"></span><a href="#vae"><i class="fa fa-link"></i></a>VAE</h3>
+
+<p>原論文(<a href="https://arxiv.org/abs/1312.6114" class="autolink" rel="nofollow noopener" target="_blank">https://arxiv.org/abs/1312.6114</a> )がとても丁寧に書いてあるのでそちらを読むことをお勧めします。基本的には従来の変分推論をBlack boxにまたLarge scaleにするというモチベのもとNeural network(=自動微分)を持ちこんだという感じです。<br>
+また変分推論は以前の記事(<a href="http://qiita.com/masasora/items/900a8d801c5b507d4583" class="autolink" id="reference-c4a4df4e4645157b4918">http://qiita.com/masasora/items/900a8d801c5b507d4583</a>) に書いてあるのでそちらもお勧めです。あとVAEとかはあまり触れられていないですがBleiの変分推論のreview 文献[6]も最高なのでお勧めです。<br>
+今回は先ほども言った通り説明はBengio本に沿ってしますがDeep mindの人の書いた文献[13]とか本人達が書いた文献[4]も参考になります。</p>
+
+<ul>
+<li>$x$を入力変数、$z$を潜在変数とする。</li>
+<li>まず$x$から$z$を生成するencoder $p(z|x)$を用意する。このencoderをnetworkで作る。(このencoderを推論モデルともいう、作り方の詳細は後で)</li>
+<li>$p_{model}(z)$という分布から$z$を生成しさらに$q(x|z)$で$x$を生成することを考える。つまり事後確率を近似するdecoderとしてのnetwork $q(z|x)$を用意する。(このdecoderを生成モデルともいう)</li>
+<li>このとき
+$L(q)=E_{z\sim q(z|x)} [\log p_{model}(z,x)] + H(q(z|x))$
+と$L(q)= E_{z\sim q(z|x)} \log p_{model}(x|z) - D_{KL}(q(x|z)||p_{model}(z))$としたとき$L(q) \leq \log p_{model}(x)$
+が成立する。(イエンセン使ってる )　この下限L(q)をどんどん大きくしていく。</li>
+<li>上の第1式の第1項にはencoder(inferencee network)を使って潜在変数を推定して同時分布を最大化しようという心がある。第２項にはencoderの出力の乱雑さを増やしたいという心がある。</li>
+<li>上の第2式の第1項にはautoencoderのreconstruction errorの心がある. 第2項にはencoder(事後確率)をpriorに近づけたいという(正則化項的な)心がある。これには$p(z)$に近づけるということはnoiseがのるという意味でそれでも復元できるようなautoencoderにしたいということである。 </li>
+<li>同時に第2式の第2項にはtraining phaseが終わった後のgenerative phaseにおいてのミスマッチを減らしたいという心もある。</li>
+<li>19章の変分推論と違ってparametricなzを推定するencoderを導入したことがポイントである。</li>
+<li>元の論文では平均$\mu$と分散$\sigma$をneural netwrokにして$z_{i}=\mu_{i}+\sigma_{i}\epsilon$($\epsilon\sim N(0,1))$となるようなencoderを使っている. (reparametrization trick)　$　(\mu_{i}$と$\sigma_{i}$をNeural netにする。)一方、DecoderとしてはBernouli分布やGauss分布を使っている. </li>
+<li>第２式の第一項(KL divergenceの項)は解析的に計算できる。第二項のreconstruction errorもzを何回か発生させることでMontecalro法で求めることができる。</li>
+<li>とてもエレガントな手法だが生成された画像がぼやけて見えることが欠点</li>
+<li>理由としてはKL divergenceの項がおかしなデータにも順応させてしまうことやDecoderの部分が単純なことが原因とされている。</li>
+<li>時系列versionとしてDRAW modelがある。imageをpatchに分割してだんだん書きこんでいく(attention)を使っている。</li>
+<li>VAEの変形versionとしてIWAE(importance weighted autoencoder)がある。変分下界がサンプリング回数を増やすごとに単調増加していくように下界の式を変えたもの。（後で詳しく説明)</li>
+</ul>
+
+<h3>
+<span id="gan" class="fragment"></span><a href="#gan"><i class="fa fa-link"></i></a>GAN</h3>
+
+<p>DCGANとしておそらく日本でも結構有名?なやつ(文献[9])です。これも元論文(<a href="http://arxiv.org/abs/1406.2661" class="autolink" rel="nofollow noopener" target="_blank">http://arxiv.org/abs/1406.2661</a> )を読むことをお勧めします。</p>
+
+<ul>
+<li> zからxを生成するgenerator network $x = g(z;\theta ^{(g)})$, discriminator network $d(x;\theta ^{(d)})$を使う。</li>
+<li> Genetaorは$z$から本当の分布に近いようにサンプルを生成する。</li>
+<li> Discriminatorは本当の分布とgeneratorからの分布を見分けるように学習する.</li>
+<li> その心から
+$g =\arg min_{g} max_{d} v(g,d) , v(\theta_{g},\theta_{d})= E_{x\sim p_{data}}[log d(x)]+E_{x\sim p_{model}}[log (1-d(x))]$
+を解くことになる。</li>
+<li>問題点として最適化がかなり難しいことがある。</li>
+<li>逆畳み込みを使ったDCGAN、差分ごとに学習していくLAPGANなどの発展系もある。</li>
+</ul>
+
+<h3>
+<span id="gmm" class="fragment"></span><a href="#gmm"><i class="fa fa-link"></i></a>GMM</h3>
+
+<p>(<a href="http://arxiv.org/abs/1502.02761" class="autolink" rel="nofollow noopener" target="_blank">http://arxiv.org/abs/1502.02761</a> )が元論文です。</p>
+
+<ul>
+<li>GANやVAEなどと違って生成モデル以外を使用しない。</li>
+<li>モーメントを一致させていくという手法(momentが定まれば確率分布も定まる)　一見、不可能そう。なぜなら２次モーメントだけでもデータ点の二乗order個あるから。(あとで解決策を書く)</li>
+<li>VAEの良くない所として生成モデルの最終層がGaussian(or Beronuli)ということがあった。Gaussianは2次モーメントまでで定まってしまうので複雑な分布となり得ない。ちなみにGANはdynamicなdiscriminatorのおかげで高次元のモーメントも調整できていた。</li>
+<li>Generative Moment Matching NetworksはMMD(maximum mean discrepancy)を使って密度を合わせていく。MMDとは無限次元での特徴空間に写像したときの1次モーメントを合わせる手法である。(正確に言うと再生核ヒルベルト空間上で一次モーメントを合わせる手法、MMDは別にこのシチュエーションに限らず密度比推定の文脈で以前から使われていた。) </li>
+<li>Autoencoderと組み合わせて使う。というか組み合わせて使わなければ使えない。</li>
+<li>GANに対する欠点としてGMMNはデータを一つずつ入れていけないということがある。なぜならモーメントを計算するのに経験分布を使うので一気にどばって入れなければならないから。</li>
+</ul>
+
+<h3>
+<span id="tips" class="fragment"></span><a href="#tips"><i class="fa fa-link"></i></a>Tips</h3>
+
+<p>Neural network全般に言えることですが最適化のときはbatch　normalizationを使ったほうが精度も収束速度も上がります。また画像のときはDecoder部分に逆畳み込み入れたほうがいいです。</p>
+
+<h2>
+<span id="iwaeとは" class="fragment"></span><a href="#iwae%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>IWAEとは？</h2>
+
+<p>普通のVAEではKL divergenceの項が分けられるので分けていました。しかし分けないで直接モンテカルロ法でサンプリングすることもできるはずです。このとき、普通にサンプリングすると重みは$1/n$になりますがimportance weightedになっているのがIWAEです。サンプリング回数を増やしていくと下界が上がっていくということが知られています。（証明もそんなに難しくはないです。)<br>
+詳しくは論文( <a href="https://arxiv.org/abs/1509.00519" class="autolink" rel="nofollow noopener" target="_blank">https://arxiv.org/abs/1509.00519</a> )を参考にしてください。</p>
+
+<p>VAEとは</p>
+
+<p>$L(q)=E_{z\sim q(z|x)} [log \frac{p(z,x)}{q(z|x)}]$<br>
+$L(q)= E_{z\sim q(z|x)} \log p(x|z) - D_{KL}(q(x|z)||p(z))$</p>
+
+<p>という下界を上げていく手法でした。後者の式の方が解析的に解ける部分が出ていてサンプリングする部分が減っているのでいい気がしますがとりあえず前者の式で考えてみます。<br>
+この式は</p>
+
+<p>$L(q)=E_{z^{(1)},..z^{(k)} \sim q(z|x)} [\frac{1}{k} \sum log \frac{p(z,x)}{q(z|x)}]$</p>
+
+<p>と書いても構わないことがすぐに分かりますがIWAEでは</p>
+
+<p>$L(q)=E_{z^{(1)},..z^{(k)} \sim q(z|x)} [\sum \frac{1}{k}\log \frac{p(z,x)}{q(z|x)}]$</p>
+
+<p>を使います。実際にモデルエビデンスの下界になっていることが分かります。先ほども書いた通り重要な性質としてkを増やすと下界が上がっていくということがあります。<br>
+このままだと使えないですが下のようにすると使えます。</p>
+
+<p>$E_{z^{(1)},..z^{(k)}\sim q(z|x)}[\sum \tilde{\omega_{i}} \nabla _{\theta} \log \omega _{i} (x)]$ </p>
+
+<p>$\omega$は$\frac{p(z,x)}{q(z|x)}$です。また$\tilde{\omega_{i}}$は$\omega$を規格化したものです。この式を見るとimportance weightedの意味が分かると思います。</p>
+
+<h2>
+<span id="実際の実装" class="fragment"></span><a href="#%E5%AE%9F%E9%9A%9B%E3%81%AE%E5%AE%9F%E8%A3%85"><i class="fa fa-link"></i></a>実際の実装</h2>
+
+<p>Codeは自分のgithub(<a href="https://github.com/Ma-sa-ue/practice/tree/master/generative_model" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/Ma-sa-ue/practice/tree/master/generative_model</a>) にあげています。<br>
+普通のVAEの良い実装が文献[14]に上がってるのでそれを改良しています。<br>
+具体的にはサンプリング回数を増やせるようにして、batch normalizationを加えてIWAEにしています。(batch normalizationの効果も絶大です。)<br>
+下がIWAEでreconstructした画像です。(左がtest画像、右がreconstructした画像です)<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/118139/a97b4ade-b0ba-4af0-7edd-ecdbaf85c54d.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/118139/a97b4ade-b0ba-4af0-7edd-ecdbaf85c54d.png" alt="my3.png"></a></p>
+
+<p>実際、普通のVAEと比べると生成モデルとしては負の対数尤度もかなり下がっていてこちらのほうが生成モデルとしてはよいということも定量的に分かります。</p>
+
+<h2>
+<span id="これからの生成モデル" class="fragment"></span><a href="#%E3%81%93%E3%82%8C%E3%81%8B%E3%82%89%E3%81%AE%E7%94%9F%E6%88%90%E3%83%A2%E3%83%87%E3%83%AB"><i class="fa fa-link"></i></a>これからの生成モデル</h2>
+
+<p>(深層)生成モデルの研究はさかん(?)で半教師、時系列の状況下での研究とこもあります。またGaussian processと組み合わせたりしているグループもあります。またStanにその枠組みを組み込んでいる某グループもあります。これからどうなるかは正直全然予測できないですが、一つ確かなことは研究速度がかなり速いので、研究している人達が大変になっていくということでしょうか...</p>
+
+<h2>
+<span id="参考文献" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><i class="fa fa-link"></i></a>参考文献</h2>
+
+<ol>
+<li>
+<a href="http://www.deeplearningbook.org/" class="autolink" rel="nofollow noopener" target="_blank">http://www.deeplearningbook.org/</a> 
+Bengio達のDeep learning本</li>
+<li>
+<a href="http://deeplearning.jp/workshop/" class="autolink" rel="nofollow noopener" target="_blank">http://deeplearning.jp/workshop/</a> 松尾研の輪読資料　生成モデルの輪読資料が結構上がっている。</li>
+<li> <a href="https://arxiv.org/abs/1312.6114" class="autolink" rel="nofollow noopener" target="_blank">https://arxiv.org/abs/1312.6114</a>
+VAEの元論文</li>
+<li>
+<a href="https://ift6266h15.files.wordpress.com/2015/04/20_vae.pdf" class="autolink" rel="nofollow noopener" target="_blank">https://ift6266h15.files.wordpress.com/2015/04/20_vae.pdf</a> 
+VAEの分かりやすい本人達による(?)説明</li>
+<li>
+<a href="http://www.shakirm.com/papers/VITutorial.pdf%E3%80%80" class="autolink" rel="nofollow noopener" target="_blank">http://www.shakirm.com/papers/VITutorial.pdf　</a>
+DEEP MINDの人の書いた変分推論に関する分かりやすい資料</li>
+<li>
+<a href="http://arxiv.org/pdf/1601.00670v2.pdf" class="autolink" rel="nofollow noopener" target="_blank">http://arxiv.org/pdf/1601.00670v2.pdf</a> 
+Bleiの書いた変分推論の非常に有益なReview。書いてあることはVAE以前の変分推論の話だがいわゆる混合Gauss分布などをconjugate exponential familyとして統一的な視点で変分推論の枠組みを説いている。</li>
+<li>
+<a href="http://arxiv.org/abs/1406.2661" class="autolink" rel="nofollow noopener" target="_blank">http://arxiv.org/abs/1406.2661</a> GoodfellowによるGANの論文　</li>
+<li>
+<a href="http://evjang.com/articles/genadv1" class="autolink" rel="nofollow noopener" target="_blank">http://evjang.com/articles/genadv1</a> GANのわかりやすいtutorial</li>
+<li>
+<a href="http://qiita.com/mattya/items/e5bfe5e04b9d2f0bbd47%E3%80%80" class="autolink">http://qiita.com/mattya/items/e5bfe5e04b9d2f0bbd47　</a>
+PFNの人の書いたGANの記事</li>
+<li>
+<a href="http://arxiv.org/abs/1502.02761" class="autolink" rel="nofollow noopener" target="_blank">http://arxiv.org/abs/1502.02761</a> GMMの論文　</li>
+<li>
+<a href="https://jmetzen.github.io/2015-11-27/vae.html" class="autolink" rel="nofollow noopener" target="_blank">https://jmetzen.github.io/2015-11-27/vae.html</a> VAEのわかりやすい実装</li>
+<li>
+<a href="http://www.slideshare.net/beam2d/learning-generator%E3%80%80" class="autolink" rel="nofollow noopener" target="_blank">http://www.slideshare.net/beam2d/learning-generator　</a>
+PFNの人の書いたとてもためになる生成モデルに関するパワポ</li>
+<li>
+<a href="http://qiita.com/masasora/items/900a8d801c5b507d4583" class="autolink">http://qiita.com/masasora/items/900a8d801c5b507d4583</a> 自分の書いたBengio本の19章のまとめ</li>
+<li>
+<a href="https://jmetzen.github.io/2015-11-27/vae.html" class="autolink" rel="nofollow noopener" target="_blank">https://jmetzen.github.io/2015-11-27/vae.html</a> VAEの分かりやすい実装　今回の実装はこの実装を元にした</li>
+<li> <a href="https://arxiv.org/abs/1509.00519" class="autolink" rel="nofollow noopener" target="_blank">https://arxiv.org/abs/1509.00519</a> 　IWAEの論文</li>
+<li>
+<a href="http://fvae.ail.tokyo/" class="autolink" rel="nofollow noopener" target="_blank">http://fvae.ail.tokyo/</a> 研究室の先輩が作った顔画像生成のDemoがある　色々遊ぶと面白い</li>
+</ol>
+<div class="hidden"><form class="js-task-list-update" action="/masasora/items/0da970dd2b07f91d1d08" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="2zKHwmRK+0q8o5wYs+r1NJqAw2E0lGM2ZTRWSKPR43eEA47Ubf+UG8ze+JJaLw2g1nU2yj1Yt48L1KObRzlgWQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1471215146" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# Importance Weighted Autoencoders 
+
+最近、深層生成モデルに興味あるのでICLRにも採択されていたIWAE(Importance Weighted Autoencoders)の実装をTensorFlowで行いました。ついでにBengio達の書いたDeepLearning本の20章(Deep generative models)を一部まとめました。
+
+## 深層生成モデルとは？
+
+深層生成モデルが何かと言われる難しいですがおそらくNeural Networkを使った生成モデルです。
+Bengio本にも書かれていますがDeepLearningの中でも最重要研究の一つです。実際、DeepLearning系の国際会議ICLRにも結構それ系の話が出ています。
+例えば深層生成モデルを使うと下のようなことができます。具体的には例えばだんだん元の数字に対して0を足しこんでいくということができるようになります。(下の画像は上の行が元の(reconstructした)数字でだんだん行が下がるにつれ0の成分を足しこんでいったものです)
+![my.png](https://qiita-image-store.s3.amazonaws.com/0/118139/4916f7fd-bbdc-68d8-f798-22345b177c7c.png)
+
+日頃生成モデルのことも含めて色々教えて頂いている先輩が作ったものを使うと次のようなことも出来ます。(http://deeplearning.jp/suzuki/ のDemoのところから遊ぶことができます。)
+今回はモナリザの画像に右にいくにつれSmiling成分と女性成分を加えていっています。他にも色々な成分を加えることができます。肖像権的な問題が不安なので今回はモナリザにしましたが自然画像で色々やると遊べて楽しいです。
+
+![Screen Shot 2016-05-29 at 09.06.36.png](https://qiita-image-store.s3.amazonaws.com/0/118139/cb830df9-5eb8-e787-31af-9aa1474447b8.png)
+
+## 最近の深層生成モデルの二(三?)大柱
+
+深層生成モデルの基本となる二大柱としてVAE(Variatioinal Autoencoder)とGAN(Generative Adversarial Nets)があります。少々、言い過ぎかもしれませんが最近の深層生成モデルの研究の大体がこれらと関係していると言っても過言ではないくらい重要なものです。もう一つ全然違う考え方の生成モデルとしてGMMがあります。
+Boltzmann machineは...？ってなっている方もいるかもしれませんが対数尤度を見ると上の３つの方がいいので最近は(自分の知る範囲内では)あまり研究はされていない気がします。
+ここではBengio達のDeep learning本に沿ってその３つに関して簡単に個条書きしていきます。
+また自分が日頃色々教えて頂いている先輩の書いたパワポとかが文献[2]にあるのでそれも概要を掴むのにお勧めです。とりあえずこの説明だけを読んでも分からない可能性が高いので参考文献達を色々読んだり実装すると理解が深まると思います。
+
+### VAE
+
+原論文(https://arxiv.org/abs/1312.6114 )がとても丁寧に書いてあるのでそちらを読むことをお勧めします。基本的には従来の変分推論をBlack boxにまたLarge scaleにするというモチベのもとNeural network(=自動微分)を持ちこんだという感じです。
+また変分推論は以前の記事(http://qiita.com/masasora/items/900a8d801c5b507d4583) に書いてあるのでそちらもお勧めです。あとVAEとかはあまり触れられていないですがBleiの変分推論のreview 文献[6]も最高なのでお勧めです。
+今回は先ほども言った通り説明はBengio本に沿ってしますがDeep mindの人の書いた文献[13]とか本人達が書いた文献[4]も参考になります。
+
+* $x$を入力変数、$z$を潜在変数とする。
+* まず$x$から$z$を生成するencoder $p(z|x)$を用意する。このencoderをnetworkで作る。(このencoderを推論モデルともいう、作り方の詳細は後で)
+* $p_{model}(z)$という分布から$z$を生成しさらに$q(x|z)$で$x$を生成することを考える。つまり事後確率を近似するdecoderとしてのnetwork $q(z|x)$を用意する。(このdecoderを生成モデルともいう)
+* このとき
+$L(q)=E_{z\sim q(z|x)} [\log p_{model}(z,x)] + H(q(z|x))$
+と$L(q)= E_{z\sim q(z|x)} \log p_{model}(x|z) - D_{KL}(q(x|z)||p_{model}(z))$としたとき$L(q) \leq \log p_{model}(x)$
+が成立する。(イエンセン使ってる )　この下限L(q)をどんどん大きくしていく。
+* 上の第1式の第1項にはencoder(inferencee network)を使って潜在変数を推定して同時分布を最大化しようという心がある。第２項にはencoderの出力の乱雑さを増やしたいという心がある。
+* 上の第2式の第1項にはautoencoderのreconstruction errorの心がある. 第2項にはencoder(事後確率)をpriorに近づけたいという(正則化項的な)心がある。これには$p(z)$に近づけるということはnoiseがのるという意味でそれでも復元できるようなautoencoderにしたいということである。 
+* 同時に第2式の第2項にはtraining phaseが終わった後のgenerative phaseにおいてのミスマッチを減らしたいという心もある。
+* 19章の変分推論と違ってparametricなzを推定するencoderを導入したことがポイントである。
+* 元の論文では平均$\mu$と分散$\sigma$をneural netwrokにして$z_{i}=\mu_{i}+\sigma_{i}\epsilon$($\epsilon\sim N(0,1))$となるようなencoderを使っている. (reparametrization trick)　$　(\mu_{i}$と$\sigma_{i}$をNeural netにする。)一方、DecoderとしてはBernouli分布やGauss分布を使っている. 
+* 第２式の第一項(KL divergenceの項)は解析的に計算できる。第二項のreconstruction errorもzを何回か発生させることでMontecalro法で求めることができる。
+* とてもエレガントな手法だが生成された画像がぼやけて見えることが欠点
+* 理由としてはKL divergenceの項がおかしなデータにも順応させてしまうことやDecoderの部分が単純なことが原因とされている。
+* 時系列versionとしてDRAW modelがある。imageをpatchに分割してだんだん書きこんでいく(attention)を使っている。
+* VAEの変形versionとしてIWAE(importance weighted autoencoder)がある。変分下界がサンプリング回数を増やすごとに単調増加していくように下界の式を変えたもの。（後で詳しく説明)
+
+### GAN
+
+DCGANとしておそらく日本でも結構有名?なやつ(文献[9])です。これも元論文(http://arxiv.org/abs/1406.2661 )を読むことをお勧めします。
+
+*  zからxを生成するgenerator network $x = g(z;\theta ^{(g)})$, discriminator network $d(x;\theta ^{(d)})$を使う。
+*  Genetaorは$z$から本当の分布に近いようにサンプルを生成する。
+*  Discriminatorは本当の分布とgeneratorからの分布を見分けるように学習する.
+*  その心から
+$g =\arg min_{g} max_{d} v(g,d) , v(\theta_{g},\theta_{d})= E_{x\sim p_{data}}[log d(x)]+E_{x\sim p_{model}}[log (1-d(x))]$
+を解くことになる。
+* 問題点として最適化がかなり難しいことがある。
+* 逆畳み込みを使ったDCGAN、差分ごとに学習していくLAPGANなどの発展系もある。
+
+### GMM
+
+(http://arxiv.org/abs/1502.02761 )が元論文です。
+
+* GANやVAEなどと違って生成モデル以外を使用しない。
+* モーメントを一致させていくという手法(momentが定まれば確率分布も定まる)　一見、不可能そう。なぜなら２次モーメントだけでもデータ点の二乗order個あるから。(あとで解決策を書く)
+* VAEの良くない所として生成モデルの最終層がGaussian(or Beronuli)ということがあった。Gaussianは2次モーメントまでで定まってしまうので複雑な分布となり得ない。ちなみにGANはdynamicなdiscriminatorのおかげで高次元のモーメントも調整できていた。
+* Generative Moment Matching NetworksはMMD(maximum mean discrepancy)を使って密度を合わせていく。MMDとは無限次元での特徴空間に写像したときの1次モーメントを合わせる手法である。(正確に言うと再生核ヒルベルト空間上で一次モーメントを合わせる手法、MMDは別にこのシチュエーションに限らず密度比推定の文脈で以前から使われていた。) 
+* Autoencoderと組み合わせて使う。というか組み合わせて使わなければ使えない。
+* GANに対する欠点としてGMMNはデータを一つずつ入れていけないということがある。なぜならモーメントを計算するのに経験分布を使うので一気にどばって入れなければならないから。
+
+### Tips
+
+Neural network全般に言えることですが最適化のときはbatch　normalizationを使ったほうが精度も収束速度も上がります。また画像のときはDecoder部分に逆畳み込み入れたほうがいいです。
+
+## IWAEとは？
+
+普通のVAEではKL divergenceの項が分けられるので分けていました。しかし分けないで直接モンテカルロ法でサンプリングすることもできるはずです。このとき、普通にサンプリングすると重みは$1/n$になりますがimportance weightedになっているのがIWAEです。サンプリング回数を増やしていくと下界が上がっていくということが知られています。（証明もそんなに難しくはないです。)
+詳しくは論文( https://arxiv.org/abs/1509.00519 )を参考にしてください。
+
+VAEとは
+
+$L(q)=E_{z\sim q(z|x)} [log \frac{p(z,x)}{q(z|x)}]$
+$L(q)= E_{z\sim q(z|x)} \log p(x|z) - D_{KL}(q(x|z)||p(z))$
+
+という下界を上げていく手法でした。後者の式の方が解析的に解ける部分が出ていてサンプリングする部分が減っているのでいい気がしますがとりあえず前者の式で考えてみます。
+この式は
+
+$L(q)=E_{z^{(1)},..z^{(k)} \sim q(z|x)} [\frac{1}{k} \sum log \frac{p(z,x)}{q(z|x)}]$
+
+と書いても構わないことがすぐに分かりますがIWAEでは
+
+$L(q)=E_{z^{(1)},..z^{(k)} \sim q(z|x)} [\sum \frac{1}{k}\log \frac{p(z,x)}{q(z|x)}]$
+
+を使います。実際にモデルエビデンスの下界になっていることが分かります。先ほども書いた通り重要な性質としてkを増やすと下界が上がっていくということがあります。
+このままだと使えないですが下のようにすると使えます。
+
+$E_{z^{(1)},..z^{(k)}\sim q(z|x)}[\sum \tilde{\omega_{i}} \nabla _{\theta} \log \omega _{i} (x)]$ 
+
+$\omega$は$\frac{p(z,x)}{q(z|x)}$です。また$\tilde{\omega_{i}}$は$\omega$を規格化したものです。この式を見るとimportance weightedの意味が分かると思います。
+
+## 実際の実装
+
+Codeは自分のgithub(https://github.com/Ma-sa-ue/practice/tree/master/generative_model) にあげています。
+普通のVAEの良い実装が文献[14]に上がってるのでそれを改良しています。
+具体的にはサンプリング回数を増やせるようにして、batch normalizationを加えてIWAEにしています。(batch normalizationの効果も絶大です。)
+下がIWAEでreconstructした画像です。(左がtest画像、右がreconstructした画像です)
+![my3.png](https://qiita-image-store.s3.amazonaws.com/0/118139/a97b4ade-b0ba-4af0-7edd-ecdbaf85c54d.png)
+
+実際、普通のVAEと比べると生成モデルとしては負の対数尤度もかなり下がっていてこちらのほうが生成モデルとしてはよいということも定量的に分かります。
+
+## これからの生成モデル
+
+(深層)生成モデルの研究はさかん(?)で半教師、時系列の状況下での研究とこもあります。またGaussian processと組み合わせたりしているグループもあります。またStanにその枠組みを組み込んでいる某グループもあります。これからどうなるかは正直全然予測できないですが、一つ確かなことは研究速度がかなり速いので、研究している人達が大変になっていくということでしょうか...
+
+## 参考文献
+
+1. http://www.deeplearningbook.org/ 
+Bengio達のDeep learning本
+2. http://deeplearning.jp/workshop/ 松尾研の輪読資料　生成モデルの輪読資料が結構上がっている。
+3.  https://arxiv.org/abs/1312.6114
+VAEの元論文
+4. https://ift6266h15.files.wordpress.com/2015/04/20_vae.pdf 
+VAEの分かりやすい本人達による(?)説明
+5. http://www.shakirm.com/papers/VITutorial.pdf　
+DEEP MINDの人の書いた変分推論に関する分かりやすい資料
+6. http://arxiv.org/pdf/1601.00670v2.pdf 
+Bleiの書いた変分推論の非常に有益なReview。書いてあることはVAE以前の変分推論の話だがいわゆる混合Gauss分布などをconjugate exponential familyとして統一的な視点で変分推論の枠組みを説いている。
+7. http://arxiv.org/abs/1406.2661 GoodfellowによるGANの論文　
+8. http://evjang.com/articles/genadv1 GANのわかりやすいtutorial
+9. http://qiita.com/mattya/items/e5bfe5e04b9d2f0bbd47　
+PFNの人の書いたGANの記事
+10. http://arxiv.org/abs/1502.02761 GMMの論文　
+11. https://jmetzen.github.io/2015-11-27/vae.html VAEのわかりやすい実装
+12. http://www.slideshare.net/beam2d/learning-generator　
+PFNの人の書いたとてもためになる生成モデルに関するパワポ
+13. http://qiita.com/masasora/items/900a8d801c5b507d4583 自分の書いたBengio本の19章のまとめ
+14. https://jmetzen.github.io/2015-11-27/vae.html VAEの分かりやすい実装　今回の実装はこの実装を元にした
+15.  https://arxiv.org/abs/1509.00519 　IWAEの論文
+16. http://fvae.ail.tokyo/ 研究室の先輩が作った顔画像生成のDemoがある　色々遊ぶと面白い
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders) on @Qiita" data-url="http://qiita.com/masasora/items/0da970dd2b07f91d1d08" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders)" href="http://b.hatena.ne.jp/entry/http://qiita.com/masasora/items/0da970dd2b07f91d1d08" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/masasora/items/0da970dd2b07f91d1d08" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/masasora/items/0da970dd2b07f91d1d08" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/masasora"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/118139/profile-images/1473713822" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/masasora">masasora</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">462</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;masasora&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-427c1268-ab30-4820-9646-e32228ad5fdf"></div>
+    <div id="UserFollowButton-react-component-427c1268-ab30-4820-9646-e32228ad5fdf"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/masasora/items/cc2f10cb79f8c0a6bbaa">ベイズ最適化入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/masasora/items/0da970dd2b07f91d1d08">深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders)</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/masasora/items/5469638d93d9c834724b">ノンパラメトリックベイズ入門</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/masasora/items/4f484339576d27668649">ノンパラメトリックベイズ入門２(IndianBuffetProcessと潜在特徴モデル)</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/masasora/items/50a25c5f2d2ddb632ec5">NIPS 2016 Adversarial Training Workshop　体験記</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#importance-weighted-autoencoders\&quot;\u003eImportance Weighted Autoencoders\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B7%B1%E5%B1%A4%E7%94%9F%E6%88%90%E3%83%A2%E3%83%87%E3%83%AB%E3%81%A8%E3%81%AF\&quot;\u003e深層生成モデルとは？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%9C%80%E8%BF%91%E3%81%AE%E6%B7%B1%E5%B1%A4%E7%94%9F%E6%88%90%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E4%BA%8C%E4%B8%89%E5%A4%A7%E6%9F%B1\&quot;\u003e最近の深層生成モデルの二(三?)大柱\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#vae\&quot;\u003eVAE\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#gan\&quot;\u003eGAN\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#gmm\&quot;\u003eGMM\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tips\&quot;\u003eTips\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#iwae%E3%81%A8%E3%81%AF\&quot;\u003eIWAEとは？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%9A%9B%E3%81%AE%E5%AE%9F%E8%A3%85\&quot;\u003e実際の実装\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%93%E3%82%8C%E3%81%8B%E3%82%89%E3%81%AE%E7%94%9F%E6%88%90%E3%83%A2%E3%83%87%E3%83%AB\&quot;\u003eこれからの生成モデル\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE\&quot;\u003e参考文献\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-8c12e663-9193-48e3-9d5a-332bf5df7e98"></div>
+    <div id="Toc-react-component-8c12e663-9193-48e3-9d5a-332bf5df7e98"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:106,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;0da970dd2b07f91d1d08&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nzw0301"><a itemprop="url" href="/nzw0301"><img alt="nzw0301" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72604/profile-images/1473699210" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yoavlt"><a itemprop="url" href="/yoavlt"><img alt="yoavlt" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9647/profile-images/1473681496" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="knsht"><a itemprop="url" href="/knsht"><img alt="knsht" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83568/profile-images/1473702818" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="n_kats_"><a itemprop="url" href="/n_kats_"><img alt="n_kats_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51820/profile-images/1473692552" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tawago"><a itemprop="url" href="/tawago"><img alt="tawago" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63543/profile-images/1473696298" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ueno3"><a itemprop="url" href="/ueno3"><img alt="ueno3" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/75359/profile-images/1473700135" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="midoriya"><a itemprop="url" href="/midoriya"><img alt="midoriya" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/61692/profile-images/1473695734" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="TomokIshii"><a itemprop="url" href="/TomokIshii"><img alt="TomokIshii" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/74152/profile-images/1473699746" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="koher"><a itemprop="url" href="/koher"><img alt="koher" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47085/profile-images/1473690868" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tttamaki"><a itemprop="url" href="/tttamaki"><img alt="tttamaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/44835/profile-images/1473690046" /></a></div></div><div class="ArticleFooter__user"><a href="/masasora/items/0da970dd2b07f91d1d08/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/0da970dd2b07f91d1d08/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/masasora/items/0da970dd2b07f91d1d08.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders) on @Qiita" data-url="http://qiita.com/masasora/items/0da970dd2b07f91d1d08" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="深層生成モデルのtensorflowによる実装(Importance Weighted Autoencoders)" href="http://b.hatena.ne.jp/entry/http://qiita.com/masasora/items/0da970dd2b07f91d1d08" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/masasora/items/0da970dd2b07f91d1d08" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/masasora/items/0da970dd2b07f91d1d08" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:396090,&quot;uuid&quot;:&quot;0da970dd2b07f91d1d08&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;masasora&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:118139,&quot;url_name&quot;:&quot;masasora&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/118139/profile-images/1473713822&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-088a045e-5ec8-4fa0-99ff-82658a8b233a"></div>
+    <div id="CommentListContainer-react-component-088a045e-5ec8-4fa0-99ff-82658a8b233a"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="lFhVP2KmFSJdyjzGhsHZ/HCX4htsLITy7RwHrpiQIuPLaVwpaxN6cy23WExvBCFoPGIXsGXgUEuD/PJ9fHihzQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/masasora/items/0da970dd2b07f91d1d08" /><input type="hidden" name="item_uuid" id="item_uuid" value="0da970dd2b07f91d1d08" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/masasora/items/0da970dd2b07f91d1d08", "id": 396090, "uuid": "0da970dd2b07f91d1d08" }</script><script class="js-user" type="application/json">{&quot;id&quot;:118139,&quot;url_name&quot;:&quot;masasora&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/118139/profile-images/1473713822&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="+lqX62i//8SDiLhdWuCd34N6BGYC2kk8TTpQfBbaKXOla579YQqQlfP13NezJWVLz4/xzQsWnYUj2qWv8jKqXQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/masasora/items/0da970dd2b07f91d1d08" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

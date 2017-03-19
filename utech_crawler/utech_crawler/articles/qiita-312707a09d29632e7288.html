@@ -1,0 +1,729 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>深層学習でアニメ顔を分類する with Chainer - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Kerasによる続編はこちら．
+
+
+はじめに
+
+初めての投稿です．暑い日が続いておりますが，アニメ顔画像データを深層学習を使って分類しようと思います．あんまりアニメ詳しくないです．初音ミクとかならわかります．一体誰が誰なんだ．
+
+
+データセット
+
+データセットはanimeface-character-datasetから入手することができます．
+参考:DenoisingAutoEncoderでアニメ顔の特徴を抽出してみた
+
+
+コード
+
+今回はChainerをつかって畳み込..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="hogefugabar" name="twitter:creator" /><meta content="深層学習でアニメ顔を分類する with Chainer - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/hogefugabar/items/312707a09d29632e7288" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="**Kerasによる続編は[こちら](http://qiita.com/hogefugabar/items/afb4f6c9a93a4bbda51a)．**
+
+#はじめに
+初めての投稿です．暑い日が続いておりますが，アニメ顔画像データ..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="5oZs7bBn86k/ywFuGKbE3YwQ7w8Omixqdlf43Fq/TxmInG/MreDenOCpSAY5pkg//wJWpW046JsXX3OWntCpcQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"hogefugabar","type":"items","id":"312707a09d29632e7288"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-df0fe90c-63aa-4700-a900-f61f5824d7e7"></div>
+    <div id="HeaderContainer-react-component-df0fe90c-63aa-4700-a900-f61f5824d7e7"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/DeepLearning",        "name": "DeepLearning"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">深層学習でアニメ顔を分類する with Chainer</h1><ul class="TagList"><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li><li class="TagList__item" data-count="229"><a class="u-link-unstyled TagList__label" href="/tags/%E6%B7%B1%E5%B1%A4%E5%AD%A6%E7%BF%92"><img alt="深層学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/9594cfcb56d9180f74c468e56c69ce9f69cbe6ee/medium.jpg?1480640899" /><span>深層学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">138</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="6 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>6</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:138,&quot;uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="shibainurou"><a itemprop="url" href="/shibainurou"><img alt="shibainurou" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13571/profile-images/1473682905" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="fuerasdejuego"><a itemprop="url" href="/fuerasdejuego"><img alt="fuerasdejuego" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83081/profile-images/1473702657" /></a></li><li class="js-hovercard" data-hovercard-target-name="pyr_revs"><a itemprop="url" href="/pyr_revs"><img alt="pyr_revs" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/69525/profile-images/1473698177" /></a></li><li class="js-hovercard" data-hovercard-target-name="takahirom"><a itemprop="url" href="/takahirom"><img alt="takahirom" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/27388/profile-images/1473684999" /></a></li><li class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></li><li class="js-hovercard" data-hovercard-target-name="serithemage"><a itemprop="url" href="/serithemage"><img alt="serithemage" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/61256/profile-images/1473695473" /></a></li><li class="js-hovercard" data-hovercard-target-name="kimihiro_n"><a itemprop="url" href="/kimihiro_n"><img alt="kimihiro_n" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25168/profile-images/1473684273" /></a></li><li class="js-hovercard" data-hovercard-target-name="kazunari-yamashiro"><a itemprop="url" href="/kazunari-yamashiro"><img alt="kazunari-yamashiro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26206/profile-images/1473684527" /></a></li><li class="js-hovercard" data-hovercard-target-name="AKB428"><a itemprop="url" href="/AKB428"><img alt="AKB428" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/36931/profile-images/1481078858" /></a></li><li><a href="/hogefugabar/items/312707a09d29632e7288/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/hogefugabar"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" alt="1473685791" /></a> <a class="u-link-unstyled" href="/hogefugabar">hogefugabar</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-07-21T19:45:46+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-07-21">Edited at <time datetime="2016-07-24T14:01:17+09:00" itemprop="dateModified">2016-07-24</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/hogefugabar/items/312707a09d29632e7288/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">9</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/hogefugabar/items/312707a09d29632e7288/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(9)</span></a></li><li><a href="/hogefugabar/items/312707a09d29632e7288.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-312707a09d29632e7288" itemprop="articleBody"><p><strong>Kerasによる続編は<a href="http://qiita.com/hogefugabar/items/afb4f6c9a93a4bbda51a" id="reference-31ec124e3b304e84902c">こちら</a>．</strong></p>
+
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p>初めての投稿です．暑い日が続いておりますが，アニメ顔画像データを深層学習を使って分類しようと思います．あんまりアニメ詳しくないです．初音ミクとかならわかります．一体誰が誰なんだ．</p>
+
+<h1>
+<span id="データセット" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>データセット</h1>
+
+<p>データセットは<a href="http://www.nurs.or.jp/%7Enagadomi/animeface-character-dataset/" rel="nofollow noopener" target="_blank">animeface-character-dataset</a>から入手することができます．<br>
+参考:<a href="http://nonbiri-tereka.hatenablog.com/entry/2015/06/30/222616" rel="nofollow noopener" target="_blank">DenoisingAutoEncoderでアニメ顔の特徴を抽出してみた</a></p>
+
+<h1>
+<span id="コード" class="fragment"></span><a href="#%E3%82%B3%E3%83%BC%E3%83%89"><i class="fa fa-link"></i></a>コード</h1>
+
+<p>今回は<a href="http://chainer.org" rel="nofollow noopener" target="_blank">Chainer</a>をつかって畳み込みニューラルネットワークを実装します．まずモデルを定義します．<br>
+Convolution → Max Pooling → Convolution → Max Pooling → Full-Connected → Softmaxみたいな感じです．<br>
+コードが汚いのはご容赦ください．</p>
+
+<p>参考:<a href="https://github.com/mitmul/chainer-cifar10/blob/master/models/Cifar10.py" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/mitmul/chainer-cifar10/blob/master/models/Cifar10.py</a></p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">CNN.py</span></div>
+<div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">six.moves.cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_mldata</span>
+<span class="kn">from</span> <span class="nn">sklearn.cross_validation</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">chainer</span> <span class="kn">import</span> <span class="n">cuda</span><span class="p">,</span> <span class="n">Variable</span><span class="p">,</span> <span class="n">FunctionSet</span><span class="p">,</span> <span class="n">optimizers</span>
+<span class="kn">import</span> <span class="nn">chainer.functions</span> <span class="kn">as</span> <span class="nn">F</span>
+
+<span class="k">class</span> <span class="nc">ImageNet</span><span class="p">(</span><span class="n">FunctionSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_outputs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ImageNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">conv1</span><span class="o">=</span>  <span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="n">conv2</span><span class="o">=</span>  <span class="n">F</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="n">l3</span><span class="o">=</span>     <span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">),</span>
+            <span class="n">l4</span><span class="o">=</span>     <span class="n">F</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="n">n_outputs</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">x_data</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">x_data</span><span class="p">)</span>
+            <span class="n">y_data</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">Variable</span><span class="p">(</span><span class="n">x_data</span><span class="p">),</span> <span class="n">Variable</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)),</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="n">ksize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l3</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">l4</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax_cross_entropy</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<p>とりあえず定義したモデルを使って学習，評価できるようにします．</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">CNN.py</span></div>
+<div class="highlight"><pre>
+<span class="k">class</span> <span class="nc">CNN</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">n_outputs</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">ImageNet</span><span class="p">(</span><span class="n">n_outputs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="s">'cnn_model'</span>
+
+        <span class="k">if</span> <span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">=</span> <span class="n">gpu</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_train</span><span class="p">,</span>\
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">,</span>\
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_train</span><span class="p">,</span>\
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_train</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_train</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">collect_parameters</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_data</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">gpu</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">train_and_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_epoch</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batchsize</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+
+        <span class="n">epoch</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">best_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">epoch</span> <span class="o">&lt;=</span> <span class="n">n_epoch</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">'epoch'</span><span class="p">,</span> <span class="n">epoch</span>
+
+            <span class="n">perm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_train</span><span class="p">)</span>
+            <span class="n">sum_train_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">sum_train_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_train</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">):</span>
+                <span class="n">x_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_train</span><span class="p">[</span><span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">batchsize</span><span class="p">]]</span>
+                <span class="n">y_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_train</span><span class="p">[</span><span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">batchsize</span><span class="p">]]</span>
+
+                <span class="n">real_batchsize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_batch</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grads</span><span class="p">()</span>
+                <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu</span><span class="p">)</span>
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+                <span class="n">sum_train_loss</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="n">real_batchsize</span>
+                <span class="n">sum_train_accuracy</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="n">real_batchsize</span>
+
+            <span class="k">print</span> <span class="s">'train mean loss={}, accuracy={}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sum_train_loss</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_train</span><span class="p">,</span> <span class="n">sum_train_accuracy</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_train</span><span class="p">)</span>
+
+            <span class="c"># evaluation</span>
+            <span class="n">sum_test_accuracy</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">sum_test_loss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_test</span><span class="p">,</span> <span class="n">batchsize</span><span class="p">):</span>
+                <span class="n">x_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">batchsize</span><span class="p">]</span>
+                <span class="n">y_batch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_test</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">batchsize</span><span class="p">]</span>
+
+                <span class="n">real_batchsize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_batch</span><span class="p">)</span>
+
+                <span class="n">loss</span><span class="p">,</span> <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu</span><span class="p">)</span>
+
+                <span class="n">sum_test_loss</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="n">real_batchsize</span>
+                <span class="n">sum_test_accuracy</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="n">real_batchsize</span>
+
+            <span class="k">print</span> <span class="s">'test mean loss={}, accuracy={}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sum_test_loss</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_test</span><span class="p">,</span> <span class="n">sum_test_accuracy</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_test</span><span class="p">)</span>         
+
+            <span class="n">epoch</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">dump_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">()</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span><span class="s">'rb'</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">collect_parameters</span><span class="p">())</span>
+
+</pre></div>
+</div>
+
+<h1>
+<span id="データセット前処理" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88%E5%89%8D%E5%87%A6%E7%90%86"><i class="fa fa-link"></i></a>データセット前処理</h1>
+
+<p>処理を軽減するために画像サイズを全て32*32にします．また <strong>画像の入っていないディレクトリは予め削除</strong> しておいてください．</p>
+
+<div class="code-frame" data-lang="python">
+<div class="code-lang"><span class="bold">animeface.py</span></div>
+<div class="highlight"><pre>
+<span class="c">#! -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">six.moves.cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="kn">as</span> <span class="nn">cv</span>
+
+<span class="k">class</span> <span class="nc">AnimeFaceDataset</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir_path</span> <span class="o">=</span> <span class="s">u"./animeface-character-dataset/thumb/"</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_types_target</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_name</span> <span class="o">=</span> <span class="s">u'dataset'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_size</span> <span class="o">=</span> <span class="mi">32</span>
+
+    <span class="k">def</span> <span class="nf">get_dir_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tmp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tmp</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir_path</span><span class="o">+</span><span class="n">x</span><span class="p">)])</span>
+
+    <span class="k">def</span> <span class="nf">get_class_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+        <span class="n">dir_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dir_list</span><span class="p">()</span>
+        <span class="n">dir_name</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fname</span><span class="p">,</span> <span class="n">dir_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dir_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dir_name</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">load_data_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">dir_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dir_list</span><span class="p">()</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">target_name</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">dir_name</span> <span class="ow">in</span> <span class="n">dir_list</span><span class="p">:</span>
+                <span class="n">file_list</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir_path</span><span class="o">+</span><span class="n">dir_name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">file_list</span><span class="p">:</span>
+                    <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s">u'.png'</span><span class="p">:</span>
+                        <span class="n">abs_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir_path</span><span class="o">+</span><span class="n">dir_name</span><span class="o">+</span><span class="s">'/'</span><span class="o">+</span><span class="n">file_name</span>
+                        <span class="c"># read class id i.e., target</span>
+                        <span class="n">class_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_class_id</span><span class="p">(</span><span class="n">abs_name</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">class_id</span><span class="p">)</span>
+                        <span class="n">target_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dir_name</span><span class="p">))</span>
+                        <span class="c"># read image i.e., data</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">abs_name</span><span class="p">)</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_size</span><span class="p">))</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">/</span><span class="mf">255.</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">index2name</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index2name</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">target_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_dataset</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_n_types_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_data_target</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_types_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_types_target</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+            <span class="n">tmp</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">dump_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">index2name</span><span class="p">),</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_name</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index2name</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_name</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">))</span>
+</pre></div>
+</div>
+
+<p>実際にデータを読み込んでみます．</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+In [1]: from animeface import AnimeFaceDataset
+
+In [2]: dataset = AnimeFaceDataset()
+
+In [3]: dataset.load_data_target()       
+
+In [5]: dataset.get_n_types_target()
+Out[5]: 176
+
+In [6]: len(dataset.target)
+Out[6]: 14490
+</pre></div></div>
+
+<p>なので，データ数14490，クラス数(キャラクター数)176の分類問題となります．176人もいるのかうへー．<br>
+実際に以下のコードで学習させてみます．</p>
+
+<div class="code-frame" data-lang="python"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">CNN</span> <span class="kn">import</span> <span class="n">CNN</span>
+<span class="kn">from</span> <span class="nn">animeface</span> <span class="kn">import</span> <span class="n">AnimeFaceDataset</span>
+<span class="kn">from</span> <span class="nn">chainer</span> <span class="kn">import</span> <span class="n">cuda</span>
+
+<span class="c">#GPUつかうよ</span>
+<span class="n">cuda</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">print</span> <span class="s">'load AnimeFace dataset'</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">AnimeFaceDataset</span><span class="p">()</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">read_data_target</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">target</span>
+<span class="n">n_outputs</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_n_types_target</span><span class="p">()</span>
+
+<span class="n">cnn</span> <span class="o">=</span> <span class="n">CNN</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+          <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+          <span class="n">gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+          <span class="n">n_outputs</span><span class="o">=</span><span class="n">n_outputs</span><span class="p">)</span>
+
+<span class="n">cnn</span><span class="o">.</span><span class="n">train_and_test</span><span class="p">(</span><span class="n">n_epoch</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div></div>
+
+<p>実行結果は以下のとおりです．</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+C:\Python27\lib\site-packages\skcuda\cublas.py:273: UserWarning: creating CUBLAS
+ context to get version number
+  warnings.warn('creating CUBLAS context to get version number')
+load AnimeFace dataset
+epoch 1
+train mean loss=4.77383880182, accuracy=0.0361935423276
+test mean loss=3.88453409868, accuracy=0.116632157313
+epoch 2
+train mean loss=3.52874370272, accuracy=0.158193386024
+test mean loss=3.00467933286, accuracy=0.247066933423
+epoch 3
+train mean loss=2.95961939461, accuracy=0.254735058687
+test mean loss=2.6362867278, accuracy=0.327122144303
+epoch 4
+train mean loss=2.634737659, accuracy=0.319607384265
+test mean loss=2.38959699009, accuracy=0.395445127233
+
+----
+中略
+----
+
+epoch 96
+train mean loss=0.227027994983, accuracy=0.925159092696
+test mean loss=2.70711887911, accuracy=0.589371965415
+epoch 97
+train mean loss=0.216873285405, accuracy=0.927382851637
+test mean loss=2.6218228118, accuracy=0.594893018034
+epoch 98
+train mean loss=0.209225204521, accuracy=0.930220058136
+test mean loss=2.68379376295, accuracy=0.5935127585
+epoch 99
+train mean loss=0.209071503231, accuracy=0.928072985573
+test mean loss=2.62009712151, accuracy=0.593512752658
+epoch 100
+train mean loss=0.210750763214, accuracy=0.92999001446
+test mean loss=2.75891605618, accuracy=0.589371977427
+Early Stopping was not executed.
+</pre></div></div>
+
+<p><a href="https://dl.dropboxusercontent.com/u/38631959/animeface_log.png" target="_blank" rel="nofollow noopener"><img src="https://dl.dropboxusercontent.com/u/38631959/animeface_log.png" alt=""></a></p>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<p>結果は正解率60%ほどとなりました．多分CNNのアーキテクチャを変えれば行ける気がするのと，画像を32*32にしたのは小さすぎたかな．．．と<br>
+コード，変数名とか関数名とか綺麗にしたものを今度GitHubにあげようかと思います．<br>
+あと変なところとかありましたらご指摘いただけるとありがたいです．</p>
+<div class="hidden"><form class="js-task-list-update" action="/hogefugabar/items/312707a09d29632e7288" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="fHY+vVCwLQnz4OWqBtDjLbdnoC/PmrqalVVPqRtdG6ISbD2cTTcAPCyCrMIn0G/PxHUZhaw4fmv0XcTj3zL9yg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1469336477" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+**Kerasによる続編は[こちら](http://qiita.com/hogefugabar/items/afb4f6c9a93a4bbda51a)．**
+
+#はじめに
+初めての投稿です．暑い日が続いておりますが，アニメ顔画像データを深層学習を使って分類しようと思います．あんまりアニメ詳しくないです．初音ミクとかならわかります．一体誰が誰なんだ．
+
+#データセット
+データセットは[animeface-character-dataset](http://www.nurs.or.jp/~nagadomi/animeface-character-dataset/)から入手することができます．
+参考:[DenoisingAutoEncoderでアニメ顔の特徴を抽出してみた](http://nonbiri-tereka.hatenablog.com/entry/2015/06/30/222616)
+
+#コード
+今回は[Chainer](http://chainer.org)をつかって畳み込みニューラルネットワークを実装します．まずモデルを定義します．
+Convolution → Max Pooling → Convolution → Max Pooling → Full-Connected → Softmaxみたいな感じです．
+コードが汚いのはご容赦ください．
+
+参考:https://github.com/mitmul/chainer-cifar10/blob/master/models/Cifar10.py
+
+```python:CNN.py
+import time
+import six.moves.cPickle as pickle
+import numpy as np
+from sklearn.datasets import fetch_mldata
+from sklearn.cross_validation import train_test_split
+from chainer import cuda, Variable, FunctionSet, optimizers
+import chainer.functions as F
+
+class ImageNet(FunctionSet):
+	def __init__(self, n_outputs):
+		super(ImageNet, self).__init__(
+			conv1=	F.Convolution2D(3, 32, 5),
+			conv2=	F.Convolution2D(32, 32, 5),
+			l3=		F.Linear(512, 512),
+			l4=		F.Linear(512, n_outputs)
+		)
+
+	def forward(self, x_data, y_data, train=True, gpu=-1):
+
+		if gpu &gt;= 0:
+			x_data = cuda.to_gpu(x_data)
+			y_data = cuda.to_gpu(y_data)
+
+		x, t = Variable(x_data), Variable(y_data)
+		h = F.max_pooling_2d(F.relu(self.conv1(x)), ksize=2, stride=2)
+		h = F.max_pooling_2d(F.relu(self.conv2(h)), ksize=3, stride=3)
+		h = F.dropout(F.relu(self.l3(h)), train=train)
+		y = self.l4(h)
+		return F.softmax_cross_entropy(y, t), F.accuracy(y,t)
+```
+
+とりあえず定義したモデルを使って学習，評価できるようにします．
+
+```python:CNN.py
+class CNN:
+	def __init__(self, data, target, n_outputs, gpu=-1):
+
+		self.model = ImageNet(n_outputs)
+		self.model_name = &#39;cnn_model&#39;
+
+		if gpu &gt;= 0:
+			self.model.to_gpu()
+
+		self.gpu = gpu
+
+		self.x_train,\
+		self.x_test,\
+		self.y_train,\
+		self.y_test = train_test_split(data, target, test_size=0.1)
+
+		self.n_train = len(self.y_train)
+		self.n_test = len(self.y_test)
+
+		self.optimizer = optimizers.Adam()
+		self.optimizer.setup(self.model.collect_parameters())
+
+	def predict(self, x_data, gpu=-1):
+		return self.model.predict(x_data, gpu)
+
+
+	def train_and_test(self, n_epoch=100, batchsize=100):
+
+		epoch = 1
+		best_accuracy = 0
+		while epoch &lt;= n_epoch:
+			print &#39;epoch&#39;, epoch
+
+			perm = np.random.permutation(self.n_train)
+			sum_train_accuracy = 0
+			sum_train_loss = 0
+			for i in xrange(0, self.n_train, batchsize):
+				x_batch = self.x_train[perm[i:i+batchsize]]
+				y_batch = self.y_train[perm[i:i+batchsize]]
+
+				real_batchsize = len(x_batch)
+
+				self.optimizer.zero_grads()
+				loss, acc = self.model.forward(x_batch, y_batch, train=True, gpu=self.gpu)
+				loss.backward()
+				self.optimizer.update()
+
+				sum_train_loss += float(cuda.to_cpu(loss.data)) * real_batchsize
+				sum_train_accuracy += float(cuda.to_cpu(acc.data)) * real_batchsize
+
+			print &#39;train mean loss={}, accuracy={}&#39;.format(sum_train_loss/self.n_train, sum_train_accuracy/self.n_train)
+
+			# evaluation
+			sum_test_accuracy = 0
+			sum_test_loss = 0
+			for i in xrange(0, self.n_test, batchsize):
+				x_batch = self.x_test[i:i+batchsize]
+				y_batch = self.y_test[i:i+batchsize]
+
+				real_batchsize = len(x_batch)
+
+				loss, acc = self.model.forward(x_batch, y_batch, train=False, gpu=self.gpu)
+
+				sum_test_loss += float(cuda.to_cpu(loss.data)) * real_batchsize
+				sum_test_accuracy += float(cuda.to_cpu(acc.data)) * real_batchsize
+
+			print &#39;test mean loss={}, accuracy={}&#39;.format(sum_test_loss/self.n_test, sum_test_accuracy/self.n_test)			
+
+			epoch += 1
+
+	def dump_model(self):
+		self.model.to_cpu()
+		pickle.dump(self.model, open(self.model_name, &#39;wb&#39;), -1)
+
+	def load_model(self):
+		self.model = pickle.load(open(self.model_name,&#39;rb&#39;))
+		if self.gpu &gt;= 0:
+			self.model.to_gpu()
+		self.optimizer.setup(self.model.collect_parameters())
+
+```
+
+
+#データセット前処理
+処理を軽減するために画像サイズを全て32*32にします．また **画像の入っていないディレクトリは予め削除** しておいてください．
+
+```python:animeface.py
+#! -*- coding: utf-8 -*-
+
+import os
+import six.moves.cPickle as pickle
+import numpy as np
+import cv2 as cv
+
+class AnimeFaceDataset:
+	def __init__(self):
+		self.data_dir_path = u&quot;./animeface-character-dataset/thumb/&quot;
+		self.data = None
+		self.target = None
+		self.n_types_target = -1
+		self.dump_name = u&#39;dataset&#39;
+		self.image_size = 32
+
+	def get_dir_list(self):
+		tmp = os.listdir(self.data_dir_path)
+		if tmp is None:
+			return None
+		return sorted([x for x in tmp if os.path.isdir(self.data_dir_path+x)])
+
+	def get_class_id(self, fname):
+		dir_list = self.get_dir_list()
+		dir_name = filter(lambda x: x in fname, dir_list)
+		return dir_list.index(dir_name[0])
+
+	def load_data_target(self):
+		if os.path.exists(self.dump_name):
+			self.load_dataset()
+		if self.target is None:
+			dir_list = self.get_dir_list()
+			ret = {}
+			self.target = []
+			target_name = []
+			self.data = []
+			for dir_name in dir_list:
+				file_list = os.listdir(self.data_dir_path+dir_name)
+				for file_name in file_list:
+					root, ext = os.path.splitext(file_name)
+					if ext == u&#39;.png&#39;:
+						abs_name = self.data_dir_path+dir_name+&#39;/&#39;+file_name
+						# read class id i.e., target
+						class_id = self.get_class_id(abs_name)
+						self.target.append(class_id)
+						target_name.append(str(dir_name))
+						# read image i.e., data
+						image = cv.imread(abs_name)
+						image = cv.resize(image, (self.image_size, self.image_size))
+						image = image.transpose(2,0,1)
+						image = image/255.
+						self.data.append(image)
+
+			self.index2name = {}
+			for i in xrange(len(self.target)):
+				self.index2name[self.target[i]] = target_name[i]
+				
+		self.data = np.array(self.data, np.float32)
+		self.target = np.array(self.target, np.int32)
+
+		self.dump_dataset()
+
+	def get_n_types_target(self):
+		if self.target is None:
+			self.load_data_target()
+
+		if self.n_types_target is not -1:
+			return self.n_types_target
+
+		tmp = {}
+		for target in self.target:
+			tmp[target] = 0
+		return len(tmp)
+
+	def dump_dataset(self):
+		pickle.dump((self.data,self.target,self.index2name), open(self.dump_name, &#39;wb&#39;), -1)
+
+	def load_dataset(self):
+		self.data, self.target, self.index2name = pickle.load(open(self.dump_name, &#39;rb&#39;))
+```
+
+実際にデータを読み込んでみます．
+
+```
+In [1]: from animeface import AnimeFaceDataset
+
+In [2]: dataset = AnimeFaceDataset()
+
+In [3]: dataset.load_data_target()       
+
+In [5]: dataset.get_n_types_target()
+Out[5]: 176
+
+In [6]: len(dataset.target)
+Out[6]: 14490
+```
+
+なので，データ数14490，クラス数(キャラクター数)176の分類問題となります．176人もいるのかうへー．
+実際に以下のコードで学習させてみます．
+
+```python
+from CNN import CNN
+from animeface import AnimeFaceDataset
+from chainer import cuda
+
+#GPUつかうよ
+cuda.init(0)
+
+print &#39;load AnimeFace dataset&#39;
+dataset = AnimeFaceDataset()
+dataset.read_data_target()
+data = dataset.data
+target = dataset.target
+n_outputs = dataset.get_n_types_target()
+
+cnn = CNN(data=data,
+		  target=target,
+		  gpu=0,
+		  n_outputs=n_outputs)
+		  
+cnn.train_and_test(n_epoch=100)
+```
+
+実行結果は以下のとおりです．
+
+```
+C:\Python27\lib\site-packages\skcuda\cublas.py:273: UserWarning: creating CUBLAS
+ context to get version number
+  warnings.warn(&#39;creating CUBLAS context to get version number&#39;)
+load AnimeFace dataset
+epoch 1
+train mean loss=4.77383880182, accuracy=0.0361935423276
+test mean loss=3.88453409868, accuracy=0.116632157313
+epoch 2
+train mean loss=3.52874370272, accuracy=0.158193386024
+test mean loss=3.00467933286, accuracy=0.247066933423
+epoch 3
+train mean loss=2.95961939461, accuracy=0.254735058687
+test mean loss=2.6362867278, accuracy=0.327122144303
+epoch 4
+train mean loss=2.634737659, accuracy=0.319607384265
+test mean loss=2.38959699009, accuracy=0.395445127233
+
+----
+中略
+----
+
+epoch 96
+train mean loss=0.227027994983, accuracy=0.925159092696
+test mean loss=2.70711887911, accuracy=0.589371965415
+epoch 97
+train mean loss=0.216873285405, accuracy=0.927382851637
+test mean loss=2.6218228118, accuracy=0.594893018034
+epoch 98
+train mean loss=0.209225204521, accuracy=0.930220058136
+test mean loss=2.68379376295, accuracy=0.5935127585
+epoch 99
+train mean loss=0.209071503231, accuracy=0.928072985573
+test mean loss=2.62009712151, accuracy=0.593512752658
+epoch 100
+train mean loss=0.210750763214, accuracy=0.92999001446
+test mean loss=2.75891605618, accuracy=0.589371977427
+Early Stopping was not executed.
+```
+
+![](https://dl.dropboxusercontent.com/u/38631959/animeface_log.png)
+
+#おわりに
+結果は正解率60%ほどとなりました．多分CNNのアーキテクチャを変えれば行ける気がするのと，画像を32*32にしたのは小さすぎたかな．．．と
+コード，変数名とか関数名とか綺麗にしたものを今度GitHubにあげようかと思います．
+あと変なところとかありましたらご指摘いただけるとありがたいです．
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="深層学習でアニメ顔を分類する with Chainer by @hogefugabar on @Qiita" data-url="http://qiita.com/hogefugabar/items/312707a09d29632e7288" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="深層学習でアニメ顔を分類する with Chainer" href="http://b.hatena.ne.jp/entry/http://qiita.com/hogefugabar/items/312707a09d29632e7288" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/hogefugabar/items/312707a09d29632e7288" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/hogefugabar/items/312707a09d29632e7288" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/hogefugabar"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/hogefugabar">hogefugabar</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">911</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;hogefugabar&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-c8af728e-4912-4b2f-8d6e-7b5f3e9c6ec0"></div>
+    <div id="UserFollowButton-react-component-c8af728e-4912-4b2f-8d6e-7b5f3e9c6ec0"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hogefugabar/items/c27ed578717c5e7288c0">深層学習でニュース記事を分類する</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hogefugabar/items/93fcb2bc27d7b268cbe6">深層学習でツイートの感情分析</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hogefugabar/items/312707a09d29632e7288">深層学習でアニメ顔を分類する with Chainer</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hogefugabar/items/c0d71feeb1111a3c6f47">重回帰モデルの理論と実装 -なぜ正則化が必要か-</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/hogefugabar/items/1d4f6c905d0edbc71af2">ニューラルネットで最適化アルゴリズムを色々試してみる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88\&quot;\u003eデータセット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B3%E3%83%BC%E3%83%89\&quot;\u003eコード\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88%E5%89%8D%E5%87%A6%E7%90%86\&quot;\u003eデータセット前処理\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-d0f87890-f58e-4525-875a-2e1495efd5c0"></div>
+    <div id="Toc-react-component-d0f87890-f58e-4525-875a-2e1495efd5c0"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:138,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shibainurou"><a itemprop="url" href="/shibainurou"><img alt="shibainurou" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/13571/profile-images/1473682905" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="fuerasdejuego"><a itemprop="url" href="/fuerasdejuego"><img alt="fuerasdejuego" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/83081/profile-images/1473702657" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="pyr_revs"><a itemprop="url" href="/pyr_revs"><img alt="pyr_revs" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/69525/profile-images/1473698177" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="takahirom"><a itemprop="url" href="/takahirom"><img alt="takahirom" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/27388/profile-images/1473684999" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="zaoriku0"><a itemprop="url" href="/zaoriku0"><img alt="zaoriku0" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7438/profile-images/1473684178" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="serithemage"><a itemprop="url" href="/serithemage"><img alt="serithemage" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/61256/profile-images/1473695473" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kimihiro_n"><a itemprop="url" href="/kimihiro_n"><img alt="kimihiro_n" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25168/profile-images/1473684273" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kazunari-yamashiro"><a itemprop="url" href="/kazunari-yamashiro"><img alt="kazunari-yamashiro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26206/profile-images/1473684527" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="AKB428"><a itemprop="url" href="/AKB428"><img alt="AKB428" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/36931/profile-images/1481078858" /></a></div></div><div class="ArticleFooter__user"><a href="/hogefugabar/items/312707a09d29632e7288/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/312707a09d29632e7288/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/hogefugabar/items/312707a09d29632e7288.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/shinji1105/items/3c54feb6dd5e7ea63a62#_reference-709fd6c4cbddde6095b8"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/72107/profile-images/1473699047" />【機械学習超入門】chainerでサンプルコードを動かすまで</a><time class="references_datetime js-dateTimeView" datetime="2015-08-18T12:43:53+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/lazykyama/items/eae5851b7baaaf4cabd7#_reference-7b47095ebe89d731f9e5"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/76084/profile-images/1473700360" />『日本人「だけ」読めないフォント』が本当に日本人だけ読めないのか、ニューラルネットの力を借りて確認してみた</a><time class="references_datetime js-dateTimeView" datetime="2015-10-19T13:25:08+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ichiroex/items/9aa0bcada0b5bf6f9e1c#_reference-c007f58c452ebf20e3cc"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" />Chainerでフィードフォワードニューラルネットワークを実装して文書分類する</a><time class="references_datetime js-dateTimeView" datetime="2016-04-02T11:36:15+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/ichiroex/items/e0486a6dea1f14c2cfc2#_reference-8530ab87496198a5f573"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" />深層学習フレームワークChainerの勉強に役立つページのまとめ</a><time class="references_datetime js-dateTimeView" datetime="2016-04-05T15:07:35+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/hogefugabar/items/afb4f6c9a93a4bbda51a#_reference-d4f8f67dccf1286c1c0e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791" />続・深層学習でアニメ顔を分類する with Keras</a><time class="references_datetime js-dateTimeView" datetime="2016-06-12T05:56:35+00:00">9 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="深層学習でアニメ顔を分類する with Chainer by @hogefugabar on @Qiita" data-url="http://qiita.com/hogefugabar/items/312707a09d29632e7288" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="深層学習でアニメ顔を分類する with Chainer" href="http://b.hatena.ne.jp/entry/http://qiita.com/hogefugabar/items/312707a09d29632e7288" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/hogefugabar/items/312707a09d29632e7288" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/hogefugabar/items/312707a09d29632e7288" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eCPU Onlyでやる場合に、気をつけるところはありますか？？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-08-09T09:55:37+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:306831,&quot;is_team&quot;:false,&quot;item_id&quot;:317226,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;CPU Onlyでやる場合に、気をつけるところはありますか？？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/hogefugabar/items/312707a09d29632e7288#comment-9cd59e086cdc1eade66f&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-07-13T09:23:30+09:00&quot;,&quot;id&quot;:86094,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/86094/profile-images/1473703633&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;shinohara_takayuki&quot;},&quot;uuid&quot;:&quot;9cd59e086cdc1eade66f&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e遅くなってしまい申し訳ありません．\u003c/p\u003e\n\n\u003cp\u003e実行するコードの\u003ccode\u003ecuda.init(0)\u003c/code\u003eをコメントアウトして，\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;python\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n\u003cspan class=\&quot;n\&quot;\u003ecnn\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eCNN\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edata\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edata\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n          \u003cspan class=\&quot;n\&quot;\u003etarget\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003etarget\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n          \u003cspan class=\&quot;n\&quot;\u003egpu\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=-\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e1\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n          \u003cspan class=\&quot;n\&quot;\u003en_outputs\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003en_outputs\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n\n\u003cp\u003eのようにgpuを-1とかにしておけば動くはずです．\u003cbr\u003e\nただCPU Onlyですとめちゃくちゃ時間かかります．\u003c/p\u003e\n\n\u003cp\u003eあと，データセットに関して画像の入っていないディレクトリが幾つかあったと思うので，それをちゃんと削除しておかないと正しく動作ないのでご注意を．\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-08-17T20:25:27+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:312226,&quot;is_team&quot;:false,&quot;item_id&quot;:317226,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;遅くなってしまい申し訳ありません．\n\n実行するコードの`cuda.init(0)`をコメントアウトして，\n\n```python\ncnn = CNN(data=data,\n          target=target,\n          gpu=-1,\n          n_outputs=n_outputs)\n```\nのようにgpuを-1とかにしておけば動くはずです．\nただCPU Onlyですとめちゃくちゃ時間かかります．\n\n\nあと，データセットに関して画像の入っていないディレクトリが幾つかあったと思うので，それをちゃんと削除しておかないと正しく動作ないのでご注意を．\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/hogefugabar/items/312707a09d29632e7288#comment-99834c75a227596ce784&quot;,&quot;user&quot;:{&quot;contribution&quot;:911,&quot;created_at&quot;:&quot;2013-11-08T13:17:27+09:00&quot;,&quot;id&quot;:31899,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;hogefugabar&quot;},&quot;uuid&quot;:&quot;99834c75a227596ce784&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eありがとうございます！\u003cbr\u003e\nMacBookPro環境しかないので、これで頑張ります笑\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-08-24T07:43:53+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:317024,&quot;is_team&quot;:false,&quot;item_id&quot;:317226,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;ありがとうございます！\nMacBookPro環境しかないので、これで頑張ります笑\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/hogefugabar/items/312707a09d29632e7288#comment-eaf4c491e1341628c49a&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-07-13T09:23:30+09:00&quot;,&quot;id&quot;:86094,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/86094/profile-images/1473703633&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;shinohara_takayuki&quot;},&quot;uuid&quot;:&quot;eaf4c491e1341628c49a&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eはじめまして。DeepLearnigとPythonを勉強中のものです。\u003cbr\u003e\nCNN.py と　animeface.py を実行した後に学習させてみると、\u003cbr\u003e\nAnimeFaceDataser instance has no attribute&#39;read_data_target&#39;\u003cbr\u003e\nのエラーが出てしまいます。\u003cbr\u003e\n何か気を付けけることはありますか？\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-21T13:00:26+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:392392,&quot;is_team&quot;:false,&quot;item_id&quot;:317226,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;はじめまして。DeepLearnigとPythonを勉強中のものです。\nCNN.py と　animeface.py を実行した後に学習させてみると、\nAnimeFaceDataser instance has no attribute&#39;read_data_target&#39;\nのエラーが出てしまいます。\n何か気を付けけることはありますか？\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/hogefugabar/items/312707a09d29632e7288#comment-6fbed884c25a250c0e7b&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2015-11-21T12:56:00+09:00&quot;,&quot;id&quot;:102028,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/102028/profile-images/1473708562&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Hiroaki_O&quot;},&quot;uuid&quot;:&quot;6fbed884c25a250c0e7b&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eHiroaki_Oさんのエラーは以下で解決できると思います。\u003cbr\u003e\n誤：dataset.read_data_target()\u003cbr\u003e\n正：dataset.load_data_target()\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-05-25T02:14:55+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:546200,&quot;is_team&quot;:false,&quot;item_id&quot;:317226,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;Hiroaki_Oさんのエラーは以下で解決できると思います。\n誤：dataset.read_data_target()\n正：dataset.load_data_target()\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/hogefugabar/items/312707a09d29632e7288#comment-d0e64935049ab784db93&quot;,&quot;user&quot;:{&quot;contribution&quot;:261,&quot;created_at&quot;:&quot;2015-11-06T16:56:42+09:00&quot;,&quot;id&quot;:99505,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99505/profile-images/1479662341&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;Morinikki&quot;},&quot;uuid&quot;:&quot;d0e64935049ab784db93&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003eはじめまして。\u003cbr\u003e\n学習させるコードの\u003cbr\u003e\nfrom CNN import CNN\u003cbr\u003e\nfrom animeface import AnimeFaceDataset\u003cbr\u003e\nfrom chainer import cuda\u003c/p\u003e\n\n\u003ch1\u003e\n\u003cspan id=\&quot;gpu使うよ\&quot; class=\&quot;fragment\&quot;\u003e\u003c/span\u003e\u003ca href=\&quot;#gpu%E4%BD%BF%E3%81%86%E3%82%88\&quot;\u003e\u003ci class=\&quot;fa fa-link\&quot;\u003e\u003c/i\u003e\u003c/a\u003eGPU使うよ\u003c/h1\u003e\n\n\u003ch1\u003e\n\u003cspan id=\&quot;cudainit0\&quot; class=\&quot;fragment\&quot;\u003e\u003c/span\u003e\u003ca href=\&quot;#cudainit0\&quot;\u003e\u003ci class=\&quot;fa fa-link\&quot;\u003e\u003c/i\u003e\u003c/a\u003ecuda.init(0)\u003c/h1\u003e\n\n\u003cp\u003eprint(&#39;load AnimeFace dataset&#39;)\u003cbr\u003e\ndataset = AnimeFaceDataset()\u003cbr\u003e\ndataset.load_data_target()\u003cbr\u003e\nnumofdata = dataset.get_n_types_target()\u003cbr\u003e\ndata = dataset.data\u003cbr\u003e\ntarget = dataset.target\u003cbr\u003e\nn_outputs = dataset.get_n_types_target()\u003cbr\u003e\ncnn = CNN(data=data,\u003cbr\u003e\n          target=target,\u003cbr\u003e\n          gpu=-1,\u003cbr\u003e\n          n_outputs=n_outputs)\u003cbr\u003e\ncnn.train_and_test(n_epoch=100)\u003c/p\u003e\n\n\u003cp\u003eを実行させたところ、\u003cbr\u003e\nIndexError: index 189 is out of bounds for axis 0 with size 176\u003cbr\u003e\n何か気を付ける所はありますか？\u003c/p\u003e\n\n\u003cp\u003e環境はwindows10でCPUで実行しています。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2017-01-11T11:20:00+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:713219,&quot;is_team&quot;:false,&quot;item_id&quot;:317226,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;はじめまして。\n学習させるコードの\nfrom CNN import CNN\nfrom animeface import AnimeFaceDataset\nfrom chainer import cuda\n#GPU使うよ\n#cuda.init(0)\nprint(&#39;load AnimeFace dataset&#39;)\ndataset = AnimeFaceDataset()\ndataset.load_data_target()\nnumofdata = dataset.get_n_types_target()\ndata = dataset.data\ntarget = dataset.target\nn_outputs = dataset.get_n_types_target()\ncnn = CNN(data=data,\n          target=target,\n          gpu=-1,\n          n_outputs=n_outputs)\ncnn.train_and_test(n_epoch=100)\n\nを実行させたところ、\nIndexError: index 189 is out of bounds for axis 0 with size 176\n何か気を付ける所はありますか？\n\n環境はwindows10でCPUで実行しています。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/hogefugabar/items/312707a09d29632e7288#comment-bd9bdea158f0b60bcf9f&quot;,&quot;user&quot;:{&quot;contribution&quot;:0,&quot;created_at&quot;:&quot;2017-01-11T11:09:34+09:00&quot;,&quot;id&quot;:159235,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://secure.gravatar.com/avatar/12f5b1750a8927ebadf486a1d5ea75c0&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;haming28&quot;},&quot;uuid&quot;:&quot;bd9bdea158f0b60bcf9f&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:317226,&quot;uuid&quot;:&quot;312707a09d29632e7288&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;hogefugabar&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:31899,&quot;url_name&quot;:&quot;hogefugabar&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791&quot;},{&quot;id&quot;:86094,&quot;url_name&quot;:&quot;shinohara_takayuki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/86094/profile-images/1473703633&quot;},{&quot;id&quot;:102028,&quot;url_name&quot;:&quot;Hiroaki_O&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/102028/profile-images/1473708562&quot;},{&quot;id&quot;:99505,&quot;url_name&quot;:&quot;Morinikki&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99505/profile-images/1479662341&quot;},{&quot;id&quot;:159235,&quot;url_name&quot;:&quot;haming28&quot;,&quot;profile_image_url&quot;:&quot;https://secure.gravatar.com/avatar/12f5b1750a8927ebadf486a1d5ea75c0&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-312c1971-9c7b-4e45-90d2-89852ad5b88b"></div>
+    <div id="CommentListContainer-react-component-312c1971-9c7b-4e45-90d2-89852ad5b88b"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="Rm3J13VwZJXXQC+OMcs+BlKaYxtBIm22dR1M9J2++IAod8r2aPdJoAgiZuYQy7LkIYjasSKAqUcUFce+WdEe6A==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/hogefugabar/items/312707a09d29632e7288" /><input type="hidden" name="item_uuid" id="item_uuid" value="312707a09d29632e7288" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/hogefugabar/items/312707a09d29632e7288", "id": 317226, "uuid": "312707a09d29632e7288" }</script><script class="js-user" type="application/json">{&quot;id&quot;:31899,&quot;url_name&quot;:&quot;hogefugabar&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/31899/profile-images/1473685791&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="RahS4jVNamaqi6pVqKzsIEH6cQP9fQQrMYiGFZI+/QYrslHDKMpHU3Xp4z2JrGDCMujIqZ7fwNpQgA1fVlEbbg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/hogefugabar/items/312707a09d29632e7288" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-50450234-2', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

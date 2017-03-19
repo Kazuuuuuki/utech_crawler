@@ -1,0 +1,383 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>取り急ぎpix2pixで遊んでみた(追記あり) - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+概要
+
+
+先日発表されたpix2pixが楽しそうだったので実際に動かしてみた。
+対象を絞れば学習画像が500枚程度でもそれなりに動く。
+結論：GANすごい。
+
+
+
+はじめに
+
+pix2pixとは、ざっくりと言えば、2画像間に潜む画像変換をDNNで表現してしまおう！というものです。変換前後の画像さえ用意できれば大体どんな変換でも対応可能らしく、例えば以下のようなことが可能らしいです。
+
+
+航空写真 → 地図画像
+モノクロ画像 → カラー画像
+線画 → カラー画像
+(上..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="取り急ぎpix2pixで遊んでみた(追記あり) - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# 概要
+* 先日発表された[pix2pix](https://github.com/phillipi/pix2pix &quot;github&quot;)が楽しそうだったので実際に動かしてみた。
+* 対象を絞れば学習画像が500枚程度でもそれなりに動..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="i0zNCArcNGKTCknDZ1n0whWZF6YbZQuLp0pJKzyiA6h+dykXNBbKug/kDLcnMLvpJLkfhqjOFp0DuC0HUTKMmg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"octpath","type":"items","id":"acaf5b4dbcb4e105a8d3"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-da3eb4a6-6e72-41a3-9393-c5c7a6cfcf63"></div>
+    <div id="HeaderContainer-react-component-da3eb4a6-6e72-41a3-9393-c5c7a6cfcf63"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/DeepLearning",        "name": "DeepLearning"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">取り急ぎpix2pixで遊んでみた(追記あり)</h1><ul class="TagList"><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">148</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:148,&quot;uuid&quot;:&quot;acaf5b4dbcb4e105a8d3&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="naari"><a itemprop="url" href="/naari"><img alt="naari" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92994/profile-images/1473705809" /></a></li><li class="js-hovercard" data-hovercard-target-name="kidapu"><a itemprop="url" href="/kidapu"><img alt="kidapu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30407/profile-images/1473685490" /></a></li><li class="js-hovercard" data-hovercard-target-name="taco"><a itemprop="url" href="/taco"><img alt="taco" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/d8e7c255bbc9e3926b41720cb781e7eb" /></a></li><li class="js-hovercard" data-hovercard-target-name="mid_zzz"><a itemprop="url" href="/mid_zzz"><img alt="mid_zzz" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/56675/profile-images/1473694076" /></a></li><li class="js-hovercard" data-hovercard-target-name="dycoon"><a itemprop="url" href="/dycoon"><img alt="dycoon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32784/profile-images/1473685978" /></a></li><li class="js-hovercard" data-hovercard-target-name="airtoxin"><a itemprop="url" href="/airtoxin"><img alt="airtoxin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22102/profile-images/1478352585" /></a></li><li class="js-hovercard" data-hovercard-target-name="skycat_me"><a itemprop="url" href="/skycat_me"><img alt="skycat_me" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24241/profile-images/1473684067" /></a></li><li class="js-hovercard" data-hovercard-target-name="c-bata"><a itemprop="url" href="/c-bata"><img alt="c-bata" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29989/profile-images/1473685423" /></a></li><li class="js-hovercard" data-hovercard-target-name="rzn"><a itemprop="url" href="/rzn"><img alt="rzn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70435/profile-images/1473698471" /></a></li><li class="js-hovercard" data-hovercard-target-name="Hugo62044083"><a itemprop="url" href="/Hugo62044083"><img alt="Hugo62044083" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47316/profile-images/1473690944" /></a></li><li><a href="/octpath/items/acaf5b4dbcb4e105a8d3/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/octpath"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/113462/profile-images/1480543361" alt="1480543361" /></a> <a class="u-link-unstyled" href="/octpath">octpath</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-12-01T06:41:45+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-12-01">Edited at <time datetime="2016-12-04T08:03:16+09:00" itemprop="dateModified">2016-12-04</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/octpath/items/acaf5b4dbcb4e105a8d3/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">4</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/octpath/items/acaf5b4dbcb4e105a8d3/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(4)</span></a></li><li><a href="/octpath/items/acaf5b4dbcb4e105a8d3.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-acaf5b4dbcb4e105a8d3" itemprop="articleBody">
+<h1>
+<span id="概要" class="fragment"></span><a href="#%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>概要</h1>
+
+<ul>
+<li>先日発表された<a href="https://github.com/phillipi/pix2pix" title="github" rel="nofollow noopener" target="_blank">pix2pix</a>が楽しそうだったので実際に動かしてみた。</li>
+<li>対象を絞れば学習画像が500枚程度でもそれなりに動く。</li>
+<li>結論：GANすごい。</li>
+</ul>
+
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p>pix2pixとは、ざっくりと言えば、2画像間に潜む画像変換をDNNで表現してしまおう！というものです。変換前後の画像さえ用意できれば大体どんな変換でも対応可能らしく、例えば以下のようなことが可能らしいです。</p>
+
+<ul>
+<li>航空写真 → 地図画像</li>
+<li>モノクロ画像 → カラー画像</li>
+<li>線画 → カラー画像</li>
+<li>(上記すべて逆も可能)</li>
+</ul>
+
+<p>何やら万能っぽい雰囲気！素晴らしいことにコードが公開されている（torchだけど）！しかも自前画像でも簡単に試せそう！<br>
+ということで試してみました。</p>
+
+<h1>
+<span id="データ" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF"><i class="fa fa-link"></i></a>データ</h1>
+
+<p>flickrから収集したラーメン画像(1,000枚)を使用。多少のゴミは無視で。公式のソースコードに合わせて、各画像を中心でクロップ＆リサイズしておき、学習画像と評価画像は各500枚としました。<br>
+試した画像変換は「モノクロ画像 → カラー画像」です。<br>
+<strong>追記：「線画 → カラー画像」も試しました。線画は元画像にblurやらcannyやらをかけて適当に作りました。</strong></p>
+
+<h1>
+<span id="実験条件" class="fragment"></span><a href="#%E5%AE%9F%E9%A8%93%E6%9D%A1%E4%BB%B6"><i class="fa fa-link"></i></a>実験条件</h1>
+
+<p>公式のソースコードそのままで変えていません。</p>
+
+<h1>
+<span id="結果" class="fragment"></span><a href="#%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>結果</h1>
+
+<p>実行環境はUbuntu16.04＋GTX1060。買ってて良かったGPU。<br>
+評価結果の一部を以下に載せましたが、学習画像が500枚しかないことを考えると驚くべき結果が出ているように思います。</p>
+
+<h4>
+<span id="モノクロ画像--カラー画像" class="fragment"></span><a href="#%E3%83%A2%E3%83%8E%E3%82%AF%E3%83%AD%E7%94%BB%E5%83%8F--%E3%82%AB%E3%83%A9%E3%83%BC%E7%94%BB%E5%83%8F"><i class="fa fa-link"></i></a>モノクロ画像 → カラー画像</h4>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center">入力</th>
+<th style="text-align: center">出力</th>
+<th style="text-align: center">正解</th>
+<th style="text-align: left">感想</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/d830356b-568f-592f-c2d5-7228be6018c6.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/d830356b-568f-592f-c2d5-7228be6018c6.jpeg" alt="1_1_130549619_f67eb86411.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/e9767cf4-3ce3-0426-a4d3-e54339a99564.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/e9767cf4-3ce3-0426-a4d3-e54339a99564.jpeg" alt="1_1_130549619_f67eb86411.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/6622db22-6af6-b8a6-f7d6-ba5b1e38f90a.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/6622db22-6af6-b8a6-f7d6-ba5b1e38f90a.jpeg" alt="1_1_130549619_f67eb86411.jpg"></a></td>
+<td style="text-align: left">あまり違和感ない</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/4e44ddac-331e-a19d-ac0a-c132659d56f0.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/4e44ddac-331e-a19d-ac0a-c132659d56f0.jpeg" alt="6_5541_11200931374_031cc1a615.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/79c31fea-78ea-0541-2f1c-eb4d942e953f.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/79c31fea-78ea-0541-2f1c-eb4d942e953f.jpeg" alt="6_5541_11200931374_031cc1a615.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/580e1fbb-969e-b535-7175-813851f50aea.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/580e1fbb-969e-b535-7175-813851f50aea.jpeg" alt="6_5541_11200931374_031cc1a615.jpg"></a></td>
+<td style="text-align: left">あまり違和感ない</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/3fbd559a-40f1-8ae7-9cd7-a0db3a1c31f3.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/3fbd559a-40f1-8ae7-9cd7-a0db3a1c31f3.jpeg" alt="3_2249_2236609912_b14df4c866.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/2a1a5e65-cbe0-ff67-7b76-9cfb53f74635.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/2a1a5e65-cbe0-ff67-7b76-9cfb53f74635.jpeg" alt="3_2249_2236609912_b14df4c866.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/2ccc1b9a-8433-2516-f59c-cca5dd8ddbab.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/2ccc1b9a-8433-2516-f59c-cca5dd8ddbab.jpeg" alt="3_2249_2236609912_b14df4c866.jpg"></a></td>
+<td style="text-align: left">肉味噌がネギ化している・・・</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/6589dad7-b8ad-4198-3796-6776b71bd226.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/6589dad7-b8ad-4198-3796-6776b71bd226.jpeg" alt="8_7021_6769136483_ef08be1a44.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/d8b86d83-77fd-0bb9-cc19-652a34f7a8b1.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/d8b86d83-77fd-0bb9-cc19-652a34f7a8b1.jpeg" alt="8_7021_6769136483_ef08be1a44.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/7511bafd-e418-2556-d2c2-8c5b06f30509.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/7511bafd-e418-2556-d2c2-8c5b06f30509.jpeg" alt="8_7021_6769136483_ef08be1a44.jpg"></a></td>
+<td style="text-align: left">つけ麺もOK</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/0258370c-a0c5-41fe-97ea-7b19db4a38de.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/0258370c-a0c5-41fe-97ea-7b19db4a38de.jpeg" alt="6_5513_11288220405_daa1102259.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/5f65b7d5-c17c-ac2f-8a74-1972e5ed320f.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/5f65b7d5-c17c-ac2f-8a74-1972e5ed320f.jpeg" alt="6_5513_11288220405_daa1102259.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/cd21f59f-bf02-bbb0-b33d-ff8befdc4c3b.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/cd21f59f-bf02-bbb0-b33d-ff8befdc4c3b.jpeg" alt="6_5513_11288220405_daa1102259.jpg"></a></td>
+<td style="text-align: left">テーブルの木目調も頑張ってる</td>
+</tr>
+</tbody>
+</table>
+
+<h4>
+<span id="追記--線画--カラー画像" class="fragment"></span><a href="#%E8%BF%BD%E8%A8%98--%E7%B7%9A%E7%94%BB--%E3%82%AB%E3%83%A9%E3%83%BC%E7%94%BB%E5%83%8F"><i class="fa fa-link"></i></a><strong>追記 ： 線画 → カラー画像</strong>
+</h4>
+
+<p>明らかに無茶な問題設定ですね。やっぱりモノクロ画像のカラー化に比べると出来があまり良くないです。・・・でも、この入力画像からこの出力が出せているのは凄くないですか？（親心）<br>
+学習の経過を見ているとまだまだ学習できそうな印象です（DCGANの途中結果っぽい）。デフォルトだと200epoch回す設定なんですが、もう少し増やしてみても良かったかもしれません。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center">入力</th>
+<th style="text-align: center">出力</th>
+<th style="text-align: center">正解</th>
+<th style="text-align: left">感想</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/eb4c4440-e6e5-d62c-3952-b67a038d40a9.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/eb4c4440-e6e5-d62c-3952-b67a038d40a9.jpeg" alt="1_1_130549619_f67eb86411.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/5a814f43-ea19-7e82-93fe-6837c3d3c27f.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/5a814f43-ea19-7e82-93fe-6837c3d3c27f.jpeg" alt="1_1_130549619_f67eb86411.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/4ba847c2-4f85-2f57-75cc-e456d8d15887.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/4ba847c2-4f85-2f57-75cc-e456d8d15887.jpeg" alt="1_1_130549619_f67eb86411.jpg"></a></td>
+<td style="text-align: left">海苔どこいった？</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/3e0cb3a4-361c-09fb-b40f-bd0887af4db4.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/3e0cb3a4-361c-09fb-b40f-bd0887af4db4.jpeg" alt="3_2595_3741413135_d11c0303aa.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/1cb74ee3-171c-9275-e9e4-8674898946fc.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/1cb74ee3-171c-9275-e9e4-8674898946fc.jpeg" alt="3_2595_3741413135_d11c0303aa.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/696c3a4a-f04c-3709-5720-874496fa65f6.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/696c3a4a-f04c-3709-5720-874496fa65f6.jpeg" alt="3_2595_3741413135_d11c0303aa.jpg"></a></td>
+<td style="text-align: left">正解画像とは違うけど結構自然っぽい？</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/97af3617-9e3d-718b-63e6-a1c7f7e8db13.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/97af3617-9e3d-718b-63e6-a1c7f7e8db13.jpeg" alt="8_7314_12447330995_a6b17355f9.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/87b640f7-0d6b-e0a5-ab43-45a4e3bd2b3e.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/87b640f7-0d6b-e0a5-ab43-45a4e3bd2b3e.jpeg" alt="8_7314_12447330995_a6b17355f9.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/e8aaee5f-ae98-99af-05ef-442a4f3b2e78.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/e8aaee5f-ae98-99af-05ef-442a4f3b2e78.jpeg" alt="8_7314_12447330995_a6b17355f9.jpg"></a></td>
+<td style="text-align: left">幽体離脱・・・</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/feaf9cad-c3d3-1448-1e87-28aee6918a95.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/feaf9cad-c3d3-1448-1e87-28aee6918a95.jpeg" alt="6_5568_14675666478_12b9a90dce.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/452db65f-980b-8ee4-e341-d0889f01f38d.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/452db65f-980b-8ee4-e341-d0889f01f38d.jpeg" alt="6_5568_14675666478_12b9a90dce.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/023c2655-7dfd-bf4d-d89b-e89c3d5d9811.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/023c2655-7dfd-bf4d-d89b-e89c3d5d9811.jpeg" alt="6_5568_14675666478_12b9a90dce.jpg"></a></td>
+<td style="text-align: left">こっちは麺がネギ化してる。ネギ麺。</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/9cf7f135-aa56-c1ac-5899-67b9439c1371.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/9cf7f135-aa56-c1ac-5899-67b9439c1371.jpeg" alt="9_8529_8547928584_0e900a4e3a.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/02a31783-6eeb-0fdb-5eec-03db91cd8f1d.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/02a31783-6eeb-0fdb-5eec-03db91cd8f1d.jpeg" alt="9_8529_8547928584_0e900a4e3a.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/68bdf1c0-f946-7f10-7b73-46955615dcbc.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/68bdf1c0-f946-7f10-7b73-46955615dcbc.jpeg" alt="9_8529_8547928584_0e900a4e3a.jpg"></a></td>
+<td style="text-align: left">テーブルの情景を頑張って描こうとしているっぽい。けなげ。（親心）</td>
+</tr>
+</tbody>
+</table>
+
+<h5>
+<span id="さらに追記" class="fragment"></span><a href="#%E3%81%95%E3%82%89%E3%81%AB%E8%BF%BD%E8%A8%98"><i class="fa fa-link"></i></a><strong>さらに追記</strong>
+</h5>
+
+<p>「結果が出来すぎてる。学習データ入れたんじゃね？」「500枚少なすぎじゃね？」というもっともな声を随所で見かけたので、コメント。</p>
+
+<ul>
+<li>TrainとTestはいちおう分けています。分けていますが、ラーメン画像にそもそもバリエーションが少ないので、よく似た画像は含まれていると思います。
+
+<ul>
+<li>他の料理とか動物とかを混ぜると、この枚数では上手くいかないと思います。冒頭に「対象を絞れば」と書いたのは、そのためです。</li>
+<li>被写体の位置が変わるタイプの変換は苦手だと思います。単純に上下flipでも壊滅しそう。</li>
+<li>ちなみに、公式サンプル（ラベル画像→建物）では、Trainはたった400枚です。</li>
+</ul>
+</li>
+<li>学習データ数が少なくてもそれなりに上手くいく理由は、ラーメン画像の多様性が少ないから、被写体の位置が変わらない変換をやっているから、入力が乱数ではなく画像だから、等々雑に考察しております。詳しい方がいらっしゃいましたらコメント頂きたいです。</li>
+<li>参考までに、学習データの結果は↓です。「線画→カラー画像」は学習データの割にそんなに上手くいってないです（謎）。。</li>
+</ul>
+
+<h6>
+<span id="学習データの結果" class="fragment"></span><a href="#%E5%AD%A6%E7%BF%92%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>学習データの結果</h6>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center">入力</th>
+<th style="text-align: center">出力</th>
+<th style="text-align: center">正解</th>
+<th style="text-align: left">感想</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/053c9c17-8a70-9464-5b07-87f349f9d430.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/053c9c17-8a70-9464-5b07-87f349f9d430.jpeg" alt="1_6_7553134_29e2af632d.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/4d9f97c9-67c3-5e37-3d7e-a9628c324509.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/4d9f97c9-67c3-5e37-3d7e-a9628c324509.jpeg" alt="1_6_7553134_29e2af632d.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/a21852a5-4fd6-3be3-3cce-b1147f312391.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/a21852a5-4fd6-3be3-3cce-b1147f312391.jpeg" alt="1_6_7553134_29e2af632d.jpg"></a></td>
+<td style="text-align: left">やや赤みがかっているが、丸暗記の勢い。</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/b794742b-1d07-56de-4e76-8f1371462607.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/b794742b-1d07-56de-4e76-8f1371462607.jpeg" alt="1_17_23517102_5de1772da3.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/a2fd37db-2dd2-2383-286e-de2755fe0e22.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/a2fd37db-2dd2-2383-286e-de2755fe0e22.jpeg" alt="1_17_23517102_5de1772da3.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/ba4dba64-d999-ce7a-4f9b-68e5b82cebc9.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/ba4dba64-d999-ce7a-4f9b-68e5b82cebc9.jpeg" alt="1_17_23517102_5de1772da3.jpg"></a></td>
+<td style="text-align: left">丼の色を間違えているが、丸暗記の勢い。</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/268352be-a785-7e4b-8593-564718668ff0.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/268352be-a785-7e4b-8593-564718668ff0.jpeg" alt="1_6_7553134_29e2af632d.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/1efd7515-279c-2db2-7ce8-85ac819d4910.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/1efd7515-279c-2db2-7ce8-85ac819d4910.jpeg" alt="1_6_7553134_29e2af632d.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/81861cd4-b84b-0abb-9068-19539aec65d9.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/81861cd4-b84b-0abb-9068-19539aec65d9.jpeg" alt="1_6_7553134_29e2af632d.jpg"></a></td>
+<td style="text-align: left">色味は丸暗記してそう。でも学習データの割にショボい。</td>
+</tr>
+<tr>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/b0e582ba-2bcb-87bf-9ce3-84707553b790.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/b0e582ba-2bcb-87bf-9ce3-84707553b790.jpeg" alt="1_17_23517102_5de1772da3.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/77db7eb0-1c5a-473f-0b02-9834dc713f01.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/77db7eb0-1c5a-473f-0b02-9834dc713f01.jpeg" alt="1_17_23517102_5de1772da3.jpg"></a></td>
+<td style="text-align: center"><a href="https://qiita-image-store.s3.amazonaws.com/0/113462/211a03cd-deff-7420-8be2-7468d4e33b4a.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/113462/211a03cd-deff-7420-8be2-7468d4e33b4a.jpeg" alt="1_17_23517102_5de1772da3.jpg"></a></td>
+<td style="text-align: left">色味は丸暗記してそう。でも学習デー（ｒｙ</td>
+</tr>
+</tbody>
+</table>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<ul>
+<li>簡単・便利・楽しい。万能感ありますね。</li>
+<li>OpenImagesの画像をぶち込んでみたい。</li>
+<li>
+<del>論文をざっと見た感じあまり特別なことはしていないようなのでchainerとかで書いてみようかなぁ。でも誰かがやってそうだなぁ。</del>
+→<a href="https://github.com/mattya/chainer-pix2pix" rel="nofollow noopener" target="_blank">chainer実装</a>が公開されてました！感謝！これでもっと自由に遊べますね。</li>
+<li>変換の種類を潜在変数的なアレで何やかんやすれば、複数の画像変換を同時に行うモデルも作れそう？</li>
+<li>MSCOCOのマスク画像を使って実験中です。面白い結果が出たら新たに投稿します。</li>
+</ul>
+
+<p><strong>結論：GANすごい。</strong></p>
+<div class="hidden"><form class="js-task-list-update" action="/octpath/items/acaf5b4dbcb4e105a8d3" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="TuY3f3GuEGKOPuuXhqlGldRwzhwUIZpKLrxNIUZv3Ba73dNgT2TuuhLQruPGwAm+5VDGPKeKh1yKTikNK/9TJA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1480806196" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# 概要
+* 先日発表された[pix2pix](https://github.com/phillipi/pix2pix &quot;github&quot;)が楽しそうだったので実際に動かしてみた。
+* 対象を絞れば学習画像が500枚程度でもそれなりに動く。
+* 結論：GANすごい。
+
+# はじめに
+pix2pixとは、ざっくりと言えば、2画像間に潜む画像変換をDNNで表現してしまおう！というものです。変換前後の画像さえ用意できれば大体どんな変換でも対応可能らしく、例えば以下のようなことが可能らしいです。
+
+* 航空写真 → 地図画像
+* モノクロ画像 → カラー画像
+* 線画 → カラー画像
+* (上記すべて逆も可能)
+
+何やら万能っぽい雰囲気！素晴らしいことにコードが公開されている（torchだけど）！しかも自前画像でも簡単に試せそう！
+ということで試してみました。
+
+# データ
+flickrから収集したラーメン画像(1,000枚)を使用。多少のゴミは無視で。公式のソースコードに合わせて、各画像を中心でクロップ＆リサイズしておき、学習画像と評価画像は各500枚としました。
+試した画像変換は「モノクロ画像 → カラー画像」です。
+**追記：「線画 → カラー画像」も試しました。線画は元画像にblurやらcannyやらをかけて適当に作りました。**
+
+# 実験条件
+公式のソースコードそのままで変えていません。
+
+# 結果
+実行環境はUbuntu16.04＋GTX1060。買ってて良かったGPU。
+評価結果の一部を以下に載せましたが、学習画像が500枚しかないことを考えると驚くべき結果が出ているように思います。
+
+#### モノクロ画像 → カラー画像
+
+| 入力 | 出力 | 正解 | 感想 |
+|:---:|:---:|:---:|:---|
+|![1_1_130549619_f67eb86411.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/d830356b-568f-592f-c2d5-7228be6018c6.jpeg)|![1_1_130549619_f67eb86411.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/e9767cf4-3ce3-0426-a4d3-e54339a99564.jpeg)|![1_1_130549619_f67eb86411.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/6622db22-6af6-b8a6-f7d6-ba5b1e38f90a.jpeg)|あまり違和感ない|
+|![6_5541_11200931374_031cc1a615.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/4e44ddac-331e-a19d-ac0a-c132659d56f0.jpeg)|![6_5541_11200931374_031cc1a615.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/79c31fea-78ea-0541-2f1c-eb4d942e953f.jpeg)|![6_5541_11200931374_031cc1a615.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/580e1fbb-969e-b535-7175-813851f50aea.jpeg)|あまり違和感ない|
+|![3_2249_2236609912_b14df4c866.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/3fbd559a-40f1-8ae7-9cd7-a0db3a1c31f3.jpeg)|![3_2249_2236609912_b14df4c866.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/2a1a5e65-cbe0-ff67-7b76-9cfb53f74635.jpeg)|![3_2249_2236609912_b14df4c866.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/2ccc1b9a-8433-2516-f59c-cca5dd8ddbab.jpeg)|肉味噌がネギ化している・・・|
+|![8_7021_6769136483_ef08be1a44.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/6589dad7-b8ad-4198-3796-6776b71bd226.jpeg)|![8_7021_6769136483_ef08be1a44.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/d8b86d83-77fd-0bb9-cc19-652a34f7a8b1.jpeg)|![8_7021_6769136483_ef08be1a44.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/7511bafd-e418-2556-d2c2-8c5b06f30509.jpeg)|つけ麺もOK|
+|![6_5513_11288220405_daa1102259.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/0258370c-a0c5-41fe-97ea-7b19db4a38de.jpeg)|![6_5513_11288220405_daa1102259.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/5f65b7d5-c17c-ac2f-8a74-1972e5ed320f.jpeg)|![6_5513_11288220405_daa1102259.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/cd21f59f-bf02-bbb0-b33d-ff8befdc4c3b.jpeg)|テーブルの木目調も頑張ってる|
+
+#### **追記 ： 線画 → カラー画像**
+明らかに無茶な問題設定ですね。やっぱりモノクロ画像のカラー化に比べると出来があまり良くないです。・・・でも、この入力画像からこの出力が出せているのは凄くないですか？（親心）
+学習の経過を見ているとまだまだ学習できそうな印象です（DCGANの途中結果っぽい）。デフォルトだと200epoch回す設定なんですが、もう少し増やしてみても良かったかもしれません。
+
+| 入力 | 出力 | 正解 | 感想 |
+|:---:|:---:|:---:|:---|
+|![1_1_130549619_f67eb86411.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/eb4c4440-e6e5-d62c-3952-b67a038d40a9.jpeg)|![1_1_130549619_f67eb86411.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/5a814f43-ea19-7e82-93fe-6837c3d3c27f.jpeg)|![1_1_130549619_f67eb86411.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/4ba847c2-4f85-2f57-75cc-e456d8d15887.jpeg)|海苔どこいった？|
+|![3_2595_3741413135_d11c0303aa.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/3e0cb3a4-361c-09fb-b40f-bd0887af4db4.jpeg)|![3_2595_3741413135_d11c0303aa.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/1cb74ee3-171c-9275-e9e4-8674898946fc.jpeg)|![3_2595_3741413135_d11c0303aa.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/696c3a4a-f04c-3709-5720-874496fa65f6.jpeg)|正解画像とは違うけど結構自然っぽい？|
+|![8_7314_12447330995_a6b17355f9.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/97af3617-9e3d-718b-63e6-a1c7f7e8db13.jpeg)|![8_7314_12447330995_a6b17355f9.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/87b640f7-0d6b-e0a5-ab43-45a4e3bd2b3e.jpeg)|![8_7314_12447330995_a6b17355f9.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/e8aaee5f-ae98-99af-05ef-442a4f3b2e78.jpeg)|幽体離脱・・・|
+|![6_5568_14675666478_12b9a90dce.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/feaf9cad-c3d3-1448-1e87-28aee6918a95.jpeg)|![6_5568_14675666478_12b9a90dce.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/452db65f-980b-8ee4-e341-d0889f01f38d.jpeg)|![6_5568_14675666478_12b9a90dce.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/023c2655-7dfd-bf4d-d89b-e89c3d5d9811.jpeg)|こっちは麺がネギ化してる。ネギ麺。|
+|![9_8529_8547928584_0e900a4e3a.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/9cf7f135-aa56-c1ac-5899-67b9439c1371.jpeg)|![9_8529_8547928584_0e900a4e3a.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/02a31783-6eeb-0fdb-5eec-03db91cd8f1d.jpeg)|![9_8529_8547928584_0e900a4e3a.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/68bdf1c0-f946-7f10-7b73-46955615dcbc.jpeg)|テーブルの情景を頑張って描こうとしているっぽい。けなげ。（親心）|
+
+##### **さらに追記**
+「結果が出来すぎてる。学習データ入れたんじゃね？」「500枚少なすぎじゃね？」というもっともな声を随所で見かけたので、コメント。
+
+* TrainとTestはいちおう分けています。分けていますが、ラーメン画像にそもそもバリエーションが少ないので、よく似た画像は含まれていると思います。
+ * 他の料理とか動物とかを混ぜると、この枚数では上手くいかないと思います。冒頭に「対象を絞れば」と書いたのは、そのためです。
+ * 被写体の位置が変わるタイプの変換は苦手だと思います。単純に上下flipでも壊滅しそう。
+ * ちなみに、公式サンプル（ラベル画像→建物）では、Trainはたった400枚です。
+* 学習データ数が少なくてもそれなりに上手くいく理由は、ラーメン画像の多様性が少ないから、被写体の位置が変わらない変換をやっているから、入力が乱数ではなく画像だから、等々雑に考察しております。詳しい方がいらっしゃいましたらコメント頂きたいです。
+* 参考までに、学習データの結果は↓です。「線画→カラー画像」は学習データの割にそんなに上手くいってないです（謎）。。
+
+###### 学習データの結果
+| 入力 | 出力 | 正解 | 感想 |
+|:---:|:---:|:---:|:---|
+|![1_6_7553134_29e2af632d.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/053c9c17-8a70-9464-5b07-87f349f9d430.jpeg)|![1_6_7553134_29e2af632d.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/4d9f97c9-67c3-5e37-3d7e-a9628c324509.jpeg)|![1_6_7553134_29e2af632d.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/a21852a5-4fd6-3be3-3cce-b1147f312391.jpeg)|やや赤みがかっているが、丸暗記の勢い。|
+|![1_17_23517102_5de1772da3.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/b794742b-1d07-56de-4e76-8f1371462607.jpeg)|![1_17_23517102_5de1772da3.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/a2fd37db-2dd2-2383-286e-de2755fe0e22.jpeg)|![1_17_23517102_5de1772da3.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/ba4dba64-d999-ce7a-4f9b-68e5b82cebc9.jpeg)|丼の色を間違えているが、丸暗記の勢い。|
+|![1_6_7553134_29e2af632d.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/268352be-a785-7e4b-8593-564718668ff0.jpeg)|![1_6_7553134_29e2af632d.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/1efd7515-279c-2db2-7ce8-85ac819d4910.jpeg)|![1_6_7553134_29e2af632d.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/81861cd4-b84b-0abb-9068-19539aec65d9.jpeg)|色味は丸暗記してそう。でも学習データの割にショボい。|
+|![1_17_23517102_5de1772da3.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/b0e582ba-2bcb-87bf-9ce3-84707553b790.jpeg)|![1_17_23517102_5de1772da3.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/77db7eb0-1c5a-473f-0b02-9834dc713f01.jpeg)|![1_17_23517102_5de1772da3.jpg](https://qiita-image-store.s3.amazonaws.com/0/113462/211a03cd-deff-7420-8be2-7468d4e33b4a.jpeg)|色味は丸暗記してそう。でも学習デー（ｒｙ|
+
+
+# おわりに
+* 簡単・便利・楽しい。万能感ありますね。
+* OpenImagesの画像をぶち込んでみたい。
+* ~~論文をざっと見た感じあまり特別なことはしていないようなのでchainerとかで書いてみようかなぁ。でも誰かがやってそうだなぁ。~~
+→[chainer実装](https://github.com/mattya/chainer-pix2pix)が公開されてました！感謝！これでもっと自由に遊べますね。
+* 変換の種類を潜在変数的なアレで何やかんやすれば、複数の画像変換を同時に行うモデルも作れそう？
+* MSCOCOのマスク画像を使って実験中です。面白い結果が出たら新たに投稿します。
+
+__結論：GANすごい。__
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="取り急ぎpix2pixで遊んでみた(追記あり) on @Qiita" data-url="http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="取り急ぎpix2pixで遊んでみた(追記あり)" href="http://b.hatena.ne.jp/entry/http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/octpath"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/113462/profile-images/1480543361" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/octpath">octpath</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">148</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;octpath&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-714c0225-b65f-42c5-a396-1f325258f4c3"></div>
+    <div id="UserFollowButton-react-component-714c0225-b65f-42c5-a396-1f325258f4c3"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/octpath/items/acaf5b4dbcb4e105a8d3">取り急ぎpix2pixで遊んでみた(追記あり)</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A6%82%E8%A6%81\&quot;\u003e概要\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF\&quot;\u003eデータ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AE%9F%E9%A8%93%E6%9D%A1%E4%BB%B6\&quot;\u003e実験条件\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E6%9E%9C\&quot;\u003e結果\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%8E%E3%82%AF%E3%83%AD%E7%94%BB%E5%83%8F--%E3%82%AB%E3%83%A9%E3%83%BC%E7%94%BB%E5%83%8F\&quot;\u003eモノクロ画像 → カラー画像\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%BF%BD%E8%A8%98--%E7%B7%9A%E7%94%BB--%E3%82%AB%E3%83%A9%E3%83%BC%E7%94%BB%E5%83%8F\&quot;\u003e\u003cstrong\u003e追記 ： 線画 → カラー画像\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%95%E3%82%89%E3%81%AB%E8%BF%BD%E8%A8%98\&quot;\u003e\u003cstrong\u003eさらに追記\u003c/strong\u003e\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AD%A6%E7%BF%92%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E7%B5%90%E6%9E%9C\&quot;\u003e学習データの結果\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\n\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-63b1fed7-4ed5-4231-acf7-3d127b261133"></div>
+    <div id="Toc-react-component-63b1fed7-4ed5-4231-acf7-3d127b261133"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:148,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;acaf5b4dbcb4e105a8d3&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="naari"><a itemprop="url" href="/naari"><img alt="naari" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/92994/profile-images/1473705809" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kidapu"><a itemprop="url" href="/kidapu"><img alt="kidapu" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30407/profile-images/1473685490" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="taco"><a itemprop="url" href="/taco"><img alt="taco" class="thumb thumb--xs" src="https://secure.gravatar.com/avatar/d8e7c255bbc9e3926b41720cb781e7eb" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mid_zzz"><a itemprop="url" href="/mid_zzz"><img alt="mid_zzz" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/56675/profile-images/1473694076" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dycoon"><a itemprop="url" href="/dycoon"><img alt="dycoon" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32784/profile-images/1473685978" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="airtoxin"><a itemprop="url" href="/airtoxin"><img alt="airtoxin" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/22102/profile-images/1478352585" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="skycat_me"><a itemprop="url" href="/skycat_me"><img alt="skycat_me" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/24241/profile-images/1473684067" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="c-bata"><a itemprop="url" href="/c-bata"><img alt="c-bata" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/29989/profile-images/1473685423" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="rzn"><a itemprop="url" href="/rzn"><img alt="rzn" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/70435/profile-images/1473698471" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Hugo62044083"><a itemprop="url" href="/Hugo62044083"><img alt="Hugo62044083" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47316/profile-images/1473690944" /></a></div></div><div class="ArticleFooter__user"><a href="/octpath/items/acaf5b4dbcb4e105a8d3/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/acaf5b4dbcb4e105a8d3/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/octpath/items/acaf5b4dbcb4e105a8d3.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="取り急ぎpix2pixで遊んでみた(追記あり) on @Qiita" data-url="http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="取り急ぎpix2pixで遊んでみた(追記あり)" href="http://b.hatena.ne.jp/entry/http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:442680,&quot;uuid&quot;:&quot;acaf5b4dbcb4e105a8d3&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;octpath&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:113462,&quot;url_name&quot;:&quot;octpath&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/113462/profile-images/1480543361&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-32402375-b04b-4fb4-a330-7ea83eb8f4d2"></div>
+    <div id="CommentListContainer-react-component-32402375-b04b-4fb4-a330-7ea83eb8f4d2"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="WkYCavtG4GaSnhh/vI3jENtSjksvhqyooHR5T9uUSyOvfeZ1xYwevg5wXQv85Kw76nKGa5wtsb4Ehh1jtgTEEQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/octpath/items/acaf5b4dbcb4e105a8d3" /><input type="hidden" name="item_uuid" id="item_uuid" value="acaf5b4dbcb4e105a8d3" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/octpath/items/acaf5b4dbcb4e105a8d3", "id": 442680, "uuid": "acaf5b4dbcb4e105a8d3" }</script><script class="js-user" type="application/json">{&quot;id&quot;:113462,&quot;url_name&quot;:&quot;octpath&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/113462/profile-images/1480543361&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="TGGPY6iwId/G5wBIyw5aZH13xMdIHatvpMu73Fcns0C5Wmt8lnrfB1oJRTyLZxVPTFfM5/u2tnkAOd/wOrc8cg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/octpath/items/acaf5b4dbcb4e105a8d3" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

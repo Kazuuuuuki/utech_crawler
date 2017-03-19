@@ -1,0 +1,1356 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【機械学習】Yahoo Newsの記事をMLlibのトピックモデル(LDA)でクラスタリングする。 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Sparkシリーズ第３弾の記事です。MLlibのLDAを使ってYahoo Newsの記事をトピックモデル(LDA:Latent Dirichlet allocation)でクラスタリングしてみます。
+
+第一弾
+【機械学習】iPython NotebookでSparkを起動させてMLlibを試す
+　　　http://qiita.com/kenmatsu4/items/00ad151e857d546a97c3
+第二弾
+【機械学習】Spark MLlibをPythonで動かし..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="Kenmatsu4" name="twitter:creator" /><meta content="【機械学習】Yahoo Newsの記事をMLlibのトピックモデル(LDA)でクラスタリングする。 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Sparkシリーズ第３弾の記事です。MLlibのLDAを使ってYahoo Newsの記事をトピックモデル(LDA:Latent Dirichlet allocation)でクラスタリングしてみます。
+
+**第一弾**
+【機械学習】iP..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="9QwZVT0dlWHEMr32srA7NGMgpn8/g2JokF4lnnt2j/9Gi2OKk+yKk7dg+H9171LgECAOjUWSdPkch6NqaO6I4Q==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"kenmatsu4","type":"items","id":"984c7499cffca5a23bfb"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-67347753-82ec-401b-856c-fe5e2f948743"></div>
+    <div id="HeaderContainer-react-component-67347753-82ec-401b-856c-fe5e2f948743"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/Python",        "name": "Python"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">【機械学習】Yahoo Newsの記事をMLlibのトピックモデル(LDA)でクラスタリングする。</h1><ul class="TagList"><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="369"><a class="u-link-unstyled TagList__label" href="/tags/Spark"><img alt="Spark" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/2b32f68777d6f0d2d88609a3efb979378fc97320/medium.jpg?1401964762" /><span>Spark</span></a></li><li class="TagList__item" data-count="21"><a class="u-link-unstyled TagList__label" href="/tags/MLlib"><img alt="MLlib" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>MLlib</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">113</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="2 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>2</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:113,&quot;uuid&quot;:&quot;984c7499cffca5a23bfb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="kou_tana77"><a itemprop="url" href="/kou_tana77"><img alt="kou_tana77" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45958/profile-images/1473690481" /></a></li><li class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></li><li class="js-hovercard" data-hovercard-target-name="task_woof"><a itemprop="url" href="/task_woof"><img alt="task_woof" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28260/profile-images/1473685166" /></a></li><li class="js-hovercard" data-hovercard-target-name="river24"><a itemprop="url" href="/river24"><img alt="river24" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26584/profile-images/1484214640" /></a></li><li class="js-hovercard" data-hovercard-target-name="cactaceae"><a itemprop="url" href="/cactaceae"><img alt="cactaceae" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30244/profile-images/1480962182" /></a></li><li class="js-hovercard" data-hovercard-target-name="kenzo0107"><a itemprop="url" href="/kenzo0107"><img alt="kenzo0107" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35162/profile-images/1473686626" /></a></li><li class="js-hovercard" data-hovercard-target-name="grimrose@github"><a itemprop="url" href="/grimrose@github"><img alt="grimrose@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7628/profile-images/1477911489" /></a></li><li class="js-hovercard" data-hovercard-target-name="nassie"><a itemprop="url" href="/nassie"><img alt="nassie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46307/profile-images/1473690608" /></a></li><li class="js-hovercard" data-hovercard-target-name="yutakamiyaji"><a itemprop="url" href="/yutakamiyaji"><img alt="yutakamiyaji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25991/profile-images/1473759677" /></a></li><li><a href="/kenmatsu4/items/984c7499cffca5a23bfb/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/kenmatsu4"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" alt="1473692184" /></a> <a class="u-link-unstyled" href="/kenmatsu4">kenmatsu4</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-09-20T18:57:03+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-09-20">Edited at <time datetime="2015-09-21T21:50:44+09:00" itemprop="dateModified">2015-09-21</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/kenmatsu4/items/984c7499cffca5a23bfb/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">12</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/kenmatsu4/items/984c7499cffca5a23bfb/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(12)</span></a></li><li><a href="/kenmatsu4/items/984c7499cffca5a23bfb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-984c7499cffca5a23bfb" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>Sparkシリーズ第３弾の記事です。MLlibのLDAを使ってYahoo Newsの記事をトピックモデル(LDA:Latent Dirichlet allocation)でクラスタリングしてみます。</p>
+
+<p><strong>第一弾</strong><br>
+【機械学習】iPython NotebookでSparkを起動させてMLlibを試す<br>
+　　　<a href="http://qiita.com/kenmatsu4/items/00ad151e857d546a97c3" class="autolink" id="reference-3fd7528976dd743fc65f">http://qiita.com/kenmatsu4/items/00ad151e857d546a97c3</a><br>
+<strong>第二弾</strong><br>
+【機械学習】Spark MLlibをPythonで動かしてレコメンデーションしてみる<br>
+　　　<a href="http://qiita.com/kenmatsu4/items/42fa2f17865f7914688d" class="autolink" id="reference-af873477c4d76df87334">http://qiita.com/kenmatsu4/items/42fa2f17865f7914688d</a></p>
+
+<h1>
+<span id="0-環境" class="fragment"></span><a href="#0-%E7%92%B0%E5%A2%83"><i class="fa fa-link"></i></a>0. 環境</h1>
+
+<ul>
+<li>OS: Mac OSX Yosemite 10.10.3</li>
+<li>Spark: spark-1.5.0-bin-hadoop2.6</li>
+<li>Python: 2.7.10 |Anaconda 2.2.0 (x86_64)| (default, May 28 2015, 17:04:42) </li>
+</ul>
+
+<p>本稿では上記の環境で行ったものを記載していますので、他の環境では設定が異なる場合もあるかと思いますのでご注意ください。</p>
+
+<p>Pythonの実行はiPython Notebook(Jupyter)で行っています。</p>
+
+<h1>
+<span id="1-ニュース記事の取得" class="fragment"></span><a href="#1-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E8%A8%98%E4%BA%8B%E3%81%AE%E5%8F%96%E5%BE%97"><i class="fa fa-link"></i></a>1. ニュース記事の取得</h1>
+
+<p><a href="http://headlines.yahoo.co.jp/rss/list" class="autolink" rel="nofollow noopener" target="_blank">http://headlines.yahoo.co.jp/rss/list</a> にYahoo NewsのRSSがあるので、そこからリンクを収集して記事を集めます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># 各種インポート</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span><span class="nn">json</span><span class="o">,</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">requests_oauthlib</span> <span class="kn">import</span> <span class="n">OAuth1Session</span>
+<span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">ConnectionError</span><span class="p">,</span> <span class="n">ReadTimeout</span><span class="p">,</span> <span class="n">SSLError</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.random</span> <span class="kn">as</span> <span class="nn">rd</span>
+<span class="kn">import</span> <span class="nn">MeCab</span> <span class="kn">as</span> <span class="nn">mc</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span>
+
+<span class="n">IPADIC_NEOLOGD_PATH</span> <span class="o">=</span> <span class="s">'/usr/local/lib/mecab/dic/mecab-ipadic-neologd/'</span>
+
+<span class="k">def</span> <span class="nf">unpickle</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fo</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fo</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+<span class="k">def</span> <span class="nf">to_pickle</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div></div>
+
+<p>下記がYahoo News (<a href="http://headlines.yahoo.co.jp/rss/list" class="autolink" rel="nofollow noopener" target="_blank">http://headlines.yahoo.co.jp/rss/list</a>) から記事をダウンロードしてくるクラスです。結構時間もかかりますし、Yahoo Newsへ結構な数のアクセスをしてしまうので、既にダウンロードしてMecabで形態素解析済みのデータを用意しているので、もしこの記事の再現を試す場合はそちらをご利用ください。(次項で説明します。)</p>
+
+<p>Mecabは<a href="/overlast" class="user-mention js-hovercard" title="overlast" data-hovercard-target-type="user" data-hovercard-target-name="overlast">@overlast</a> さんのmecab-ipadic-neologdを使います。以前、このMecabの導入については<a href="http://qiita.com/kenmatsu4/items/02034e5688cc186f224b#1-1mecab%E3%81%AE%E5%B0%8E%E5%85%A5" id="reference-9a788783a8205ae167b7">こちらの記事</a>で紹介していますので、導入する際はご参照ください。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Yahoo Newsから記事を拾ってくるクラス</span>
+<span class="k">class</span> <span class="nc">Category</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">""</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s">""</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">article_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">addArticle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">article</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">article_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">article</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Article</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">""</span><span class="p">,</span> <span class="n">contents</span><span class="o">=</span><span class="s">u"未取得"</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s">""</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="n">contents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mecabed_contents</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">add_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">=</span> <span class="n">contents</span>
+
+    <span class="k">def</span> <span class="nf">exec_mecab</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mecabed_contents</span> <span class="o">=</span> <span class="n">Article</span><span class="o">.</span><span class="n">mecab_analysis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">mecab_analysis</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Tagger</span><span class="p">(</span><span class="s">'-Ochasen -d {}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">IPADIC_NEOLOGD_PATH</span><span class="p">))</span>
+        <span class="n">sentence</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="s">' '</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">)</span> 
+        <span class="n">node</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">parseToNode</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> 
+        <span class="n">ret_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">node</span><span class="o">.</span><span class="n">next</span><span class="p">:</span> 
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">surface</span> <span class="o">!=</span> <span class="s">""</span><span class="p">:</span>  <span class="c"># ヘッダとフッタを除外</span>
+                <span class="n">word_type</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">","</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">word_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s">"名詞"</span><span class="p">,</span> <span class="s">"形容詞"</span><span class="p">,</span> <span class="s">"動詞"</span><span class="p">]:</span>
+                    <span class="n">plain_word</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">feature</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">","</span><span class="p">)[</span><span class="mi">6</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">plain_word</span> <span class="o">!=</span><span class="s">"*"</span><span class="p">:</span>
+                        <span class="n">ret_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plain_word</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">next</span>
+        <span class="k">return</span> <span class="n">ret_list</span> 
+
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">class</span> <span class="nc">YahooHeadlines</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s">'http://headlines.yahoo.co.jp/rss/list'</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'log/log_{}.log'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">'%Y%m</span><span class="si">%d</span><span class="s">_%H%M%S'</span><span class="p">)),</span> <span class="s">'a+'</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">log</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">unpickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fo</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span> <span class="o">=</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="nf">pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">download_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_category_url_list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_article_title_list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_all_article</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_url_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_url_list</span>
+
+    <span class="k">def</span> <span class="nf">set_category_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category_list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span> <span class="o">=</span> <span class="n">category_list</span>
+
+    <span class="k">def</span> <span class="nf">get_category_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span>
+
+    <span class="k">def</span> <span class="nf">get_category_url_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">news_all</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s">"xml"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">news_all</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'a'</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'href'</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s">'xml'</span> <span class="ow">in</span> <span class="n">url</span> <span class="ow">and</span> <span class="s">'my.yahoo.co.jp'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">url</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Category</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">link</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span><span class="s">''</span><span class="p">),</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">"len(self.category_list)"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_article_title_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">category</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s">"xml"</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'item'</span><span class="p">):</span>
+                <span class="n">category</span><span class="o">.</span><span class="n">addArticle</span><span class="p">(</span><span class="n">Article</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">getText</span><span class="p">(),</span> <span class="n">url</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">getText</span><span class="p">()))</span>
+
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">"len(self.category_list)"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">"len(cat.article_list)"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cat</span><span class="o">.</span><span class="n">article_list</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">get_all_article</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">end</span>
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]:</span>
+            <span class="k">print</span> <span class="n">cat</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">for</span> <span class="n">article</span> <span class="ow">in</span> <span class="n">cat</span><span class="o">.</span><span class="n">article_list</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="n">article</span><span class="o">.</span><span class="n">title</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>   <span class="c"># interval time for reducing server load</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">article</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+                    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s">"xml"</span><span class="p">)</span>
+                    <span class="n">t</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">"p"</span><span class="p">,</span> <span class="s">"ynDetailText"</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">getText</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">prettify</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="s">'&lt;!-- /.paragraph --&gt;'</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                                <span class="k">break</span>
+                            <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">line</span> <span class="p">)</span>
+                        <span class="n">article</span><span class="o">.</span><span class="n">add_contents</span><span class="p">(</span><span class="n">BeautifulSoup</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp</span><span class="p">),</span> <span class="s">"xml"</span><span class="p">)</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span><span class="s">''</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span><span class="s">''</span><span class="p">))</span>
+                        <span class="n">article</span><span class="o">.</span><span class="n">exec_mecab</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">print</span> <span class="s">"error."</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">(</span><span class="s">u"{},{}"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">article</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">article</span><span class="o">.</span><span class="n">title</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logging</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">news_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">category_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">article_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s">u'未取得'</span> <span class="o">!=</span> <span class="n">a</span><span class="o">.</span><span class="n">contents</span><span class="p">:</span>
+                    <span class="n">news_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">mecabed_contents</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">news_list</span>
+</pre></div></div>
+
+<p>News記事のダウンロードを実行し、pickleで保存します。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">yh</span> <span class="o">=</span> <span class="n">YahooHeadlines</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">"YahooHeadlines() created."</span>
+<span class="n">yh</span><span class="o">.</span><span class="n">get_category_url_list</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">"get_category_url_list() finished."</span>
+<span class="n">yh</span><span class="o">.</span><span class="n">get_article_title_list</span><span class="p">()</span>
+<span class="k">print</span> <span class="s">"get_article_title_list() finished."</span>
+<span class="n">yh</span><span class="o">.</span><span class="n">get_all_article</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">dat</span> <span class="o">=</span> <span class="n">yh</span><span class="o">.</span><span class="n">export</span><span class="p">()</span>
+<span class="n">to_pickle</span><span class="p">(</span><span class="s">'mecabed_contents.npy'</span><span class="p">,</span> <span class="n">dat</span><span class="p">)</span>
+</pre></div></div>
+
+<h1>
+<span id="2-mecabでの形態素解析済みデータのダウンロードと読み込み" class="fragment"></span><a href="#2-mecab%E3%81%A7%E3%81%AE%E5%BD%A2%E6%85%8B%E7%B4%A0%E8%A7%A3%E6%9E%90%E6%B8%88%E3%81%BF%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E3%81%A8%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF"><i class="fa fa-link"></i></a>2. Mecabでの形態素解析済みデータのダウンロードと読み込み</h1>
+
+<p>解析済みの mecabed_contents.npy はGitHubの下記の場所に格納してありますのでダウンロードしてお使いください。<br>
+<a href="https://github.com/matsuken92/Qiita_Contents/tree/master/LDA_with_Spark" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/matsuken92/Qiita_Contents/tree/master/LDA_with_Spark</a></p>
+
+<p>下記でデータを読み込みます。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="n">dat</span> <span class="o">=</span> <span class="n">unpickle</span><span class="p">(</span><span class="s">'mecabed_contents.npy'</span><span class="p">)</span>
+</pre></div></div>
+
+<h1>
+<span id="2-sparkで使用するjava-heapサイズの変更" class="fragment"></span><a href="#2-spark%E3%81%A7%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8Bjava-heap%E3%82%B5%E3%82%A4%E3%82%BA%E3%81%AE%E5%A4%89%E6%9B%B4"><i class="fa fa-link"></i></a>2. Sparkで使用するJava Heapサイズの変更</h1>
+
+<p>LDAの計算で、JavaのOutOfMemory Exceptionが出たので、Heapサイズを広げておきます。(実行する環境によると思うので適宜設定ください)</p>
+
+<div class="code-frame" data-lang="bash"><div class="highlight"><pre>
+<span class="nb">cd</span> <span class="nv">$SPARK_HOME</span>/conf
+cp spark-defaults.conf.template spark-defaults.conf
+vi spark-defaults.conf
+</pre></div></div>
+
+<p>下記のように<code>spark.driver.memory</code>のところだけコメントアウトを外します。</p>
+
+<div class="code-frame" data-lang="log">
+<div class="code-lang"><span class="bold">spark-defaults.conf</span></div>
+<div class="highlight"><pre>
+# spark.master                     spark://master:7077
+# spark.eventLog.enabled           true
+# spark.eventLog.dir               hdfs://namenode:8021/directory
+# spark.serializer                 org.apache.spark.serializer.KryoSerializer
+spark.driver.memory                5g
+# spark.executor.extraJavaOptions  -XX:+PrintGCDetails -Dkey=value -Dnumbers="one two three"
+</pre></div>
+</div>
+
+<h1>
+<span id="3-sparkの起動とtf-idfでの特徴抽出ldaを使った分類の実施" class="fragment"></span><a href="#3-spark%E3%81%AE%E8%B5%B7%E5%8B%95%E3%81%A8tf-idf%E3%81%A7%E3%81%AE%E7%89%B9%E5%BE%B4%E6%8A%BD%E5%87%BAlda%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F%E5%88%86%E9%A1%9E%E3%81%AE%E5%AE%9F%E6%96%BD"><i class="fa fa-link"></i></a>3. Sparkの起動とTf-Idfでの特徴抽出、LDAを使った分類の実施</h1>
+
+<h2>
+<span id="3-1-sparkの起動" class="fragment"></span><a href="#3-1-spark%E3%81%AE%E8%B5%B7%E5%8B%95"><i class="fa fa-link"></i></a>3-1. Sparkの起動</h2>
+
+<p>iPython Notebook(Jupyter)でのSparkの起動については<a href="http://qiita.com/kenmatsu4/items/00ad151e857d546a97c3">前の記事</a>も参考にしてください。</p>
+
+<p>何はともあれ、Sparkを起動します。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dt</span>
+<span class="k">print</span> <span class="s">"loading PySpark setting..."</span>
+<span class="n">spark_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'SPARK_HOME'</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">spark_home</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">spark_home</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">'SPARK_HOME environment variable is not set'</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spark_home</span><span class="p">,</span> <span class="s">'python'</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spark_home</span><span class="p">,</span> <span class="s">'python/lib/py4j-0.8.2.1-src.zip'</span><span class="p">))</span>
+<span class="nb">execfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spark_home</span><span class="p">,</span> <span class="s">'python/pyspark/shell.py'</span><span class="p">))</span>
+</pre></div></div>
+
+<h2>
+<span id="3-2-データのtf-idfによるベクトル化" class="fragment"></span><a href="#3-2-%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AEtf-idf%E3%81%AB%E3%82%88%E3%82%8B%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB%E5%8C%96"><i class="fa fa-link"></i></a>3-2. データのTf-Idfによるベクトル化</h2>
+
+<p><strong>注：トピックモデルをTf-Idfで実行する事は精度が上がるという見解と、とはいえ理論的には単語のカウントを想定されたものであるという見解(Tf−Idfだとfloatになってしまうので理論と合わない)とあるようですのでご注意ください。普通にカウントする方式も近々追記します。(コメント欄参照。 [<a href="/icoxfog417" class="user-mention js-hovercard" title="icoxfog417" data-hovercard-target-type="user" data-hovercard-target-name="icoxfog417">@icoxfog417</a> さんコメントありがとうございます。])</strong></p>
+
+<p>まずは、取得した記事をLDAにかけるための下準備としてTf-Idfによるベクトル化を行います。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.feature</span> <span class="kn">import</span> <span class="n">HashingTF</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.feature</span> <span class="kn">import</span> <span class="n">IDF</span>
+
+<span class="n">hashingTF</span> <span class="o">=</span> <span class="n">HashingTF</span><span class="p">()</span>
+<span class="n">documents</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">dat</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hashing</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">hashingTF</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">hashed</span> <span class="o">=</span> <span class="n">documents</span><span class="o">.</span><span class="n">flatMap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span><span class="p">)</span> \
+             <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">word</span><span class="p">:</span> <span class="p">(</span><span class="n">hashing</span><span class="p">(</span><span class="n">word</span><span class="p">),</span> <span class="n">word</span><span class="p">))</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+<span class="n">hashed_word</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">hashed</span><span class="o">.</span><span class="n">collect</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'hash'</span><span class="p">,</span><span class="s">'word'</span><span class="p">])</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s">'hash'</span><span class="p">)</span>
+</pre></div></div>
+
+<p><code>hashed_word</code>は下記のようなデータになります。後々、hash値から単語を取り出したいのでテーブル化しておきます。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>word</th>
+    </tr>
+    <tr>
+      <th>hash</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>605</th>
+      <td>招待客</td>
+    </tr>
+    <tr>
+      <th>342707</th>
+      <td>ギャンブラー</td>
+    </tr>
+    <tr>
+      <th>578741</th>
+      <td>フラワーカンパニーズ</td>
+    </tr>
+    <tr>
+      <th>445743</th>
+      <td>道後温泉</td>
+    </tr>
+    <tr>
+      <th>599361</th>
+      <td>BURBERRY</td>
+    </tr>
+    <tr>
+      <th>520201</th>
+      <td>東京ゲームショウ</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>735678</th>
+      <td>省ける</td>
+    </tr>
+    <tr>
+      <th>56058</th>
+      <td>治安</td>
+    </tr>
+    <tr>
+      <th>444490</th>
+      <td>月子</td>
+    </tr>
+    <tr>
+      <th>706206</th>
+      <td>GENERATIONS</td>
+    </tr>
+    <tr>
+      <th>267402</th>
+      <td>クーペ</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>41261 rows × 1 columns</p>
+
+<p>SparkでTf-Idf値を計算してLDAで読み込めるように変換したRDDを生成します。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="c"># Tf-Idfの生成</span>
+<span class="n">tf</span> <span class="o">=</span> <span class="n">hashingTF</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+
+<span class="n">idf</span> <span class="o">=</span> <span class="n">IDF</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tf</span><span class="p">)</span>
+<span class="n">tf_idf_data</span> <span class="o">=</span> <span class="n">idf</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">tf</span><span class="p">)</span>
+</pre></div></div>
+
+<h2>
+<span id="3-3-ldaの実行" class="fragment"></span><a href="#3-3-lda%E3%81%AE%E5%AE%9F%E8%A1%8C"><i class="fa fa-link"></i></a>3-3. LDAの実行</h2>
+
+<p>Spark MLlibでLDAを実行します。とりあえずk=30とします。このトピック数をどう決めるべきか、課題です。今回はエイやっと決めてしまったので、もっといい値があると思います。（kの決め方ご存知の方、教えて下さい！）</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.clustering</span> <span class="kn">import</span> <span class="n">LDA</span><span class="p">,</span> <span class="n">LDAModel</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.linalg</span> <span class="kn">import</span> <span class="n">Vectors</span>
+<span class="k">print</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">'%Y/%m/</span><span class="si">%d</span><span class="s"> %H:%M:%S'</span><span class="p">)</span>
+<span class="n">K</span> <span class="o">=</span> <span class="mi">30</span>
+
+
+<span class="c"># Index documents with unique IDs</span>
+<span class="n">corpus</span> <span class="o">=</span> <span class="n">tf_idf_data</span><span class="o">.</span><span class="n">zipWithIndex</span><span class="p">()</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+
+<span class="c"># Cluster the documents into three topics using LDA</span>
+<span class="o">%</span><span class="n">time</span> <span class="n">ldaModel</span> <span class="o">=</span> <span class="n">LDA</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
+
+<span class="c"># Output topics. Each is a distribution over words (matching word count vectors)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Learned topics (as distributions over vocab of "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ldaModel</span><span class="o">.</span><span class="n">vocabSize</span><span class="p">())</span> <span class="o">+</span> <span class="s">" words):"</span><span class="p">)</span>
+<span class="o">%</span><span class="n">time</span> <span class="n">topics</span> <span class="o">=</span> <span class="n">ldaModel</span><span class="o">.</span><span class="n">topicsMatrix</span><span class="p">()</span>
+
+<span class="k">print</span> <span class="n">dt</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">'%Y/%m/</span><span class="si">%d</span><span class="s"> %H:%M:%S'</span><span class="p">)</span>
+</pre></div></div>
+
+<p>非力な”新しいMacbook”で実行しているのですが、この計算は12分ほどでした。やれるものですね <img alt=":smile:" class="emoji" height="20" src="https://cdn.qiita.com/emoji/twemoji/unicode/1f604.png" title=":smile:" width="20"> </p>
+
+<div class="code-frame" data-lang="log">
+<div class="code-lang"><span class="bold">out</span></div>
+<div class="highlight"><pre>
+2015/09/20 17:31:17
+CPU times: user 6.34 ms, sys: 2.09 ms, total: 8.44 ms
+Wall time: 30.8 s
+Learned topics (as distributions over vocab of 1048576 words):
+CPU times: user 5min 14s, sys: 6min 12s, total: 11min 26s
+Wall time: 11min 53s
+2015/09/20 17:43:42
+</pre></div>
+</div>
+
+<h2>
+<span id="3-4-結果の出力" class="fragment"></span><a href="#3-4-%E7%B5%90%E6%9E%9C%E3%81%AE%E5%87%BA%E5%8A%9B"><i class="fa fa-link"></i></a>3-4. 結果の出力</h2>
+
+<p>前項で計算した結果を出力します。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">def</span> <span class="nf">idx_to_word</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">hashed_word</span><span class="o">.</span><span class="n">ix</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">word</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">==</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+<span class="n">rep_num</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Topic "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="o">+</span> <span class="s">":"</span><span class="p">)</span>
+    <span class="n">temp_w</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">temp_t</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ldaModel</span><span class="o">.</span><span class="n">vocabSize</span><span class="p">()):</span>
+
+        <span class="n">top</span> <span class="o">=</span> <span class="n">topics</span><span class="p">[</span><span class="n">word</span><span class="p">][</span><span class="n">topic</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">top</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c">#print("{}:{}".format(word, top))</span>
+            <span class="n">temp_w</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="n">temp_t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>
+
+    <span class="n">temp_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temp_w</span><span class="p">)</span>
+    <span class="n">temp_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temp_t</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">temp_t</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">idx_to_word</span><span class="p">,</span> <span class="n">temp_w</span><span class="p">[</span><span class="n">idx</span><span class="p">[:</span><span class="n">rep_num</span><span class="p">]]))</span>
+    <span class="k">print</span> <span class="n">temp_t</span><span class="p">[</span><span class="n">idx</span><span class="p">[:</span><span class="n">rep_num</span><span class="p">]]</span>
+</pre></div></div>
+
+<p>下記が分類結果です。それぞれのトピックから上位20単語を表示しています。<br>
+それっぽいような感じですが、まだチューニングが必要ですね。それぞれのトピックが何を指しているかがいまいち不明瞭です。kの決め方でしょうか。</p>
+
+<div class="code-frame" data-lang="log">
+<div class="code-lang"><span class="bold">out</span></div>
+<div class="highlight"><pre>
+Topic 0:
+3D,1%,JP,Yahoo,co.jp,http://,2Z,FE,TC,WC,JavaScript,SRC,ALT,D2,分,.S,SIG,clear,Mi,GIF
+[ 30498.99621439   6067.97495307   5638.31180986   4239.90976107
+   3839.63866955   3620.87671019   2048.76800459   2035.55013512
+   2035.55013512   2035.55013512   1903.02711354   1898.96547573
+   1820.93929181   1763.1621581    1724.74815005   1688.15876657
+   1613.83355369   1483.59938276   1454.82128817   1338.48860166]
+Topic 1:
+ディープラーニング,GPU,債務超過,原発,亜人,稼働,京セラ,演算,浜田,日本インター,推薦,村上氏,ウッドワード,ライブラリ,買い付け,ABC,DI,活用,予防医学,純資産
+[ 230.26782221  222.54019498  109.0725775    86.27167445   86.10057908
+   84.22603202   67.68409895   66.99081298   60.91536464   57.4006148
+   57.16789412   50.24346965   50.17063652   45.16572514   43.57092785
+   43.37177773   43.06492631   41.84250571   40.60449032   39.60700784]
+Topic 2:
+音,教授,アンプ,訴訟,スピーカー,スズキ,大学,共産党,A-10,DR,（株）,SUZUKI,さん,資本金,HONDA,板野,氏,録画,Internet,帯
+[ 313.9497848   311.07373468  291.18216703  200.41036663  174.99267573
+  168.83426043  162.12249119  160.4631899   158.44550237  155.86272676
+  152.51636208  145.63724853  144.22014499  143.88263097  138.80529834
+  136.38362019  133.87558279  132.8150622   127.1633457   123.42496755]
+Topic 3:
+イルカ,患者,搬入,海軍,加盟,米海軍,作戦,弁護士,店主,列車,春画,極ZERO,軍事,福岡,契約,団体,美女と野獣,位,エンブレム,更新
+[ 285.35384105  125.29445731  122.03394224  117.37108065  114.56787287
+  107.67685141  107.66792085  107.49265658  104.77371348  104.55689386
+  103.34343411  101.54959522   99.13195887   97.66056425   87.6906483
+   83.77795736   82.83739301   82.06384181   81.99063074   79.61260345]
+Topic 4:
+小笠原諸島,19日,雨,NARUTO-ナルト-,見込み,あす,所,チョコボ,きょう,田畑,台風20号,土砂災害,大藤,ルーナ,武器,非常,局,ある,ん,東北
+[ 230.41298471  206.73983243  201.38377462  162.53955457  156.01089213
+  152.26626716  147.20327527  143.56116858  138.58499586  136.35519513
+  134.63602579  131.89025362  122.02553338  114.84698842  114.73039984
+  112.58882552  111.19144156  109.29280382  108.74278871  108.06638723]
+Topic 5:
+店,LGBT,地方,紅葉,羽生,エヴェレスト,当事者,USJ,MM,溶接,NorAh,釧路,選手,野球,人,阿部,土肥,損失,村木,深町
+[ 534.02134183  233.21159627  161.734613    149.27499135  148.04072853
+  139.83024817  128.12607155  127.16365004  121.55663036  116.93175677
+  115.10536063  111.9230136   108.32928292  101.01309412   99.57305727
+   97.8645909    93.31870841   90.55202246   88.16103482   85.11086582]
+Topic 6:
+自衛隊,当該,活動,項,実施,救助,等,支援,規定,物品,条,協力,措置,部隊,役務,捜索,事態,提供,二,軍隊
+[ 425.27200701  410.14147759  340.63660257  335.99268066  301.03835559
+  277.69844718  262.99789699  244.04626438  241.86903535  233.56945124
+  226.29603529  213.94031937  208.31405209  198.09771261  191.92479361
+  173.18290576  171.56092092  164.69617574  147.1031081   144.02472698]
+Topic 7:
+ん,思う,さん,人,ダンス,いく,会場,よう,やる,選手,言葉,曲,ステージ,なる,作る,くる,出演,メンバー,もの,女性
+[ 400.87252109  311.02748052  250.83203469  243.87087686  241.62681685
+  235.1485944   219.71001515  212.56170962  206.76164473  198.28774766
+  190.64751854  190.09850913  187.53964957  178.53456693  173.1581961
+  170.93611348  167.90595764  166.71680877  163.85967037  160.64966047]
+Topic 8:
+イ・スンギ,格安スマホ,遠藤,交番,建築,設計,SHEENA,カーラ,でんぱ組.inc,身長,ジョー,施工,千鳥,イブ,クリスチャン,クラ,接種,事例,優待,コンペ
+[ 122.01843494  100.42493188   96.7819965    90.82173926   84.67996554
+   84.04629268   81.2426219    81.22826354   79.28066538   77.10645017
+   75.3958751    70.7937157    67.79664672   67.62432926   62.02688985
+   61.12174747   60.911537     60.671785     60.6691196    59.22618216]
+Topic 9:
+石原,山下,月9,原子力発電所,総,MAX,さん,アリババ,ウォン,川島,恋,僧侶,万,落札,，,高嶺,役,主演,坊さん,雇用労働部
+[ 251.21702545  246.98644992  188.33673645  180.99682139  170.83125774
+  161.27898596  150.18861226  148.37545664  145.26656891  116.99233982
+  115.97102397  111.61849001  108.61185273  108.09102905  104.38739566
+  103.32743846   96.51126917   95.40721995   95.33654317   94.80918496]
+Topic 10:
+集団的自衛権,行使,安保,日本,遺骨,法案,北朝鮮,GO,システム,首相,米,Pokemon,韓国,平和,戦争,思考,会,成立,小林,テロメア
+[ 325.4190462   294.03767623  253.6549491   215.81603062  212.85361125
+  212.4241334   203.16256149  145.41407277  145.35949337  144.77378143
+  140.99962347  135.45572385  131.0855378   121.75771794  118.79648391
+  117.21162034  115.63520103  115.03735685  115.02058923  114.84203109]
+Topic 11:
+１,０,２,３,５,４,９,８,法案,６,日,７,委員,年,反対,国会,％,案,議員,与党
+[ 2365.0615964   1843.50976149  1580.14166211   977.45697796   972.93295992
+   900.33510929   811.76679401   734.30895952   708.8845634    687.91169097
+   666.9871633    638.37414039   480.65198962   403.9740617    397.36591408
+   389.03843978   378.11150102   372.94260471   366.06518175   348.52658829]
+Topic 12:
+％,週,人,茶,勤労,小木曽,山口組,桑原,コルク,派遣,調査,審査,訪日,セヌリ党,ファン,回答,延長,期間,万,さん
+[ 422.50645087  213.35496472  190.18553723  185.25693     172.87477417
+  169.32178049  168.65380074  168.60270933  165.10107941  163.39675225
+  158.10205955  157.84657732  156.61876499  150.94891424  144.86004174
+  142.60856342  141.41821081  139.14405814  136.07482269  129.11386079]
+Topic 13:
+ペット,タイヤ,点検,富士フイルム,店,犬,事故,飼い主,パン,量的緩和,バブル,２月,アーチャー,機関,動物,事業,ELEMENT,閉鎖,ペットシッター,世話
+[ 144.38505303  139.38328152  138.65459253  120.09515611  117.32842831
+  111.2811561    97.34985563   90.9386823    88.76830528   86.09862267
+   86.03676176   81.16131412   73.04842045   71.94537875   71.76221994
+   69.36573458   67.72482177   67.56636611   64.59788527   63.72988257]
+Topic 14:
+デブリ,宇宙,衛星,岡野,S.M.A.R.T,ヤス,アンバー・ハード,光子,木下半太,ビーム,除去,パスタ,愛乙女★DOLL,二宮,ロケット,選手,衝突,建設,めっき,篠原
+[ 200.98746196  109.11393056  102.69563054   71.64443048   70.61628478
+   70.21806077   69.47009154   67.71824577   64.58911369   63.98653636
+   61.75894589   57.1558711    54.17379175   50.53475054   50.08003639
+   49.38497398   49.1474643    48.05613337   47.37467689   47.21593097]
+Topic 15:
+列車,店,鉄道,駅,輸送,配偶者控除,万,円,賞品,幼虫,被告,遺伝子,水害,薬,がれき,廃棄,教育,JR貨物,実習,制度
+[ 209.45549658  172.75201923  164.79055902  147.02460723  146.34946295
+  122.11417714  116.53446688  113.36476153  110.00093014  101.51355757
+  101.49522834   93.61766945   90.44254789   90.21005366   86.14087176
+   85.94118974   85.87426669   83.81989617   81.4445114    81.32144707]
+Topic 16:
+曲,作,さん,作品,イベント,ステージ,公開,公演,ライブ,ん,リリース,登場,アルバム,ファン,披露,発売,開催,思う,収録,会場
+[ 717.72208948  701.88650132  675.57536789  653.80324063  630.25795307
+  623.56413175  593.77778162  570.85401227  542.29065168  530.72760902
+  527.34422729  504.12104195  477.59137972  477.00323092  449.362484
+  433.71529537  424.21385561  415.6621296   413.39032883  408.44365814]
+Topic 17:
+移民,氏,589 Croatia,行為,首相,白虎隊,送信,ストーカー規制法,クォン・サンウ,ドイツ,つきまとう,ターン,ブル,国境,アボット,首脳,Hungary,ら,管内,電子メール
+[ 164.44142649  157.91328715  138.76814858  132.5043004   125.07620334
+  114.82154418  112.98085344  108.36476034  100.36013718   99.44524733
+   95.72254509   91.79868319   89.07727008   83.49107233   81.37738585
+   78.16457362   77.45463275   77.03517754   75.47489877   74.73847572]
+Topic 18:
+％,ビール,億,万,ローリー,酒税,増,前年,位,減,円,調査,向け,企業,比,サービス,市場,書籍,ポスコ,兆
+[ 580.21824689  434.53747304  337.23060498  322.90011084  275.51253012
+  255.35439791  202.94575502  195.40863404  193.2023368   188.88153369
+  188.32713027  185.3074174   182.46872612  180.38548978  168.37490369
+  159.71109053  159.65702647  155.00164055  150.38902564  149.40071569]
+Topic 19:
+岡村,与る,石橋,正,偏光,岡村隆史,ブレイクダンス,犯人,サングラス,タッチパネル,お前,難民,鉛,ホームパーティー,受け入れ,オヤジ,薬剤師,聖堂,薬局,三菱鉛筆
+[ 77.67608384  65.66168235  62.59137271  61.50991922  50.18323397
+  44.41180978  43.50803013  41.09367176  40.73945738  38.9101876
+  37.57614659  36.56843092  35.85623378  35.81638016  34.10640826
+  33.81327369  32.32619825  31.22516758  31.12976321  30.34057197]
+Topic 20:
+練炭,交渉,和田アキ子,沖縄,みりん,人材,の,アビガン,就業規則,お盆玉,会合,テーマパーク,キー,serendipity,お年玉,ユー・エス・ジェイ,PIN,細胞,閣僚,コンビニ
+[ 200.98686962  154.40963453  106.75322346  102.73754422  100.48163455
+   98.9612829    94.85889131   93.31730072   93.30796905   93.27433467
+   92.84230214   89.15912225   87.60003563   86.13875558   86.09579478
+   81.48415665   81.37494046   81.10648568   75.53083854   74.76190319]
+Topic 21:
+18日,沿岸,気象庁,新函館北斗,新幹線,往復,開業,島,ゴム,2015年,北海道,ハワイ,初診,父島,SAKANAMON,VAMPS,出演,発表,3M,観測
+[ 326.61966201  176.18179227  162.70899568  137.89819305  135.61061726
+  131.91446936  127.87583916  123.18162869  119.46292987  114.89846676
+  113.33026617  108.85661384   96.44435409   94.0825422    93.31173974
+   92.48630364   90.34013265   89.33794268   89.00557891   88.60743728]
+Topic 22:
+桐谷,RC,坂口,MT,とり,ギリシャ,ヒロイン失格,スター・ウォーズ,山崎,音楽,凍りつく,弘光,AWA,ねぶた,原作,OB,T細胞,Mさん,疎開,パク・ソルミ
+[ 242.08396669  233.61062923  172.28879872  158.02400752  156.16092615
+  149.65020403  145.38706775  143.01353797  123.89388685  107.61948489
+  105.20201675  104.23176854  103.93186096  101.57317097  101.33211206
+   98.35838535   93.31294228   81.26331036   78.87903503   77.78473071]
+Topic 23:
+税理士,円,万,申告,輸出,額,税金,位,マイナンバー,事務所,所得,制度,％,Philippine,場合,億,電力,企業,家電量販店,こと
+[ 670.6061898   559.30722115  395.94196364  369.03793975  352.9802148
+  350.59584008  348.81817142  345.42194256  281.01115977  270.7837518
+  268.64882097  263.68902183  256.54739477  233.11666127  228.29591629
+  224.91966604  208.54269702  206.95435942  201.05969014  199.71772628]
+Topic 24:
+の,憲法,企業,こと,日本,者,国家,木村祐一,弁護士,できる,事業,デザイン,開発,よう,思う,ある,いう,権力,性,考える
+[ 371.66961434  337.03124549  319.99104269  319.594891    309.51245673
+  287.52866308  271.19087899  267.75333312  261.60521555  256.02307667
+  251.18894465  239.58136963  238.33242359  238.07787656  233.68552111
+  231.93864718  213.6720825   207.06572415  206.83553817  206.39025416]
+Topic 25:
+被害,億,店舗,運転,円,料金,旅客,ヘリ,０,増,農業,減,前年,AKB48,宮城,出店,県,店,万,間
+[ 322.28929388  284.37384142  264.46206604  248.44913769  226.60800063
+  226.41660568  212.16654388  205.88384117  189.18011081  173.35857685
+  170.73582962  170.16262181  167.13947269  166.91143061  165.98762565
+  164.64467713  157.49179255  153.26181924  149.68685887  145.6529475 ]
+Topic 26:
+利上げ,中国,市場,経済,米国,ドル,km,％,安,上昇,機,金利,景気,株,見通し,下落,円,投資,率,韓国
+[ 711.44316161  691.81953214  624.21582824  603.1447681   464.88853934
+  444.72254696  425.1654548   400.24353915  398.08670081  384.38514657
+  378.64702088  364.08566045  354.84095879  354.60928052  346.69708409
+  337.14563576  335.09073391  331.251988    328.37760334  316.68760744]
+Topic 27:
+映画,監督,演じる,ん,僕,俳優,役,歳,作,アントマン,さん,出演,仕事,舞台,ドラマ,撮影,本,女優,思う,こと
+[ 886.18859913  521.81885818  517.66295551  341.28837968  323.889684
+  320.54609403  318.78269341  305.49616021  292.69106111  291.83105713
+  283.59914761  271.24734272  271.03094368  266.13209765  257.9348965
+  252.86535054  245.73361042  241.71909116  225.00245517  222.13685278]
+Topic 28:
+ゲーム,できる,搭載,採用,開発,の,こと,木村祐一,用,台,氏,還付,利用,化,中国,性,よう,製品,なる,スマホ
+[ 453.00001367  302.95432162  283.96542019  280.46414245  257.18675974
+  254.89400232  246.43778386  219.71661031  217.78910865  214.12011552
+  212.66757085  211.03349157  205.35032129  203.34111497  197.81430578
+  193.73396761  193.32616187  190.05730112  189.02413711  187.26200727]
+Topic 29:
+浅草,他者,コメディ,光クラブ,ライチ,カノン,中条,たち,テイラー,映画祭,たけし,まち,津軽三味線,私,上演,台東,久石譲,充電,宝塚,JR九州
+[ 170.36663986  156.09380245  132.93872491  127.17520086  127.13453875
+  112.71315236  110.24371137  107.89145147  106.67342349  102.47261177
+   99.54801093   93.6074624    90.90080501   85.36814206   79.75410095
+   79.31855725   78.95649479   76.60922126   74.76350455   74.69475118]
+</pre></div>
+</div>
+
+<h1>
+<span id="4-課題" class="fragment"></span><a href="#4-%E8%AA%B2%E9%A1%8C"><i class="fa fa-link"></i></a>4. 課題</h1>
+
+<p>下記のような課題があります。知見のある方、ぜひアドバイスいただけると嬉しいです。<br>
+1. 単語の出現回数ではなく、Tf-IdfのBOWでLDAにかけることで問題がないか。<br>
+　　　→ すなおに単語のカウントにした方がよさそう。<br>
+2. Tf-Idf化の際に単語をハッシュ化しているが、単語がぶつかっている。（要対処）<br>
+3. トピック数 Kをどのように決めるか。今回は適当に30にしてしまった。</p>
+
+<h1>
+<span id="参考" class="fragment"></span><a href="#%E5%8F%82%E8%80%83"><i class="fa fa-link"></i></a>参考</h1>
+
+<p>Spark 1.5.0 Machine Learning Library (MLlib) Guide<br>
+　<a href="http://spark.apache.org/docs/latest/mllib-guide.html" class="autolink" rel="nofollow noopener" target="_blank">http://spark.apache.org/docs/latest/mllib-guide.html</a></p>
+
+<p>MLlib - ClusteringLatent Dirichlet allocation (LDA)<br>
+　<a href="http://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda" class="autolink" rel="nofollow noopener" target="_blank">http://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda</a></p>
+<div class="hidden"><form class="js-task-list-update" action="/kenmatsu4/items/984c7499cffca5a23bfb" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="HUJpX9RtxjYwnCZEoBPJQ7A2jkSKmvT1e2Wyl+3EXX6uxROAepzZxEPOY81nTKCXwzYmtvCL4mT3vDRj/lxaYA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1442839844" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Sparkシリーズ第３弾の記事です。MLlibのLDAを使ってYahoo Newsの記事をトピックモデル(LDA:Latent Dirichlet allocation)でクラスタリングしてみます。
+
+**第一弾**
+【機械学習】iPython NotebookでSparkを起動させてMLlibを試す
+　　　http://qiita.com/kenmatsu4/items/00ad151e857d546a97c3
+**第二弾**
+【機械学習】Spark MLlibをPythonで動かしてレコメンデーションしてみる
+　　　http://qiita.com/kenmatsu4/items/42fa2f17865f7914688d
+
+#0. 環境
+
+* OS: Mac OSX Yosemite 10.10.3
+* Spark: spark-1.5.0-bin-hadoop2.6
+* Python: 2.7.10 |Anaconda 2.2.0 (x86_64)| (default, May 28 2015, 17:04:42) 
+
+本稿では上記の環境で行ったものを記載していますので、他の環境では設定が異なる場合もあるかと思いますのでご注意ください。
+
+Pythonの実行はiPython Notebook(Jupyter)で行っています。
+
+#1. ニュース記事の取得
+http://headlines.yahoo.co.jp/rss/list にYahoo NewsのRSSがあるので、そこからリンクを収集して記事を集めます。
+
+```py
+# 各種インポート
+from bs4 import BeautifulSoup
+import requests,json, time
+from requests_oauthlib import OAuth1Session
+from requests.exceptions import ConnectionError, ReadTimeout, SSLError
+import numpy as np
+import numpy.random as rd
+import MeCab as mc
+from collections import defaultdict
+import cPickle as pickle
+import traceback
+from datetime import datetime as dt
+
+IPADIC_NEOLOGD_PATH = &#39;/usr/local/lib/mecab/dic/mecab-ipadic-neologd/&#39;
+
+def unpickle(filename):
+    with open(filename, &#39;rb&#39;) as fo:
+        p = pickle.load(fo)
+    return p
+
+def to_pickle(filename, obj):
+    with open(filename, &#39;wb&#39;) as f:
+        pickle.dump(obj, f, -1)
+```
+
+下記がYahoo News (http://headlines.yahoo.co.jp/rss/list) から記事をダウンロードしてくるクラスです。結構時間もかかりますし、Yahoo Newsへ結構な数のアクセスをしてしまうので、既にダウンロードしてMecabで形態素解析済みのデータを用意しているので、もしこの記事の再現を試す場合はそちらをご利用ください。(次項で説明します。)
+
+
+Mecabは@overlast さんのmecab-ipadic-neologdを使います。以前、このMecabの導入については[こちらの記事](http://qiita.com/kenmatsu4/items/02034e5688cc186f224b#1-1mecabの導入)で紹介していますので、導入する際はご参照ください。
+
+
+```py 
+# Yahoo Newsから記事を拾ってくるクラス
+class Category():
+    def __init__(self, name=&quot;&quot;, url=&quot;&quot;):
+        self.name = name
+        self.url = url
+        self.article_list = []
+        
+    def addArticle(self, article):
+        self.article_list.append(article)
+        
+class Article():
+    def __init__(self, title=&quot;&quot;, contents=u&quot;未取得&quot;, url=&quot;&quot;):
+        self.url = url
+        self.title = title
+        self.contents = contents
+        self.mecabed_contents = {}
+        
+    def add_contents(self, contents):
+        self.contents = contents
+        
+    def exec_mecab(self):
+        self.mecabed_contents = Article.mecab_analysis(self.contents)
+        
+    @staticmethod
+    def mecab_analysis(sentence):
+        t = mc.Tagger(&#39;-Ochasen -d {}&#39;.format(IPADIC_NEOLOGD_PATH))
+        sentence = sentence.replace(&#39;\n&#39;, &#39; &#39;)
+        text = sentence.encode(&#39;utf-8&#39;) 
+        node = t.parseToNode(text) 
+        ret_list = []
+        while node.next: 
+            if node.surface != &quot;&quot;:  # ヘッダとフッタを除外
+                word_type = node.feature.split(&quot;,&quot;)[0]
+                if word_type in [&quot;名詞&quot;, &quot;形容詞&quot;, &quot;動詞&quot;]:
+                    plain_word = node.feature.split(&quot;,&quot;)[6]
+                    if plain_word !=&quot;*&quot;:
+                        ret_list.append(plain_word.decode(&#39;utf-8&#39;))
+            node = node.next
+        return ret_list 
+
+DEBUG = True
+class YahooHeadlines():
+    def __init__(self):
+        self.url = &#39;http://headlines.yahoo.co.jp/rss/list&#39;
+        self.category_list = []
+        self.f = open(&#39;log/log_{}.log&#39;.format(dt.now().strftime(&#39;%Y%m%d_%H%M%S&#39;)), &#39;a+&#39;)
+        
+    def close(self):
+        self.f.close()
+                      
+    def logging(self, log):
+        self.f.write(log.encode(&#39;utf-8&#39;))
+    
+    def unpickle(self, filename):
+        with open(filename, &#39;rb&#39;) as fo:
+            p = pickle.load(fo)
+        self.category_list = p
+
+    def pickle(self, filename):
+        with open(filename, &#39;wb&#39;) as f:
+            pickle.dump(self.category_list, f, -1)
+        
+    def download_contents(self):
+        self.get_category_url_list()
+        self.get_article_title_list()
+        self.get_all_article()
+
+    def get_url_list(self):
+        return self._url_list
+    
+    def set_category_list(self, category_list):
+        self.category_list = category_list
+    
+    def get_category_list(self):
+        return self.category_list
+    
+    def get_category_url_list(self):
+        res = requests.get(self.url)
+        news_all = BeautifulSoup(res.text, &quot;xml&quot;)
+        for link in news_all.find_all(&#39;a&#39;):
+            url = link.get(&#39;href&#39;)
+            if &#39;xml&#39; in url and &#39;my.yahoo.co.jp&#39; not in url:
+                self.category_list.append(Category(name=link.parent.text.replace(&#39;\n&#39;,&#39;&#39;), url=url))
+        if DEBUG:
+            print &quot;len(self.category_list)&quot;, len(self.category_list)
+
+    def get_article_title_list(self):
+        for category in self.category_list:
+            res = requests.get(category.url)
+            soup = BeautifulSoup(res.text, &quot;xml&quot;)
+            for item in soup.find_all(&#39;item&#39;):
+                category.addArticle(Article(title=item.title.getText(), url=item.link.getText()))
+
+    def count(self):
+        print &quot;len(self.category_list)&quot;, len(self.category_list)
+        for cat in self.category_list:
+            print &quot;len(cat.article_list)&quot;, len(cat.article_list)
+
+        
+    def get_all_article(self, start=0, end=None):
+        end = len(self.category_list) if end is None else end
+        for cat in self.category_list[start:end]:
+            print cat.name
+            for article in cat.article_list:
+                try:
+                    print article.title
+                    time.sleep(0.5)   # interval time for reducing server load
+                    res = requests.get(article.url)
+                    soup = BeautifulSoup(res.text, &quot;xml&quot;)
+                    t = soup.find(&quot;p&quot;, &quot;ynDetailText&quot;)
+                    if len(t.getText()) &gt; 0:
+                        temp = []
+                        for line in t.prettify().split(&#39;\n&#39;):
+                            if &#39;&lt;!-- /.paragraph --&gt;&#39; in line:
+                                break
+                            temp.append( line )
+                        article.add_contents(BeautifulSoup(&quot;\n&quot;.join(temp), &quot;xml&quot;).get_text().replace(&#39; &#39;,&#39;&#39;).replace(&#39;\n&#39;,&#39;&#39;))
+                        article.exec_mecab()
+                except Exception as e:
+                    print &quot;error.&quot;
+                    self.logging(u&quot;{},{}&quot;.format(article.url, article.title))
+                    self.logging(traceback.format_exc())
+
+    def export(self):
+        news_list = []
+        for c in self.category_list:
+            for a in c.article_list:
+                if u&#39;未取得&#39; != a.contents:
+                    news_list.append(a.mecabed_contents)
+        return news_list
+```
+
+News記事のダウンロードを実行し、pickleで保存します。
+
+```py
+yh = YahooHeadlines()
+print &quot;YahooHeadlines() created.&quot;
+yh.get_category_url_list()
+print &quot;get_category_url_list() finished.&quot;
+yh.get_article_title_list()
+print &quot;get_article_title_list() finished.&quot;
+yh.get_all_article(start=9, end=30)
+dat = yh.export()
+to_pickle(&#39;mecabed_contents.npy&#39;, dat)
+```
+
+# 2. Mecabでの形態素解析済みデータのダウンロードと読み込み
+
+解析済みの mecabed_contents.npy はGitHubの下記の場所に格納してありますのでダウンロードしてお使いください。
+https://github.com/matsuken92/Qiita_Contents/tree/master/LDA_with_Spark
+
+下記でデータを読み込みます。
+
+```py 
+dat = unpickle(&#39;mecabed_contents.npy&#39;)
+```
+
+#2. Sparkで使用するJava Heapサイズの変更
+
+LDAの計算で、JavaのOutOfMemory Exceptionが出たので、Heapサイズを広げておきます。(実行する環境によると思うので適宜設定ください)
+
+```bash
+cd $SPARK_HOME/conf
+cp spark-defaults.conf.template spark-defaults.conf
+vi spark-defaults.conf
+```
+
+下記のように`spark.driver.memory`のところだけコメントアウトを外します。
+
+```log:spark-defaults.conf
+# spark.master                     spark://master:7077
+# spark.eventLog.enabled           true
+# spark.eventLog.dir               hdfs://namenode:8021/directory
+# spark.serializer                 org.apache.spark.serializer.KryoSerializer
+spark.driver.memory                5g
+# spark.executor.extraJavaOptions  -XX:+PrintGCDetails -Dkey=value -Dnumbers=&quot;one two three&quot;
+```
+
+
+# 3. Sparkの起動とTf-Idfでの特徴抽出、LDAを使った分類の実施
+##3-1. Sparkの起動
+
+iPython Notebook(Jupyter)でのSparkの起動については[前の記事](http://qiita.com/kenmatsu4/items/00ad151e857d546a97c3)も参考にしてください。
+
+何はともあれ、Sparkを起動します。
+
+```py 
+import os, sys
+import pandas as pd
+import numpy as np
+from datetime import datetime as dt
+print &quot;loading PySpark setting...&quot;
+spark_home = os.environ.get(&#39;SPARK_HOME&#39;, None)
+print spark_home
+if not spark_home:
+    raise ValueError(&#39;SPARK_HOME environment variable is not set&#39;)
+sys.path.insert(0, os.path.join(spark_home, &#39;python&#39;))
+sys.path.insert(0, os.path.join(spark_home, &#39;python/lib/py4j-0.8.2.1-src.zip&#39;))
+execfile(os.path.join(spark_home, &#39;python/pyspark/shell.py&#39;))
+```
+
+## 3-2. データのTf-Idfによるベクトル化
+
+**注：トピックモデルをTf-Idfで実行する事は精度が上がるという見解と、とはいえ理論的には単語のカウントを想定されたものであるという見解(Tf−Idfだとfloatになってしまうので理論と合わない)とあるようですのでご注意ください。普通にカウントする方式も近々追記します。(コメント欄参照。 [@icoxfog417 さんコメントありがとうございます。])**
+
+まずは、取得した記事をLDAにかけるための下準備としてTf-Idfによるベクトル化を行います。
+
+```py
+import pandas as pd
+from pyspark.mllib.feature import HashingTF
+from pyspark.mllib.feature import IDF
+
+hashingTF = HashingTF()
+documents = sc.parallelize(dat)
+def hashing(x):
+    return hashingTF.transform([x]).indices[0]
+
+hashed = documents.flatMap(lambda line: line) \
+             .map(lambda word: (hashing(word), word)).distinct()
+
+hashed_word = pd.DataFrame(hashed.collect(), columns=[&#39;hash&#39;,&#39;word&#39;]).set_index(&#39;hash&#39;)
+```
+
+`hashed_word`は下記のようなデータになります。後々、hash値から単語を取り出したいのでテーブル化しておきます。
+
+&lt;table &gt;
+  &lt;thead&gt;
+    &lt;tr style=&quot;text-align: right;&quot;&gt;
+      &lt;th&gt;&lt;/th&gt;
+      &lt;th&gt;word&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;hash&lt;/th&gt;
+      &lt;th&gt;&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;th&gt;605&lt;/th&gt;
+      &lt;td&gt;招待客&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;342707&lt;/th&gt;
+      &lt;td&gt;ギャンブラー&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;578741&lt;/th&gt;
+      &lt;td&gt;フラワーカンパニーズ&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;445743&lt;/th&gt;
+      &lt;td&gt;道後温泉&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;599361&lt;/th&gt;
+      &lt;td&gt;BURBERRY&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;520201&lt;/th&gt;
+      &lt;td&gt;東京ゲームショウ&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;...&lt;/th&gt;
+      &lt;td&gt;...&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;735678&lt;/th&gt;
+      &lt;td&gt;省ける&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;56058&lt;/th&gt;
+      &lt;td&gt;治安&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;444490&lt;/th&gt;
+      &lt;td&gt;月子&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;706206&lt;/th&gt;
+      &lt;td&gt;GENERATIONS&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;th&gt;267402&lt;/th&gt;
+      &lt;td&gt;クーペ&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;41261 rows × 1 columns&lt;/p&gt;
+
+
+SparkでTf-Idf値を計算してLDAで読み込めるように変換したRDDを生成します。
+
+```py 
+# Tf-Idfの生成
+tf = hashingTF.transform(documents)
+tf.cache()
+
+idf = IDF().fit(tf)
+tf_idf_data = idf.transform(tf)
+```
+
+## 3-3. LDAの実行
+
+Spark MLlibでLDAを実行します。とりあえずk=30とします。このトピック数をどう決めるべきか、課題です。今回はエイやっと決めてしまったので、もっといい値があると思います。（kの決め方ご存知の方、教えて下さい！）
+
+```py 
+from pyspark.mllib.clustering import LDA, LDAModel
+from pyspark.mllib.linalg import Vectors
+print dt.now().strftime(&#39;%Y/%m/%d %H:%M:%S&#39;)
+K = 30
+
+
+# Index documents with unique IDs
+corpus = tf_idf_data.zipWithIndex().map(lambda x: [x[1], x[0]]).cache()
+
+# Cluster the documents into three topics using LDA
+%time ldaModel = LDA.train(corpus, k=K)
+
+# Output topics. Each is a distribution over words (matching word count vectors)
+print(&quot;Learned topics (as distributions over vocab of &quot; + str(ldaModel.vocabSize()) + &quot; words):&quot;)
+%time topics = ldaModel.topicsMatrix()
+
+print dt.now().strftime(&#39;%Y/%m/%d %H:%M:%S&#39;)
+```
+
+非力な”新しいMacbook”で実行しているのですが、この計算は12分ほどでした。やれるものですね :smile: 
+
+```log:out
+2015/09/20 17:31:17
+CPU times: user 6.34 ms, sys: 2.09 ms, total: 8.44 ms
+Wall time: 30.8 s
+Learned topics (as distributions over vocab of 1048576 words):
+CPU times: user 5min 14s, sys: 6min 12s, total: 11min 26s
+Wall time: 11min 53s
+2015/09/20 17:43:42
+```
+
+## 3-4. 結果の出力
+
+前項で計算した結果を出力します。
+
+```py 
+def idx_to_word(idx):
+    res = hashed_word.ix[idx].word
+    if type(res) == pd.Series:
+        return res.to_dict().values()[0]
+    else:
+        return res
+
+rep_num = 20
+
+for topic in range(K):
+    print(&quot;Topic &quot; + str(topic) + &quot;:&quot;)
+    temp_w = []
+    temp_t = []
+    for word in range(0, ldaModel.vocabSize()):
+
+        top = topics[word][topic]
+        if top != 0:
+            #print(&quot;{}:{}&quot;.format(word, top))
+            temp_w.append(word)
+            temp_t.append(top)
+    
+    temp_w = np.array(temp_w)
+    temp_t = np.array(temp_t)
+    idx = np.argsort(temp_t)[::-1]
+    print &#39;,&#39;.join(map(idx_to_word, temp_w[idx[:rep_num]]))
+    print temp_t[idx[:rep_num]]
+```
+
+下記が分類結果です。それぞれのトピックから上位20単語を表示しています。
+それっぽいような感じですが、まだチューニングが必要ですね。それぞれのトピックが何を指しているかがいまいち不明瞭です。kの決め方でしょうか。
+
+```log:out
+Topic 0:
+3D,1%,JP,Yahoo,co.jp,http://,2Z,FE,TC,WC,JavaScript,SRC,ALT,D2,分,.S,SIG,clear,Mi,GIF
+[ 30498.99621439   6067.97495307   5638.31180986   4239.90976107
+   3839.63866955   3620.87671019   2048.76800459   2035.55013512
+   2035.55013512   2035.55013512   1903.02711354   1898.96547573
+   1820.93929181   1763.1621581    1724.74815005   1688.15876657
+   1613.83355369   1483.59938276   1454.82128817   1338.48860166]
+Topic 1:
+ディープラーニング,GPU,債務超過,原発,亜人,稼働,京セラ,演算,浜田,日本インター,推薦,村上氏,ウッドワード,ライブラリ,買い付け,ABC,DI,活用,予防医学,純資産
+[ 230.26782221  222.54019498  109.0725775    86.27167445   86.10057908
+   84.22603202   67.68409895   66.99081298   60.91536464   57.4006148
+   57.16789412   50.24346965   50.17063652   45.16572514   43.57092785
+   43.37177773   43.06492631   41.84250571   40.60449032   39.60700784]
+Topic 2:
+音,教授,アンプ,訴訟,スピーカー,スズキ,大学,共産党,A-10,DR,（株）,SUZUKI,さん,資本金,HONDA,板野,氏,録画,Internet,帯
+[ 313.9497848   311.07373468  291.18216703  200.41036663  174.99267573
+  168.83426043  162.12249119  160.4631899   158.44550237  155.86272676
+  152.51636208  145.63724853  144.22014499  143.88263097  138.80529834
+  136.38362019  133.87558279  132.8150622   127.1633457   123.42496755]
+Topic 3:
+イルカ,患者,搬入,海軍,加盟,米海軍,作戦,弁護士,店主,列車,春画,極ZERO,軍事,福岡,契約,団体,美女と野獣,位,エンブレム,更新
+[ 285.35384105  125.29445731  122.03394224  117.37108065  114.56787287
+  107.67685141  107.66792085  107.49265658  104.77371348  104.55689386
+  103.34343411  101.54959522   99.13195887   97.66056425   87.6906483
+   83.77795736   82.83739301   82.06384181   81.99063074   79.61260345]
+Topic 4:
+小笠原諸島,19日,雨,NARUTO-ナルト-,見込み,あす,所,チョコボ,きょう,田畑,台風20号,土砂災害,大藤,ルーナ,武器,非常,局,ある,ん,東北
+[ 230.41298471  206.73983243  201.38377462  162.53955457  156.01089213
+  152.26626716  147.20327527  143.56116858  138.58499586  136.35519513
+  134.63602579  131.89025362  122.02553338  114.84698842  114.73039984
+  112.58882552  111.19144156  109.29280382  108.74278871  108.06638723]
+Topic 5:
+店,LGBT,地方,紅葉,羽生,エヴェレスト,当事者,USJ,MM,溶接,NorAh,釧路,選手,野球,人,阿部,土肥,損失,村木,深町
+[ 534.02134183  233.21159627  161.734613    149.27499135  148.04072853
+  139.83024817  128.12607155  127.16365004  121.55663036  116.93175677
+  115.10536063  111.9230136   108.32928292  101.01309412   99.57305727
+   97.8645909    93.31870841   90.55202246   88.16103482   85.11086582]
+Topic 6:
+自衛隊,当該,活動,項,実施,救助,等,支援,規定,物品,条,協力,措置,部隊,役務,捜索,事態,提供,二,軍隊
+[ 425.27200701  410.14147759  340.63660257  335.99268066  301.03835559
+  277.69844718  262.99789699  244.04626438  241.86903535  233.56945124
+  226.29603529  213.94031937  208.31405209  198.09771261  191.92479361
+  173.18290576  171.56092092  164.69617574  147.1031081   144.02472698]
+Topic 7:
+ん,思う,さん,人,ダンス,いく,会場,よう,やる,選手,言葉,曲,ステージ,なる,作る,くる,出演,メンバー,もの,女性
+[ 400.87252109  311.02748052  250.83203469  243.87087686  241.62681685
+  235.1485944   219.71001515  212.56170962  206.76164473  198.28774766
+  190.64751854  190.09850913  187.53964957  178.53456693  173.1581961
+  170.93611348  167.90595764  166.71680877  163.85967037  160.64966047]
+Topic 8:
+イ・スンギ,格安スマホ,遠藤,交番,建築,設計,SHEENA,カーラ,でんぱ組.inc,身長,ジョー,施工,千鳥,イブ,クリスチャン,クラ,接種,事例,優待,コンペ
+[ 122.01843494  100.42493188   96.7819965    90.82173926   84.67996554
+   84.04629268   81.2426219    81.22826354   79.28066538   77.10645017
+   75.3958751    70.7937157    67.79664672   67.62432926   62.02688985
+   61.12174747   60.911537     60.671785     60.6691196    59.22618216]
+Topic 9:
+石原,山下,月9,原子力発電所,総,MAX,さん,アリババ,ウォン,川島,恋,僧侶,万,落札,，,高嶺,役,主演,坊さん,雇用労働部
+[ 251.21702545  246.98644992  188.33673645  180.99682139  170.83125774
+  161.27898596  150.18861226  148.37545664  145.26656891  116.99233982
+  115.97102397  111.61849001  108.61185273  108.09102905  104.38739566
+  103.32743846   96.51126917   95.40721995   95.33654317   94.80918496]
+Topic 10:
+集団的自衛権,行使,安保,日本,遺骨,法案,北朝鮮,GO,システム,首相,米,Pokemon,韓国,平和,戦争,思考,会,成立,小林,テロメア
+[ 325.4190462   294.03767623  253.6549491   215.81603062  212.85361125
+  212.4241334   203.16256149  145.41407277  145.35949337  144.77378143
+  140.99962347  135.45572385  131.0855378   121.75771794  118.79648391
+  117.21162034  115.63520103  115.03735685  115.02058923  114.84203109]
+Topic 11:
+１,０,２,３,５,４,９,８,法案,６,日,７,委員,年,反対,国会,％,案,議員,与党
+[ 2365.0615964   1843.50976149  1580.14166211   977.45697796   972.93295992
+   900.33510929   811.76679401   734.30895952   708.8845634    687.91169097
+   666.9871633    638.37414039   480.65198962   403.9740617    397.36591408
+   389.03843978   378.11150102   372.94260471   366.06518175   348.52658829]
+Topic 12:
+％,週,人,茶,勤労,小木曽,山口組,桑原,コルク,派遣,調査,審査,訪日,セヌリ党,ファン,回答,延長,期間,万,さん
+[ 422.50645087  213.35496472  190.18553723  185.25693     172.87477417
+  169.32178049  168.65380074  168.60270933  165.10107941  163.39675225
+  158.10205955  157.84657732  156.61876499  150.94891424  144.86004174
+  142.60856342  141.41821081  139.14405814  136.07482269  129.11386079]
+Topic 13:
+ペット,タイヤ,点検,富士フイルム,店,犬,事故,飼い主,パン,量的緩和,バブル,２月,アーチャー,機関,動物,事業,ELEMENT,閉鎖,ペットシッター,世話
+[ 144.38505303  139.38328152  138.65459253  120.09515611  117.32842831
+  111.2811561    97.34985563   90.9386823    88.76830528   86.09862267
+   86.03676176   81.16131412   73.04842045   71.94537875   71.76221994
+   69.36573458   67.72482177   67.56636611   64.59788527   63.72988257]
+Topic 14:
+デブリ,宇宙,衛星,岡野,S.M.A.R.T,ヤス,アンバー・ハード,光子,木下半太,ビーム,除去,パスタ,愛乙女★DOLL,二宮,ロケット,選手,衝突,建設,めっき,篠原
+[ 200.98746196  109.11393056  102.69563054   71.64443048   70.61628478
+   70.21806077   69.47009154   67.71824577   64.58911369   63.98653636
+   61.75894589   57.1558711    54.17379175   50.53475054   50.08003639
+   49.38497398   49.1474643    48.05613337   47.37467689   47.21593097]
+Topic 15:
+列車,店,鉄道,駅,輸送,配偶者控除,万,円,賞品,幼虫,被告,遺伝子,水害,薬,がれき,廃棄,教育,JR貨物,実習,制度
+[ 209.45549658  172.75201923  164.79055902  147.02460723  146.34946295
+  122.11417714  116.53446688  113.36476153  110.00093014  101.51355757
+  101.49522834   93.61766945   90.44254789   90.21005366   86.14087176
+   85.94118974   85.87426669   83.81989617   81.4445114    81.32144707]
+Topic 16:
+曲,作,さん,作品,イベント,ステージ,公開,公演,ライブ,ん,リリース,登場,アルバム,ファン,披露,発売,開催,思う,収録,会場
+[ 717.72208948  701.88650132  675.57536789  653.80324063  630.25795307
+  623.56413175  593.77778162  570.85401227  542.29065168  530.72760902
+  527.34422729  504.12104195  477.59137972  477.00323092  449.362484
+  433.71529537  424.21385561  415.6621296   413.39032883  408.44365814]
+Topic 17:
+移民,氏,589 Croatia,行為,首相,白虎隊,送信,ストーカー規制法,クォン・サンウ,ドイツ,つきまとう,ターン,ブル,国境,アボット,首脳,Hungary,ら,管内,電子メール
+[ 164.44142649  157.91328715  138.76814858  132.5043004   125.07620334
+  114.82154418  112.98085344  108.36476034  100.36013718   99.44524733
+   95.72254509   91.79868319   89.07727008   83.49107233   81.37738585
+   78.16457362   77.45463275   77.03517754   75.47489877   74.73847572]
+Topic 18:
+％,ビール,億,万,ローリー,酒税,増,前年,位,減,円,調査,向け,企業,比,サービス,市場,書籍,ポスコ,兆
+[ 580.21824689  434.53747304  337.23060498  322.90011084  275.51253012
+  255.35439791  202.94575502  195.40863404  193.2023368   188.88153369
+  188.32713027  185.3074174   182.46872612  180.38548978  168.37490369
+  159.71109053  159.65702647  155.00164055  150.38902564  149.40071569]
+Topic 19:
+岡村,与る,石橋,正,偏光,岡村隆史,ブレイクダンス,犯人,サングラス,タッチパネル,お前,難民,鉛,ホームパーティー,受け入れ,オヤジ,薬剤師,聖堂,薬局,三菱鉛筆
+[ 77.67608384  65.66168235  62.59137271  61.50991922  50.18323397
+  44.41180978  43.50803013  41.09367176  40.73945738  38.9101876
+  37.57614659  36.56843092  35.85623378  35.81638016  34.10640826
+  33.81327369  32.32619825  31.22516758  31.12976321  30.34057197]
+Topic 20:
+練炭,交渉,和田アキ子,沖縄,みりん,人材,の,アビガン,就業規則,お盆玉,会合,テーマパーク,キー,serendipity,お年玉,ユー・エス・ジェイ,PIN,細胞,閣僚,コンビニ
+[ 200.98686962  154.40963453  106.75322346  102.73754422  100.48163455
+   98.9612829    94.85889131   93.31730072   93.30796905   93.27433467
+   92.84230214   89.15912225   87.60003563   86.13875558   86.09579478
+   81.48415665   81.37494046   81.10648568   75.53083854   74.76190319]
+Topic 21:
+18日,沿岸,気象庁,新函館北斗,新幹線,往復,開業,島,ゴム,2015年,北海道,ハワイ,初診,父島,SAKANAMON,VAMPS,出演,発表,3M,観測
+[ 326.61966201  176.18179227  162.70899568  137.89819305  135.61061726
+  131.91446936  127.87583916  123.18162869  119.46292987  114.89846676
+  113.33026617  108.85661384   96.44435409   94.0825422    93.31173974
+   92.48630364   90.34013265   89.33794268   89.00557891   88.60743728]
+Topic 22:
+桐谷,RC,坂口,MT,とり,ギリシャ,ヒロイン失格,スター・ウォーズ,山崎,音楽,凍りつく,弘光,AWA,ねぶた,原作,OB,T細胞,Mさん,疎開,パク・ソルミ
+[ 242.08396669  233.61062923  172.28879872  158.02400752  156.16092615
+  149.65020403  145.38706775  143.01353797  123.89388685  107.61948489
+  105.20201675  104.23176854  103.93186096  101.57317097  101.33211206
+   98.35838535   93.31294228   81.26331036   78.87903503   77.78473071]
+Topic 23:
+税理士,円,万,申告,輸出,額,税金,位,マイナンバー,事務所,所得,制度,％,Philippine,場合,億,電力,企業,家電量販店,こと
+[ 670.6061898   559.30722115  395.94196364  369.03793975  352.9802148
+  350.59584008  348.81817142  345.42194256  281.01115977  270.7837518
+  268.64882097  263.68902183  256.54739477  233.11666127  228.29591629
+  224.91966604  208.54269702  206.95435942  201.05969014  199.71772628]
+Topic 24:
+の,憲法,企業,こと,日本,者,国家,木村祐一,弁護士,できる,事業,デザイン,開発,よう,思う,ある,いう,権力,性,考える
+[ 371.66961434  337.03124549  319.99104269  319.594891    309.51245673
+  287.52866308  271.19087899  267.75333312  261.60521555  256.02307667
+  251.18894465  239.58136963  238.33242359  238.07787656  233.68552111
+  231.93864718  213.6720825   207.06572415  206.83553817  206.39025416]
+Topic 25:
+被害,億,店舗,運転,円,料金,旅客,ヘリ,０,増,農業,減,前年,AKB48,宮城,出店,県,店,万,間
+[ 322.28929388  284.37384142  264.46206604  248.44913769  226.60800063
+  226.41660568  212.16654388  205.88384117  189.18011081  173.35857685
+  170.73582962  170.16262181  167.13947269  166.91143061  165.98762565
+  164.64467713  157.49179255  153.26181924  149.68685887  145.6529475 ]
+Topic 26:
+利上げ,中国,市場,経済,米国,ドル,km,％,安,上昇,機,金利,景気,株,見通し,下落,円,投資,率,韓国
+[ 711.44316161  691.81953214  624.21582824  603.1447681   464.88853934
+  444.72254696  425.1654548   400.24353915  398.08670081  384.38514657
+  378.64702088  364.08566045  354.84095879  354.60928052  346.69708409
+  337.14563576  335.09073391  331.251988    328.37760334  316.68760744]
+Topic 27:
+映画,監督,演じる,ん,僕,俳優,役,歳,作,アントマン,さん,出演,仕事,舞台,ドラマ,撮影,本,女優,思う,こと
+[ 886.18859913  521.81885818  517.66295551  341.28837968  323.889684
+  320.54609403  318.78269341  305.49616021  292.69106111  291.83105713
+  283.59914761  271.24734272  271.03094368  266.13209765  257.9348965
+  252.86535054  245.73361042  241.71909116  225.00245517  222.13685278]
+Topic 28:
+ゲーム,できる,搭載,採用,開発,の,こと,木村祐一,用,台,氏,還付,利用,化,中国,性,よう,製品,なる,スマホ
+[ 453.00001367  302.95432162  283.96542019  280.46414245  257.18675974
+  254.89400232  246.43778386  219.71661031  217.78910865  214.12011552
+  212.66757085  211.03349157  205.35032129  203.34111497  197.81430578
+  193.73396761  193.32616187  190.05730112  189.02413711  187.26200727]
+Topic 29:
+浅草,他者,コメディ,光クラブ,ライチ,カノン,中条,たち,テイラー,映画祭,たけし,まち,津軽三味線,私,上演,台東,久石譲,充電,宝塚,JR九州
+[ 170.36663986  156.09380245  132.93872491  127.17520086  127.13453875
+  112.71315236  110.24371137  107.89145147  106.67342349  102.47261177
+   99.54801093   93.6074624    90.90080501   85.36814206   79.75410095
+   79.31855725   78.95649479   76.60922126   74.76350455   74.69475118]
+```
+
+# 4. 課題
+下記のような課題があります。知見のある方、ぜひアドバイスいただけると嬉しいです。
+1. 単語の出現回数ではなく、Tf-IdfのBOWでLDAにかけることで問題がないか。
+　　　→ すなおに単語のカウントにした方がよさそう。
+2. Tf-Idf化の際に単語をハッシュ化しているが、単語がぶつかっている。（要対処）
+3. トピック数 Kをどのように決めるか。今回は適当に30にしてしまった。
+
+# 参考
+Spark 1.5.0 Machine Learning Library (MLlib) Guide
+　http://spark.apache.org/docs/latest/mllib-guide.html
+
+MLlib - ClusteringLatent Dirichlet allocation (LDA)
+　http://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【機械学習】Yahoo Newsの記事をMLlibのトピックモデル(LDA)でクラスタリングする。 by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【機械学習】Yahoo Newsの記事をMLlibのトピックモデル(LDA)でクラスタリングする。" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/kenmatsu4"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/kenmatsu4">kenmatsu4</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">8840</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;kenmatsu4&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-1c8fee7a-a818-4a51-95ec-fc510bcff145"></div>
+    <div id="UserFollowButton-react-component-1c8fee7a-a818-4a51-95ec-fc510bcff145"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">Popular Posts</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/7b8d24d4c5144a686412">【機械学習】ディープラーニング フレームワークChainerを試しながら解説してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/e6c6acb289c02609e619">【統計学】初めての「標準偏差」（統計学に挫折しないために）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/2a8573e3c878fc2da306">【数学】固有値・固有ベクトルとは何かを可視化してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/b28d1b3b3d291d0cc698">【統計学】尤度って何？をグラフィカルに説明してみる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/kenmatsu4/items/23768cbe32fe381d54a2">スタバのTwitterデータをpythonで大量に取得し、データ分析を試みる その１</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#0-%E7%92%B0%E5%A2%83\&quot;\u003e0. 環境\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1-%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E8%A8%98%E4%BA%8B%E3%81%AE%E5%8F%96%E5%BE%97\&quot;\u003e1. ニュース記事の取得\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-mecab%E3%81%A7%E3%81%AE%E5%BD%A2%E6%85%8B%E7%B4%A0%E8%A7%A3%E6%9E%90%E6%B8%88%E3%81%BF%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E3%81%A8%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF\&quot;\u003e2. Mecabでの形態素解析済みデータのダウンロードと読み込み\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-spark%E3%81%A7%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8Bjava-heap%E3%82%B5%E3%82%A4%E3%82%BA%E3%81%AE%E5%A4%89%E6%9B%B4\&quot;\u003e2. Sparkで使用するJava Heapサイズの変更\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-spark%E3%81%AE%E8%B5%B7%E5%8B%95%E3%81%A8tf-idf%E3%81%A7%E3%81%AE%E7%89%B9%E5%BE%B4%E6%8A%BD%E5%87%BAlda%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%9F%E5%88%86%E9%A1%9E%E3%81%AE%E5%AE%9F%E6%96%BD\&quot;\u003e3. Sparkの起動とTf-Idfでの特徴抽出、LDAを使った分類の実施\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-1-spark%E3%81%AE%E8%B5%B7%E5%8B%95\&quot;\u003e3-1. Sparkの起動\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-2-%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AEtf-idf%E3%81%AB%E3%82%88%E3%82%8B%E3%83%99%E3%82%AF%E3%83%88%E3%83%AB%E5%8C%96\&quot;\u003e3-2. データのTf-Idfによるベクトル化\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-3-lda%E3%81%AE%E5%AE%9F%E8%A1%8C\&quot;\u003e3-3. LDAの実行\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-4-%E7%B5%90%E6%9E%9C%E3%81%AE%E5%87%BA%E5%8A%9B\&quot;\u003e3-4. 結果の出力\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#4-%E8%AA%B2%E9%A1%8C\&quot;\u003e4. 課題\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83\&quot;\u003e参考\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-fcfe0fb5-d2ab-4330-9af4-95250f925714"></div>
+    <div id="Toc-react-component-fcfe0fb5-d2ab-4330-9af4-95250f925714"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:113,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;984c7499cffca5a23bfb&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kou_tana77"><a itemprop="url" href="/kou_tana77"><img alt="kou_tana77" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/45958/profile-images/1473690481" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="task_woof"><a itemprop="url" href="/task_woof"><img alt="task_woof" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/28260/profile-images/1473685166" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="river24"><a itemprop="url" href="/river24"><img alt="river24" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26584/profile-images/1484214640" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="cactaceae"><a itemprop="url" href="/cactaceae"><img alt="cactaceae" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/30244/profile-images/1480962182" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kenzo0107"><a itemprop="url" href="/kenzo0107"><img alt="kenzo0107" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/35162/profile-images/1473686626" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="grimrose@github"><a itemprop="url" href="/grimrose@github"><img alt="grimrose@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7628/profile-images/1477911489" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nassie"><a itemprop="url" href="/nassie"><img alt="nassie" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46307/profile-images/1473690608" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yutakamiyaji"><a itemprop="url" href="/yutakamiyaji"><img alt="yutakamiyaji" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25991/profile-images/1473759677" /></a></div></div><div class="ArticleFooter__user"><a href="/kenmatsu4/items/984c7499cffca5a23bfb/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/984c7499cffca5a23bfb/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/kenmatsu4/items/984c7499cffca5a23bfb.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/kenmatsu4/items/183020c058feac6a779b#_reference-249bfa9e11a0e159638e"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184" />今までの投稿記事のまとめ（統計学/機械学習/数学 etc）</a><time class="references_datetime js-dateTimeView" datetime="2016-07-09T02:34:14+00:00">8 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【機械学習】Yahoo Newsの記事をMLlibのトピックモデル(LDA)でクラスタリングする。 by @Kenmatsu4 on @Qiita" data-url="http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【機械学習】Yahoo Newsの記事をMLlibのトピックモデル(LDA)でクラスタリングする。" href="http://b.hatena.ne.jp/entry/http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003etf-idfでLDAを構築するのは、本流ではないと思います。精度が上がるという現象がある一方、そもそも「単語の出現回数」を扱うモデルであるため何が起きるかちょっとわからない、という具合のようです。\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;http://stackoverflow.com/questions/27147690/should-i-use-tfidf-corpus-or-just-corpus-to-inference-documents-using-lda\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003eshould i use tfidf corpus or just corpus to inference documents using LDA?\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003eトピック数については、最適なトピック数を算出するディリクレ過程という手法があります。ただ、そうした手法を使わなくても、各トピック数において構築したモデルを評価していけば最適なトピック数を見つけることができます。\u003cbr\u003e\n一般的な評価指標はperplexityになりますが、トピック数を変えながらperplexityを観測することで、最適なトピック数を見つけることができます。\u003c/p\u003e\n\n\u003cp\u003eScalaのMLlibでは、perplexityはLocalLDAModelでサポートされているようですが、\&quot;Currently, a distributed model can be converted into a local model\&quot;という記述があるので、DistributedLDAModelでもこの値は取得できると思います。\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;http://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003eLatent Dirichlet allocation (LDA)\u003c/a\u003e\u003c/p\u003e\n\n\u003cp\u003e(ただ、2015/9現在では、MLlibにおけるLDAは\&quot;LDA is still an experimental feature under active development\&quot;という記述があり、仕様は今後変更になる可能性があります)。\u003c/p\u003e\n\n\u003cp\u003eトピックモデルとその評価方法については、以前まとめたことがあるのでよろしければご参考ください。\u003c/p\u003e\n\n\u003cp\u003e\u003ca href=\&quot;http://tech-sketch.jp/2015/09/topic-model.html\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003eトピックモデルを利用したアプリケーションの作成\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-09-21T10:01:40+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:341091,&quot;is_team&quot;:false,&quot;item_id&quot;:330105,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;984c7499cffca5a23bfb&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;tf-idfでLDAを構築するのは、本流ではないと思います。精度が上がるという現象がある一方、そもそも「単語の出現回数」を扱うモデルであるため何が起きるかちょっとわからない、という具合のようです。\n\n[should i use tfidf corpus or just corpus to inference documents using LDA?](http://stackoverflow.com/questions/27147690/should-i-use-tfidf-corpus-or-just-corpus-to-inference-documents-using-lda)\n\nトピック数については、最適なトピック数を算出するディリクレ過程という手法があります。ただ、そうした手法を使わなくても、各トピック数において構築したモデルを評価していけば最適なトピック数を見つけることができます。\n一般的な評価指標はperplexityになりますが、トピック数を変えながらperplexityを観測することで、最適なトピック数を見つけることができます。\n\nScalaのMLlibでは、perplexityはLocalLDAModelでサポートされているようですが、\&quot;Currently, a distributed model can be converted into a local model\&quot;という記述があるので、DistributedLDAModelでもこの値は取得できると思います。\n\n[Latent Dirichlet allocation (LDA)](http://spark.apache.org/docs/latest/mllib-clustering.html#latent-dirichlet-allocation-lda)\n\n(ただ、2015/9現在では、MLlibにおけるLDAは\&quot;LDA is still an experimental feature under active development\&quot;という記述があり、仕様は今後変更になる可能性があります)。\n\nトピックモデルとその評価方法については、以前まとめたことがあるのでよろしければご参考ください。\n\n[トピックモデルを利用したアプリケーションの作成](http://tech-sketch.jp/2015/09/topic-model.html)\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb#comment-e58358d4961f5cece54c&quot;,&quot;user&quot;:{&quot;contribution&quot;:20387,&quot;created_at&quot;:&quot;2013-06-19T22:28:11+09:00&quot;,&quot;id&quot;:25990,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;icoxfog417&quot;},&quot;uuid&quot;:&quot;e58358d4961f5cece54c&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ca href=\&quot;/icoxfog417\&quot; class=\&quot;user-mention js-hovercard\&quot; title=\&quot;icoxfog417\&quot; data-hovercard-target-type=\&quot;user\&quot; data-hovercard-target-name=\&quot;icoxfog417\&quot;\u003e@icoxfog417\u003c/a\u003e さん\u003cbr\u003e\nコメントいただきありがとうございます！\u003c/p\u003e\n\n\u003cp\u003eやはり、すなおに出現回数を取った方が良いのですね。\u003cbr\u003e\n記事の方にもその旨記載させていただきます。\u003c/p\u003e\n\n\u003cp\u003eまた、トピックモデルの評価についても勉強になります。\u003cbr\u003e\n残念ながらまだPythonには実装されていないようですね・・・。\u003cbr\u003e\n\u003ca href=\&quot;http://spark.apache.org/docs/latest/api/python/pyspark.mllib.html?highlight=lda#pyspark.mllib.clustering.LDA\&quot; class=\&quot;autolink\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003ehttp://spark.apache.org/docs/latest/api/python/pyspark.mllib.html?highlight=lda#pyspark.mllib.clustering.LDA\u003c/a\u003e\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-09-21T11:55:06+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:341108,&quot;is_team&quot;:false,&quot;item_id&quot;:330105,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;984c7499cffca5a23bfb&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;@icoxfog417 さん\nコメントいただきありがとうございます！\n\nやはり、すなおに出現回数を取った方が良いのですね。\n記事の方にもその旨記載させていただきます。\n\nまた、トピックモデルの評価についても勉強になります。\n残念ながらまだPythonには実装されていないようですね・・・。\nhttp://spark.apache.org/docs/latest/api/python/pyspark.mllib.html?highlight=lda#pyspark.mllib.clustering.LDA\n\n\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb#comment-2611e46e3df35c768cd9&quot;,&quot;user&quot;:{&quot;contribution&quot;:8840,&quot;created_at&quot;:&quot;2014-08-01T17:56:53+09:00&quot;,&quot;id&quot;:50670,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;uuid&quot;:&quot;2611e46e3df35c768cd9&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:330105,&quot;uuid&quot;:&quot;984c7499cffca5a23bfb&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;kenmatsu4&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;},{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-c72cffd7-48d4-4480-9d4c-c957c792bcee"></div>
+    <div id="CommentListContainer-react-component-c72cffd7-48d4-4480-9d4c-c957c792bcee"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="KbqAvuR419zIXkEaUhg1SO5kdYdrnBhs47AZkRjLwoCaPfphSonILrsMBJOVR1ycnWTddRGNDv1vaZ9lC1PFng==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/984c7499cffca5a23bfb" /><input type="hidden" name="item_uuid" id="item_uuid" value="984c7499cffca5a23bfb" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/kenmatsu4/items/984c7499cffca5a23bfb", "id": 330105, "uuid": "984c7499cffca5a23bfb" }</script><script class="js-user" type="application/json">{&quot;id&quot;:50670,&quot;url_name&quot;:&quot;kenmatsu4&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50670/profile-images/1473692184&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="1EPEe5WKnvGVB5bqFmh0d4HO4nUHWnTLczaXLEY8WbJnxL6kO3uBA+ZV02PRNx2j8s5Kh31LYlr/7xHYVaRerA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/kenmatsu4/items/984c7499cffca5a23bfb" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-60123434-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

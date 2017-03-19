@@ -1,0 +1,981 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>IBM Bluemix の Watson APIを使ってみた雑感 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+はじめに
+
+IBM Bluemixの無料アカウントを取得してWatsonAPIをあれこれとデモ利用したときの作業メモです。
+
+
+IBM Bluemix
+
+Paas系のサービス。その中にかの有名なWatson APIが提供されている。
+
+
+利用できるAPIの種類
+
+WatsonAPIと一口にいっても以下のように16個ものAPIが提供されている。
+
+2015-08-22時点でデモ利用できるのは以下の通り。
+デモ利用できないものはclosed Beta版で申請をしないとい..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="IBM Bluemix の Watson APIを使ってみた雑感 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/knao124/items/60dc430fc31bf85b0e60" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+# はじめに
+IBM Bluemixの無料アカウントを取得してWatsonAPIをあれこれとデモ利用したときの作業メモです。
+## IBM Bluemix
+Paas系のサービス。その中にかの有名なWatson APIが提供されている..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="IhRVStU4UYaROvIbhGdjXlVtpoWz5nhmnwTdooagnRiRky+Ve8lOdOJot5JDOAqKJm0Od8n3bvcT3VtWlTiaBg==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"knao124","type":"items","id":"60dc430fc31bf85b0e60"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-1e5add6e-d3b7-45ec-b9cd-c4243d2f2dce"></div>
+    <div id="HeaderContainer-react-component-1e5add6e-d3b7-45ec-b9cd-c4243d2f2dce"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">IBM Bluemix の Watson APIを使ってみた雑感</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="150"><a class="u-link-unstyled TagList__label" href="/tags/Watson"><img alt="Watson" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/86efb75530eec10cf84fcdccbb997912f11bc907/medium.jpg?1459684418" /><span>Watson</span></a></li><li class="TagList__item" data-count="523"><a class="u-link-unstyled TagList__label" href="/tags/Bluemix"><img alt="Bluemix" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/e43ee4398bcde7b56175ccf27bb6a46973e1a81e/medium.jpg?1429675128" /><span>Bluemix</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">222</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:222,&quot;uuid&quot;:&quot;60dc430fc31bf85b0e60&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="n_slender"><a itemprop="url" href="/n_slender"><img alt="n_slender" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9880/profile-images/1473681581" /></a></li><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="shinji1105"><a itemprop="url" href="/shinji1105"><img alt="shinji1105" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72107/profile-images/1473699047" /></a></li><li class="js-hovercard" data-hovercard-target-name="morozumi_h"><a itemprop="url" href="/morozumi_h"><img alt="morozumi_h" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18582/profile-images/1473682476" /></a></li><li class="js-hovercard" data-hovercard-target-name="eiua_"><a itemprop="url" href="/eiua_"><img alt="eiua_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31606/profile-images/1473685732" /></a></li><li class="js-hovercard" data-hovercard-target-name="chikuta"><a itemprop="url" href="/chikuta"><img alt="chikuta" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62361/profile-images/1474988717" /></a></li><li class="js-hovercard" data-hovercard-target-name="wstone"><a itemprop="url" href="/wstone"><img alt="wstone" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/56104/profile-images/1473693898" /></a></li><li class="js-hovercard" data-hovercard-target-name="sameoldtrick"><a itemprop="url" href="/sameoldtrick"><img alt="sameoldtrick" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10153/profile-images/1473681642" /></a></li><li class="js-hovercard" data-hovercard-target-name="mfujita"><a itemprop="url" href="/mfujita"><img alt="mfujita" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86169/profile-images/1473703653" /></a></li><li><a href="/knao124/items/60dc430fc31bf85b0e60/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/knao124"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32783/profile-images/1473685978" alt="1473685978" /></a> <a class="u-link-unstyled" href="/knao124">knao124</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-08-22T21:42:29+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-08-22">Edited at <time datetime="2015-09-25T21:38:24+09:00" itemprop="dateModified">2015-09-25</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/knao124/items/60dc430fc31bf85b0e60/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">18</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/knao124/items/60dc430fc31bf85b0e60/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(18)</span></a></li><li><a href="/knao124/items/60dc430fc31bf85b0e60.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-60dc430fc31bf85b0e60" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div>
+<h1>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h1>
+
+<p>IBM Bluemixの無料アカウントを取得してWatsonAPIをあれこれとデモ利用したときの作業メモです。</p>
+
+<h2>
+<span id="ibm-bluemix" class="fragment"></span><a href="#ibm-bluemix"><i class="fa fa-link"></i></a>IBM Bluemix</h2>
+
+<p>Paas系のサービス。その中にかの有名なWatson APIが提供されている。</p>
+
+<h2>
+<span id="利用できるapiの種類" class="fragment"></span><a href="#%E5%88%A9%E7%94%A8%E3%81%A7%E3%81%8D%E3%82%8Bapi%E3%81%AE%E7%A8%AE%E9%A1%9E"><i class="fa fa-link"></i></a>利用できるAPIの種類</h2>
+
+<p>WatsonAPIと一口にいっても以下のように16個ものAPIが提供されている。</p>
+
+<p>2015-08-22時点でデモ利用できるのは以下の通り。<br>
+デモ利用できないものはclosed Beta版で申請をしないといけないっぽい。</p>
+
+<h4>
+<span id="デモ利用可" class="fragment"></span><a href="#%E3%83%87%E3%83%A2%E5%88%A9%E7%94%A8%E5%8F%AF"><i class="fa fa-link"></i></a>デモ利用可</h4>
+
+<ul>
+<li>AlchemyAPI</li>
+<li>Concept Expansion </li>
+<li>Concept Insights</li>
+<li>Dialog</li>
+<li>Language Translation</li>
+<li>Natural Language Classifier</li>
+<li>Personality Insights</li>
+<li>Question and Answer</li>
+<li>Relationship Extraction</li>
+<li>Speech To Text</li>
+<li>Text to Speech</li>
+<li>Tradeoff Analytics</li>
+<li>Visual Recognition</li>
+</ul>
+
+<h4>
+<span id="デモ利用不可" class="fragment"></span><a href="#%E3%83%87%E3%83%A2%E5%88%A9%E7%94%A8%E4%B8%8D%E5%8F%AF"><i class="fa fa-link"></i></a>デモ利用不可</h4>
+
+<ul>
+<li>Cognitive Commerce™</li>
+<li>Cognitive Graph</li>
+<li>Cognitive Insights™</li>
+</ul>
+
+<h1>
+<span id="長くなるので先に使ってみた結論" class="fragment"></span><a href="#%E9%95%B7%E3%81%8F%E3%81%AA%E3%82%8B%E3%81%AE%E3%81%A7%E5%85%88%E3%81%AB%E4%BD%BF%E3%81%A3%E3%81%A6%E3%81%BF%E3%81%9F%E7%B5%90%E8%AB%96"><i class="fa fa-link"></i></a>長くなるので先に使ってみた結論</h1>
+
+<p>2.Alchemy API，5.Personality Insights, 9. Natural Language Classifierは使えそう。<br>
+あとはデモレベルだとまだ微妙かも。</p>
+
+<p>以下、メモ内容。<br>
+<strong>順番↑の通りでないので注意。単純に見ていった順です。</strong></p>
+
+<h1>
+<span id="1-concept-expansion" class="fragment"></span><a href="#1-concept-expansion"><i class="fa fa-link"></i></a>1. Concept Expansion</h1>
+
+<h2>
+<span id="内容" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9"><i class="fa fa-link"></i></a>内容</h2>
+
+<ul>
+<li>概念拡張サービス。婉曲な表現や話し言葉の用語をより一般的でわかりやすい用語に解読する。と日本語資料ではかっこ良く書かれている。</li>
+<li>いくつかの単語を入れると、それへの関連度が高い単語一覧が出力される。</li>
+<li>コーパスはTwitterと医療系のサイトのテキスト、それぞれで学習されたAPIが用意されている。</li>
+</ul>
+
+<h2>
+<span id="デモ内容" class="fragment"></span><a href="#%E3%83%87%E3%83%A2%E5%86%85%E5%AE%B9"><i class="fa fa-link"></i></a>デモ内容</h2>
+
+<ul>
+<li>コーパスとLabelとSeedsを入力すると、関連度の高いワード一覧が出力される。</li>
+<li>頭痛薬系?のワードを入れると関連度の高いペニシリンが最上位に。</li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/edb554e2-ace7-1258-cebd-510c81814882.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/edb554e2-ace7-1258-cebd-510c81814882.png" alt="スクリーンショット 2015-08-22 18.53.10.png" title="スクリーンショット 2015-08-22 18.53.10.png"></a></p>
+
+<h2>
+<span id="所感" class="fragment"></span><a href="#%E6%89%80%E6%84%9F"><i class="fa fa-link"></i></a>所感</h2>
+
+<ul>
+<li>あるテキスト群のクラス分類器。</li>
+</ul>
+
+<h2>
+<span id="良い点" class="fragment"></span><a href="#%E8%89%AF%E3%81%84%E7%82%B9"><i class="fa fa-link"></i></a>良い点</h2>
+
+<ul>
+<li>いまのところ特になし。</li>
+</ul>
+
+<h2>
+<span id="疑問点課題点" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>コーパスって他にもないのか？今のところ医療系とTwitterしかないが。</li>
+<li>デモサイトでは、labelに何を入れると精度が向上するのかがわからない。</li>
+</ul>
+
+<h1>
+<span id="2-alchemyapi" class="fragment"></span><a href="#2-alchemyapi"><i class="fa fa-link"></i></a>2. AlchemyAPI</h1>
+
+<p>NLPと機械学習アルゴリズムを使って抽象的な意味情報（semantic meta-data）を取得するとのこと。<br>
+APIは全部で4つ。</p>
+
+<ul>
+<li>AlchemyLanguage</li>
+<li>AlchemyVision</li>
+<li>AlchemyData News API</li>
+<li>AlchemyVision Face Detection/Recognition </li>
+</ul>
+
+<h2>
+<span id="2-1-alchemylanguage" class="fragment"></span><a href="#2-1-alchemylanguage"><i class="fa fa-link"></i></a>2-1. AlchemyLanguage</h2>
+
+<h3>
+<span id="内容-1" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-1"><i class="fa fa-link"></i></a>内容</h3>
+
+<p>文章の属性情報の分析API。文章を入力すると、その文章のEntitiesが返ってくる。</p>
+
+<h3>
+<span id="デモ" class="fragment"></span><a href="#%E3%83%87%E3%83%A2"><i class="fa fa-link"></i></a>デモ</h3>
+
+<p>インプットは以下。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+The IBM Watson Language Translation service converts text input in one language into a destination language for the end user using background from domain-specifc models. Translation is available among Arabic, Chinese, English, French, Korean, Portuguese, and Spanish (some languages may not be available for all domains).
+</pre></div></div>
+
+<p>結果は以下。</p>
+
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Relevance</th>
+<th>Centiment</th>
+<th>Type</th>
+<th>Subtypes</th>
+<th>Linked Data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IBM Watson Language</td>
+<td>0.894818</td>
+<td>positive</td>
+<td>PrintMedia</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>end user</td>
+<td>0.417119</td>
+<td>positive</td>
+<td>FieldTerminology</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<span id="所感-1" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-1"><i class="fa fa-link"></i></a>所感</h3>
+
+<ul>
+<li>カテゴリ分類には使えそう。</li>
+</ul>
+
+<h3>
+<span id="疑問点課題点-1" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-1"><i class="fa fa-link"></i></a>疑問点・課題点</h3>
+
+<ul>
+<li>とくになし。</li>
+</ul>
+
+<h2>
+<span id="2-2-alchemyvision" class="fragment"></span><a href="#2-2-alchemyvision"><i class="fa fa-link"></i></a>2-2. AlchemyVision</h2>
+
+<h3>
+<span id="内容-2" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-2"><i class="fa fa-link"></i></a>内容</h3>
+
+<p>Deep Learning使った画像分類。あとで見る、Visual Recognitionよりいけてる。<br>
+画像を入れると、カテゴリとスコアが返ってくる。</p>
+
+<h3>
+<span id="デモ-1" class="fragment"></span><a href="#%E3%83%87%E3%83%A2-1"><i class="fa fa-link"></i></a>デモ</h3>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/86e6baee-5615-aeab-438a-86eac9f0332d.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/86e6baee-5615-aeab-438a-86eac9f0332d.png" alt="Kobito.AONe4R.png" title="Kobito.AONe4R.png"></a></p>
+
+<h3>
+<span id="所感-2" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-2"><i class="fa fa-link"></i></a>所感</h3>
+
+<ul>
+<li>一般的なDeep Learningという感じ。</li>
+<li>すごいというわけでもない</li>
+</ul>
+
+<h3>
+<span id="疑問点課題点-2" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-2"><i class="fa fa-link"></i></a>疑問点・課題点</h3>
+
+<ul>
+<li>Detectionしたい。</li>
+</ul>
+
+<h2>
+<span id="2-3-alchemydata-news-api" class="fragment"></span><a href="#2-3-alchemydata-news-api"><i class="fa fa-link"></i></a>2-3. AlchemyData News API</h2>
+
+<h3>
+<span id="内容-3" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-3"><i class="fa fa-link"></i></a>内容</h3>
+
+<ul>
+<li>デモ見るのがはやい。</li>
+<li>ニュース検索のAPI</li>
+</ul>
+
+<h3>
+<span id="デモ-2" class="fragment"></span><a href="#%E3%83%87%E3%83%A2-2"><i class="fa fa-link"></i></a>デモ</h3>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/a932cdb7-122e-5a18-d61b-af1f0e29ecbf.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/a932cdb7-122e-5a18-d61b-af1f0e29ecbf.png" alt="Kobito.lGSQ0z.png" title="Kobito.lGSQ0z.png"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/99dc1b1b-ef03-4997-55d9-ed34c0915afa.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/99dc1b1b-ef03-4997-55d9-ed34c0915afa.png" alt="Kobito.Nk9WZE.png" title="Kobito.Nk9WZE.png"></a></p>
+
+<h3>
+<span id="所感-3" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-3"><i class="fa fa-link"></i></a>所感</h3>
+
+<ul>
+<li>ニュース検索楽ちん！(ﾟ∀ﾟ)</li>
+<li>でもグーグルで間に合ってます！</li>
+</ul>
+
+<h3>
+<span id="課題点疑問点" class="fragment"></span><a href="#%E8%AA%B2%E9%A1%8C%E7%82%B9%E7%96%91%E5%95%8F%E7%82%B9"><i class="fa fa-link"></i></a>課題点・疑問点</h3>
+
+<ul>
+<li>具体的に裏側では何をしている？クロールしてラベリング？</li>
+</ul>
+
+<h2>
+<span id="2-4-alchemyvision-face-detectionrecognition" class="fragment"></span><a href="#2-4-alchemyvision-face-detectionrecognition"><i class="fa fa-link"></i></a>2-4. AlchemyVision Face Detection/Recognition</h2>
+
+<h3>
+<span id="内容-4" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-4"><i class="fa fa-link"></i></a>内容</h3>
+
+<p>顔認識用のAPI。<br>
+画像を入力すると顔領域と年齢、性別、有名人なら名前を特定してくれる。</p>
+
+<h3>
+<span id="デモ-3" class="fragment"></span><a href="#%E3%83%87%E3%83%A2-3"><i class="fa fa-link"></i></a>デモ</h3>
+
+<p>サンプルを使ってみると...</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/9dbf69f6-ce54-74ca-445d-804eab54c395.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/9dbf69f6-ce54-74ca-445d-804eab54c395.png" alt="Kobito.SPokH2.png" title="Kobito.SPokH2.png"></a></p>
+
+<p>おお〜〜。。次、自分の顔写真をば...</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/45fcd02f-40eb-e099-244e-94235ff49381.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/45fcd02f-40eb-e099-244e-94235ff49381.png" alt="Kobito.C56IuD.png" title="Kobito.C56IuD.png"></a></p>
+
+<p>ファッ？！</p>
+
+<h3>
+<span id="所感-4" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-4"><i class="fa fa-link"></i></a>所感</h3>
+
+<ul>
+<li>教師データ次第？もうちょいチューニングできそう。</li>
+<li>でも顔認識ってとくに使うタイミングないんだよな〜〜...</li>
+</ul>
+
+<h2>
+<span id="疑問点課題点-3" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-3"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>自分の写真はなんで認識されなかったのか？</li>
+<li>教師データ次第では自分の名前も出すようになる？</li>
+</ul>
+
+<h1>
+<span id="3-language-translation" class="fragment"></span><a href="#3-language-translation"><i class="fa fa-link"></i></a>3. Language Translation</h1>
+
+<h2>
+<span id="内容-5" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-5"><i class="fa fa-link"></i></a>内容</h2>
+
+<ul>
+<li>まんま。言語翻訳。Google翻訳をイメージしてくれればOK。</li>
+<li>ドメインを指定する必要あり。会話、ニュース、特許。</li>
+<li>会話とニュースは英語、フランス語、スペイン語、アラビア語、ポルトガル語、のみ提供されていた。両方向可。</li>
+<li>特許は中国語、韓国語、スペイン語、ポルトガル語 -&gt; 英語。単方向のみ。</li>
+</ul>
+
+<h2>
+<span id="デモ内容-1" class="fragment"></span><a href="#%E3%83%87%E3%83%A2%E5%86%85%E5%AE%B9-1"><i class="fa fa-link"></i></a>デモ内容</h2>
+
+<ul>
+<li>Google翻訳と大体同じなので画像は省略。</li>
+<li>日本語がないので精度はなんともだが、英語-&gt;スペイン語-&gt;英語とやったら、なんだか怪しい英語がでてきていた。</li>
+</ul>
+
+<div class="code-frame" data-lang="before"><div class="highlight"><pre>
+The IBM Watson Language Translation service converts text input in one language into a destination language for the end user using background from domain-specifc models. Translation is available among Arabic, Chinese, English, French, Korean, Portuguese, and Spanish (some languages may not be available for all domains).
+</pre></div></div>
+
+<div class="code-frame" data-lang="after"><div class="highlight"><pre>
+The language translation service IBM Watson becomes the text input in a language in a target language for the end user using background of specific domain models.   Translation is available in Arabic, Chinese, English, French, Korean, Portuguese and Spanish, some languages are not available for all domains).
+</pre></div></div>
+
+<h2>
+<span id="所感-5" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-5"><i class="fa fa-link"></i></a>所感</h2>
+
+<ul>
+<li>日本語ないならいらんね。日本人だし。</li>
+<li>というか自動翻訳の技術はそれ自体ではまだまだなので、人の介在を考えた上でサービス設計する必要がある、と思ってるのであんまり,,,</li>
+</ul>
+
+<h2>
+<span id="疑問点課題点-4" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-4"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>日本語対応はいつでしょう？</li>
+<li>精度そんなによくなさそう。</li>
+</ul>
+
+<h1>
+<span id="4-concept-insights" class="fragment"></span><a href="#4-concept-insights"><i class="fa fa-link"></i></a>4. Concept Insights</h1>
+
+<h2>
+<span id="内容-6" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-6"><i class="fa fa-link"></i></a>内容</h2>
+
+<ul>
+<li>知識検索エンジン？</li>
+<li>Googleでダメ？</li>
+</ul>
+
+<h2>
+<span id="注釈" class="fragment"></span><a href="#%E6%B3%A8%E9%87%88"><i class="fa fa-link"></i></a>※注釈</h2>
+
+<ul>
+<li>調査後回し。</li>
+</ul>
+
+<h1>
+<span id="5-personality-insights" class="fragment"></span><a href="#5-personality-insights"><i class="fa fa-link"></i></a>5. Personality Insights</h1>
+
+<h2>
+<span id="内容-7" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-7"><i class="fa fa-link"></i></a>内容</h2>
+
+<ul>
+<li>最低3500語以上、理想では6000語以上の文章を入れると、その人の分析した情報が取得できる。</li>
+</ul>
+
+<h2>
+<span id="デモ内容-2" class="fragment"></span><a href="#%E3%83%87%E3%83%A2%E5%86%85%E5%AE%B9-2"><i class="fa fa-link"></i></a>デモ内容</h2>
+
+<ul>
+<li>以下は企業のお偉いさんのスピーチを入力したときの、結果。</li>
+<li>おもろい！</li>
+</ul>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/4e4a0c65-2491-1baa-d574-b663ee8de07c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/4e4a0c65-2491-1baa-d574-b663ee8de07c.png" alt="Kobito.04zpxg.png" title="Kobito.04zpxg.png"></a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/68b4eb24-1f6a-8882-1e52-502a3bac641e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/68b4eb24-1f6a-8882-1e52-502a3bac641e.png" alt="Kobito.fPhx5p.png" title="Kobito.fPhx5p.png"></a></p>
+
+<ul>
+<li>試しに院時代に書いた英語ESを適当にコピペして入力してみると、Personalityはこういう結果に。たしかに、世のESを要約したような意識高い系の分析結果がかえってきている。</li>
+</ul>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+You are inner-directed, shrewd and strict.
+
+You are driven: you have high goals for yourself and work hard to achieve them. You are authority-challenging: you prefer to challenge authority and traditional values to help bring about positive changes. And you are independent: you have a strong desire to have time to yourself.
+
+You are motivated to seek out experiences that provide a strong feeling of self-expression.
+
+You consider achieving success to guide a large part of what you do: you seek out opportunities to improve yourself and demonstrate that you are a capable person. You are relatively unconcerned with taking pleasure in life: you prefer activities with a purpose greater than just personal enjoyment.
+
+</pre></div></div>
+
+<h2>
+<span id="所感-6" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-6"><i class="fa fa-link"></i></a>所感</h2>
+
+<ul>
+<li>おもろいんじゃないか。</li>
+<li>エッセイでも入力してもらえれば普通に採用活動にも使えそう</li>
+<li>ユーザーの分析して傾向把握、という用途にも使えそう</li>
+</ul>
+
+<h2>
+<span id="疑問点課題点-5" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-5"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>日本語対(ry</li>
+<li>日本語対応してくれれば今までの中ではちょい機能として即戦力。</li>
+</ul>
+
+<h1>
+<span id="6-quetion-and-answer" class="fragment"></span><a href="#6-quetion-and-answer"><i class="fa fa-link"></i></a>6. Quetion and Answer</h1>
+
+<p><a href="http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/question-answer.html" class="autolink" rel="nofollow noopener" target="_blank">http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/question-answer.html</a></p>
+
+<h2>
+<span id="内容-8" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-8"><i class="fa fa-link"></i></a>内容</h2>
+
+<p>いわゆるAIとの会話用のAPI。<br>
+質問を入力すると、その質問への回答を返してくれる。<br>
+いまは以下の2種類のデータ・セットでしか事前学習していないとのこと。<br>
+* Healthcare data (including Healthfinder and CDC Health Topics)<br>
+* Travel data (including Wikivoyage, TSA, and CDC Travel)</p>
+
+<h2>
+<span id="デモ-4" class="fragment"></span><a href="#%E3%83%87%E3%83%A2-4"><i class="fa fa-link"></i></a>デモ</h2>
+
+<p>以下は、"Where is New york city located in the world ?" と質問してみた時の答え。<br>
+...う〜〜ん...</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/1b292d8a-34e6-00bf-d79c-1e3e3130f46e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/1b292d8a-34e6-00bf-d79c-1e3e3130f46e.png" alt="Kobito.cena9a.png" title="Kobito.cena9a.png"></a></p>
+
+<h2>
+<span id="所感-7" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-7"><i class="fa fa-link"></i></a>所感</h2>
+
+<ul>
+<li>これくらいの情報量を出すなら、もっときっちり出して欲しい。</li>
+<li>簡単に答え一単語、とかでもいいんやけどな。。</li>
+</ul>
+
+<h2>
+<span id="疑問点課題点-6" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-6"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>に(ry</li>
+<li>単語、もしくは単文レベルにアウトプットを変えることはできないか？</li>
+<li>これだと少し中途半端。</li>
+</ul>
+
+<h1>
+<span id="7-visual-recognition" class="fragment"></span><a href="#7-visual-recognition"><i class="fa fa-link"></i></a>7. Visual Recognition</h1>
+
+<p><a href="http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/visual-recognition.html" class="autolink" rel="nofollow noopener" target="_blank">http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/visual-recognition.html</a></p>
+
+<h2>
+<span id="内容-9" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-9"><i class="fa fa-link"></i></a>内容</h2>
+
+<p>jpeg画像のカテゴリ分類。</p>
+
+<h2>
+<span id="所感-8" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-8"><i class="fa fa-link"></i></a>所感</h2>
+
+<ul>
+<li>カテゴリ分類したければどうぞ...</li>
+<li>まずはDetectionがしたいからなぁ...</li>
+</ul>
+
+<h2>
+<span id="疑問点課題点-7" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-7"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>Detectionはできるようになるのか？</li>
+<li>背後のモデルは何を使っている？</li>
+<li>もし今後変えるとしたらどの論文を参考にするのか</li>
+</ul>
+
+<h1>
+<span id="8-relationship-extraction" class="fragment"></span><a href="#8-relationship-extraction"><i class="fa fa-link"></i></a>8. Relationship Extraction</h1>
+
+<p><a href="http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/relationship-extraction.html" class="autolink" rel="nofollow noopener" target="_blank">http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/relationship-extraction.html</a></p>
+
+<h2>
+<span id="内容-10" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-10"><i class="fa fa-link"></i></a>内容</h2>
+
+<p>文章の単語の、entities(カテゴリ？）を抽出する。<br>
+その間の関係性も出す、っていっているが、分類しているだけ？かな？</p>
+
+<h2>
+<span id="デモ-5" class="fragment"></span><a href="#%E3%83%87%E3%83%A2-5"><i class="fa fa-link"></i></a>デモ</h2>
+
+<p>下の記事の本文をそのままコピペ。<br>
+<a href="https://www.whitehouse.gov/blog/2015/08/21/next-steps-developing-precision-medicine-initiative" class="autolink" rel="nofollow noopener" target="_blank">https://www.whitehouse.gov/blog/2015/08/21/next-steps-developing-precision-medicine-initiative</a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/32783/e9b1a319-fedd-b009-fe25-e34fcd25bf4e.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/32783/e9b1a319-fedd-b009-fe25-e34fcd25bf4e.png" alt="Kobito.nm6rlc.png" title="Kobito.nm6rlc.png"></a></p>
+
+<h2>
+<span id="所感-9" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-9"><i class="fa fa-link"></i></a>所感</h2>
+
+<ul>
+<li>何に使うんだろう。データの前処理？</li>
+</ul>
+
+<h1>
+<span id="9-natural-language-classifier" class="fragment"></span><a href="#9-natural-language-classifier"><i class="fa fa-link"></i></a>9. Natural Language Classifier</h1>
+
+<p><a href="http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/nl-classifier.html" class="autolink" rel="nofollow noopener" target="_blank">http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/nl-classifier.html</a></p>
+
+<h2>
+<span id="内容-11" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-11"><i class="fa fa-link"></i></a>内容</h2>
+
+<p>Deep Learning techniquesが使われてる。<br>
+文章を入力すると、その文章のカテゴリ（class）が返ってくる。</p>
+
+<h2>
+<span id="デモ-6" class="fragment"></span><a href="#%E3%83%87%E3%83%A2-6"><i class="fa fa-link"></i></a>デモ</h2>
+
+<p>以下を入力すると、いずれもtemperatureが返ってくる。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+Is it hot outside?
+What is the expected high for today?
+</pre></div></div>
+
+<p>以下を入力すると、いずれもconditionsが返ってくる。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+Will it be foggy tomorrow morning?
+Should I prepare for sleet?
+Will there be a storm today?
+</pre></div></div>
+
+<h2>
+<span id="所感-10" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-10"><i class="fa fa-link"></i></a>所感</h2>
+
+<p>精度よさげ。カテゴリ分類なので、Deep learning使っているなら普通に実用レベルだと思う。<br>
+カテゴリ分類は実用先が少ないのがあれだけども。</p>
+
+<h2>
+<span id="疑問点課題点-8" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-8"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>に(ry</li>
+</ul>
+
+<h1>
+<span id="10-dialog" class="fragment"></span><a href="#10-dialog"><i class="fa fa-link"></i></a>10. Dialog</h1>
+
+<h2>
+<span id="内容-12" class="fragment"></span><a href="#%E5%86%85%E5%AE%B9-12"><i class="fa fa-link"></i></a>内容</h2>
+
+<p>ルールベースの会話システム。<br>
+ルールに決まった単語を書いていれば、次の質問に進み、ルールに書いてない単語だと、Sorry hoge hogeみたいなことを返す。</p>
+
+<h2>
+<span id="デモ-7" class="fragment"></span><a href="#%E3%83%87%E3%83%A2-7"><i class="fa fa-link"></i></a>デモ</h2>
+
+<p>ピザの注文のやりとりだった。<br>
+サイズ、トッピング、配達方法が聞かれる。</p>
+
+<h2>
+<span id="所感-11" class="fragment"></span><a href="#%E6%89%80%E6%84%9F-11"><i class="fa fa-link"></i></a>所感</h2>
+
+<ul>
+<li>if文と何が違うのか</li>
+<li>パッと見の人工知能感はある。</li>
+</ul>
+
+<h2>
+<span id="疑問点課題点-9" class="fragment"></span><a href="#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-9"><i class="fa fa-link"></i></a>疑問点・課題点</h2>
+
+<ul>
+<li>if文と何が違うのか？</li>
+</ul>
+
+<h1>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h1>
+
+<ol>
+<li>Alchemy API，5.Personality Insights, 9. Natural Language Classifierは使えそう。あとはデモレベルだと微妙。Deep Learningじゃないものは基本使えなさそうなイメージ。</li>
+</ol>
+<div class="hidden"><form class="js-task-list-update" action="/knao124/items/60dc430fc31bf85b0e60" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="utZigR5uOMmMdCJjphnqzOpxi/+XodmlC1D552/L2vkJURhesJ8nO/8mZ+phRoMYmXEjDe2wzzSHiX8TfFPd5w==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1443184704" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+# はじめに
+IBM Bluemixの無料アカウントを取得してWatsonAPIをあれこれとデモ利用したときの作業メモです。
+## IBM Bluemix
+Paas系のサービス。その中にかの有名なWatson APIが提供されている。
+## 利用できるAPIの種類
+WatsonAPIと一口にいっても以下のように16個ものAPIが提供されている。
+
+2015-08-22時点でデモ利用できるのは以下の通り。
+デモ利用できないものはclosed Beta版で申請をしないといけないっぽい。
+#### デモ利用可
+* AlchemyAPI
+* Concept Expansion 
+* Concept Insights
+* Dialog
+* Language Translation
+* Natural Language Classifier
+* Personality Insights
+* Question and Answer
+* Relationship Extraction
+* Speech To Text
+* Text to Speech
+* Tradeoff Analytics
+* Visual Recognition
+
+#### デモ利用不可
+* Cognitive Commerce™
+* Cognitive Graph
+* Cognitive Insights™
+
+
+# 長くなるので先に使ってみた結論
+2.Alchemy API，5.Personality Insights, 9. Natural Language Classifierは使えそう。
+あとはデモレベルだとまだ微妙かも。
+
+以下、メモ内容。
+**順番↑の通りでないので注意。単純に見ていった順です。**
+
+# 1. Concept Expansion
+
+## 内容
++ 概念拡張サービス。婉曲な表現や話し言葉の用語をより一般的でわかりやすい用語に解読する。と日本語資料ではかっこ良く書かれている。
++ いくつかの単語を入れると、それへの関連度が高い単語一覧が出力される。
++ コーパスはTwitterと医療系のサイトのテキスト、それぞれで学習されたAPIが用意されている。
+
+## デモ内容
++ コーパスとLabelとSeedsを入力すると、関連度の高いワード一覧が出力される。
++ 頭痛薬系?のワードを入れると関連度の高いペニシリンが最上位に。
+
+![スクリーンショット 2015-08-22 18.53.10.png](https://qiita-image-store.s3.amazonaws.com/0/32783/edb554e2-ace7-1258-cebd-510c81814882.png &quot;スクリーンショット 2015-08-22 18.53.10.png&quot;)
+
+
+## 所感
++ あるテキスト群のクラス分類器。
+
+## 良い点
++ いまのところ特になし。
+
+## 疑問点・課題点
++ コーパスって他にもないのか？今のところ医療系とTwitterしかないが。
++ デモサイトでは、labelに何を入れると精度が向上するのかがわからない。
+
+# 2. AlchemyAPI
+NLPと機械学習アルゴリズムを使って抽象的な意味情報（semantic meta-data）を取得するとのこと。
+APIは全部で4つ。
+
+* AlchemyLanguage
+* AlchemyVision
+* AlchemyData News API
+* AlchemyVision Face Detection/Recognition 
+
+## 2-1. AlchemyLanguage
+### 内容
+文章の属性情報の分析API。文章を入力すると、その文章のEntitiesが返ってくる。
+
+### デモ
+インプットは以下。
+
+```
+The IBM Watson Language Translation service converts text input in one language into a destination language for the end user using background from domain-specifc models. Translation is available among Arabic, Chinese, English, French, Korean, Portuguese, and Spanish (some languages may not be available for all domains).
+```
+
+結果は以下。
+
+| Entity | Relevance | Centiment | Type | Subtypes | Linked Data |
+|---|---|---|---|---|---|
+|IBM Watson Language | 0.894818 | positive | PrintMedia |
+|end user | 0.417119 | positive | FieldTerminology|
+
+
+### 所感
+* カテゴリ分類には使えそう。
+
+### 疑問点・課題点
+* とくになし。
+
+## 2-2. AlchemyVision
+### 内容
+Deep Learning使った画像分類。あとで見る、Visual Recognitionよりいけてる。
+画像を入れると、カテゴリとスコアが返ってくる。
+### デモ
+![Kobito.AONe4R.png](https://qiita-image-store.s3.amazonaws.com/0/32783/86e6baee-5615-aeab-438a-86eac9f0332d.png &quot;Kobito.AONe4R.png&quot;)
+
+### 所感
+* 一般的なDeep Learningという感じ。
+* すごいというわけでもない
+
+### 疑問点・課題点
+* Detectionしたい。
+
+## 2-3. AlchemyData News API
+### 内容
+* デモ見るのがはやい。
+* ニュース検索のAPI
+
+### デモ
+![Kobito.lGSQ0z.png](https://qiita-image-store.s3.amazonaws.com/0/32783/a932cdb7-122e-5a18-d61b-af1f0e29ecbf.png &quot;Kobito.lGSQ0z.png&quot;)
+
+![Kobito.Nk9WZE.png](https://qiita-image-store.s3.amazonaws.com/0/32783/99dc1b1b-ef03-4997-55d9-ed34c0915afa.png &quot;Kobito.Nk9WZE.png&quot;)
+
+### 所感
+* ニュース検索楽ちん！(ﾟ∀ﾟ)
+* でもグーグルで間に合ってます！
+
+### 課題点・疑問点
+* 具体的に裏側では何をしている？クロールしてラベリング？
+
+## 2-4. AlchemyVision Face Detection/Recognition 
+### 内容
+顔認識用のAPI。
+画像を入力すると顔領域と年齢、性別、有名人なら名前を特定してくれる。
+
+### デモ
+サンプルを使ってみると...
+
+![Kobito.SPokH2.png](https://qiita-image-store.s3.amazonaws.com/0/32783/9dbf69f6-ce54-74ca-445d-804eab54c395.png &quot;Kobito.SPokH2.png&quot;)
+
+おお〜〜。。次、自分の顔写真をば...
+
+![Kobito.C56IuD.png](https://qiita-image-store.s3.amazonaws.com/0/32783/45fcd02f-40eb-e099-244e-94235ff49381.png &quot;Kobito.C56IuD.png&quot;)
+
+ファッ？！
+
+### 所感
+* 教師データ次第？もうちょいチューニングできそう。
+* でも顔認識ってとくに使うタイミングないんだよな〜〜...
+
+## 疑問点・課題点
+* 自分の写真はなんで認識されなかったのか？
+* 教師データ次第では自分の名前も出すようになる？
+
+# 3. Language Translation
+## 内容
+* まんま。言語翻訳。Google翻訳をイメージしてくれればOK。
+* ドメインを指定する必要あり。会話、ニュース、特許。
+* 会話とニュースは英語、フランス語、スペイン語、アラビア語、ポルトガル語、のみ提供されていた。両方向可。
+* 特許は中国語、韓国語、スペイン語、ポルトガル語 -&gt; 英語。単方向のみ。
+
+## デモ内容
+* Google翻訳と大体同じなので画像は省略。
+* 日本語がないので精度はなんともだが、英語-&gt;スペイン語-&gt;英語とやったら、なんだか怪しい英語がでてきていた。
+
+```before
+The IBM Watson Language Translation service converts text input in one language into a destination language for the end user using background from domain-specifc models. Translation is available among Arabic, Chinese, English, French, Korean, Portuguese, and Spanish (some languages may not be available for all domains).
+```
+
+```after
+The language translation service IBM Watson becomes the text input in a language in a target language for the end user using background of specific domain models.   Translation is available in Arabic, Chinese, English, French, Korean, Portuguese and Spanish, some languages are not available for all domains).
+```
+
+## 所感
+* 日本語ないならいらんね。日本人だし。
+* というか自動翻訳の技術はそれ自体ではまだまだなので、人の介在を考えた上でサービス設計する必要がある、と思ってるのであんまり,,,
+
+## 疑問点・課題点
+* 日本語対応はいつでしょう？
+* 精度そんなによくなさそう。
+
+# 4. Concept Insights
+## 内容
+* 知識検索エンジン？
+* Googleでダメ？
+
+## ※注釈
+* 調査後回し。
+
+# 5. Personality Insights
+## 内容
+* 最低3500語以上、理想では6000語以上の文章を入れると、その人の分析した情報が取得できる。
+
+## デモ内容
+* 以下は企業のお偉いさんのスピーチを入力したときの、結果。
+* おもろい！
+
+![Kobito.04zpxg.png](https://qiita-image-store.s3.amazonaws.com/0/32783/4e4a0c65-2491-1baa-d574-b663ee8de07c.png &quot;Kobito.04zpxg.png&quot;)
+
+![Kobito.fPhx5p.png](https://qiita-image-store.s3.amazonaws.com/0/32783/68b4eb24-1f6a-8882-1e52-502a3bac641e.png &quot;Kobito.fPhx5p.png&quot;)
+
+* 試しに院時代に書いた英語ESを適当にコピペして入力してみると、Personalityはこういう結果に。たしかに、世のESを要約したような意識高い系の分析結果がかえってきている。
+
+```
+You are inner-directed, shrewd and strict.
+
+You are driven: you have high goals for yourself and work hard to achieve them. You are authority-challenging: you prefer to challenge authority and traditional values to help bring about positive changes. And you are independent: you have a strong desire to have time to yourself.
+
+You are motivated to seek out experiences that provide a strong feeling of self-expression.
+
+You consider achieving success to guide a large part of what you do: you seek out opportunities to improve yourself and demonstrate that you are a capable person. You are relatively unconcerned with taking pleasure in life: you prefer activities with a purpose greater than just personal enjoyment.
+
+```
+
+## 所感
+* おもろいんじゃないか。
+* エッセイでも入力してもらえれば普通に採用活動にも使えそう
+* ユーザーの分析して傾向把握、という用途にも使えそう
+
+## 疑問点・課題点
+* 日本語対(ry
+* 日本語対応してくれれば今までの中ではちょい機能として即戦力。
+
+# 6. Quetion and Answer
+http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/question-answer.html
+## 内容
+いわゆるAIとの会話用のAPI。
+質問を入力すると、その質問への回答を返してくれる。
+いまは以下の2種類のデータ・セットでしか事前学習していないとのこと。
+* Healthcare data (including Healthfinder and CDC Health Topics)
+* Travel data (including Wikivoyage, TSA, and CDC Travel)
+
+
+## デモ
+以下は、&quot;Where is New york city located in the world ?&quot; と質問してみた時の答え。
+...う〜〜ん...
+
+![Kobito.cena9a.png](https://qiita-image-store.s3.amazonaws.com/0/32783/1b292d8a-34e6-00bf-d79c-1e3e3130f46e.png &quot;Kobito.cena9a.png&quot;)
+
+## 所感
+* これくらいの情報量を出すなら、もっときっちり出して欲しい。
+* 簡単に答え一単語、とかでもいいんやけどな。。
+
+## 疑問点・課題点
+* に(ry
+* 単語、もしくは単文レベルにアウトプットを変えることはできないか？
+* これだと少し中途半端。
+
+# 7. Visual Recognition
+http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/visual-recognition.html
+
+## 内容
+jpeg画像のカテゴリ分類。
+
+## 所感
+* カテゴリ分類したければどうぞ...
+* まずはDetectionがしたいからなぁ...
+
+## 疑問点・課題点
+* Detectionはできるようになるのか？
+* 背後のモデルは何を使っている？
+* もし今後変えるとしたらどの論文を参考にするのか
+
+# 8. Relationship Extraction
+http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/relationship-extraction.html
+## 内容
+文章の単語の、entities(カテゴリ？）を抽出する。
+その間の関係性も出す、っていっているが、分類しているだけ？かな？
+
+## デモ
+下の記事の本文をそのままコピペ。
+https://www.whitehouse.gov/blog/2015/08/21/next-steps-developing-precision-medicine-initiative
+
+![Kobito.nm6rlc.png](https://qiita-image-store.s3.amazonaws.com/0/32783/e9b1a319-fedd-b009-fe25-e34fcd25bf4e.png &quot;Kobito.nm6rlc.png&quot;)
+
+## 所感
+* 何に使うんだろう。データの前処理？
+
+# 9. Natural Language Classifier
+
+http://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/nl-classifier.html
+
+## 内容
+Deep Learning techniquesが使われてる。
+文章を入力すると、その文章のカテゴリ（class）が返ってくる。
+
+## デモ
+以下を入力すると、いずれもtemperatureが返ってくる。
+
+```
+Is it hot outside?
+What is the expected high for today?
+```
+
+以下を入力すると、いずれもconditionsが返ってくる。
+
+```
+Will it be foggy tomorrow morning?
+Should I prepare for sleet?
+Will there be a storm today?
+```
+
+## 所感
+精度よさげ。カテゴリ分類なので、Deep learning使っているなら普通に実用レベルだと思う。
+カテゴリ分類は実用先が少ないのがあれだけども。
+
+## 疑問点・課題点
+* に(ry
+
+# 10. Dialog
+## 内容
+ルールベースの会話システム。
+ルールに決まった単語を書いていれば、次の質問に進み、ルールに書いてない単語だと、Sorry hoge hogeみたいなことを返す。
+
+## デモ
+ピザの注文のやりとりだった。
+サイズ、トッピング、配達方法が聞かれる。
+
+## 所感
+* if文と何が違うのか
+* パッと見の人工知能感はある。
+
+## 疑問点・課題点
+* if文と何が違うのか？
+
+# まとめ
+2. Alchemy API，5.Personality Insights, 9. Natural Language Classifierは使えそう。あとはデモレベルだと微妙。Deep Learningじゃないものは基本使えなさそうなイメージ。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="IBM Bluemix の Watson APIを使ってみた雑感 on @Qiita" data-url="http://qiita.com/knao124/items/60dc430fc31bf85b0e60" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="IBM Bluemix の Watson APIを使ってみた雑感" href="http://b.hatena.ne.jp/entry/http://qiita.com/knao124/items/60dc430fc31bf85b0e60" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/knao124/items/60dc430fc31bf85b0e60" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/knao124/items/60dc430fc31bf85b0e60" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/knao124"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/32783/profile-images/1473685978" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/knao124">knao124</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">353</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;knao124&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-4553cca3-eda5-4f26-91a5-d2c234b94319"></div>
+    <div id="UserFollowButton-react-component-4553cca3-eda5-4f26-91a5-d2c234b94319"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/knao124/items/60dc430fc31bf85b0e60">IBM Bluemix の Watson APIを使ってみた雑感</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/knao124/items/fdb47674ada389e70c6e">Visualizing and understanding convolutional networks.</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/knao124/items/a4e10d770656c091b8b3">Caffeで機械学習 -1-  リファレンスモデルを使って画像をカテゴリ分類</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/knao124/items/04e3625eb12237de5743">Macで最低限のzshの設定を行う</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/knao124/items/c76e974cfbaabb5542e8">CaffeをCPU ModeでMac OS X 10.10に入れる手順</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/finc"><img alt="株式会社FiNC" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/af0e41e5538aae6ea2558cee993dbc2131299920/original.jpg?1440398013" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#ibm-bluemix\&quot;\u003eIBM Bluemix\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%88%A9%E7%94%A8%E3%81%A7%E3%81%8D%E3%82%8Bapi%E3%81%AE%E7%A8%AE%E9%A1%9E\&quot;\u003e利用できるAPIの種類\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2%E5%88%A9%E7%94%A8%E5%8F%AF\&quot;\u003eデモ利用可\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2%E5%88%A9%E7%94%A8%E4%B8%8D%E5%8F%AF\&quot;\u003eデモ利用不可\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#%E9%95%B7%E3%81%8F%E3%81%AA%E3%82%8B%E3%81%AE%E3%81%A7%E5%85%88%E3%81%AB%E4%BD%BF%E3%81%A3%E3%81%A6%E3%81%BF%E3%81%9F%E7%B5%90%E8%AB%96\&quot;\u003e長くなるので先に使ってみた結論\u003c/a\u003e\n\n\n\u003ca href=\&quot;#1-concept-expansion\&quot;\u003e1. Concept Expansion\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2%E5%86%85%E5%AE%B9\&quot;\u003eデモ内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%89%AF%E3%81%84%E7%82%B9\&quot;\u003e良い点\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#2-alchemyapi\&quot;\u003e2. AlchemyAPI\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-1-alchemylanguage\&quot;\u003e2-1. AlchemyLanguage\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-1\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-1\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-1\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-2-alchemyvision\&quot;\u003e2-2. AlchemyVision\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-2\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2-1\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-2\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-2\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-3-alchemydata-news-api\&quot;\u003e2-3. AlchemyData News API\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-3\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2-2\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-3\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%AA%B2%E9%A1%8C%E7%82%B9%E7%96%91%E5%95%8F%E7%82%B9\&quot;\u003e課題点・疑問点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-4-alchemyvision-face-detectionrecognition\&quot;\u003e2-4. AlchemyVision Face Detection/Recognition\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-4\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2-3\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-4\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-3\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#3-language-translation\&quot;\u003e3. Language Translation\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-5\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2%E5%86%85%E5%AE%B9-1\&quot;\u003eデモ内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-5\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-4\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#4-concept-insights\&quot;\u003e4. Concept Insights\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-6\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B3%A8%E9%87%88\&quot;\u003e※注釈\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#5-personality-insights\&quot;\u003e5. Personality Insights\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-7\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2%E5%86%85%E5%AE%B9-2\&quot;\u003eデモ内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-6\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-5\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#6-quetion-and-answer\&quot;\u003e6. Quetion and Answer\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-8\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2-4\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-7\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-6\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#7-visual-recognition\&quot;\u003e7. Visual Recognition\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-9\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-8\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-7\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#8-relationship-extraction\&quot;\u003e8. Relationship Extraction\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-10\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2-5\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-9\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#9-natural-language-classifier\&quot;\u003e9. Natural Language Classifier\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-11\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2-6\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-10\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-8\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#10-dialog\&quot;\u003e10. Dialog\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%86%85%E5%AE%B9-12\&quot;\u003e内容\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%A2-7\&quot;\u003eデモ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%89%80%E6%84%9F-11\&quot;\u003e所感\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%96%91%E5%95%8F%E7%82%B9%E8%AA%B2%E9%A1%8C%E7%82%B9-9\&quot;\u003e疑問点・課題点\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-47000f6e-f5b4-42fc-ac32-265f8b5f1aea"></div>
+    <div id="Toc-react-component-47000f6e-f5b4-42fc-ac32-265f8b5f1aea"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:222,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;60dc430fc31bf85b0e60&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="n_slender"><a itemprop="url" href="/n_slender"><img alt="n_slender" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9880/profile-images/1473681581" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shinji1105"><a itemprop="url" href="/shinji1105"><img alt="shinji1105" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72107/profile-images/1473699047" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="morozumi_h"><a itemprop="url" href="/morozumi_h"><img alt="morozumi_h" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/18582/profile-images/1473682476" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="eiua_"><a itemprop="url" href="/eiua_"><img alt="eiua_" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31606/profile-images/1473685732" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="chikuta"><a itemprop="url" href="/chikuta"><img alt="chikuta" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/62361/profile-images/1474988717" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="wstone"><a itemprop="url" href="/wstone"><img alt="wstone" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/56104/profile-images/1473693898" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sameoldtrick"><a itemprop="url" href="/sameoldtrick"><img alt="sameoldtrick" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10153/profile-images/1473681642" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mfujita"><a itemprop="url" href="/mfujita"><img alt="mfujita" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86169/profile-images/1473703653" /></a></div></div><div class="ArticleFooter__user"><a href="/knao124/items/60dc430fc31bf85b0e60/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/60dc430fc31bf85b0e60/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/knao124/items/60dc430fc31bf85b0e60.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/HirofumiYashima/items/5432b9b1eb72e430f583#_reference-4d0faba407678efe31e6"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" />（ 調査 ）IBM Watson は、質問 で 問われている 内容 を いか に して 推定しているのか？ 〜 「新しい質問」 が 該当する回答「型」を 推定する 分類タスク を 内部的 に 行っている</a><time class="references_datetime js-dateTimeView" datetime="2016-07-30T10:00:32+00:00">8 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/MoriKen/items/9a7ae3deee0ddd5410ae#_reference-9d08d858b0044ff9b1a7"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/110138/profile-images/1473711111" />Bluemix 関連のチュートリアル等サイト個人まとめ</a><time class="references_datetime js-dateTimeView" datetime="2016-08-22T10:37:04+00:00">7 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="IBM Bluemix の Watson APIを使ってみた雑感 on @Qiita" data-url="http://qiita.com/knao124/items/60dc430fc31bf85b0e60" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="IBM Bluemix の Watson APIを使ってみた雑感" href="http://b.hatena.ne.jp/entry/http://qiita.com/knao124/items/60dc430fc31bf85b0e60" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/knao124/items/60dc430fc31bf85b0e60" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/knao124/items/60dc430fc31bf85b0e60" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:323998,&quot;uuid&quot;:&quot;60dc430fc31bf85b0e60&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;knao124&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:32783,&quot;url_name&quot;:&quot;knao124&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32783/profile-images/1473685978&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-407ee8c5-417e-4a46-8446-379f3fcda2d2"></div>
+    <div id="CommentListContainer-react-component-407ee8c5-417e-4a46-8446-379f3fcda2d2"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="5Qz70mN8mBTl8qLw9lemCLMVXTP3NYAKe+XxPXeL4ThWi4ENzY2H5pag53kxCM/cwBX1wY0klpv3PHfJZBPmJg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/knao124/items/60dc430fc31bf85b0e60" /><input type="hidden" name="item_uuid" id="item_uuid" value="60dc430fc31bf85b0e60" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/knao124/items/60dc430fc31bf85b0e60", "id": 323998, "uuid": "60dc430fc31bf85b0e60" }</script><script class="js-user" type="application/json">{&quot;id&quot;:32783,&quot;url_name&quot;:&quot;knao124&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/32783/profile-images/1473685978&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="gSCZ4zPkPumgRSkIA/jtVAfcLVgScHdB36M6UWc50zEyp+M8nRUhG9MXbIHEp4SAdNyFqmhhYdBTeryldKHULw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/knao124/items/60dc430fc31bf85b0e60" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

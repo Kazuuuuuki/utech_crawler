@@ -1,0 +1,962 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+はじめに
+
+LivesenseAdventCalendar 2016 の20日目を担当する @naotaka1128 です。
+現在、転職会議という転職クチコミサービスのデータアナリストを担当しております。
+
+転職会議は会社のクチコミが数百万件集まっている日本最大級の転職クチコミサービスです。現状はクチコミや評点を表示しているだけなのですが、今後はクチコミを自然言語処理などで分析して今までは手に入らなかったような有益な情報を世の中に提供していきたいと思っております。
+..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="naotaka1128" name="twitter:creator" /><meta content="【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="## はじめに
+LivesenseAdventCalendar 2016 の20日目を担当する @naotaka1128 です。
+現在、転職会議という転職クチコミサービスのデータアナリストを担当しております。
+
+[転職会議](http..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="bbUowNhtD9CCot97sEXsfeG1OYh48XAdbfctnjDX9ZhE91vPCI7xSd+qYODhBFdzrhl1RrTl4pZo+ov2yeygug==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"naotaka1128","type":"items","id":"2c4551abfd40e43b0146"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;募集&quot;,&quot;content&quot;:&quot;QiitaやQiita:Teamを良くしたいエンジニア&quot;,&quot;url&quot;:&quot;http://increments.co.jp/jobs/engineers?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-89f8a212-711e-48eb-9b55-c16837e18b39"></div>
+    <div id="HeaderContainer-react-component-89f8a212-711e-48eb-9b55-c16837e18b39"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/word2vec",        "name": "word2vec"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2016/livesense_3">Livesenseその3  Advent Calendar 2016</a> Day 20</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる</h1><ul class="TagList"><li class="TagList__item" data-count="69"><a class="u-link-unstyled TagList__label" href="/tags/word2vec"><img alt="word2vec" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>word2vec</span></a></li><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="26"><a class="u-link-unstyled TagList__label" href="/tags/gensim"><img alt="gensim" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/4f3a1e98e20e6a8178d36e39351a1e378db90429/medium.jpg?1466552766" /><span>gensim</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">150</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="4 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>4</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:150,&quot;uuid&quot;:&quot;2c4551abfd40e43b0146&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="superdog"><a itemprop="url" href="/superdog"><img alt="superdog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98513/profile-images/1479132493" /></a></li><li class="js-hovercard" data-hovercard-target-name="ryu0322"><a itemprop="url" href="/ryu0322"><img alt="ryu0322" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/123224/profile-images/1473715494" /></a></li><li class="js-hovercard" data-hovercard-target-name="qoAop"><a itemprop="url" href="/qoAop"><img alt="qoAop" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51116/profile-images/1473692332" /></a></li><li class="js-hovercard" data-hovercard-target-name="__Himawarii__"><a itemprop="url" href="/__Himawarii__"><img alt="__Himawarii__" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/145691/profile-images/1488546628" /></a></li><li class="js-hovercard" data-hovercard-target-name="taise"><a itemprop="url" href="/taise"><img alt="taise" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5492/profile-images/1473682037" /></a></li><li class="js-hovercard" data-hovercard-target-name="teracy"><a itemprop="url" href="/teracy"><img alt="teracy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21354/profile-images/1473683312" /></a></li><li class="js-hovercard" data-hovercard-target-name="bananaumai"><a itemprop="url" href="/bananaumai"><img alt="bananaumai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5811/profile-images/1473682275" /></a></li><li class="js-hovercard" data-hovercard-target-name="eri"><a itemprop="url" href="/eri"><img alt="eri" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/54562/profile-images/1473693413" /></a></li><li class="js-hovercard" data-hovercard-target-name="na-o-ys"><a itemprop="url" href="/na-o-ys"><img alt="na-o-ys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15173/profile-images/1476962072" /></a></li><li class="js-hovercard" data-hovercard-target-name="todogzm"><a itemprop="url" href="/todogzm"><img alt="todogzm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19943/profile-images/1473682866" /></a></li><li><a href="/naotaka1128/items/2c4551abfd40e43b0146/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/naotaka1128"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518" alt="1484449518" /></a> <a class="u-link-unstyled" href="/naotaka1128">naotaka1128</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-12-20T08:17:33+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-12-20">Edited at <time datetime="2017-01-15T03:57:28+09:00" itemprop="dateModified">2017-01-15</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/naotaka1128/items/2c4551abfd40e43b0146/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">2</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/naotaka1128/items/2c4551abfd40e43b0146/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(2)</span></a></li><li><a href="/naotaka1128/items/2c4551abfd40e43b0146.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-2c4551abfd40e43b0146" itemprop="articleBody">
+<h2>
+<span id="はじめに" class="fragment"></span><a href="#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB"><i class="fa fa-link"></i></a>はじめに</h2>
+
+<p>LivesenseAdventCalendar 2016 の20日目を担当する <a href="/naotaka1128" class="user-mention js-hovercard" title="naotaka1128" data-hovercard-target-type="user" data-hovercard-target-name="naotaka1128">@naotaka1128</a> です。<br>
+現在、転職会議という転職クチコミサービスのデータアナリストを担当しております。</p>
+
+<p><a href="https://jobtalk.jp/" rel="nofollow noopener" target="_blank">転職会議</a>は会社のクチコミが数百万件集まっている日本最大級の転職クチコミサービスです。現状はクチコミや評点を表示しているだけなのですが、今後はクチコミを自然言語処理などで分析して今までは手に入らなかったような有益な情報を世の中に提供していきたいと思っております。</p>
+
+<p>今回はその取っ掛かりとして word2vec および doc2vec という自然言語処理の技術を用いてクチコミを分析し、会社の分類などを行ってみようと思います。</p>
+
+<h2>
+<span id="使用する自然言語処理技術" class="fragment"></span><a href="#%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86%E6%8A%80%E8%A1%93"><i class="fa fa-link"></i></a>使用する自然言語処理技術</h2>
+
+<h3>
+<span id="word2vec" class="fragment"></span><a href="#word2vec"><i class="fa fa-link"></i></a>word2vec</h3>
+
+<p>昨今、word2vecという自然言語処理の技術が話題です。ご存じの方も多いかと思いますが、大量の文章をもちいて単語をベクトル表現で数値化し、以下のような単語間の計算を可能にします。</p>
+
+<ul>
+<li>王様 - 男 + 女 = 女王</li>
+<li>パリ - フランス + 日本 = 東京</li>
+</ul>
+
+<h3>
+<span id="doc2vec" class="fragment"></span><a href="#doc2vec"><i class="fa fa-link"></i></a>doc2vec</h3>
+
+<p>word2vecを拡張し、文書そのもので上記のような計算を可能にしたdoc2vecというものもあります。<br>
+雑に言うと word2vec で獲得した単語のベクトルを合算したようなものでしょうか。</p>
+
+<p>doc2vecでは文書の数値化により異なる文書同士の類似度を計算できるようになります。会社のクチコミを一つの文書と捉えdoc2vecで分析して、会社同士の関係性を分析してみようと思います。</p>
+
+<h2>
+<span id="使用する技術" class="fragment"></span><a href="#%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E6%8A%80%E8%A1%93"><i class="fa fa-link"></i></a>使用する技術</h2>
+
+<ul>
+<li>Python</li>
+<li>gensim
+
+<ul>
+<li>word2vec / doc2vec</li>
+<li>他にトピックモデルという自然言語処理技術も実装されている
+
+<ul>
+<li>以前、トピックモデルを用いて<a href="http://qiita.com/n_uchida/items/87d717961bd0c34e7a64" id="reference-8e8a63447c6d2a0c51a3">自然言語処理でラーメン屋を分類してみる</a>をやりました。ご興味があれば見てみて下さい。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>MeCab</li>
+</ul>
+
+<h2>
+<span id="流れ" class="fragment"></span><a href="#%E6%B5%81%E3%82%8C"><i class="fa fa-link"></i></a>流れ</h2>
+
+<p>以下のような流れでやっていきます。<br>
+1. 会社の口コミを形態素解析<br>
+2. gensim で doc2vec のモデル構築<br>
+　・ doc2vec のモデル構築時に word2vec モデルも同時に構築される<br>
+3. 構築したモデルで<br>
+　3-1. クチコミに登場した単語で word2vec<br>
+　3-2. doc2vecで会社同士の類似度計算<br>
+　3-3. doc2vecで会社同士の加減算</p>
+
+<h2>
+<span id="1-会社の口コミを形態素解析" class="fragment"></span><a href="#1-%E4%BC%9A%E7%A4%BE%E3%81%AE%E5%8F%A3%E3%82%B3%E3%83%9F%E3%82%92%E5%BD%A2%E6%85%8B%E7%B4%A0%E8%A7%A3%E6%9E%90"><i class="fa fa-link"></i></a>1. 会社の口コミを形態素解析</h2>
+
+<p><a href="http://qiita.com/n_uchida/items/87d717961bd0c34e7a64">自然言語処理でラーメン屋を分類してみる</a>とほぼ同じです。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># クチコミデータの読み込み</span>
+<span class="kn">from</span> <span class="nn">io_modules</span> <span class="k">import</span> <span class="n">load_data</span>  <span class="c"># 自作のDB読み込みライブラリ</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">LOAD_QUERY</span><span class="p">,</span> <span class="n">KUCHIKOMI_DB</span><span class="p">)</span>  <span class="c"># [会社名, クチコミ]</span>
+
+<span class="c"># 参考記事のstem関数で語幹を抽出</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="k">import</span> <span class="n">stems</span>  <span class="c"># 参考記事の実装ほぼそのまま</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="p">[</span><span class="n">stems</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+
+<span class="sd">"""</span>
+<span class="sd">以下のようなデータを作っています</span>
+<span class="sd">companies = ['株式会社ブラックカンパニー', 'やりがい有限会社', ...]</span>
+<span class="sd">docs = [</span>
+<span class="sd">  ['やりがい', '足りない', '残業', 'とても', '多い', ...</span>
+<span class="sd">  ['深夜残業', '当たり前', '辛い', '死にたい', '無理', ...</span>
+<span class="sd">   ...</span>
+<span class="sd">]</span>
+<span class="sd">"""</span>
+</pre></div></div>
+
+<ul>
+<li>全体として単なる前処理</li>
+<li>語幹の抽出: <a href="http://qiita.com/katryo/items/f86971afcb65ce1e7d40#3-5" id="reference-692ee67fba3e8a19d7d6">この記事</a>を参考にしました</li>
+<li>備考: 特別な辞書は準備していません(neologdを使っただけ)</li>
+</ul>
+
+<h2>
+<span id="2-gensim-で-doc2vec-のモデル構築" class="fragment"></span><a href="#2-gensim-%E3%81%A7-doc2vec-%E3%81%AE%E3%83%A2%E3%83%87%E3%83%AB%E6%A7%8B%E7%AF%89"><i class="fa fa-link"></i></a>2. gensim で doc2vec のモデル構築</h2>
+
+<p>さて、ここが自然言語処理のキモです。</p>
+
+<p>と言いたいところですがライブラリ呼び出すだけなので大したことやりません。<br>
+また計算も早く、あっけなく終わって拍子抜けでした。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># ライブラリ読み込み</span>
+<span class="kn">from</span> <span class="nn">gensim</span> <span class="k">import</span> <span class="n">models</span>
+
+<span class="c"># gensim にクチコミを登録</span>
+<span class="c"># クチコミに会社名を付与するため、参考記事で実装されていた拡張クラスを使っています</span>
+<span class="n">sentences</span> <span class="o">=</span> <span class="n">LabeledListSentence</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">companies</span><span class="p">)</span>
+
+<span class="c"># doc2vec の学習条件設定</span>
+<span class="c"># alpha: 学習率 / min_count: X回未満しか出てこない単語は無視</span>
+<span class="c"># size: ベクトルの次元数 / iter: 反復回数 / workers: 並列実行数</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Doc2Vec</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                       <span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c"># doc2vec の学習前準備(単語リスト構築)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">build_vocab</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+
+<span class="c"># Wikipedia から学習させた単語ベクトルを無理やり適用して利用することも出来ます</span>
+<span class="c"># model.intersect_word2vec_format('./data/wiki/wiki2vec.bin', binary=True)</span>
+
+<span class="c"># 学習実行</span>
+<span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+
+<span class="c"># セーブ</span>
+<span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">'./data/doc2vec.model'</span><span class="p">)</span>
+
+<span class="c"># 学習後はモデルをファイルからロード可能</span>
+<span class="c"># model = models.Doc2Vec.load('./data/doc2vec.model')</span>
+
+<span class="c"># 順番が変わってしまうことがあるので会社リストは学習後に再呼び出し</span>
+<span class="n">companies</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">offset2doctag</span>
+</pre></div></div>
+
+<p>LabeledListSentence の実装は以下のとおりです。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 参考記事： http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1</span>
+<span class="k">class</span> <span class="nc">LabeledListSentence</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">words_list</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">words_list</span> <span class="o">=</span> <span class="n">words_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">words</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">words_list</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">models</span><span class="o">.</span><span class="n">doc2vec</span><span class="o">.</span><span class="n">LabeledSentence</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="p">[</span><span class="s">'%s'</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+</pre></div></div>
+
+<h2>
+<span id="3-1-クチコミに登場した単語で-word2vec" class="fragment"></span><a href="#3-1-%E3%82%AF%E3%83%81%E3%82%B3%E3%83%9F%E3%81%AB%E7%99%BB%E5%A0%B4%E3%81%97%E3%81%9F%E5%8D%98%E8%AA%9E%E3%81%A7-word2vec"><i class="fa fa-link"></i></a>3-1. クチコミに登場した単語で word2vec</h2>
+
+<p>さて、あっという間にモデルが構築できました。</p>
+
+<p>word2vecの精度が悪ければdoc2vecの結果も必然的に悪くなるので、<br>
+word2vec <del>で遊びながら</del> 精度を確かめていきます。</p>
+
+<h3>
+<span id="似ている単語" class="fragment"></span><a href="#%E4%BC%BC%E3%81%A6%E3%81%84%E3%82%8B%E5%8D%98%E8%AA%9E"><i class="fa fa-link"></i></a>似ている単語</h3>
+
+<p>まずは転職クチコミで大人気の「残業」あたりから行きましょう。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># model.most_similar(positive=[単語]) で似ている単語が出せる</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'残業'</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'時間外労働'</span><span class="p">,</span> <span class="mf">0.8757208585739136</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'サービス残業'</span><span class="p">,</span> <span class="mf">0.8720364570617676</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'サビ残'</span><span class="p">,</span> <span class="mf">0.7500427961349487</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'残業代'</span><span class="p">,</span> <span class="mf">0.6272672414779663</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'残響'</span><span class="p">,</span> <span class="mf">0.6267948746681213</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'休日出勤'</span><span class="p">,</span> <span class="mf">0.5998174548149109</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'長時間労働'</span><span class="p">,</span> <span class="mf">0.5923150777816772</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'作業量'</span><span class="p">,</span> <span class="mf">0.5819833278656006</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'超勤'</span><span class="p">,</span> <span class="mf">0.5778118371963501</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'残業手当'</span><span class="p">,</span> <span class="mf">0.5598958730697632</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>似た単語が並んでいますね…！</p>
+
+<p>「サビ残」といった略称や、「残響」というタイプミスまで拾っていてすごいです。<br>
+コンピューターが「残業」という概念を理解した！と思って感慨深い瞬間でした。</p>
+
+<p>ユーザーさんには前向きな転職をしてほしいと日々思っているので、<br>
+前向きな単語の確認もやっていきましょう。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'やりがい'</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'甲斐'</span><span class="p">,</span> <span class="mf">0.9375230073928833</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'醍醐味'</span><span class="p">,</span> <span class="mf">0.7799979448318481</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'面白い'</span><span class="p">,</span> <span class="mf">0.7788150310516357</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'おもしろい'</span><span class="p">,</span> <span class="mf">0.7710426449775696</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'楽しい'</span><span class="p">,</span> <span class="mf">0.712959885597229</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'生きがい'</span><span class="p">,</span> <span class="mf">0.6919904351234436</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'面白み'</span><span class="p">,</span> <span class="mf">0.6607719659805298</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'喜び'</span><span class="p">,</span> <span class="mf">0.6537446975708008</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'誇り'</span><span class="p">,</span> <span class="mf">0.6432669162750244</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'つまらない'</span><span class="p">,</span> <span class="mf">0.6373245120048523</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>最後に気になる感じの単語がありますがいい感じですね。<br>
+単語そのものの理解は出来ているようなので次に単語の加減算を行います。</p>
+
+<h3>
+<span id="単語の加減算" class="fragment"></span><a href="#%E5%8D%98%E8%AA%9E%E3%81%AE%E5%8A%A0%E6%B8%9B%E7%AE%97"><i class="fa fa-link"></i></a>単語の加減算</h3>
+
+<p>転職クチコミを見ていると、女性の働きやすさに関わる内容などが人気です。<br>
+「独身女性 - 女性 + 男性 = ?」などをやってみましょう。</p>
+
+<p>まずは基本的な単語理解の確認。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 女性に似ている単語</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'女性'</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'女性社員'</span><span class="p">,</span> <span class="mf">0.8745297789573669</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'働く女性'</span><span class="p">,</span> <span class="mf">0.697405219078064</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'独身女性'</span><span class="p">,</span> <span class="mf">0.6827554106712341</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'じょせい'</span><span class="p">,</span> <span class="mf">0.5963315963745117</span><span class="p">)]</span>
+
+<span class="c"># 男性に似ている単語</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'男性'</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'管理職'</span><span class="p">,</span> <span class="mf">0.7058243751525879</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'活躍'</span><span class="p">,</span> <span class="mf">0.6625881195068359</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'特別扱い'</span><span class="p">,</span> <span class="mf">0.6411184668540955</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'優遇'</span><span class="p">,</span> <span class="mf">0.5910355448722839</span><span class="p">)]</span>
+
+<span class="c"># 独身女性に似ている単語</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'独身女性'</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'女性社員'</span><span class="p">,</span> <span class="mf">0.7283456325531006</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'シングルマザー'</span><span class="p">,</span> <span class="mf">0.6969124674797058</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'未婚'</span><span class="p">,</span> <span class="mf">0.6945561170578003</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'女性'</span><span class="p">,</span> <span class="mf">0.6827554106712341</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>大丈夫そうなので加減算の実行。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 独身女性 - 女性 + 男性 = ?</span>
+<span class="c"># model.most_similar(positive=[足す単語], negative=[引く単語])</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'独身女性'</span><span class="p">,</span> <span class="s">'男性'</span><span class="p">],</span> <span class="n">negative</span><span class="o">=</span><span class="p">[</span><span class="s">'女性'</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'未婚'</span><span class="p">,</span> <span class="mf">0.665600597858429</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'管理職'</span><span class="p">,</span> <span class="mf">0.6068357825279236</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'子持ち'</span><span class="p">,</span> <span class="mf">0.58555006980896</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'男子'</span><span class="p">,</span> <span class="mf">0.530462384223938</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'特別扱い'</span><span class="p">,</span> <span class="mf">0.5190619230270386</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>若干怪しい結果ながらも、「独身女性」から「女性社員」や「シングルマザー」といった女性的な単語がなくなり、「未婚」が一番似ている単語として推測されました。</p>
+
+<p>word2vecがそれなりに正しく出来てそうなので、<br>
+このまま会社の分類へと進んでいきます。</p>
+
+<h2>
+<span id="3-2-doc2vecで会社同士の類似度計算" class="fragment"></span><a href="#3-2-doc2vec%E3%81%A7%E4%BC%9A%E7%A4%BE%E5%90%8C%E5%A3%AB%E3%81%AE%E9%A1%9E%E4%BC%BC%E5%BA%A6%E8%A8%88%E7%AE%97"><i class="fa fa-link"></i></a>3-2. doc2vecで会社同士の類似度計算</h2>
+
+<p>次に、会社同士の関係性を調べてみましょう。</p>
+
+<p>まずは系列会社がたくさんある簡単な企業で確認します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># model.docvecs.most_similar(positive=[ベースの会社のID])</span>
+<span class="c"># ID 53 : リクルートホールディングス</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="mi">53</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'株式会社リクルートライフスタイル'</span><span class="p">,</span> <span class="mf">0.9008421301841736</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートジョブズ'</span><span class="p">,</span> <span class="mf">0.8883105516433716</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートキャリア'</span><span class="p">,</span> <span class="mf">0.8839867115020752</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルート住まいカンパニー'</span><span class="p">,</span> <span class="mf">0.8076469898223877</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートコミュニケーションズ'</span><span class="p">,</span> <span class="mf">0.7945607900619507</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社キャリアデザインセンター'</span><span class="p">,</span> <span class="mf">0.7822821140289307</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'エン・ジャパン株式会社'</span><span class="p">,</span> <span class="mf">0.782017707824707</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートマーケティングパートナーズ'</span><span class="p">,</span> <span class="mf">0.7807818651199341</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社サイバーエージェント'</span><span class="p">,</span> <span class="mf">0.7434782385826111</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社クイック'</span><span class="p">,</span> <span class="mf">0.7397039532661438</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>簡単すぎたようですが、リクルートホールディングスさんに似ている会社として、<br>
+リクルート系列各社が出てきました。</p>
+
+<p>大丈夫そうなので、一般的な会社も見てみましょう。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># ID 1338 : DeNA</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="mi">1338</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'グリー株式会社'</span><span class="p">,</span> <span class="mf">0.8263522386550903</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社サイバーエージェント'</span><span class="p">,</span> <span class="mf">0.8176108598709106</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社ドリコム'</span><span class="p">,</span> <span class="mf">0.7977319955825806</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社Ｓｐｅｅｅ'</span><span class="p">,</span> <span class="mf">0.787316083908081</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社サイバード'</span><span class="p">,</span> <span class="mf">0.7823044061660767</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社ドワンゴ'</span><span class="p">,</span> <span class="mf">0.767551064491272</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ヤフー株式会社'</span><span class="p">,</span> <span class="mf">0.7610974907875061</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ＫＬａｂ株式会社'</span><span class="p">,</span> <span class="mf">0.7593647837638855</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社ｇｌｏｏｐｓ'</span><span class="p">,</span> <span class="mf">0.7475718855857849</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ＮＨＮ</span><span class="se">\u3000</span><span class="s">ｃｏｍｉｃｏ株式会社'</span><span class="p">,</span> <span class="mf">0.7439380288124084</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>最近話題になっていたDeNAさんですが、グリーさんと似ていると出てきました。<br>
+ゲーム関係と判定されたようで、その他にもサイバーさんやドリコムさんも出てきました。</p>
+
+<p>なかなか良さそうです。<br>
+Web系の会社ばかりだと結果が偏る可能性があるので、<br>
+ぜんぜん違う会社も見ておきます。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># ID 862 : ホンダ</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="mi">862</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'トヨタ自動車株式会社'</span><span class="p">,</span> <span class="mf">0.860333263874054</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'マツダ株式会社'</span><span class="p">,</span> <span class="mf">0.843244194984436</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社デンソー'</span><span class="p">,</span> <span class="mf">0.8296780586242676</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'富士重工業株式会社'</span><span class="p">,</span> <span class="mf">0.8261093497276306</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'日野自動車株式会社'</span><span class="p">,</span> <span class="mf">0.8115691542625427</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'日産自動車株式会社'</span><span class="p">,</span> <span class="mf">0.8105560541152954</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ダイハツ工業株式会社'</span><span class="p">,</span> <span class="mf">0.8088374137878418</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'アイシン精機株式会社'</span><span class="p">,</span> <span class="mf">0.8074800372123718</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社本田技術研究所'</span><span class="p">,</span> <span class="mf">0.7952905893325806</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社豊田自動織機'</span><span class="p">,</span> <span class="mf">0.7946352362632751</span><span class="p">)]</span>
+
+<span class="c"># ID 38 : ソニー</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="mi">38</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'パナソニック株式会社'</span><span class="p">,</span> <span class="mf">0.8186650276184082</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社東芝'</span><span class="p">,</span> <span class="mf">0.7851587533950806</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'オムロン株式会社'</span><span class="p">,</span> <span class="mf">0.7402874231338501</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'日本電気株式会社'</span><span class="p">,</span> <span class="mf">0.7391767501831055</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社ニコン'</span><span class="p">,</span> <span class="mf">0.7331269383430481</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ソニーグローバルマニュファクチャリング＆オペレーションズ株式会社'</span><span class="p">,</span> <span class="mf">0.7183523178100586</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'太陽誘電株式会社'</span><span class="p">,</span> <span class="mf">0.7149790525436401</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'シャープ株式会社'</span><span class="p">,</span> <span class="mf">0.7115868330001831</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'パイオニア株式会社'</span><span class="p">,</span> <span class="mf">0.7104746103286743</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'キヤノン株式会社'</span><span class="p">,</span> <span class="mf">0.7103182077407837</span><span class="p">)]</span>
+
+<span class="c"># ID 1688 : マッキンゼー(コンサルティング・ファーム)</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="mi">1688</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'アクセンチュア株式会社'</span><span class="p">,</span> <span class="mf">0.7885801196098328</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社ボストン・コンサルティング・グループ'</span><span class="p">,</span> <span class="mf">0.7835338115692139</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ゴールドマン・サックス証券株式会社'</span><span class="p">,</span> <span class="mf">0.7507193088531494</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'デロイトトーマツコンサルティング合同会社'</span><span class="p">,</span> <span class="mf">0.7278151512145996</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社シグマクシス'</span><span class="p">,</span> <span class="mf">0.6909163594245911</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ＰｗＣアドバイザリー合同会社'</span><span class="p">,</span> <span class="mf">0.6522221565246582</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リンクアンドモチベーション'</span><span class="p">,</span> <span class="mf">0.6289964914321899</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'モルガン・スタンレーＭＵＦＧ証券株式会社'</span><span class="p">,</span> <span class="mf">0.6283067464828491</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ＥＹアドバイザリー株式会社'</span><span class="p">,</span> <span class="mf">0.6275663375854492</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'アビームコンサルティング株式会社'</span><span class="p">,</span> <span class="mf">0.6181442737579346</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>おおむね大丈夫そうですね。</p>
+
+<p>このように会社間の類似度が計算できる(=距離が計算できる)ため、<br>
+以下のような分析が簡単に行なえます。</p>
+
+<ul>
+<li>K-means等のクラスタリング手法を用いて会社をカテゴリ分け</li>
+<li>多次元尺度法などの手法を用いて会社の分布を可視化</li>
+</ul>
+
+<p>上記のような処理は scikit-learn でとても簡単に実装できます。</p>
+
+<p>今回、実際に多次元尺度法で分布の可視化も行ってみましたが、<br>
+その内容も書くと本稿がとても長くなってしまうため、<br>
+また別の機会にでもご紹介できればと思います。</p>
+
+<h2>
+<span id="3-3-doc2vecで会社同士の加減算" class="fragment"></span><a href="#3-3-doc2vec%E3%81%A7%E4%BC%9A%E7%A4%BE%E5%90%8C%E5%A3%AB%E3%81%AE%E5%8A%A0%E6%B8%9B%E7%AE%97"><i class="fa fa-link"></i></a>3-3. doc2vecで会社同士の加減算</h2>
+
+<p>doc2vecはword2vecと同様に文書同士の加減算が出来ます。<br>
+とりあえずやってみましょう。</p>
+
+<p>先述の通り、リクルートホールディングスさんに似ている企業はリクルート各社でした。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># ID 53: リクルートホールディングスに似ている企業 (再掲)</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="mi">53</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'株式会社リクルートライフスタイル'</span><span class="p">,</span> <span class="mf">0.9008421301841736</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートジョブズ'</span><span class="p">,</span> <span class="mf">0.8883105516433716</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートキャリア'</span><span class="p">,</span> <span class="mf">0.8839867115020752</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルート住まいカンパニー'</span><span class="p">,</span> <span class="mf">0.8076469898223877</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートコミュニケーションズ'</span><span class="p">,</span> <span class="mf">0.7945607900619507</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社キャリアデザインセンター'</span><span class="p">,</span> <span class="mf">0.7822821140289307</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'エン・ジャパン株式会社'</span><span class="p">,</span> <span class="mf">0.782017707824707</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートマーケティングパートナーズ'</span><span class="p">,</span> <span class="mf">0.7807818651199341</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社サイバーエージェント'</span><span class="p">,</span> <span class="mf">0.7434782385826111</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社クイック'</span><span class="p">,</span> <span class="mf">0.7397039532661438</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>ここで、「転職情報DODA」「アルバイト情報an」などを運営する<br>
+人材系大手企業のインテリジェンスさんを足してみましょう。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># model.docvecs.most_similar(positive=[ベースの会社のID, 複数入れると足す])</span>
+<span class="c"># 「ID 53: リクルートホールディングス」 + 「ID 110: インテリジェンス」 = ？</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">docvecs</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="mi">53</span><span class="p">,</span> <span class="mi">110</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'株式会社リクルートキャリア'</span><span class="p">,</span> <span class="mf">0.888693630695343</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートジョブズ'</span><span class="p">,</span> <span class="mf">0.865821123123169</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルートライフスタイル'</span><span class="p">,</span> <span class="mf">0.8580507636070251</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社キャリアデザインセンター'</span><span class="p">,</span> <span class="mf">0.8396339416503906</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'エン・ジャパン株式会社'</span><span class="p">,</span> <span class="mf">0.8285592794418335</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社マイナビ'</span><span class="p">,</span> <span class="mf">0.7874248027801514</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社クイック'</span><span class="p">,</span> <span class="mf">0.777060866355896</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社リクルート住まいカンパニー'</span><span class="p">,</span> <span class="mf">0.775804877281189</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社サイバーエージェント'</span><span class="p">,</span> <span class="mf">0.7625365257263184</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'株式会社ネオキャリア'</span><span class="p">,</span> <span class="mf">0.758436381816864</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>上記結果は、以下のような考察ができます。</p>
+
+<ul>
+<li>リクルート系企業では人材系の2社が上位に上がってきた
+
+<ul>
+<li>リクルートキャリアは「リクナビ」「リクナビNEXT」運営</li>
+<li>リクルートジョブズは「タウンワーク」「とらばーゆ」などを運営</li>
+</ul>
+</li>
+<li>人材系以外のリクルート系列会社を押しのけて人材系の会社が上位に上がってきた
+
+<ul>
+<li>キャリアデザインセンターは＠typeなどを運営</li>
+<li>エン・ジャパンはエン転職を運営</li>
+</ul>
+</li>
+</ul>
+
+<p>だいぶ分かりやすい例を恣意的に出した感じはありますが、<br>
+それなりに上手く行っていると判断しても大丈夫そうです。</p>
+
+<h2>
+<span id="まとめと今後の課題" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81%E3%81%A8%E4%BB%8A%E5%BE%8C%E3%81%AE%E8%AA%B2%E9%A1%8C"><i class="fa fa-link"></i></a>まとめと今後の課題</h2>
+
+<p>今回の記事では転職会議のクチコミを用いて以下の内容を実現しました。</p>
+
+<ul>
+<li>word2vecにより、クチコミに登場する単語の概念を機械に理解させ、単語の類似度計算や加減算を行った</li>
+<li>doc2vecにより、会社の概要を機械に理解させ、会社の (以下同文</li>
+</ul>
+
+<p>今後は 「単語 + 単語 =&gt; 似ている会社」 (例： やりがい + 成長 =&gt; リブセンス) のような計算も可能にして、ユーザーさんの好む社風の会社や<a href="https://career.jobtalk.jp/" rel="nofollow noopener" target="_blank">求人</a>を検索できるような技術にもトライしていきたいと思っています。</p>
+
+<p>ただ現状では1点、致命的な課題があるので最後に簡単にご紹介します。<br>
+以下に、分かりやすい実例を示します。</p>
+
+<div class="code-frame" data-lang="py3"><div class="highlight"><pre>
+<span class="c"># 「ブラック」に似ている単語は？</span>
+<span class="o">&gt;&gt;</span> <span class="n">model</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'ブラック'</span><span class="p">])</span>
+<span class="p">[(</span><span class="s">'ブラック企業'</span><span class="p">,</span> <span class="mf">0.8150135278701782</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ホワイト'</span><span class="p">,</span> <span class="mf">0.7779906392097473</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ホワイト企業'</span><span class="p">,</span> <span class="mf">0.6732245683670044</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ブラック会社'</span><span class="p">,</span> <span class="mf">0.5990744829177856</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'ブラックブラック'</span><span class="p">,</span> <span class="mf">0.5734715461730957</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'名高い'</span><span class="p">,</span> <span class="mf">0.563334584236145</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'クリーン'</span><span class="p">,</span> <span class="mf">0.5561092495918274</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'グレー'</span><span class="p">,</span> <span class="mf">0.5449624061584473</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'不夜城'</span><span class="p">,</span> <span class="mf">0.5446360111236572</span><span class="p">),</span>
+ <span class="p">(</span><span class="s">'宗教団体'</span><span class="p">,</span> <span class="mf">0.5327660441398621</span><span class="p">)]</span>
+</pre></div></div>
+
+<p>この例に示すように、今回ご紹介した簡易的な方法では「ブラック」「ホワイト」を似た単語として認識してしまっています。</p>
+
+<p>同じような文脈で使われる言葉を同じと捉えてしまって、その極性判定が出来ていない状態になっており、機械は以下のような認識をしていると思われます。</p>
+
+<ul>
+<li>何か残業の話をしているのはわかるけど</li>
+<li>残業が多いか少ないかはよくわかんない</li>
+</ul>
+
+<p>実は「単語 + 単語 =&gt; 似ている会社」の結果を出力するために、gensimライブラリに手を加えて拡張実装も行っていました。</p>
+
+<p>しかし、このような課題があり結果の正確性が保証できないなかで発表するのはあまりに不誠実だと考え、今回はご紹介しないでおきました。(「リブセンス + 残業 + つらい =&gt; ？？」みたいなハードな例を準備していました…！)</p>
+
+<p>この課題感は日本語に関わらず存在しており、世界では色々な研究が進んでいるようです。その中でも、係り受けを考慮したうえでword2vecを学習させるとかなり結果が変わるという研究(<a href="https://levyomer.wordpress.com/2014/04/25/dependency-based-word-embeddings/" rel="nofollow noopener" target="_blank">参考文献</a>)もあるらしく、今後、そのような取り組みを行っていければと考えています。</p>
+<div class="hidden"><form class="js-task-list-update" action="/naotaka1128/items/2c4551abfd40e43b0146" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="eAA8fVKRtOMaHSK0pWUaYVGHGEey8WfPZFG+ghIiwG9RQk9ygnJKekcVnS/0JKFvHitUiX7l9URhXBjq6xmVTQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1484420248" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+## はじめに
+LivesenseAdventCalendar 2016 の20日目を担当する @naotaka1128 です。
+現在、転職会議という転職クチコミサービスのデータアナリストを担当しております。
+
+[転職会議](https://jobtalk.jp/)は会社のクチコミが数百万件集まっている日本最大級の転職クチコミサービスです。現状はクチコミや評点を表示しているだけなのですが、今後はクチコミを自然言語処理などで分析して今までは手に入らなかったような有益な情報を世の中に提供していきたいと思っております。
+
+今回はその取っ掛かりとして word2vec および doc2vec という自然言語処理の技術を用いてクチコミを分析し、会社の分類などを行ってみようと思います。
+
+## 使用する自然言語処理技術
+### word2vec
+昨今、word2vecという自然言語処理の技術が話題です。ご存じの方も多いかと思いますが、大量の文章をもちいて単語をベクトル表現で数値化し、以下のような単語間の計算を可能にします。
+
+- 王様 - 男 + 女 = 女王
+- パリ - フランス + 日本 = 東京
+
+### doc2vec
+word2vecを拡張し、文書そのもので上記のような計算を可能にしたdoc2vecというものもあります。
+雑に言うと word2vec で獲得した単語のベクトルを合算したようなものでしょうか。
+
+doc2vecでは文書の数値化により異なる文書同士の類似度を計算できるようになります。会社のクチコミを一つの文書と捉えdoc2vecで分析して、会社同士の関係性を分析してみようと思います。
+
+## 使用する技術
+- Python
+- gensim
+    - word2vec / doc2vec
+    - 他にトピックモデルという自然言語処理技術も実装されている
+        - 以前、トピックモデルを用いて[自然言語処理でラーメン屋を分類してみる](http://qiita.com/n_uchida/items/87d717961bd0c34e7a64)をやりました。ご興味があれば見てみて下さい。
+- MeCab
+
+## 流れ
+以下のような流れでやっていきます。
+1. 会社の口コミを形態素解析
+2. gensim で doc2vec のモデル構築
+　・ doc2vec のモデル構築時に word2vec モデルも同時に構築される
+3. 構築したモデルで
+　3-1. クチコミに登場した単語で word2vec
+　3-2. doc2vecで会社同士の類似度計算
+　3-3. doc2vecで会社同士の加減算
+
+## 1. 会社の口コミを形態素解析
+[自然言語処理でラーメン屋を分類してみる](http://qiita.com/n_uchida/items/87d717961bd0c34e7a64)とほぼ同じです。
+
+```py3
+# クチコミデータの読み込み
+from io_modules import load_data  # 自作のDB読み込みライブラリ
+rows = load_data(LOAD_QUERY, KUCHIKOMI_DB)  # [会社名, クチコミ]
+
+# 参考記事のstem関数で語幹を抽出
+from utils import stems  # 参考記事の実装ほぼそのまま
+companies = [row[0] for row in rows]
+docs = [stems(row[1]) for row in rows]
+
+&quot;&quot;&quot;
+以下のようなデータを作っています
+companies = [&#39;株式会社ブラックカンパニー&#39;, &#39;やりがい有限会社&#39;, ...]
+docs = [
+  [&#39;やりがい&#39;, &#39;足りない&#39;, &#39;残業&#39;, &#39;とても&#39;, &#39;多い&#39;, ...
+  [&#39;深夜残業&#39;, &#39;当たり前&#39;, &#39;辛い&#39;, &#39;死にたい&#39;, &#39;無理&#39;, ...
+   ...
+]
+&quot;&quot;&quot;
+```
+* 全体として単なる前処理
+* 語幹の抽出: [この記事](http://qiita.com/katryo/items/f86971afcb65ce1e7d40#3-5)を参考にしました
+* 備考: 特別な辞書は準備していません(neologdを使っただけ)
+
+## 2. gensim で doc2vec のモデル構築
+さて、ここが自然言語処理のキモです。
+
+と言いたいところですがライブラリ呼び出すだけなので大したことやりません。
+また計算も早く、あっけなく終わって拍子抜けでした。
+
+```py3
+# ライブラリ読み込み
+from gensim import models
+
+# gensim にクチコミを登録
+# クチコミに会社名を付与するため、参考記事で実装されていた拡張クラスを使っています
+sentences = LabeledListSentence(docs, companies)
+
+# doc2vec の学習条件設定
+# alpha: 学習率 / min_count: X回未満しか出てこない単語は無視
+# size: ベクトルの次元数 / iter: 反復回数 / workers: 並列実行数
+model = models.Doc2Vec(alpha=0.025, min_count=5,
+                       size=100, iter=20, workers=4)
+
+# doc2vec の学習前準備(単語リスト構築)
+model.build_vocab(sentences)
+
+# Wikipedia から学習させた単語ベクトルを無理やり適用して利用することも出来ます
+# model.intersect_word2vec_format(&#39;./data/wiki/wiki2vec.bin&#39;, binary=True)
+
+# 学習実行
+model.train(sentences)
+
+# セーブ
+model.save(&#39;./data/doc2vec.model&#39;)
+
+# 学習後はモデルをファイルからロード可能
+# model = models.Doc2Vec.load(&#39;./data/doc2vec.model&#39;)
+
+# 順番が変わってしまうことがあるので会社リストは学習後に再呼び出し
+companies = model.docvecs.offset2doctag
+```
+
+LabeledListSentence の実装は以下のとおりです。
+
+```py3
+# 参考記事： http://qiita.com/okappy/items/32a7ba7eddf8203c9fa1
+class LabeledListSentence(object):
+    def __init__(self, words_list, labels):
+        self.words_list = words_list
+        self.labels = labels
+
+    def __iter__(self):
+        for i, words in enumerate(self.words_list):
+            yield models.doc2vec.LabeledSentence(words, [&#39;%s&#39; % self.labels[i]])
+```
+
+## 3-1. クチコミに登場した単語で word2vec
+さて、あっという間にモデルが構築できました。
+
+word2vecの精度が悪ければdoc2vecの結果も必然的に悪くなるので、
+word2vec ~~で遊びながら~~ 精度を確かめていきます。
+
+### 似ている単語
+まずは転職クチコミで大人気の「残業」あたりから行きましょう。
+
+```py3
+# model.most_similar(positive=[単語]) で似ている単語が出せる
+&gt;&gt; model.most_similar(positive=[&#39;残業&#39;])
+[(&#39;時間外労働&#39;, 0.8757208585739136),
+ (&#39;サービス残業&#39;, 0.8720364570617676),
+ (&#39;サビ残&#39;, 0.7500427961349487),
+ (&#39;残業代&#39;, 0.6272672414779663),
+ (&#39;残響&#39;, 0.6267948746681213),
+ (&#39;休日出勤&#39;, 0.5998174548149109),
+ (&#39;長時間労働&#39;, 0.5923150777816772),
+ (&#39;作業量&#39;, 0.5819833278656006),
+ (&#39;超勤&#39;, 0.5778118371963501),
+ (&#39;残業手当&#39;, 0.5598958730697632)]
+```
+
+似た単語が並んでいますね…！
+
+「サビ残」といった略称や、「残響」というタイプミスまで拾っていてすごいです。
+コンピューターが「残業」という概念を理解した！と思って感慨深い瞬間でした。
+
+ユーザーさんには前向きな転職をしてほしいと日々思っているので、
+前向きな単語の確認もやっていきましょう。
+
+```py3
+&gt;&gt; model.most_similar(positive=[&#39;やりがい&#39;])
+[(&#39;甲斐&#39;, 0.9375230073928833),
+ (&#39;醍醐味&#39;, 0.7799979448318481),
+ (&#39;面白い&#39;, 0.7788150310516357),
+ (&#39;おもしろい&#39;, 0.7710426449775696),
+ (&#39;楽しい&#39;, 0.712959885597229),
+ (&#39;生きがい&#39;, 0.6919904351234436),
+ (&#39;面白み&#39;, 0.6607719659805298),
+ (&#39;喜び&#39;, 0.6537446975708008),
+ (&#39;誇り&#39;, 0.6432669162750244),
+ (&#39;つまらない&#39;, 0.6373245120048523)]
+```
+
+最後に気になる感じの単語がありますがいい感じですね。
+単語そのものの理解は出来ているようなので次に単語の加減算を行います。
+
+### 単語の加減算
+転職クチコミを見ていると、女性の働きやすさに関わる内容などが人気です。
+「独身女性 - 女性 + 男性 = ?」などをやってみましょう。
+
+まずは基本的な単語理解の確認。
+
+```py3
+# 女性に似ている単語
+&gt;&gt; model.most_similar(positive=[&#39;女性&#39;])
+[(&#39;女性社員&#39;, 0.8745297789573669),
+ (&#39;働く女性&#39;, 0.697405219078064),
+ (&#39;独身女性&#39;, 0.6827554106712341),
+ (&#39;じょせい&#39;, 0.5963315963745117)]
+
+# 男性に似ている単語
+&gt;&gt; model.most_similar(positive=[&#39;男性&#39;])
+[(&#39;管理職&#39;, 0.7058243751525879),
+ (&#39;活躍&#39;, 0.6625881195068359),
+ (&#39;特別扱い&#39;, 0.6411184668540955),
+ (&#39;優遇&#39;, 0.5910355448722839)]
+
+# 独身女性に似ている単語
+&gt;&gt; model.most_similar(positive=[&#39;独身女性&#39;])
+[(&#39;女性社員&#39;, 0.7283456325531006),
+ (&#39;シングルマザー&#39;, 0.6969124674797058),
+ (&#39;未婚&#39;, 0.6945561170578003),
+ (&#39;女性&#39;, 0.6827554106712341)]
+```
+
+大丈夫そうなので加減算の実行。
+
+```py3
+# 独身女性 - 女性 + 男性 = ?
+# model.most_similar(positive=[足す単語], negative=[引く単語])
+&gt;&gt; model.most_similar(positive=[&#39;独身女性&#39;, &#39;男性&#39;], negative=[&#39;女性&#39;])
+[(&#39;未婚&#39;, 0.665600597858429),
+ (&#39;管理職&#39;, 0.6068357825279236),
+ (&#39;子持ち&#39;, 0.58555006980896),
+ (&#39;男子&#39;, 0.530462384223938),
+ (&#39;特別扱い&#39;, 0.5190619230270386)]
+```
+
+若干怪しい結果ながらも、「独身女性」から「女性社員」や「シングルマザー」といった女性的な単語がなくなり、「未婚」が一番似ている単語として推測されました。
+
+word2vecがそれなりに正しく出来てそうなので、
+このまま会社の分類へと進んでいきます。
+
+## 3-2. doc2vecで会社同士の類似度計算
+次に、会社同士の関係性を調べてみましょう。
+
+まずは系列会社がたくさんある簡単な企業で確認します。
+
+```py3
+# model.docvecs.most_similar(positive=[ベースの会社のID])
+# ID 53 : リクルートホールディングス
+&gt;&gt; model.docvecs.most_similar(positive=[53])
+[(&#39;株式会社リクルートライフスタイル&#39;, 0.9008421301841736),
+ (&#39;株式会社リクルートジョブズ&#39;, 0.8883105516433716),
+ (&#39;株式会社リクルートキャリア&#39;, 0.8839867115020752),
+ (&#39;株式会社リクルート住まいカンパニー&#39;, 0.8076469898223877),
+ (&#39;株式会社リクルートコミュニケーションズ&#39;, 0.7945607900619507),
+ (&#39;株式会社キャリアデザインセンター&#39;, 0.7822821140289307),
+ (&#39;エン・ジャパン株式会社&#39;, 0.782017707824707),
+ (&#39;株式会社リクルートマーケティングパートナーズ&#39;, 0.7807818651199341),
+ (&#39;株式会社サイバーエージェント&#39;, 0.7434782385826111),
+ (&#39;株式会社クイック&#39;, 0.7397039532661438)]
+```
+
+簡単すぎたようですが、リクルートホールディングスさんに似ている会社として、
+リクルート系列各社が出てきました。
+
+大丈夫そうなので、一般的な会社も見てみましょう。
+
+```py3
+# ID 1338 : DeNA
+&gt;&gt; model.docvecs.most_similar(positive=[1338])
+[(&#39;グリー株式会社&#39;, 0.8263522386550903),
+ (&#39;株式会社サイバーエージェント&#39;, 0.8176108598709106),
+ (&#39;株式会社ドリコム&#39;, 0.7977319955825806),
+ (&#39;株式会社Ｓｐｅｅｅ&#39;, 0.787316083908081),
+ (&#39;株式会社サイバード&#39;, 0.7823044061660767),
+ (&#39;株式会社ドワンゴ&#39;, 0.767551064491272),
+ (&#39;ヤフー株式会社&#39;, 0.7610974907875061),
+ (&#39;ＫＬａｂ株式会社&#39;, 0.7593647837638855),
+ (&#39;株式会社ｇｌｏｏｐｓ&#39;, 0.7475718855857849),
+ (&#39;ＮＨＮ\u3000ｃｏｍｉｃｏ株式会社&#39;, 0.7439380288124084)]
+```
+
+最近話題になっていたDeNAさんですが、グリーさんと似ていると出てきました。
+ゲーム関係と判定されたようで、その他にもサイバーさんやドリコムさんも出てきました。
+
+なかなか良さそうです。
+Web系の会社ばかりだと結果が偏る可能性があるので、
+ぜんぜん違う会社も見ておきます。
+
+```py3
+# ID 862 : ホンダ
+&gt;&gt; model.docvecs.most_similar(positive=[862])
+[(&#39;トヨタ自動車株式会社&#39;, 0.860333263874054),
+ (&#39;マツダ株式会社&#39;, 0.843244194984436),
+ (&#39;株式会社デンソー&#39;, 0.8296780586242676),
+ (&#39;富士重工業株式会社&#39;, 0.8261093497276306),
+ (&#39;日野自動車株式会社&#39;, 0.8115691542625427),
+ (&#39;日産自動車株式会社&#39;, 0.8105560541152954),
+ (&#39;ダイハツ工業株式会社&#39;, 0.8088374137878418),
+ (&#39;アイシン精機株式会社&#39;, 0.8074800372123718),
+ (&#39;株式会社本田技術研究所&#39;, 0.7952905893325806),
+ (&#39;株式会社豊田自動織機&#39;, 0.7946352362632751)]
+
+# ID 38 : ソニー
+&gt;&gt; model.docvecs.most_similar(positive=[38])
+[(&#39;パナソニック株式会社&#39;, 0.8186650276184082),
+ (&#39;株式会社東芝&#39;, 0.7851587533950806),
+ (&#39;オムロン株式会社&#39;, 0.7402874231338501),
+ (&#39;日本電気株式会社&#39;, 0.7391767501831055),
+ (&#39;株式会社ニコン&#39;, 0.7331269383430481),
+ (&#39;ソニーグローバルマニュファクチャリング＆オペレーションズ株式会社&#39;, 0.7183523178100586),
+ (&#39;太陽誘電株式会社&#39;, 0.7149790525436401),
+ (&#39;シャープ株式会社&#39;, 0.7115868330001831),
+ (&#39;パイオニア株式会社&#39;, 0.7104746103286743),
+ (&#39;キヤノン株式会社&#39;, 0.7103182077407837)]
+
+# ID 1688 : マッキンゼー(コンサルティング・ファーム)
+&gt;&gt; model.docvecs.most_similar(positive=[1688])
+[(&#39;アクセンチュア株式会社&#39;, 0.7885801196098328),
+ (&#39;株式会社ボストン・コンサルティング・グループ&#39;, 0.7835338115692139),
+ (&#39;ゴールドマン・サックス証券株式会社&#39;, 0.7507193088531494),
+ (&#39;デロイトトーマツコンサルティング合同会社&#39;, 0.7278151512145996),
+ (&#39;株式会社シグマクシス&#39;, 0.6909163594245911),
+ (&#39;ＰｗＣアドバイザリー合同会社&#39;, 0.6522221565246582),
+ (&#39;株式会社リンクアンドモチベーション&#39;, 0.6289964914321899),
+ (&#39;モルガン・スタンレーＭＵＦＧ証券株式会社&#39;, 0.6283067464828491),
+ (&#39;ＥＹアドバイザリー株式会社&#39;, 0.6275663375854492),
+ (&#39;アビームコンサルティング株式会社&#39;, 0.6181442737579346)]
+```
+
+おおむね大丈夫そうですね。
+
+このように会社間の類似度が計算できる(=距離が計算できる)ため、
+以下のような分析が簡単に行なえます。
+
+- K-means等のクラスタリング手法を用いて会社をカテゴリ分け
+- 多次元尺度法などの手法を用いて会社の分布を可視化
+
+上記のような処理は scikit-learn でとても簡単に実装できます。
+
+今回、実際に多次元尺度法で分布の可視化も行ってみましたが、
+その内容も書くと本稿がとても長くなってしまうため、
+また別の機会にでもご紹介できればと思います。
+
+## 3-3. doc2vecで会社同士の加減算
+doc2vecはword2vecと同様に文書同士の加減算が出来ます。
+とりあえずやってみましょう。
+
+先述の通り、リクルートホールディングスさんに似ている企業はリクルート各社でした。
+
+```py3
+# ID 53: リクルートホールディングスに似ている企業 (再掲)
+&gt;&gt; model.docvecs.most_similar(positive=[53])
+[(&#39;株式会社リクルートライフスタイル&#39;, 0.9008421301841736),
+ (&#39;株式会社リクルートジョブズ&#39;, 0.8883105516433716),
+ (&#39;株式会社リクルートキャリア&#39;, 0.8839867115020752),
+ (&#39;株式会社リクルート住まいカンパニー&#39;, 0.8076469898223877),
+ (&#39;株式会社リクルートコミュニケーションズ&#39;, 0.7945607900619507),
+ (&#39;株式会社キャリアデザインセンター&#39;, 0.7822821140289307),
+ (&#39;エン・ジャパン株式会社&#39;, 0.782017707824707),
+ (&#39;株式会社リクルートマーケティングパートナーズ&#39;, 0.7807818651199341),
+ (&#39;株式会社サイバーエージェント&#39;, 0.7434782385826111),
+ (&#39;株式会社クイック&#39;, 0.7397039532661438)]
+```
+
+ここで、「転職情報DODA」「アルバイト情報an」などを運営する
+人材系大手企業のインテリジェンスさんを足してみましょう。
+
+```py3
+# model.docvecs.most_similar(positive=[ベースの会社のID, 複数入れると足す])
+# 「ID 53: リクルートホールディングス」 + 「ID 110: インテリジェンス」 = ？
+&gt;&gt; model.docvecs.most_similar(positive=[53, 110])
+[(&#39;株式会社リクルートキャリア&#39;, 0.888693630695343),
+ (&#39;株式会社リクルートジョブズ&#39;, 0.865821123123169),
+ (&#39;株式会社リクルートライフスタイル&#39;, 0.8580507636070251),
+ (&#39;株式会社キャリアデザインセンター&#39;, 0.8396339416503906),
+ (&#39;エン・ジャパン株式会社&#39;, 0.8285592794418335),
+ (&#39;株式会社マイナビ&#39;, 0.7874248027801514),
+ (&#39;株式会社クイック&#39;, 0.777060866355896),
+ (&#39;株式会社リクルート住まいカンパニー&#39;, 0.775804877281189),
+ (&#39;株式会社サイバーエージェント&#39;, 0.7625365257263184),
+ (&#39;株式会社ネオキャリア&#39;, 0.758436381816864)]
+```
+
+上記結果は、以下のような考察ができます。
+
+* リクルート系企業では人材系の2社が上位に上がってきた
+    * リクルートキャリアは「リクナビ」「リクナビNEXT」運営
+    * リクルートジョブズは「タウンワーク」「とらばーゆ」などを運営
+* 人材系以外のリクルート系列会社を押しのけて人材系の会社が上位に上がってきた
+    * キャリアデザインセンターは＠typeなどを運営
+    * エン・ジャパンはエン転職を運営
+
+だいぶ分かりやすい例を恣意的に出した感じはありますが、
+それなりに上手く行っていると判断しても大丈夫そうです。
+
+## まとめと今後の課題
+今回の記事では転職会議のクチコミを用いて以下の内容を実現しました。
+
+- word2vecにより、クチコミに登場する単語の概念を機械に理解させ、単語の類似度計算や加減算を行った
+- doc2vecにより、会社の概要を機械に理解させ、会社の (以下同文
+
+今後は 「単語 + 単語 =&gt; 似ている会社」 (例： やりがい + 成長 =&gt; リブセンス) のような計算も可能にして、ユーザーさんの好む社風の会社や[求人](https://career.jobtalk.jp/)を検索できるような技術にもトライしていきたいと思っています。
+
+ただ現状では1点、致命的な課題があるので最後に簡単にご紹介します。
+以下に、分かりやすい実例を示します。
+
+```py3
+# 「ブラック」に似ている単語は？
+&gt;&gt; model.most_similar(positive=[&#39;ブラック&#39;])
+[(&#39;ブラック企業&#39;, 0.8150135278701782),
+ (&#39;ホワイト&#39;, 0.7779906392097473),
+ (&#39;ホワイト企業&#39;, 0.6732245683670044),
+ (&#39;ブラック会社&#39;, 0.5990744829177856),
+ (&#39;ブラックブラック&#39;, 0.5734715461730957),
+ (&#39;名高い&#39;, 0.563334584236145),
+ (&#39;クリーン&#39;, 0.5561092495918274),
+ (&#39;グレー&#39;, 0.5449624061584473),
+ (&#39;不夜城&#39;, 0.5446360111236572),
+ (&#39;宗教団体&#39;, 0.5327660441398621)]
+```
+
+この例に示すように、今回ご紹介した簡易的な方法では「ブラック」「ホワイト」を似た単語として認識してしまっています。
+
+同じような文脈で使われる言葉を同じと捉えてしまって、その極性判定が出来ていない状態になっており、機械は以下のような認識をしていると思われます。
+
+- 何か残業の話をしているのはわかるけど
+- 残業が多いか少ないかはよくわかんない
+
+実は「単語 + 単語 =&gt; 似ている会社」の結果を出力するために、gensimライブラリに手を加えて拡張実装も行っていました。
+
+しかし、このような課題があり結果の正確性が保証できないなかで発表するのはあまりに不誠実だと考え、今回はご紹介しないでおきました。(「リブセンス + 残業 + つらい =&gt; ？？」みたいなハードな例を準備していました…！)
+
+この課題感は日本語に関わらず存在しており、世界では色々な研究が進んでいるようです。その中でも、係り受けを考慮したうえでword2vecを学習させるとかなり結果が変わるという研究([参考文献](https://levyomer.wordpress.com/2014/04/25/dependency-based-word-embeddings/))もあるらしく、今後、そのような取り組みを行っていければと考えています。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる by @naotaka1128 on @Qiita" data-url="http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/naotaka1128"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/naotaka1128">naotaka1128</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">774</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;naotaka1128&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-0b04fffe-ad41-4581-acdb-7655a0118d80"></div>
+    <div id="UserFollowButton-react-component-0b04fffe-ad41-4581-acdb-7655a0118d80"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/e7451ac6b8154dadd47e">新米エンジニアが月300万PVのサイトを作った時に役立ったGem20選（+SEOの小技）</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/87d717961bd0c34e7a64">【Python】自然言語処理でラーメン屋を分類してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/2c4551abfd40e43b0146">【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/db54af23b12e79e61169">TeamGeek から学ぶマネジメント・アンチパターン13選</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/naotaka1128/items/e617f63907fed035408a">【word2vec】会社のクチコミを自然言語処理した結果を可視化してみる</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%AF%E3%81%98%E3%82%81%E3%81%AB\&quot;\u003eはじめに\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86%E6%8A%80%E8%A1%93\&quot;\u003e使用する自然言語処理技術\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#word2vec\&quot;\u003eword2vec\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#doc2vec\&quot;\u003edoc2vec\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8B%E6%8A%80%E8%A1%93\&quot;\u003e使用する技術\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%B5%81%E3%82%8C\&quot;\u003e流れ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#1-%E4%BC%9A%E7%A4%BE%E3%81%AE%E5%8F%A3%E3%82%B3%E3%83%9F%E3%82%92%E5%BD%A2%E6%85%8B%E7%B4%A0%E8%A7%A3%E6%9E%90\&quot;\u003e1. 会社の口コミを形態素解析\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#2-gensim-%E3%81%A7-doc2vec-%E3%81%AE%E3%83%A2%E3%83%87%E3%83%AB%E6%A7%8B%E7%AF%89\&quot;\u003e2. gensim で doc2vec のモデル構築\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-1-%E3%82%AF%E3%83%81%E3%82%B3%E3%83%9F%E3%81%AB%E7%99%BB%E5%A0%B4%E3%81%97%E3%81%9F%E5%8D%98%E8%AA%9E%E3%81%A7-word2vec\&quot;\u003e3-1. クチコミに登場した単語で word2vec\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BC%BC%E3%81%A6%E3%81%84%E3%82%8B%E5%8D%98%E8%AA%9E\&quot;\u003e似ている単語\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8D%98%E8%AA%9E%E3%81%AE%E5%8A%A0%E6%B8%9B%E7%AE%97\&quot;\u003e単語の加減算\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-2-doc2vec%E3%81%A7%E4%BC%9A%E7%A4%BE%E5%90%8C%E5%A3%AB%E3%81%AE%E9%A1%9E%E4%BC%BC%E5%BA%A6%E8%A8%88%E7%AE%97\&quot;\u003e3-2. doc2vecで会社同士の類似度計算\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#3-3-doc2vec%E3%81%A7%E4%BC%9A%E7%A4%BE%E5%90%8C%E5%A3%AB%E3%81%AE%E5%8A%A0%E6%B8%9B%E7%AE%97\&quot;\u003e3-3. doc2vecで会社同士の加減算\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81%E3%81%A8%E4%BB%8A%E5%BE%8C%E3%81%AE%E8%AA%B2%E9%A1%8C\&quot;\u003eまとめと今後の課題\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-83960c5c-5636-4ba2-b802-ffa8666e9487"></div>
+    <div id="Toc-react-component-83960c5c-5636-4ba2-b802-ffa8666e9487"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:150,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;2c4551abfd40e43b0146&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="superdog"><a itemprop="url" href="/superdog"><img alt="superdog" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/98513/profile-images/1479132493" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ryu0322"><a itemprop="url" href="/ryu0322"><img alt="ryu0322" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/123224/profile-images/1473715494" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="qoAop"><a itemprop="url" href="/qoAop"><img alt="qoAop" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/51116/profile-images/1473692332" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="__Himawarii__"><a itemprop="url" href="/__Himawarii__"><img alt="__Himawarii__" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/145691/profile-images/1488546628" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="taise"><a itemprop="url" href="/taise"><img alt="taise" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5492/profile-images/1473682037" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="teracy"><a itemprop="url" href="/teracy"><img alt="teracy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/21354/profile-images/1473683312" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="bananaumai"><a itemprop="url" href="/bananaumai"><img alt="bananaumai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5811/profile-images/1473682275" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="eri"><a itemprop="url" href="/eri"><img alt="eri" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/54562/profile-images/1473693413" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="na-o-ys"><a itemprop="url" href="/na-o-ys"><img alt="na-o-ys" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/15173/profile-images/1476962072" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="todogzm"><a itemprop="url" href="/todogzm"><img alt="todogzm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/19943/profile-images/1473682866" /></a></div></div><div class="ArticleFooter__user"><a href="/naotaka1128/items/2c4551abfd40e43b0146/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/2c4551abfd40e43b0146/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/naotaka1128/items/2c4551abfd40e43b0146.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.20</span> article of <a class="title" href="/advent-calendar/2016/livesense_3">Livesenseその3  Advent Calendar 2016</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 19:</span><span class="itemsShowBody_adventCalendar_title"><img alt="reprimande" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/9271/profile-images/1473681333" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/reprimande/items/aaed40b2db5dc8cdd4bc">React とセルオートマトンと WebAudio</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 21:</span><span class="itemsShowBody_adventCalendar_title"><img alt="xorphitus" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/890/profile-images/1473682139" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/xorphitus/items/e952b27a37d8aae7d9a8">Slack BOTから始めるHaskell</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/naotaka1128/items/e617f63907fed035408a#_reference-2e3441eedd995f25bfa1"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518" />【word2vec】会社のクチコミを自然言語処理した結果を可視化してみる</a><time class="references_datetime js-dateTimeView" datetime="2017-01-23T15:01:14+00:00">about 2 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる by @naotaka1128 on @Qiita" data-url="http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="【転職会議】クチコミをword2vecで自然言語処理して会社を分類してみる" href="http://b.hatena.ne.jp/entry/http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cblockquote\u003e\n\u003cp\u003e実は「単語 + 単語 =\u0026gt; 似ている会社」の結果を出力するために、gensimライブラリに手を加えて拡張実装も行っていました。\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e実装方法だけでも知りたいです\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-26T15:26:24+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:707168,&quot;is_team&quot;:false,&quot;item_id&quot;:452597,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c4551abfd40e43b0146&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;\u003e 実は「単語 + 単語 =\u003e 似ている会社」の結果を出力するために、gensimライブラリに手を加えて拡張実装も行っていました。\n\n実装方法だけでも知りたいです\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146#comment-ecc9f880c9cd93c32292&quot;,&quot;user&quot;:{&quot;contribution&quot;:3049,&quot;created_at&quot;:&quot;2012-01-03T12:32:04+09:00&quot;,&quot;id&quot;:1834,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/1834/profile-images/1473683892&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;naoya@github&quot;},&quot;uuid&quot;:&quot;ecc9f880c9cd93c32292&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003e\u003ccode\u003einfer_vector\u003c/code\u003e を使うとどうやら単語のリストをドキュメントベクトルに変換できるようなのですが、単語が少ないとイマイチ精度が悪いような気もしています。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-26T15:46:56+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:707196,&quot;is_team&quot;:false,&quot;item_id&quot;:452597,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c4551abfd40e43b0146&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;`infer_vector` を使うとどうやら単語のリストをドキュメントベクトルに変換できるようなのですが、単語が少ないとイマイチ精度が悪いような気もしています。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146#comment-0929d57f798226648b80&quot;,&quot;user&quot;:{&quot;contribution&quot;:3049,&quot;created_at&quot;:&quot;2012-01-03T12:32:04+09:00&quot;,&quot;id&quot;:1834,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/1834/profile-images/1473683892&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;naoya@github&quot;},&quot;uuid&quot;:&quot;0929d57f798226648b80&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cblockquote\u003e\n\u003cp\u003e実装方法だけでも\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003eやってることは単純で、文書のベクトルに単語のベクトルを加減算しているだけです。\u003cbr\u003e\n(理論的に合っているのかどうかはわかりません…、すみません。)\u003c/p\u003e\n\n\u003cp\u003e具体的にはdocvecs.most_similarを以下のように拡張しました。\u003c/p\u003e\n\n\u003cdiv class=\&quot;code-frame\&quot; data-lang=\&quot;py3\&quot;\u003e\u003cdiv class=\&quot;highlight\&quot;\u003e\u003cpre\u003e\n    \u003cspan class=\&quot;k\&quot;\u003edef\u003c/span\u003e \u003cspan class=\&quot;nf\&quot;\u003emost_similar_with_words\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003epositive\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[],\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003enegative\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[],\u003c/span\u003e\n                                \u003cspan class=\&quot;n\&quot;\u003epositive_word\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[],\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003enegative_word\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[],\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etopn\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e10\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e\n                                \u003cspan class=\&quot;n\&quot;\u003eclip_start\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eclip_end\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;k\&quot;\u003eNone\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword2vec_model\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;k\&quot;\u003eNone\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e):\u003c/span\u003e\n        \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003einit_sims\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e()\u003c/span\u003e\n\n        \u003cspan class=\&quot;n\&quot;\u003eclip_end\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eclip_end\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003eor\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003elen\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoctag_syn0norm\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\n        \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eisinstance\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003epositive\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003estring_types\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003einteger_types\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003eand\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003enot\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003enegative\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n            \u003cspan class=\&quot;c\&quot;\u003e# allow calls like most_similar(&#39;dog&#39;), as a shorthand for most_similar([&#39;dog&#39;])\u003c/span\u003e\n            \u003cspan class=\&quot;n\&quot;\u003epositive\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003epositive\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n\n        \u003cspan class=\&quot;c\&quot;\u003e# add weights for each doc, if not already present; default to 1.0 for positive and -1.0 for negative docs\u003c/span\u003e\n        \u003cspan class=\&quot;n\&quot;\u003epositive\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\n            \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mf\&quot;\u003e1.0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eisinstance\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003estring_types\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003endarray\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,)\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003einteger_types\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eelse\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003epositive\u003c/span\u003e\n        \u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n        \u003cspan class=\&quot;n\&quot;\u003enegative\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\n            \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-\u003c/span\u003e\u003cspan class=\&quot;mf\&quot;\u003e1.0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eisinstance\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003estring_types\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003endarray\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,)\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003einteger_types\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eelse\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003enegative\u003c/span\u003e\n        \u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n\n        \u003cspan class=\&quot;c\&quot;\u003e# compute the weighted average of all docs\u003c/span\u003e\n        \u003cspan class=\&quot;n\&quot;\u003eall_docs\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eset\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(),\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[]\u003c/span\u003e\n        \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eweight\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003epositive\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003enegative\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eisinstance\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003endarray\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e):\u003c/span\u003e\n                \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eappend\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eweight\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eelif\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoctags\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003eor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e\u0026lt;\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003ecount\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n                \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eappend\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eweight\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoctag_syn0norm\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003e_int_index\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)])\u003c/span\u003e\n                \u003cspan class=\&quot;n\&quot;\u003eall_docs\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eadd\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003e_int_index\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e))\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eelse\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n                \u003cspan class=\&quot;k\&quot;\u003eraise\u003c/span\u003e \u003cspan class=\&quot;ne\&quot;\u003eKeyError\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;s\&quot;\u003e\&quot;doc &#39;%s&#39; not in trained set\&quot;\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e%\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edoc\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\n        \u003cspan class=\&quot;c\&quot;\u003e###### 独自実装ここから\u003c/span\u003e\n        \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword2vec_model\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n            \u003cspan class=\&quot;n\&quot;\u003eword2vec_model\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003einit_sims\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e()\u003c/span\u003e\n\n        \u003cspan class=\&quot;n\&quot;\u003epositive_word\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\n            \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;mf\&quot;\u003e1.0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eisinstance\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003estring_types\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003endarray\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,))\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003eelse\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003epositive_word\u003c/span\u003e\n        \u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n        \u003cspan class=\&quot;n\&quot;\u003enegative_word\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\n            \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e-\u003c/span\u003e\u003cspan class=\&quot;mf\&quot;\u003e1.0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eisinstance\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003estring_types\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003endarray\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,))\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003eelse\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003enegative_word\u003c/span\u003e\n        \u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n\n        \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eweight\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003epositive_word\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003enegative_word\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003eisinstance\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003endarray\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e):\u003c/span\u003e\n                \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eappend\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eweight\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eelif\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword2vec_model\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003evocab\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n                \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eappend\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eweight\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e*\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword2vec_model\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003esyn0norm\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eword2vec_model\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003evocab\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eindex\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e])\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eelse\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n                \u003cspan class=\&quot;k\&quot;\u003eraise\u003c/span\u003e \u003cspan class=\&quot;ne\&quot;\u003eKeyError\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;s\&quot;\u003e\&quot;word &#39;%s&#39; not in vocabulary\&quot;\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e%\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eword\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n        \u003cspan class=\&quot;c\&quot;\u003e###### 独自実装ここまで\u003c/span\u003e\n\n        \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003enot\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003eraise\u003c/span\u003e \u003cspan class=\&quot;ne\&quot;\u003eValueError\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;s\&quot;\u003e\&quot;cannot compute similarity with no input\&quot;\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n        \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ematutils\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eunitvec\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003earray\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eaxis\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;mi\&quot;\u003e0\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e))\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eastype\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eREAL\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n\n        \u003cspan class=\&quot;n\&quot;\u003edists\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edot\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edoctag_syn0norm\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eclip_start\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eclip_end\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e],\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003emean\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n        \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003enot\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etopn\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e:\u003c/span\u003e\n            \u003cspan class=\&quot;k\&quot;\u003ereturn\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003edists\u003c/span\u003e\n        \u003cspan class=\&quot;n\&quot;\u003ebest\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ematutils\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eargsort\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edists\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e,\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003etopn\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003etopn\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e+\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003elen\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eall_docs\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e),\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ereverse\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e\u003cspan class=\&quot;k\&quot;\u003eTrue\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e)\u003c/span\u003e\n        \u003cspan class=\&quot;c\&quot;\u003e# ignore (don&#39;t return) docs from the input\u003c/span\u003e\n        \u003cspan class=\&quot;n\&quot;\u003eresult\u003c/span\u003e \u003cspan class=\&quot;o\&quot;\u003e=\u003c/span\u003e \u003cspan class=\&quot;p\&quot;\u003e[(\u003c/span\u003e\u003cspan class=\&quot;bp\&quot;\u003eself\u003c/span\u003e\u003cspan class=\&quot;o\&quot;\u003e.\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003eindex_to_doctag\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003esim\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e),\u003c/span\u003e \u003cspan class=\&quot;nb\&quot;\u003efloat\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e(\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003edists\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003esim\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]))\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003efor\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003esim\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003ebest\u003c/span\u003e \u003cspan class=\&quot;k\&quot;\u003eif\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003esim\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003enot\u003c/span\u003e \u003cspan class=\&quot;ow\&quot;\u003ein\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eall_docs\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n        \u003cspan class=\&quot;k\&quot;\u003ereturn\u003c/span\u003e \u003cspan class=\&quot;n\&quot;\u003eresult\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e[:\u003c/span\u003e\u003cspan class=\&quot;n\&quot;\u003etopn\u003c/span\u003e\u003cspan class=\&quot;p\&quot;\u003e]\u003c/span\u003e\n\u003c/pre\u003e\u003c/div\u003e\u003c/div\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-27T22:39:39+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:708088,&quot;is_team&quot;:false,&quot;item_id&quot;:452597,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c4551abfd40e43b0146&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;\u003e 実装方法だけでも\n\nやってることは単純で、文書のベクトルに単語のベクトルを加減算しているだけです。\n(理論的に合っているのかどうかはわかりません…、すみません。)\n\n具体的にはdocvecs.most_similarを以下のように拡張しました。\n\n\n```py3\n    def most_similar_with_words(self, positive=[], negative=[],\n                                positive_word=[], negative_word=[], topn=10,\n                                clip_start=0, clip_end=None, word2vec_model=None):\n        self.init_sims()\n\n        clip_end = clip_end or len(self.doctag_syn0norm)\n\n        if isinstance(positive, string_types + integer_types) and not negative:\n            # allow calls like most_similar(&#39;dog&#39;), as a shorthand for most_similar([&#39;dog&#39;])\n            positive = [positive]\n\n        # add weights for each doc, if not already present; default to 1.0 for positive and -1.0 for negative docs\n        positive = [\n            (doc, 1.0) if isinstance(doc, string_types + (ndarray,) + integer_types)\n            else doc for doc in positive\n        ]\n        negative = [\n            (doc, -1.0) if isinstance(doc, string_types + (ndarray,) + integer_types)\n            else doc for doc in negative\n        ]\n\n        # compute the weighted average of all docs\n        all_docs, mean = set(), []\n        for doc, weight in positive + negative:\n            if isinstance(doc, ndarray):\n                mean.append(weight * doc)\n            elif doc in self.doctags or doc \u003c self.count:\n                mean.append(weight * self.doctag_syn0norm[self._int_index(doc)])\n                all_docs.add(self._int_index(doc))\n            else:\n                raise KeyError(\&quot;doc &#39;%s&#39; not in trained set\&quot; % doc)\n\n        ###### 独自実装ここから\n        if word2vec_model:\n            word2vec_model.init_sims()\n\n        positive_word = [\n            (word, 1.0) if isinstance(word, string_types + (ndarray,)) else word\n            for word in positive_word\n        ]\n        negative_word = [\n            (word, -1.0) if isinstance(word, string_types + (ndarray,)) else word\n            for word in negative_word\n        ]\n\n        for word, weight in positive_word + negative_word:\n            if isinstance(word, ndarray):\n                mean.append(weight * word)\n            elif word in word2vec_model.vocab:\n                mean.append(weight * word2vec_model.syn0norm[word2vec_model.vocab[word].index])\n            else:\n                raise KeyError(\&quot;word &#39;%s&#39; not in vocabulary\&quot; % word)\n        ###### 独自実装ここまで\n\n        if not mean:\n            raise ValueError(\&quot;cannot compute similarity with no input\&quot;)\n        mean = matutils.unitvec(array(mean).mean(axis=0)).astype(REAL)\n\n        dists = dot(self.doctag_syn0norm[clip_start:clip_end], mean)\n        if not topn:\n            return dists\n        best = matutils.argsort(dists, topn=topn + len(all_docs), reverse=True)\n        # ignore (don&#39;t return) docs from the input\n        result = [(self.index_to_doctag(sim), float(dists[sim])) for sim in best if sim not in all_docs]\n        return result[:topn]\n```\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146#comment-c6e1423c83af00defbe4&quot;,&quot;user&quot;:{&quot;contribution&quot;:774,&quot;created_at&quot;:&quot;2015-11-10T16:19:02+09:00&quot;,&quot;id&quot;:99986,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;naotaka1128&quot;},&quot;uuid&quot;:&quot;c6e1423c83af00defbe4&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cblockquote\u003e\n\u003cp\u003einfer_vector を使うとどうやら単語のリストをドキュメントベクトルに変換できるがイマイチ精度が悪いような気も\u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e\u003ccode\u003einfer_vector\u003c/code\u003e は私も試してみましたが、微妙でした。\u003cbr\u003e\n学習したモデルで新しい文書の内容を推測するので、仕方ないのだと思います。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2016-12-27T22:42:13+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:708089,&quot;is_team&quot;:false,&quot;item_id&quot;:452597,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;2c4551abfd40e43b0146&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;\u003e infer_vector を使うとどうやら単語のリストをドキュメントベクトルに変換できるがイマイチ精度が悪いような気も\n\n``` infer_vector``` は私も試してみましたが、微妙でした。\n学習したモデルで新しい文書の内容を推測するので、仕方ないのだと思います。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146#comment-038b053c69e56984959d&quot;,&quot;user&quot;:{&quot;contribution&quot;:774,&quot;created_at&quot;:&quot;2015-11-10T16:19:02+09:00&quot;,&quot;id&quot;:99986,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;naotaka1128&quot;},&quot;uuid&quot;:&quot;038b053c69e56984959d&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:452597,&quot;uuid&quot;:&quot;2c4551abfd40e43b0146&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;naotaka1128&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:99986,&quot;url_name&quot;:&quot;naotaka1128&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518&quot;},{&quot;id&quot;:1834,&quot;url_name&quot;:&quot;naoya@github&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/1834/profile-images/1473683892&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-6aed3149-1141-4a4d-af1d-79b3f4061569"></div>
+    <div id="CommentListContainer-react-component-6aed3149-1141-4a4d-af1d-79b3f4061569"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="dD1r8BErqdzy2sG6A5xh0jZ0wt/IkyqPWwP0EyQJLcpdfxj/wchXRa/SfiFS3drcediOEQSHuAReDlJ73TJ46A==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/naotaka1128/items/2c4551abfd40e43b0146" /><input type="hidden" name="item_uuid" id="item_uuid" value="2c4551abfd40e43b0146" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/naotaka1128/items/2c4551abfd40e43b0146", "id": 452597, "uuid": "2c4551abfd40e43b0146" }</script><script class="js-user" type="application/json">{&quot;id&quot;:99986,&quot;url_name&quot;:&quot;naotaka1128&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/99986/profile-images/1484449518&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="BTTwqQ6mnsKEZB37Np36jT2v67UCtrVZ5UWFiWovBj8sdoOm3kVgW9lsomBn3EGDcgOne86iJ9LgSCPhkxRTHQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/naotaka1128/items/2c4551abfd40e43b0146" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-71142098-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

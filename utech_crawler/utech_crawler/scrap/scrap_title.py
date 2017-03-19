@@ -9,4 +9,4 @@ class ScrapTitle:
                 soup = BeautifulSoup(res, "html.parser")
                 self.title = soup.find("title")
         def output(self):
-                print (self.title.string)
+                return self.title.string

@@ -1,0 +1,504 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="この記事はGoogleが公開した機械学習フレームワークのTensorFlowを使って画像認識を試してみたときのセットアップ手順と画像認識結果について記載しています。公式ドキュメントのチュートリアルではいくつかハマりどころがあったのでそこの解決策も折り込んでいます。
+
+画像認識はあくまでもTensorFlowの用途の一つであり、この記事はTesnorFlowの本質や機械学習というテーマを深堀するというより、現在の画像認識のレベルとそのテクノロジーが身近になっているというと..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="nkjm" name="twitter:creator" /><meta content="Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+この記事はGoogleが公開した機械学習フレームワークのTensorFlowを使って画像認識を試してみたときのセットアップ手順と画像認識結果について記載しています。公式ドキュメントのチュートリアルではいくつかハマりどころがあったので..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="l8E4zeP3CXBjAF+ZARzDmnQfUHT9YhkN7eJeRjr+Qv+J8H9RTSiFDvemFvKAvUa7Rv+3fUedNjfrZT3BmZEU0Q==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"nkjm","type":"items","id":"a2dada74d48b29f0e5f4"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-27043d4d-1e8f-4660-9e67-df9120575c82"></div>
+    <div id="HeaderContainer-react-component-27043d4d-1e8f-4660-9e67-df9120575c82"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/TensorFlow",        "name": "TensorFlow"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで</h1><ul class="TagList"><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="2"><a class="u-link-unstyled TagList__label" href="/tags/ImageNet"><img alt="ImageNet" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>ImageNet</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">147</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:147,&quot;uuid&quot;:&quot;a2dada74d48b29f0e5f4&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="horihiro"><a itemprop="url" href="/horihiro"><img alt="horihiro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90361/profile-images/1473705065" /></a></li><li class="js-hovercard" data-hovercard-target-name="yasushiyy"><a itemprop="url" href="/yasushiyy"><img alt="yasushiyy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32627/profile-images/1473685943" /></a></li><li class="js-hovercard" data-hovercard-target-name="kota777"><a itemprop="url" href="/kota777"><img alt="kota777" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26240/profile-images/1473928886" /></a></li><li class="js-hovercard" data-hovercard-target-name="sobeit@github"><a itemprop="url" href="/sobeit@github"><img alt="sobeit@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5315/profile-images/1473681890" /></a></li><li class="js-hovercard" data-hovercard-target-name="MikamiHiroaki"><a itemprop="url" href="/MikamiHiroaki"><img alt="MikamiHiroaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/111070/profile-images/1473711441" /></a></li><li class="js-hovercard" data-hovercard-target-name="ytkumasan"><a itemprop="url" href="/ytkumasan"><img alt="ytkumasan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55791/profile-images/1473693792" /></a></li><li class="js-hovercard" data-hovercard-target-name="letusfly85"><a itemprop="url" href="/letusfly85"><img alt="letusfly85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49547/profile-images/1473691769" /></a></li><li class="js-hovercard" data-hovercard-target-name="nishiuke"><a itemprop="url" href="/nishiuke"><img alt="nishiuke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72313/profile-images/1488232747" /></a></li><li class="js-hovercard" data-hovercard-target-name="ogamiki"><a itemprop="url" href="/ogamiki"><img alt="ogamiki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108610/profile-images/1473710608" /></a></li><li class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></li><li><a href="/nkjm/items/a2dada74d48b29f0e5f4/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/nkjm"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26079/profile-images/1473684490" alt="1473684490" /></a> <a class="u-link-unstyled" href="/nkjm">nkjm</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-02-12T11:12:04+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-02-12">Edited at <time datetime="2016-02-12T12:05:33+09:00" itemprop="dateModified">2016-02-12</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/nkjm/items/a2dada74d48b29f0e5f4/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">6</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/nkjm/items/a2dada74d48b29f0e5f4/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(6)</span></a></li><li><a href="/nkjm/items/a2dada74d48b29f0e5f4.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-a2dada74d48b29f0e5f4" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>この記事はGoogleが公開した機械学習フレームワークのTensorFlowを使って画像認識を試してみたときのセットアップ手順と画像認識結果について記載しています。公式ドキュメントのチュートリアルではいくつかハマりどころがあったのでそこの解決策も折り込んでいます。</p>
+
+<p>画像認識はあくまでもTensorFlowの用途の一つであり、この記事はTesnorFlowの本質や機械学習というテーマを深堀するというより、現在の画像認識のレベルとそのテクノロジーが身近になっているというところをお伝えすることに重きを置いています。</p>
+
+<h2>
+<span id="tensorflowとは" class="fragment"></span><a href="#tensorflow%E3%81%A8%E3%81%AF"><i class="fa fa-link"></i></a>TensorFlowとは？</h2>
+
+<p>TensorFlowはいわゆる機械学習のフレームワークです。<br>
+特にニューラルネットワークの敷居を下げるフレームワークとして注目されているようです。</p>
+
+<p>とはいってもここではDeep Learning/深層学習、ニューラルネットワークといった機械学習の仕組みには深入りせず、このTensorFlowというフレームワークを使って何ができるのか、そしてそのセットアップ手順を簡単にまとめたいと思います。</p>
+
+<h2>
+<span id="tensorflowでできること" class="fragment"></span><a href="#tensorflow%E3%81%A7%E3%81%A7%E3%81%8D%E3%82%8B%E3%81%93%E3%81%A8"><i class="fa fa-link"></i></a>TensorFlowでできること</h2>
+
+<p>ニューラルネットワークでできることは多岐にわたると思いますが、一般的にインパクトが強いものの一つが画像認識だと思います。</p>
+
+<ul>
+<li>手書き文字認識</li>
+<li>写真から写っているものを認識</li>
+</ul>
+
+<p>顔認識についてはすでにMacOS XのPhotoやFacebookといった普及しているソフトウェア・サービスで実装されていることから馴染み深いものになっています。</p>
+
+<p>しかし現代のニューラルネットワークの技術では人間が写真をみて「何が写っている」と判断するのとかなり近しいレベルで被写体を認識することができるようになっています。</p>
+
+<p>これは昨年のTEDでのフェイ・フェイ・リーさんのプレゼンテーションで多くの人に認知されるようになったように思います。<br>
+<a href="https://www.ted.com/talks/fei_fei_li_how_we_re_teaching_computers_to_understand_pictures?language=ja" rel="nofollow noopener" target="_blank">コンピューターが写真を理解するようになるまで</a></p>
+
+<p>TensorFlowではまさに上記のImageNetという学習データを使った画像認識が可能です。<br>
+しかも、通常ニューラルネットワークの環境は依存関係が複雑でセットアップにかなり苦労するものが多いように思いますが、TensorFlowのセットアップが比較的容易です。</p>
+
+<p>ほぼ公式ドキュメントに従うことでセットアップできますが、ちょっとしたコツが必要な部分もあったのでそこも含めてまとめておきたいと思います。</p>
+
+<h2>
+<span id="環境" class="fragment"></span><a href="#%E7%92%B0%E5%A2%83"><i class="fa fa-link"></i></a>環境</h2>
+
+<ul>
+<li>OS: MacOS X El Capitan</li>
+<li>Python: 2.7</li>
+<li>TensorFlow: 0.6.0 (2016/2/12時点で最新)</li>
+<li>GPU: 利用しない</li>
+</ul>
+
+<h2>
+<span id="インストール手順" class="fragment"></span><a href="#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%89%8B%E9%A0%86"><i class="fa fa-link"></i></a>インストール手順</h2>
+
+<p>TensorFlowはpipを使ったインストールが超簡単、というもっぱらの噂でしたが、実際にはpipパッケージは更新が遅れており、Tutorialを進めると不具合がでてきます。なので今回はbazelを使ってソースからビルドします。</p>
+
+<blockquote>
+<p>bazelはGoogleが提供しているビルドツールです。</p>
+</blockquote>
+
+<p>まずビルドに必要になるbazelとswigをhomebrewでインストールします。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+$ brew install bazel swig
+</pre></div></div>
+
+<p>もし手元の環境にpipとvirtualenvがインストールされていなければ、インストールしておきます。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+$ sudo easy_install pip
+$ sudo pip install --upgrade virtualenv
+</pre></div></div>
+
+<p>virtualenvでTensorFlow用の独立したpythonの実行空間を作成します。<br>
+下記ではユーザーのホームディレクトリ直下に作成していますが、適宜変更してください。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+$ virtualenv --system-site-packages ~/tensorflow
+</pre></div></div>
+
+<p>作成した独立実行空間を現在のシェルで有効化するため、activateファイルを読み込みます。今回はbashを利用している前提です。成功するとプロンプトが変わります。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+$ source ~/tensorflow/bin/activate
+(tensorflow)$ 
+</pre></div></div>
+
+<p>いくつかの依存関係をpipでインストールします。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ pip install six
+(tensorflow)$ pip install numpy
+(tensorflow)$ pip install wheel
+(tensorflow)$ pip install ipython
+</pre></div></div>
+
+<p>TensorFlowのGithubレポジトリからソースをダウンロードします。<br>
+このレポジトリ外にあるsubmoduleを必要とするので--recurse-submodulesオプションを指定していることに注意してください。ブランチはv0.6.0を指定しています。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ git clone -b v0.6.0 --recurse-submodules https://github.com/tensorflow/tensorflow.git
+</pre></div></div>
+
+<p>ダウンロードしたソース直下に移動し、configureスクリプトを実行します。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ cd tensorflow/
+(tensorflow)$ ./configure
+</pre></div></div>
+
+<p>ソースをビルドします。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+</pre></div></div>
+
+<p>一旦pipパッケージ化します。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+</pre></div></div>
+
+<p>作成したpipパッケージをインストールします。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ pip install /tmp/tensorflow_pkg/tensorflow-0.6.0-py2-none-any.whl
+</pre></div></div>
+
+<p>これでほぼインストールは完了なのですが、今回はImageNetのトレーニングデータを使った画像認識をおこないたいので、それを追加でインストールします。まずソースに含まれるimagenetディレクトリをvirtualenvで作成した独立実行空間配下にコピーします。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ cp -a tensorflow/models/image/imagenet ~/tensorflow/lib/python2.7/site-packages/tensorflow/models/image/
+</pre></div></div>
+
+<p>コピーしたディレクトリに移動し、classify_image.pyスクリプトを実行します。<br>
+初回実行時には必要なデータがダウンロードされ、最後にサンプルとして用意されているパンダの画像の解析が実行されます。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ cd ~/tensorflow/lib/python2.7/site-packages/tensorflow/models/image/imagenet/
+(tensorflow)$ python classify_image.py
+
+giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca (score = 0.89233)
+indri, indris, Indri indri, Indri brevicaudatus (score = 0.00859)
+lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens (score = 0.00264)
+custard apple (score = 0.00141)
+earthstar (score = 0.00107)
+
+(tensorflow)$
+</pre></div></div>
+
+<p>上記のような結果がでていれば成功です。結果はジャイアントパンダで信頼度は89%とのこと。</p>
+
+<p>任意の画像を解析するには下記のように--image_fileオプションで画像ファイルを指定します。</p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow)$ python classify_image.py --image_file [画像ファイル]
+</pre></div></div>
+
+<p>ではいくつかのチャレンジをおこなってみましょう。<br>
+まず、蒔ストーブ。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/26079/ef75a5b4-8ddd-0015-9b3d-194b55a6b88e.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/26079/ef75a5b4-8ddd-0015-9b3d-194b55a6b88e.jpeg" alt="IMG_4401.jpg" title="IMG_4401.jpg"></a></p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow) $ python classify_image.py --image_file IMG_4401.jpg
+stove (score = 0.99893)
+fire screen, fireguard (score = 0.00040)
+space heater (score = 0.00016)
+rotisserie (score = 0.00003)
+table lamp (score = 0.00002)
+
+(tensorflow) $
+</pre></div></div>
+
+<p>99%でストーブである、ということでバッチリ正解です。</p>
+
+<p>次にウィスキーの白州を。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/26079/73e12514-7a93-16f0-ef41-4d8ac0cecf68.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/26079/73e12514-7a93-16f0-ef41-4d8ac0cecf68.jpeg" alt="IMG_4403.jpg" title="IMG_4403.jpg"></a></p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow) $ python classify_image.py --image_file IMG_4403.jpg
+beer bottle (score = 0.51731)
+wine bottle (score = 0.44079)
+red wine (score = 0.01136)
+pop bottle, soda bottle (score = 0.00297)
+corkscrew, bottle screw (score = 0.00082)
+
+(tensorflow) $
+</pre></div></div>
+
+<p>結果は51%でビールのボトルとのこと。惜しい！が、ちゃんと信頼度51%としているところが謙虚です。</p>
+
+<p>最後にテラスで犬を。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/26079/5e4eefa7-ce08-a29d-798e-d04e1feb2d5b.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/26079/5e4eefa7-ce08-a29d-798e-d04e1feb2d5b.jpeg" alt="IMG_4406.JPG" title="IMG_4406.JPG"></a></p>
+
+<div class="code-frame" data-lang="Terminal"><div class="highlight"><pre>
+(tensorflow) $ python classify_image.py --image_file IMG_4406.jpg
+golden retriever (score = 0.23980)
+Irish setter, red setter (score = 0.12932)
+cocker spaniel, English cocker spaniel, cocker (score = 0.11191)
+rocking chair, rocker (score = 0.03784)
+folding chair (score = 0.03034)
+
+(tensorflow) $ 
+</pre></div></div>
+
+<p>ゴールデンレトリバーではないですが、確かに人間がみてもダックスとゴールデンレトリバーは似ている。しかも椅子まで認識してくれており、その中で中心となる被写体が犬だとわかっているところがすごい。</p>
+
+<h2>
+<span id="まとめ" class="fragment"></span><a href="#%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>まとめ</h2>
+
+<p>TensorFlowはGPUが搭載されていないマシンでも動作し、かつセットアップも難しくありません。それでいてImageNetのような学習データを利用して最先端の画像認識システムを手元で構築できます。</p>
+
+<p>他にもChainerなどいくつかのフレームワークがありますが、Googleが提供しているということもあり、2016/2/12現在、最も注目のフレームワークの一つだと思います。</p>
+
+<p><a href="https://cloud.google.com/vision/" rel="nofollow noopener" target="_blank">Google Cloud Vision API</a>はおそらくこの仕組みをコアに利用していると思うので、APIベースで画像認識機能を試してみたい人はこちらの限定プレビュープログラムにサインアップしてみるのもナイスアイデアでしょう。</p>
+
+<h2>
+<span id="参考サイト" class="fragment"></span><a href="#%E5%8F%82%E8%80%83%E3%82%B5%E3%82%A4%E3%83%88"><i class="fa fa-link"></i></a>参考サイト</h2>
+
+<ul>
+<li>公式ドキュメントのソースからインストールする方法 - <a href="https://www.tensorflow.org/versions/v0.6.0/get_started/os_setup.html#source" rel="nofollow noopener" target="_blank">TensorFlow - Installing from sources</a>
+</li>
+<li>もしprotobufのバージョンでエラーがでたら - <a href="http://qiita.com/light14/items/31ee6ff5f7823bab917f" id="reference-7a8f240e6ddfb5115f84">MacでTensorFlowのTypeError: <strong>init</strong>() got an unexpected keyword argument 'syntax'を解決する</a>
+</li>
+</ul>
+<div class="hidden"><form class="js-task-list-update" action="/nkjm/items/a2dada74d48b29f0e5f4" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="SjnoS3bVeyr+mzQ2kNydSoi8njexyX+Vca3tNb/XKf5UCK/X2Ar3VGo9fV0RfRhrulx5Pgs2UK93Ko6yHLh/0A==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1455246333" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+この記事はGoogleが公開した機械学習フレームワークのTensorFlowを使って画像認識を試してみたときのセットアップ手順と画像認識結果について記載しています。公式ドキュメントのチュートリアルではいくつかハマりどころがあったのでそこの解決策も折り込んでいます。
+
+画像認識はあくまでもTensorFlowの用途の一つであり、この記事はTesnorFlowの本質や機械学習というテーマを深堀するというより、現在の画像認識のレベルとそのテクノロジーが身近になっているというところをお伝えすることに重きを置いています。
+
+
+## TensorFlowとは？
+
+TensorFlowはいわゆる機械学習のフレームワークです。
+特にニューラルネットワークの敷居を下げるフレームワークとして注目されているようです。
+
+とはいってもここではDeep Learning/深層学習、ニューラルネットワークといった機械学習の仕組みには深入りせず、このTensorFlowというフレームワークを使って何ができるのか、そしてそのセットアップ手順を簡単にまとめたいと思います。
+
+
+## TensorFlowでできること
+
+ニューラルネットワークでできることは多岐にわたると思いますが、一般的にインパクトが強いものの一つが画像認識だと思います。
+
+- 手書き文字認識
+- 写真から写っているものを認識
+
+顔認識についてはすでにMacOS XのPhotoやFacebookといった普及しているソフトウェア・サービスで実装されていることから馴染み深いものになっています。
+
+しかし現代のニューラルネットワークの技術では人間が写真をみて「何が写っている」と判断するのとかなり近しいレベルで被写体を認識することができるようになっています。
+
+これは昨年のTEDでのフェイ・フェイ・リーさんのプレゼンテーションで多くの人に認知されるようになったように思います。
+[コンピューターが写真を理解するようになるまで](https://www.ted.com/talks/fei_fei_li_how_we_re_teaching_computers_to_understand_pictures?language=ja)
+
+TensorFlowではまさに上記のImageNetという学習データを使った画像認識が可能です。
+しかも、通常ニューラルネットワークの環境は依存関係が複雑でセットアップにかなり苦労するものが多いように思いますが、TensorFlowのセットアップが比較的容易です。
+
+ほぼ公式ドキュメントに従うことでセットアップできますが、ちょっとしたコツが必要な部分もあったのでそこも含めてまとめておきたいと思います。
+
+
+## 環境
+- OS: MacOS X El Capitan
+- Python: 2.7
+- TensorFlow: 0.6.0 (2016/2/12時点で最新)
+- GPU: 利用しない
+
+
+## インストール手順
+
+TensorFlowはpipを使ったインストールが超簡単、というもっぱらの噂でしたが、実際にはpipパッケージは更新が遅れており、Tutorialを進めると不具合がでてきます。なので今回はbazelを使ってソースからビルドします。
+
+&gt; bazelはGoogleが提供しているビルドツールです。
+
+まずビルドに必要になるbazelとswigをhomebrewでインストールします。
+
+```Terminal
+$ brew install bazel swig
+```
+
+もし手元の環境にpipとvirtualenvがインストールされていなければ、インストールしておきます。
+
+```Terminal
+$ sudo easy_install pip
+$ sudo pip install --upgrade virtualenv
+```
+
+virtualenvでTensorFlow用の独立したpythonの実行空間を作成します。
+下記ではユーザーのホームディレクトリ直下に作成していますが、適宜変更してください。
+
+```Terminal
+$ virtualenv --system-site-packages ~/tensorflow
+```
+
+作成した独立実行空間を現在のシェルで有効化するため、activateファイルを読み込みます。今回はbashを利用している前提です。成功するとプロンプトが変わります。
+
+```Terminal
+$ source ~/tensorflow/bin/activate
+(tensorflow)$ 
+```
+
+いくつかの依存関係をpipでインストールします。
+
+```Terminal
+(tensorflow)$ pip install six
+(tensorflow)$ pip install numpy
+(tensorflow)$ pip install wheel
+(tensorflow)$ pip install ipython
+```
+
+TensorFlowのGithubレポジトリからソースをダウンロードします。
+このレポジトリ外にあるsubmoduleを必要とするので--recurse-submodulesオプションを指定していることに注意してください。ブランチはv0.6.0を指定しています。
+
+```Terminal
+(tensorflow)$ git clone -b v0.6.0 --recurse-submodules https://github.com/tensorflow/tensorflow.git
+```
+
+ダウンロードしたソース直下に移動し、configureスクリプトを実行します。
+
+```Terminal
+(tensorflow)$ cd tensorflow/
+(tensorflow)$ ./configure
+```
+
+ソースをビルドします。
+
+```Terminal
+(tensorflow)$ bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+```
+
+一旦pipパッケージ化します。
+
+```Terminal
+(tensorflow)$ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+```
+
+作成したpipパッケージをインストールします。
+
+```Terminal
+(tensorflow)$ pip install /tmp/tensorflow_pkg/tensorflow-0.6.0-py2-none-any.whl
+```
+
+これでほぼインストールは完了なのですが、今回はImageNetのトレーニングデータを使った画像認識をおこないたいので、それを追加でインストールします。まずソースに含まれるimagenetディレクトリをvirtualenvで作成した独立実行空間配下にコピーします。
+
+```Terminal
+(tensorflow)$ cp -a tensorflow/models/image/imagenet ~/tensorflow/lib/python2.7/site-packages/tensorflow/models/image/
+```
+
+コピーしたディレクトリに移動し、classify_image.pyスクリプトを実行します。
+初回実行時には必要なデータがダウンロードされ、最後にサンプルとして用意されているパンダの画像の解析が実行されます。
+
+```Terminal
+(tensorflow)$ cd ~/tensorflow/lib/python2.7/site-packages/tensorflow/models/image/imagenet/
+(tensorflow)$ python classify_image.py
+
+giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca (score = 0.89233)
+indri, indris, Indri indri, Indri brevicaudatus (score = 0.00859)
+lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens (score = 0.00264)
+custard apple (score = 0.00141)
+earthstar (score = 0.00107)
+
+(tensorflow)$
+```
+
+上記のような結果がでていれば成功です。結果はジャイアントパンダで信頼度は89%とのこと。
+
+任意の画像を解析するには下記のように--image_fileオプションで画像ファイルを指定します。
+
+```Terminal
+(tensorflow)$ python classify_image.py --image_file [画像ファイル]
+```
+
+ではいくつかのチャレンジをおこなってみましょう。
+まず、蒔ストーブ。
+![IMG_4401.jpg](https://qiita-image-store.s3.amazonaws.com/0/26079/ef75a5b4-8ddd-0015-9b3d-194b55a6b88e.jpeg &quot;IMG_4401.jpg&quot;)
+
+```Terminal
+(tensorflow) $ python classify_image.py --image_file IMG_4401.jpg
+stove (score = 0.99893)
+fire screen, fireguard (score = 0.00040)
+space heater (score = 0.00016)
+rotisserie (score = 0.00003)
+table lamp (score = 0.00002)
+
+(tensorflow) $
+```
+
+99%でストーブである、ということでバッチリ正解です。
+
+次にウィスキーの白州を。
+![IMG_4403.jpg](https://qiita-image-store.s3.amazonaws.com/0/26079/73e12514-7a93-16f0-ef41-4d8ac0cecf68.jpeg &quot;IMG_4403.jpg&quot;)
+
+```Terminal
+(tensorflow) $ python classify_image.py --image_file IMG_4403.jpg
+beer bottle (score = 0.51731)
+wine bottle (score = 0.44079)
+red wine (score = 0.01136)
+pop bottle, soda bottle (score = 0.00297)
+corkscrew, bottle screw (score = 0.00082)
+
+(tensorflow) $
+```
+
+結果は51%でビールのボトルとのこと。惜しい！が、ちゃんと信頼度51%としているところが謙虚です。
+
+最後にテラスで犬を。
+![IMG_4406.JPG](https://qiita-image-store.s3.amazonaws.com/0/26079/5e4eefa7-ce08-a29d-798e-d04e1feb2d5b.jpeg &quot;IMG_4406.JPG&quot;)
+
+```Terminal
+(tensorflow) $ python classify_image.py --image_file IMG_4406.jpg
+golden retriever (score = 0.23980)
+Irish setter, red setter (score = 0.12932)
+cocker spaniel, English cocker spaniel, cocker (score = 0.11191)
+rocking chair, rocker (score = 0.03784)
+folding chair (score = 0.03034)
+
+(tensorflow) $ 
+```
+
+ゴールデンレトリバーではないですが、確かに人間がみてもダックスとゴールデンレトリバーは似ている。しかも椅子まで認識してくれており、その中で中心となる被写体が犬だとわかっているところがすごい。
+
+
+## まとめ
+
+TensorFlowはGPUが搭載されていないマシンでも動作し、かつセットアップも難しくありません。それでいてImageNetのような学習データを利用して最先端の画像認識システムを手元で構築できます。
+
+他にもChainerなどいくつかのフレームワークがありますが、Googleが提供しているということもあり、2016/2/12現在、最も注目のフレームワークの一つだと思います。
+
+[Google Cloud Vision API](https://cloud.google.com/vision/)はおそらくこの仕組みをコアに利用していると思うので、APIベースで画像認識機能を試してみたい人はこちらの限定プレビュープログラムにサインアップしてみるのもナイスアイデアでしょう。
+
+
+
+## 参考サイト
+- 公式ドキュメントのソースからインストールする方法 - [TensorFlow - Installing from sources](https://www.tensorflow.org/versions/v0.6.0/get_started/os_setup.html#source)
+- もしprotobufのバージョンでエラーがでたら - [MacでTensorFlowのTypeError: __init__() got an unexpected keyword argument &#39;syntax&#39;を解決する](http://qiita.com/light14/items/31ee6ff5f7823bab917f)
+
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで by @nkjm on @Qiita" data-url="http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで" href="http://b.hatena.ne.jp/entry/http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/nkjm"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/26079/profile-images/1473684490" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/nkjm">nkjm</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">871</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;nkjm&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-7d02cb97-7a31-4037-8f4a-ae5b4210dace"></div>
+    <div id="UserFollowButton-react-component-7d02cb97-7a31-4037-8f4a-ae5b4210dace"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/nkjm/items/723990c518acfee6e473">ゼロからはじめるExpress + Node.jsを使ったアプリ開発</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/nkjm/items/a2dada74d48b29f0e5f4">Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/nkjm/items/2016e331f74f1b8ab465">Express + Node.jsで基本を理解した次の一歩 - ディレクトリ構成をルーティング・ミドルウェアを理解して考えてみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/nkjm/items/858b7e4a65eb2ebbaf65">AIが入ったBotを高速開発するフレームワーク：bot-expressの概要と使い方</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/nkjm/items/0e9d24b2f3429bd33c8d">AIが入ったBotの作り方を学ぼう - Part1 概要と開発環境のセットアップ</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/oracle"><img alt="日本オラクル株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/30955fa7f039a85c449ff480a2a7dbc5d9ff5ab0/original.jpg?1452145683" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tensorflow%E3%81%A8%E3%81%AF\&quot;\u003eTensorFlowとは？\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#tensorflow%E3%81%A7%E3%81%A7%E3%81%8D%E3%82%8B%E3%81%93%E3%81%A8\&quot;\u003eTensorFlowでできること\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%92%B0%E5%A2%83\&quot;\u003e環境\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E6%89%8B%E9%A0%86\&quot;\u003eインストール手順\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eまとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%82%E8%80%83%E3%82%B5%E3%82%A4%E3%83%88\&quot;\u003e参考サイト\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-94fef316-e54a-459e-b21c-b4e5d6811e81"></div>
+    <div id="Toc-react-component-94fef316-e54a-459e-b21c-b4e5d6811e81"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:147,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;a2dada74d48b29f0e5f4&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="horihiro"><a itemprop="url" href="/horihiro"><img alt="horihiro" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/90361/profile-images/1473705065" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="yasushiyy"><a itemprop="url" href="/yasushiyy"><img alt="yasushiyy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32627/profile-images/1473685943" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="kota777"><a itemprop="url" href="/kota777"><img alt="kota777" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26240/profile-images/1473928886" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="sobeit@github"><a itemprop="url" href="/sobeit@github"><img alt="sobeit@github" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/5315/profile-images/1473681890" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="MikamiHiroaki"><a itemprop="url" href="/MikamiHiroaki"><img alt="MikamiHiroaki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/111070/profile-images/1473711441" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ytkumasan"><a itemprop="url" href="/ytkumasan"><img alt="ytkumasan" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/55791/profile-images/1473693792" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="letusfly85"><a itemprop="url" href="/letusfly85"><img alt="letusfly85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49547/profile-images/1473691769" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="nishiuke"><a itemprop="url" href="/nishiuke"><img alt="nishiuke" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/72313/profile-images/1488232747" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ogamiki"><a itemprop="url" href="/ogamiki"><img alt="ogamiki" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108610/profile-images/1473710608" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></div></div><div class="ArticleFooter__user"><a href="/nkjm/items/a2dada74d48b29f0e5f4/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/a2dada74d48b29f0e5f4/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/nkjm/items/a2dada74d48b29f0e5f4.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/nkjm/items/4abf36620625e197e523#_reference-f9e5f8bc3030c1c8fac6"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/26079/profile-images/1473684490" />TensorFlowでImageNetの学習データを使った画像認識をおこなうためのセットアップ手順　- Linux(Ubuntu) GPU版</a><time class="references_datetime js-dateTimeView" datetime="2016-02-15T23:31:20+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/negabaro/items/6aeb68befbe4b40b7049#_reference-574cf6659591f71a5fb9"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/60120/profile-images/1473695135" />TensorFlow入門 - 画像認識編</a><time class="references_datetime js-dateTimeView" datetime="2016-07-10T06:48:49+00:00">8 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで by @nkjm on @Qiita" data-url="http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Googleの機械学習フレームワーク「TensorFlow」でImageNetの学習データを使った画像認識を試してみた - TensorFlowのインストールから画像認識まで" href="http://b.hatena.ne.jp/entry/http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:368791,&quot;uuid&quot;:&quot;a2dada74d48b29f0e5f4&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;nkjm&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:26079,&quot;url_name&quot;:&quot;nkjm&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/26079/profile-images/1473684490&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-2981a17f-34a7-48d1-a447-6477fc4b67ee"></div>
+    <div id="CommentListContainer-react-component-2981a17f-34a7-48d1-a447-6477fc4b67ee"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="GpoA/vtvknssFKSUCwwhcvPNNpT2scxWcXg73RjKarYEq0diVbAeBbiy7f+KraRTwS3RnUxO42x3/1hau6U8mA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/nkjm/items/a2dada74d48b29f0e5f4" /><input type="hidden" name="item_uuid" id="item_uuid" value="a2dada74d48b29f0e5f4" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/nkjm/items/a2dada74d48b29f0e5f4", "id": 368791, "uuid": "a2dada74d48b29f0e5f4" }</script><script class="js-user" type="application/json">{&quot;id&quot;:26079,&quot;url_name&quot;:&quot;nkjm&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/26079/profile-images/1473684490&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="5//z3viT5l8Nuf2TdKAmzOmCPwwb3aC7FH75q6w2ztP5zrRCVkxqIZkftPj1AaPt22LYBaEij4ES+ZosD1mY/Q==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/nkjm/items/a2dada74d48b29f0e5f4" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-79661918-1', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

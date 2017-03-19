@@ -1,0 +1,768 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>Convolutional Neural Networkを実装する - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="Deep Learning系のライブラリを試すのが流行っていますが、Exampleを動かすのはいいとしても、いざ実際のケースで使おうとするとうまくいかないことがよくあります。
+
+なんとか動かしてみたけれど精度が出ない、データの加工の仕方が悪いのか、モデルのパラメーターが悪いのか、原因がぜんぜんわからん・・・という事態を乗り越えるには、やはり仕組みに対する理解が必要になってきます。
+
+そんなわけで、本編では画像の用意という一番最初のスタートラインから、Chainerで実装..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="icoxfog417" name="twitter:creator" /><meta content="Convolutional Neural Networkを実装する - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="Deep Learning系のライブラリを試すのが流行っていますが、Exampleを動かすのはいいとしても、いざ実際のケースで使おうとするとうまくいかないことがよくあります。
+
+なんとか動かしてみたけれど精度が出ない、データの加工の仕..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="FhxWY1XW+9UkMaoKTXfILvvJNdda6b/JGKRUD6tUZiBN0htZZcpecvjPeLfGvuoFl9NXGvKNVeUI4yZXehD6yQ==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"icoxfog417","type":"items","id":"5aa1b3f87bb294f84bac"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-5d34f262-1e2d-4283-b80b-4dc9f79a7b74"></div>
+    <div id="HeaderContainer-react-component-5d34f262-1e2d-4283-b80b-4dc9f79a7b74"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92",        "name": "機械学習"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">Convolutional Neural Networkを実装する</h1><ul class="TagList"><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="9910"><a class="u-link-unstyled TagList__label" href="/tags/Python"><img alt="Python" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/28fd3d6b220c89e6197fd82c02fd2fcd2bb66d81/medium.jpg?1383884245" /><span>Python</span></a></li><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">213</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:213,&quot;uuid&quot;:&quot;5aa1b3f87bb294f84bac&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="chareau"><a itemprop="url" href="/chareau"><img alt="chareau" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108734/profile-images/1473710646" /></a></li><li class="js-hovercard" data-hovercard-target-name="letusfly85"><a itemprop="url" href="/letusfly85"><img alt="letusfly85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49547/profile-images/1473691769" /></a></li><li class="js-hovercard" data-hovercard-target-name="dsanno"><a itemprop="url" href="/dsanno"><img alt="dsanno" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/58026/profile-images/1473694517" /></a></li><li class="js-hovercard" data-hovercard-target-name="hnakamur"><a itemprop="url" href="/hnakamur"><img alt="hnakamur" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3227/profile-images/1473682812" /></a></li><li class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></li><li class="js-hovercard" data-hovercard-target-name="vs4sh"><a itemprop="url" href="/vs4sh"><img alt="vs4sh" class="thumb thumb--xs" src="https://si0.twimg.com/profile_images/3211381950/a6def015e917a8498ac95ef9ba51cf90_normal.jpeg" /></a></li><li class="js-hovercard" data-hovercard-target-name="mettoboshi"><a itemprop="url" href="/mettoboshi"><img alt="mettoboshi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42925/profile-images/1473689342" /></a></li><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="toohsk"><a itemprop="url" href="/toohsk"><img alt="toohsk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47270/profile-images/1473690928" /></a></li><li><a href="/icoxfog417/items/5aa1b3f87bb294f84bac/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/icoxfog417"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" alt="1484303516" /></a> <a class="u-link-unstyled" href="/icoxfog417">icoxfog417</a> </div><div class="ArticleAsideHeader__date"><meta content="2016-03-24T14:00:06+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2016-03-24">Edited at <time datetime="2016-04-23T23:52:46+09:00" itemprop="dateModified">2016-04-23</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/icoxfog417/items/5aa1b3f87bb294f84bac/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">7</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/icoxfog417/items/5aa1b3f87bb294f84bac/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(7)</span></a></li><li><a href="/icoxfog417/items/5aa1b3f87bb294f84bac.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-5aa1b3f87bb294f84bac" itemprop="articleBody"><p>Deep Learning系のライブラリを試すのが流行っていますが、Exampleを動かすのはいいとしても、いざ実際のケースで使おうとするとうまくいかないことがよくあります。</p>
+
+<p>なんとか動かしてみたけれど精度が出ない、データの加工の仕方が悪いのか、モデルのパラメーターが悪いのか、原因がぜんぜんわからん・・・という事態を乗り越えるには、やはり仕組みに対する理解が必要になってきます。</p>
+
+<p>そんなわけで、本編では画像の用意という一番最初のスタートラインから、Chainerで実装したCNNを学習させるところまで、行うべき手順とその理由を解説していきたいと思います。<br>
+前段として<a href="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2" id="reference-1e2766fa43d0bc1f8af5">理論編</a>を書いていますが、ここではライブラリなどで設定しているパラメーターが、理論編の側とどのようにマッチするのかについても見ていきたいと思います。</p>
+
+<p>なお、今回紹介するノウハウは下記リポジトリにまとめています。画像認識を行う際に役立てばと思います。</p>
+
+<p><a href="https://github.com/icoxfog417/mlimages" rel="nofollow noopener" target="_blank">icoxfog417/mlimages</a></p>
+
+<h2>
+<span id="データの準備" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>データの準備</h2>
+
+<p>データについては数万件などたくさん用意しないといけないと思われがちですが、最近の画像認識では学習済みのモデルを利用するのが一般的です。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/415f4c19-887c-969f-c550-25939f36e697.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/415f4c19-887c-969f-c550-25939f36e697.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture11.pdf" rel="nofollow noopener" target="_blank">CS231n Lecture11 Training ConvNets in practice, p26</a></p>
+
+<p>学習済みのモデルは「学習させたタスク」しかできないのでは？(例えば猫の検知とか)と思うかもしれませんが、モデルの下層に行くほど画像の基礎的な特徴を抽出する能力が備わっています。<br>
+そのため、下層のレイヤはそのままに、上の方のレイヤだけ学習をさせることで(あるいは付け足すことで)、少ないデータでも識別性能を出すことができます。これをFine Tuning(またはTransfer Learning)と呼びます。</p>
+
+<p>どれくらいのレイヤをそのままにすべきかは、自分の目的とするタスクが元の「学習させたタスク」とどれくらい近いかに依存します。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/ec792d97-51d2-cdbc-dee7-907d9a3fbdad.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/ec792d97-51d2-cdbc-dee7-907d9a3fbdad.png" alt="image"></a><br>
+<a href="http://cs231n.stanford.edu/slides/winter1516_lecture11.pdf" rel="nofollow noopener" target="_blank">CS231n Lecture11 Training ConvNets in practice、p33</a></p>
+
+<p>学習済みのモデルが使えるライブラリで有名なのは、Caffeになります。Caffeを用いたFine Tuningの手法については公式に記載があります。</p>
+
+<p><a href="http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html" rel="nofollow noopener" target="_blank">Fine-tuning CaffeNet for Style Recognition on “Flickr Style” Data</a></p>
+
+<p>ChainerではCaffeのモデルを読み込むことができるので、同様にFine Tuningが可能です。</p>
+
+<p><a href="http://qiita.com/tabe2314/items/6c0c1b769e12ab1e2614" id="reference-86d581a7c25a27b6dd11">Chainerでファインチューニングするときの個人的ベストプラクティス</a></p>
+
+<p>学習する際に、せっかくとってきた学習済みモデルの値を変更したくないときは、<code>volatitle</code>のフラグを使って学習済みの下層部分への誤差伝搬を止めることができます。</p>
+
+<ul>
+<li><a href="https://groups.google.com/forum/#!searchin/chainer/Finetuning/chainer/H4IWqcMBA2w/8cxt58YrBwAJ" rel="nofollow noopener" target="_blank">Chainer model finetuning</a></li>
+<li><a href="https://github.com/pfnet/chainer/issues/724" rel="nofollow noopener" target="_blank">the way of fine-tuning</a></li>
+</ul>
+
+<p>TensorFlowについては以下にチュートリアルがあります。</p>
+
+<ul>
+<li><a href="https://www.tensorflow.org/versions/master/how_tos/image_retraining/index.html" rel="nofollow noopener" target="_blank">How to Retrain Inception's Final Layer for New Categories</a></li>
+</ul>
+
+<p>Caffeのモデルを持ってきたい場合は、一応以下のようなツールがあります。</p>
+
+<p><a href="https://github.com/ethereon/caffe-tensorflow" rel="nofollow noopener" target="_blank">ethereon/caffe-tensorflow</a></p>
+
+<p>このように、先人たちの功績によって集めるべきデータの数はだんだんと少なくなってきています。今回も、学習済みのモデルを格納しておいたので利用してみてください(初めて<a href="https://git-lfs.github.com/" rel="nofollow noopener" target="_blank">git lfs</a>を使った)。</p>
+
+<p><a href="https://github.com/icoxfog417/mlimages/tree/master/examples" rel="nofollow noopener" target="_blank">mlimages/examples</a></p>
+
+<p>ただ、その分自分がベースとして使うモデルがどういうものなのかについての理解がより求められるようになってきている、ともいえます。<br>
+その点については次項で解説するため、ここでは画像データセットとして有名なImageNetからの画像データの取得について簡単に解説しておきます。</p>
+
+<h3>
+<span id="imagenet" class="fragment"></span><a href="#imagenet"><i class="fa fa-link"></i></a><a href="http://www.image-net.org/" rel="nofollow noopener" target="_blank">ImageNet</a>
+</h3>
+
+<p>WordNetという語の概念構造をベースに、画像に対しタグ付けを行っているデータセットです。登録されている語(つまりラベル)の数は10万ほどで、各語に対し1000程度の画像を収集することを目指し活動が行われています。ILSVRC(ImageNet Large Scale Visual Recognition Challenge)で使用されているデータセットとしても有名です。</p>
+
+<p>さて、このデータセットは研究者なら申請して許可が下りれば全部ダウンロードできます。そうでない場合、各ラベルに対する画像のURLは取得できるため、そこから自力で落とすことになります。なお、これ以外に画像特徴量のデータやオブジェクトの境界といったデータも取得可能です。</p>
+
+<p><a href="http://image-net.org/explore" rel="nofollow noopener" target="_blank">ImageNet/Explorer</a></p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/4dd991ac-5acb-c975-8338-aeba6a2504d5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/4dd991ac-5acb-c975-8338-aeba6a2504d5.png" alt="image"></a></p>
+
+<p>Downloadから、画像のURLを取得できます。ただし、リンク切れになっているものも多々あります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/71d485d6-0527-ed38-b28a-da663e3491f2.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/71d485d6-0527-ed38-b28a-da663e3491f2.png" alt="image"></a></p>
+
+<p>リンク切れを回避しながら、なおかつ並列処理でダウンロードしたい、というのが人情なので作っておきました。</p>
+
+<p><a href="https://github.com/icoxfog417/mlimages/blob/master/mlimages/scripts/gather_command.py" rel="nofollow noopener" target="_blank">mlimages/mlimages/scripts/gather_command.py</a></p>
+
+<p>これにてとりあえずダウンロードをして画像は準備できた、とします。</p>
+
+<h2>
+<span id="モデルの理解" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E7%90%86%E8%A7%A3"><i class="fa fa-link"></i></a>モデルの理解</h2>
+
+<p>集めた画像は、目的とするタスク、そして利用する学習済みモデルに合わせて加工する必要があります。そこで、ここでは実際のモデルのコードを追うことで理解を深めていきたいと思います。<br>
+説明に利用するのは、ChainerのAlexNetのコードです。これは画像認識におけるニューラルネットの活躍の端緒となった記念碑的なモデルです。なお、Chainer以外のライブラリ(Caffeなど)でもネットワークの定義はほぼ変わらないので、ここで説明する内容はChainer以外でも通ずると考えていただいて差し支えありません。</p>
+
+<p><a href="https://github.com/pfnet/chainer/blob/master/examples/imagenet/alex.py" rel="nofollow noopener" target="_blank">chainer/examples/imagenet/alex.py</a></p>
+
+<p>非常に短いコードなので、以下に定義部分を抜粋して掲載します。</p>
+
+<div class="code-frame" data-lang="py"><div class="highlight"><pre>
+<span class="k">class</span> <span class="nc">Alex</span><span class="p">(</span><span class="n">chainer</span><span class="o">.</span><span class="n">Chain</span><span class="p">):</span>
+
+    <span class="sd">"""Single-GPU AlexNet without partition toward the channel axis."""</span>
+
+    <span class="n">insize</span> <span class="o">=</span> <span class="mi">227</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Alex</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+            <span class="n">conv1</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span>  <span class="mi">96</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">conv2</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">96</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+            <span class="n">conv3</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">conv4</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="mi">384</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">conv5</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Convolution2D</span><span class="p">(</span><span class="mi">384</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">fc6</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">9216</span><span class="p">,</span> <span class="mi">4096</span><span class="p">),</span>
+            <span class="n">fc7</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">4096</span><span class="p">),</span>
+            <span class="n">fc8</span><span class="o">=</span><span class="n">L</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accuracy</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">local_response_normalization</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">))),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">local_response_normalization</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">h</span><span class="p">))),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv4</span><span class="p">(</span><span class="n">h</span><span class="p">))</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">max_pooling_2d</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv5</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc6</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="n">train</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fc7</span><span class="p">(</span><span class="n">h</span><span class="p">)),</span> <span class="n">train</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc8</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax_cross_entropy</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accuracy</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">accuracy</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span>
+</pre></div></div>
+
+<p>さて、自分でカスタマイズして使いたいと思った場合、最も重要なのが入力部分と出力部分になります。</p>
+
+<p>入力部分については、画像のサイズ、グレースケールにしておくべきか否かといった点にかかわりますし、出力部分はFine Tuningを実装するにあたって継ぎ足しをしたり識別するクラス数を変えたりする際に重要になります。</p>
+
+<p>まずは入力について。ポイントとなるのは以下の点です。</p>
+
+<ul>
+<li>画像サイズ: <code>insize = 227</code>
+</li>
+<li>入力を受け取る一層目: <code>conv1=L.Convolution2D(3,  96, 11, stride=4)</code>
+</li>
+</ul>
+
+<p>重要なのは一層目の定義のほうです。<a href="http://docs.chainer.org/en/stable/reference/links.html?#chainer.links.Convolution2D" rel="nofollow noopener" target="_blank"><code>Convolution2D</code>のAPI</a>によると、設定値は以下のように解釈できます。</p>
+
+<ul>
+<li>in_channel: 3</li>
+<li>out_channel: 96</li>
+<li>ksize: 11</li>
+<li>stride: 4</li>
+</ul>
+
+<p>これらの項目値が何を表しているのか?ですが、ここで理論編の<a href="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2#%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%81%AE%E8%A8%AD%E5%AE%9A" id="reference-1e2766fa43d0bc1f8af5">畳み込みに利用するフィルタの定義</a>を引用します。</p>
+
+<ul>
+<li>フィルタの数(K): 使用するフィルタの数。大体は2の階乗の値がとられる(32, 64, 128 ...)</li>
+<li>フィルタの大きさ(F): 使用するフィルタの大きさ</li>
+<li>フィルタの移動幅(S): フィルタを移動させる幅</li>
+<li>パディング(P): 画像の端の領域をどれくらい埋めるか</li>
+</ul>
+
+<p>まず、フィルタとは畳み込みに使う窓的なものです。以下のようなイメージで、この大きさなどで元の画像がどれくらい圧縮されるかが決まります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/a593d2a2-3e6f-8999-f782-2c120deb0495.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/a593d2a2-3e6f-8999-f782-2c120deb0495.png" alt="image"></a></p>
+
+<p>では、フィルタの大きさによってどのように圧縮後のサイズが決まるのか、は下図を見るとわかりやすいです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/17b1b576-7252-fa14-0036-ec28031ccec1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/17b1b576-7252-fa14-0036-ec28031ccec1.png" alt="image"></a></p>
+
+<p>ここでは8x8の画像に対し4x4のフィルタを、2つずつスライドさせながら適用しています。この場合、最終的に8x8の画像は3x3に圧縮されます。ここで、元サイズを$N$、フィルタのサイズを$F$、スライド幅を$S$と圧縮後の画像幅は以下の式で求められます。</p>
+
+<p>$$<br>
+(N - F) / S + 1<br>
+$$</p>
+
+<p>この式に当てはめると、$(8 - 4)/2 + 1 = 3$で、きちんと3になることがわかります。パディング$P$で画像の周りに余白(実際は輝度0=黒にすることが多く、そういう意味では余<strong>黒</strong>)をとる際は、以下のようになります。</p>
+
+<p>$$<br>
+(N + P \times 2 - F) / S + 1<br>
+$$</p>
+
+<p>これは、下図を見るとわかりやすいです、余白サイズ×2が元のサイズに加わるということです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/cb337362-8565-6737-e423-5b0267aea045.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/cb337362-8565-6737-e423-5b0267aea045.png" alt="image"></a></p>
+
+<p>割り算が入っていることからもわかる通り、適用するフィルタの幅・スライド幅などはきちんと割り切れるように調整する必要があります。これが、他のモデルを利用する場合の第一の制約になります。</p>
+
+<p>ここまでをまとめておきます。最初に挙げたポイントのうち以下3点を使うことで、フィルタ適用後の層の幅が計算できることがわかりました。</p>
+
+<ul>
+<li>フィルタの大きさ(F): 使用するフィルタの大きさ</li>
+<li>フィルタの移動幅(S): フィルタを移動させる幅</li>
+<li>パディング(P): 画像の端の領域をどれくらい埋めるか</li>
+</ul>
+
+<p><strong>フィルタ適用後の層の幅 = $(N + P \times 2 - F) / S + 1$</strong><br>
+<strong>入力画像は、既存のモデルで使用されているフィルタに適合する(上記の式の結果がきちんと整数になる)必要がある</strong></p>
+
+<p>さて、残った最後の「フィルタの数(K)」は何にかかわるかというと、画像の「深さ(チャンネル数)」に関わります。<br>
+チャンネル数は画像における深さ要素のことで、画像的にはカラー(RGB)に対応します。そのため、一層目のチャンネル数は3のことが多いです。逆に、既存のネットワークを流用する場合でここが1になっていれば、それはグレースケールを表しているため前処理でグレースケールに変換する必要があります。</p>
+
+<p>ここで、畳み込んだ後深さはどうなるのかを考えてみます。フィルタの深さは入力画像の深さに合わせるため(そうしないと計算できない)、畳み込んだ後は深さは常に「1」になります。<br>
+ここで、フィルタをもっと増やすとどうなるでしょうか。そうすると、深さが1の畳み込み層がフィルタの数だけ増えることになります(下図)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/f34a6372-970c-cce8-58ad-191d275fef57.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/f34a6372-970c-cce8-58ad-191d275fef57.png" alt="image"></a></p>
+
+<p>通常、CNNではこのように複数のフィルタを利用して畳み込みを行っています。つまり、「フィルタの数(K)」はそのまま畳み込んだ後の「深さ(チャンネル数)」になるということです。これは当然次の層の入力の深さと同じになります(コード中、<code>conv1</code>のout_channelと<code>conv_2</code>のin_channelは同じ値になっていると思います)。</p>
+
+<p>ここまででフィルタに関するすべての要素を見てきたので、改めて第一層の定義を見直してみます。</p>
+
+<ul>
+<li>in_channel: 3 -&gt; 最初の画像の深さ。RGB=3</li>
+<li>out_channel: 96 -&gt; 畳み込んだ後の層の深さ = フィルタの数(K)</li>
+<li>ksize: 11 -&gt; フィルタのサイズ(F)</li>
+<li>stride: 4 -&gt; フィルタのスライド幅(S)</li>
+</ul>
+
+<p><code>Convolution2D</code>には<code>pad</code>のパラメーターもあり、これは当然パディング(P)に該当します。これでパラメータの理解はできました。そして、ここからAlexNetでは以下の制約があることがわかります。</p>
+
+<ul>
+<li>入力画像のサイズは、11を引いた後4で割り切れる数である必要がある(設定されているサイズ227はこれを満たす)。※厳密には、以後の層の定義も満たす必要がある</li>
+<li>入力画像は、RGBカラーで表されている必要がある</li>
+</ul>
+
+<p>よって、画像のサイズは実は固定ではなく、条件を満たせば他のサイズでも使用可能です。ただ、事前に学習させた内容が適用されるかわからないのと、出力部分に影響が出ます。AlexNetでは6層目から線形関数になっており、ここからがいわば畳み込んだ結果を使って分類を行っている部分になります。Fine Tuningを行うならここを差し替えたりSVMにつなげたりということになると思いますが、それに際しては以下の定義を理解することが必要です。<br>
+Chainerの6層目の定義は<code>fc6=L.Linear(9216, 4096)</code>となっており、ここから入力の数が9216で出力の数が4096ということは明白ですが、入力の「9216」はどういう意味か分かるでしょうか。</p>
+
+<p>畳み込み層からの出力は当然「幅×高さ×深さ」になるため、直前の<code>conv5</code>で「幅×高さ×深さ=9216」になっていることが推察されます。深さは<code>conv5</code>のout_channelが256であることから明らかなため、9216を256で割ると36、よって幅×高さ=36なので幅は6になっていることがわかります。この「6」は当然入力画像の幅が定義通り227だった時の場合なので、入力する画像のサイズを変えるならもう一層いれてサイズを調整するなどしないといけないことがわかります。<br>
+サイズの調整は当然畳み込んでもいいですが、重みを使わずサイズの調整、つまり幅の圧縮を行うプーリングを使うという手もあります(<a href="http://qiita.com/icoxfog417/items/5fd55fad152231d706c2#%E3%83%AC%E3%82%A4%E3%83%A4%E6%A7%8B%E6%88%90" id="reference-1e2766fa43d0bc1f8af5">プーリングについての詳細は理論編のこちら参照</a>)。</p>
+
+<p>このプーリング層はAlexNetでも使われていて、実はconv5の段階では13だった幅がfc6では6になっているのはこのプーリングのためです。下図にfc6に至るまでの計算の過程を書いているので、興味がある方は追ってみてください。計算順序は、conv1&gt;pool1&gt;conv2&gt;pool2&gt;conv3&gt;conv4&gt;conv5&gt;pool5&gt;fc6になります(※conv3&gt;conv4、conv4&gt;conv5間にはプーリングはありません)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/815b75c9-7632-b8ea-ec6c-b2c3290c0f7d.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/815b75c9-7632-b8ea-ec6c-b2c3290c0f7d.png" alt="image"></a></p>
+
+<p>よって、大き目の画像を使うならこのプーリングでもう少し圧縮するようにすればいいということです(逆に小さいならプーリングしない)。前述のとおり、このプーリングは重みを使わないため、学習済みモデルから持ってきた重みは関係しません。よって、学習済みのモデルを使うなら学習して重みをもっている畳み込み層でなく、プーリングで調整するほうが良いでしょう。</p>
+
+<p>最後に、学習済みモデルをカスタマイズする際のポイントについてまとめておきます。なお、これは理論的には、の話で実際使う上ではうまくいったりいかなかったりというのがあるとおもいます。私のほうでも、わかり次第またまとめていきたいと思います。</p>
+
+<ul>
+<li>層の定義から、サイズ・カラーに関する制約がわかる</li>
+<li>特定の層にFine Tuning用の学習機をつけたい場合、その入力数は入力した画像のサイズと各層のフィルタ定義を順に計算していくことで導出できる
+
+<ul>
+<li>最近はちょっと複雑なフィルタのかけ方をしたり層がものすごい深くなっていたりするので、勉強のため以外で計算するのはあまりお勧めできない。一番上の層は分類するクラス数に一致するはずなので、素直に一番上につけることを推奨。 </li>
+</ul>
+</li>
+<li>入力画像のサイズを変更したい場合は、学習済みの重みをもつ畳み込み層は温存しプーリングで調整を行う
+
+<ul>
+<li>最近はPoolingをかませないのが主流となっているが、学習済みモデルを流用するために入れるのはありだと思う。</li>
+</ul>
+</li>
+</ul>
+
+<p>※「最近は」の情報は、<a href="http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf" rel="nofollow noopener" target="_blank">Stanfordの講座参照(Lecture 7 p89)</a>。 AlphaGoについてもちょっとのっている。CNNの理解は最先端のAIの仕組みの理解にもつながっているのだ。</p>
+
+<h2>
+<span id="データの前処理" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%89%8D%E5%87%A6%E7%90%86"><i class="fa fa-link"></i></a>データの前処理</h2>
+
+<p>ここまででモデルの理解ができ、どんなデータを用意すればいいかもわかりました。<br>
+ただ、実際学習させるときに必要なのは「画像」ではなく、それを数値的に表現した「行列」になります。この変換の過程にミスがあるとせっかくの学習済みモデルも役に立ちません。特に重要な点は、以下点になります。</p>
+
+<ul>
+<li>行列変換
+
+<ul>
+<li>直感的には幅(W)x高さ(H)x深さ(K)</li>
+<li>行列的に考えると、行列の行は高さ、列は幅に該当するので、行列的にはH x W x Kになる</li>
+<li>学習する際は、慣例?としてさらにこれをK x H x Wに変換する</li>
+<li>実際の処理は、<a href="https://github.com/pfnet/chainer/blob/master/examples/imagenet/train_imagenet.py#L135" rel="nofollow noopener" target="_blank">chainer/examples/imagenet/train_imagenet.pyの<code>read_image</code></a>を参照。</li>
+</ul>
+</li>
+<li>深さの調整
+
+<ul>
+<li>モデルはRGBを想定しているが輝度しかない、という場合は輝度の値を複製して調整する。輝度しかないのは、次元が2であることで判別可能(colorがないので2次元の行列での表現になるため)。</li>
+<li>世の中にはRGBAという形式があるため、この場合Aを落とす</li>
+<li>実際の処理は、<a href="https://github.com/BVLC/caffe/blob/master/python/caffe/io.py#L278" rel="nofollow noopener" target="_blank">Caffe/io.pyの<code>load_image</code></a>を参照。</li>
+</ul>
+</li>
+<li>画像データの正規化
+
+<ul>
+<li>全データセットから計算した平均を差し引くことで正規化する。なお、当然画像のサイズがすべてそろっていないといけないので注意。</li>
+<li>平均の計算処理は<a href="https://github.com/pfnet/chainer/blob/master/examples/imagenet/compute_mean.py" rel="nofollow noopener" target="_blank">chainer/examples/imagenet/compute_mean.py</a>を参照</li>
+</ul>
+</li>
+<li>スケーリング
+
+<ul>
+<li>RGBカラー、また輝度は0-255の値をとるので、これを0-1の値に変換するため255で割る</li>
+<li>実際の処理は、<a href="https://github.com/pfnet/chainer/blob/master/examples/imagenet/train_imagenet.py#L135" rel="nofollow noopener" target="_blank">chainer/examples/imagenet/train_imagenet.pyの<code>read_image</code></a>を参照。</li>
+</ul>
+</li>
+</ul>
+
+<p>今回作成したツールでは、画像を読み込んで深さの調整をしたうえで行列変換をしてくれるクラス(LabeledImage)を実装しました。</p>
+
+<p><a href="https://github.com/icoxfog417/mlimages/blob/master/mlimages/model.py#L60" rel="nofollow noopener" target="_blank">mlimages/mlimages/model.py</a></p>
+
+<p><code>to_array</code>と<code>from_array</code>行列化とそこからの復元が可能です。画像のリサイズ用のメソッドも積んでいるので、サイズ調整等の加工したうえで行列にできるようにしています。実装の参考にしていただければと思います。</p>
+
+<p>平均化については実装はほぼ同様ですが、実際の画像として保存するようにしました。これはnumpyを使わない場合でも利用できるようにするほか、データの傾向を見られるという利点もあります。</p>
+
+<p>以下はImageNetの猫系の画像から作成した平均画像ですが、何の特徴も見えないことがわかると思います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/25990/1ec485f6-8274-9300-4467-e4d6d05a3311.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/25990/1ec485f6-8274-9300-4467-e4d6d05a3311.png" alt="mean_image.png"></a></p>
+
+<p>これは良くはない傾向です。なぜなら、すべての画像に共通する何らかの特徴があれば、その部分だけ色などが変わっているはずだからです(人の顔なら、目や口の位置など)。もちろん画像の枚数が多ければこうした全体的に黒っぽいものになるのは当然ですが、あるクラスのみで作ってみるなど傾向をとらえるには使えると思います。</p>
+
+<h2>
+<span id="教師データの準備" class="fragment"></span><a href="#%E6%95%99%E5%B8%AB%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E6%BA%96%E5%82%99"><i class="fa fa-link"></i></a>教師データの準備</h2>
+
+<p>さて、画像を用意しただけでは学習はできません。その画像に対し、それがどのクラスに分類されるのかといった教師データを作成してやる必要があります。これは、「画像のパス」「教師ラベル」をペアにして記載したフォーマットが用いられることが多いです(以下の感じ)。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+tabby\51879196_5a4404873a.jpg 10
+tortoiseshell\1802271715_d1b3acb8f4.jpg 13
+tom\1433889998_6a42ce2633.jpg 12
+</pre></div></div>
+
+<p>これは当然人力でやっていると日が暮れるので、自動的作成したいです。画像をクラスごとにフォルダに収めている場合、フォルダ構造がそのまま教師データとなるので、これを利用して教師データを作成することができます。</p>
+
+<p>今回作成したツールでも、簡単なスクリプトを作ってラベル付けを行いました(<a href="https://github.com/icoxfog417/mlimages/blob/master/mlimages/scripts/label_command.py" rel="nofollow noopener" target="_blank">mlimages/mlimages/scripts/label_command.py</a>)。</p>
+
+<p>なお、スクレイピングなどで自動的に画像を集めていた場合、たまに開けなかったり教師データとして不適なものがあったりします。学習している際にこうした画像に当たり例外が飛んで数時間かけた学習が止まると泣きたくなるので、ここでそうした要素を排除しておくとよいです。<br>
+学習に際しては正規化のために平均画像を計算する必要があり(前述)、その際に本番同様の行列への変換や演算を行うので、そこでチェックをかけてもよいです。今回は平均画像計算の際に別途「平均計算に使用した(できた)画像」をファイルとして出力し、それを学習データとして使っています。</p>
+
+<p>あと、データをテスト用と訓練用などに分ける、ちゃんとシャッフルしておく、といった点は通常の機械学習と変わりません。これは単純にファイルの分割や乱数を利用した処理で行えるので、そう手間ではないと思います。</p>
+
+<h2>
+<span id="モデルの学習" class="fragment"></span><a href="#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>モデルの学習</h2>
+
+<p>教師データの準備ができたら後は学習させるだけです。ここでの最大の考慮点は、パフォーマンスと監視です(運用管理みたいですが・・・)。</p>
+
+<h3>
+<span id="パフォーマンス" class="fragment"></span><a href="#%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9"><i class="fa fa-link"></i></a>パフォーマンス</h3>
+
+<p>パフォーマンスについては、以下点が重要になります。</p>
+
+<ul>
+<li>GPU</li>
+<li>並列処理</li>
+</ul>
+
+<p>GPU。これは実際やって痛感したのですが、何はともあれGPUマシンを用意しましょう(AWSでも可)。CPUだと数日待っても精度が上がる確信が得られないのに比べ、GPUなら数時間でわかるか計算が終わります。<br>
+モデルの構成、学習率といったハイパーパラメーター、またバッチサイズなど、学習に際しては調整すべきパラメーターが多々あります。この検証・確認のサイクルをどれだけ速く回せるかが肝となるので、ハードで解決できるところはハードで解決してしまったほうが良いです。</p>
+
+<p>並列処理は、これに比べソフト面での工夫となります。画像の学習に際しては、教師データには画像へのパスしか書いていません。そのため学習時に画像を読み込む必要がありますが、これを上から順に・・・とかやっているとただでさえ遅い学習がさらに遅くなるので、ミニバッチ(一度に学習させるデータのまとまり)内の画像は並列で読み込むといった工夫が必要になってきます。Pythonでは<code>multiprocessing</code>、3からは<code>asyncio</code>が利用できるので、これらのモジュールを利用して並列化できるところは並列化します。</p>
+
+<h3>
+<span id="監視" class="fragment"></span><a href="#%E7%9B%A3%E8%A6%96"><i class="fa fa-link"></i></a>監視</h3>
+
+<p>学習中は、きちんと学習が行われているかどうかを見ておく必要があります。<br>
+一定量の学習(1batch/epochなど)ごとに、誤差と精度を記録しておきます。また、途中でモデルを保存しておくことも重要です。単にコンソールに出力しているだけだと接続が切れたり万一落雷とかで飛んだ時に何も残らないので、ログファイルやらモデルファイルやら、とにかくディスクに残る形で記録をすることをお勧めします。</p>
+
+<p>具体的な学習用スクリプトの実装としては、Chainerのexampleが参考になります。</p>
+
+<p><a href="https://github.com/pfnet/chainer/blob/master/examples/imagenet/train_imagenet.py" rel="nofollow noopener" target="_blank">chainer/examples/imagenet/train_imagenet.py</a></p>
+
+<p>Pythonは3からasync/awaitが書きやすくなったので、Python3にするならmultiprocessingのところはもう少し書きやすくなると思います。今回作ったツールについてはPython3を使いました(ただ、ロギングはまだない・・・)。</p>
+
+<p><a href="https://github.com/icoxfog417/mlimages/blob/master/mlimages/training.py#L93" rel="nofollow noopener" target="_blank">mlimages/mlimages/training.py/generate_batches</a></p>
+
+<p>これで一通りのポイントは解説し終えました。最後に、データの収集・教師データの作成・それを利用した学習、をまとめたスクリプトを参考に載せておきます。モデルには例の通りAlexNetを利用しています。</p>
+
+<p><a href="https://github.com/icoxfog417/mlimages/blob/master/examples/chainer_alex.py" rel="nofollow noopener" target="_blank">mlimages/examples/chainer_alex.py</a></p>
+
+<p>実際に学習をさせる際の参考となれば幸いです。なお、このスクリプトはCPUでは2日たっても全然精度が上がりませんでしたが、GPUで計算させたところ2、3時間で50～60%の精度(accuracy)になりました。実際のモデルではExampleのように、見る間に精度が上がっていくことはありませんし、またその保証もありません。モデルに対する正当な評価をベースにブラッシュアップしていくには、やはり速度の貢献は大きい・・・ということを痛感した次第です。</p>
+<div class="hidden"><form class="js-task-list-update" action="/icoxfog417/items/5aa1b3f87bb294f84bac" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="9el5+J3gFyw+4DVKDAGil/LMdjJ/qVp7enE02Wp8tfSuJzTCrfyyi+Ie5/eHyIC8ntYU/9fNsFdqNkaBuzgpHQ==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1461423166" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+Deep Learning系のライブラリを試すのが流行っていますが、Exampleを動かすのはいいとしても、いざ実際のケースで使おうとするとうまくいかないことがよくあります。
+
+なんとか動かしてみたけれど精度が出ない、データの加工の仕方が悪いのか、モデルのパラメーターが悪いのか、原因がぜんぜんわからん・・・という事態を乗り越えるには、やはり仕組みに対する理解が必要になってきます。
+
+そんなわけで、本編では画像の用意という一番最初のスタートラインから、Chainerで実装したCNNを学習させるところまで、行うべき手順とその理由を解説していきたいと思います。
+前段として[理論編](http://qiita.com/icoxfog417/items/5fd55fad152231d706c2)を書いていますが、ここではライブラリなどで設定しているパラメーターが、理論編の側とどのようにマッチするのかについても見ていきたいと思います。
+
+なお、今回紹介するノウハウは下記リポジトリにまとめています。画像認識を行う際に役立てばと思います。
+
+[icoxfog417/mlimages](https://github.com/icoxfog417/mlimages)
+
+
+## データの準備
+
+データについては数万件などたくさん用意しないといけないと思われがちですが、最近の画像認識では学習済みのモデルを利用するのが一般的です。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/415f4c19-887c-969f-c550-25939f36e697.png)
+[CS231n Lecture11 Training ConvNets in practice, p26](http://cs231n.stanford.edu/slides/winter1516_lecture11.pdf)
+
+学習済みのモデルは「学習させたタスク」しかできないのでは？(例えば猫の検知とか)と思うかもしれませんが、モデルの下層に行くほど画像の基礎的な特徴を抽出する能力が備わっています。
+そのため、下層のレイヤはそのままに、上の方のレイヤだけ学習をさせることで(あるいは付け足すことで)、少ないデータでも識別性能を出すことができます。これをFine Tuning(またはTransfer Learning)と呼びます。
+
+どれくらいのレイヤをそのままにすべきかは、自分の目的とするタスクが元の「学習させたタスク」とどれくらい近いかに依存します。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/ec792d97-51d2-cdbc-dee7-907d9a3fbdad.png)
+[CS231n Lecture11 Training ConvNets in practice、p33](http://cs231n.stanford.edu/slides/winter1516_lecture11.pdf)
+
+学習済みのモデルが使えるライブラリで有名なのは、Caffeになります。Caffeを用いたFine Tuningの手法については公式に記載があります。
+
+[Fine-tuning CaffeNet for Style Recognition on “Flickr Style” Data](http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html)
+
+ChainerではCaffeのモデルを読み込むことができるので、同様にFine Tuningが可能です。
+
+[Chainerでファインチューニングするときの個人的ベストプラクティス](http://qiita.com/tabe2314/items/6c0c1b769e12ab1e2614)
+
+学習する際に、せっかくとってきた学習済みモデルの値を変更したくないときは、`volatitle`のフラグを使って学習済みの下層部分への誤差伝搬を止めることができます。
+
+* [Chainer model finetuning](https://groups.google.com/forum/#!searchin/chainer/Finetuning/chainer/H4IWqcMBA2w/8cxt58YrBwAJ)
+* [the way of fine-tuning](https://github.com/pfnet/chainer/issues/724)
+
+TensorFlowについては以下にチュートリアルがあります。
+
+* [How to Retrain Inception&#39;s Final Layer for New Categories](https://www.tensorflow.org/versions/master/how_tos/image_retraining/index.html)
+
+Caffeのモデルを持ってきたい場合は、一応以下のようなツールがあります。
+
+[ethereon/caffe-tensorflow](https://github.com/ethereon/caffe-tensorflow)
+
+このように、先人たちの功績によって集めるべきデータの数はだんだんと少なくなってきています。今回も、学習済みのモデルを格納しておいたので利用してみてください(初めて[git lfs](https://git-lfs.github.com/)を使った)。
+
+[mlimages/examples](https://github.com/icoxfog417/mlimages/tree/master/examples)
+
+ただ、その分自分がベースとして使うモデルがどういうものなのかについての理解がより求められるようになってきている、ともいえます。
+その点については次項で解説するため、ここでは画像データセットとして有名なImageNetからの画像データの取得について簡単に解説しておきます。
+
+### [ImageNet](http://www.image-net.org/)
+
+WordNetという語の概念構造をベースに、画像に対しタグ付けを行っているデータセットです。登録されている語(つまりラベル)の数は10万ほどで、各語に対し1000程度の画像を収集することを目指し活動が行われています。ILSVRC(ImageNet Large Scale Visual Recognition Challenge)で使用されているデータセットとしても有名です。
+
+さて、このデータセットは研究者なら申請して許可が下りれば全部ダウンロードできます。そうでない場合、各ラベルに対する画像のURLは取得できるため、そこから自力で落とすことになります。なお、これ以外に画像特徴量のデータやオブジェクトの境界といったデータも取得可能です。
+
+[ImageNet/Explorer](http://image-net.org/explore)
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/4dd991ac-5acb-c975-8338-aeba6a2504d5.png)
+
+Downloadから、画像のURLを取得できます。ただし、リンク切れになっているものも多々あります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/71d485d6-0527-ed38-b28a-da663e3491f2.png)
+
+リンク切れを回避しながら、なおかつ並列処理でダウンロードしたい、というのが人情なので作っておきました。
+
+[mlimages/mlimages/scripts/gather_command.py](https://github.com/icoxfog417/mlimages/blob/master/mlimages/scripts/gather_command.py)
+
+これにてとりあえずダウンロードをして画像は準備できた、とします。
+
+## モデルの理解
+
+集めた画像は、目的とするタスク、そして利用する学習済みモデルに合わせて加工する必要があります。そこで、ここでは実際のモデルのコードを追うことで理解を深めていきたいと思います。
+説明に利用するのは、ChainerのAlexNetのコードです。これは画像認識におけるニューラルネットの活躍の端緒となった記念碑的なモデルです。なお、Chainer以外のライブラリ(Caffeなど)でもネットワークの定義はほぼ変わらないので、ここで説明する内容はChainer以外でも通ずると考えていただいて差し支えありません。
+
+[chainer/examples/imagenet/alex.py](https://github.com/pfnet/chainer/blob/master/examples/imagenet/alex.py)
+
+非常に短いコードなので、以下に定義部分を抜粋して掲載します。
+
+```py
+class Alex(chainer.Chain):
+
+    &quot;&quot;&quot;Single-GPU AlexNet without partition toward the channel axis.&quot;&quot;&quot;
+
+    insize = 227
+
+    def __init__(self):
+        super(Alex, self).__init__(
+            conv1=L.Convolution2D(3,  96, 11, stride=4),
+            conv2=L.Convolution2D(96, 256,  5, pad=2),
+            conv3=L.Convolution2D(256, 384,  3, pad=1),
+            conv4=L.Convolution2D(384, 384,  3, pad=1),
+            conv5=L.Convolution2D(384, 256,  3, pad=1),
+            fc6=L.Linear(9216, 4096),
+            fc7=L.Linear(4096, 4096),
+            fc8=L.Linear(4096, 1000),
+        )
+        self.train = True
+
+    def clear(self):
+        self.loss = None
+        self.accuracy = None
+
+    def __call__(self, x, t):
+        self.clear()
+        h = F.max_pooling_2d(F.relu(
+            F.local_response_normalization(self.conv1(x))), 3, stride=2)
+        h = F.max_pooling_2d(F.relu(
+            F.local_response_normalization(self.conv2(h))), 3, stride=2)
+        h = F.relu(self.conv3(h))
+        h = F.relu(self.conv4(h))
+        h = F.max_pooling_2d(F.relu(self.conv5(h)), 3, stride=2)
+        h = F.dropout(F.relu(self.fc6(h)), train=self.train)
+        h = F.dropout(F.relu(self.fc7(h)), train=self.train)
+        h = self.fc8(h)
+
+        self.loss = F.softmax_cross_entropy(h, t)
+        self.accuracy = F.accuracy(h, t)
+        return self.loss
+```
+
+さて、自分でカスタマイズして使いたいと思った場合、最も重要なのが入力部分と出力部分になります。
+
+入力部分については、画像のサイズ、グレースケールにしておくべきか否かといった点にかかわりますし、出力部分はFine Tuningを実装するにあたって継ぎ足しをしたり識別するクラス数を変えたりする際に重要になります。
+
+まずは入力について。ポイントとなるのは以下の点です。
+
+* 画像サイズ: `insize = 227`
+* 入力を受け取る一層目: `conv1=L.Convolution2D(3,  96, 11, stride=4)`
+
+重要なのは一層目の定義のほうです。[`Convolution2D`のAPI](http://docs.chainer.org/en/stable/reference/links.html?#chainer.links.Convolution2D)によると、設定値は以下のように解釈できます。
+
+* in_channel: 3
+* out_channel: 96
+* ksize: 11
+* stride: 4
+
+これらの項目値が何を表しているのか?ですが、ここで理論編の[畳み込みに利用するフィルタの定義](http://qiita.com/icoxfog417/items/5fd55fad152231d706c2#%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%81%AE%E8%A8%AD%E5%AE%9A)を引用します。
+
+* フィルタの数(K): 使用するフィルタの数。大体は2の階乗の値がとられる(32, 64, 128 ...)
+* フィルタの大きさ(F): 使用するフィルタの大きさ
+* フィルタの移動幅(S): フィルタを移動させる幅
+* パディング(P): 画像の端の領域をどれくらい埋めるか
+
+まず、フィルタとは畳み込みに使う窓的なものです。以下のようなイメージで、この大きさなどで元の画像がどれくらい圧縮されるかが決まります。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/a593d2a2-3e6f-8999-f782-2c120deb0495.png)
+
+では、フィルタの大きさによってどのように圧縮後のサイズが決まるのか、は下図を見るとわかりやすいです。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/17b1b576-7252-fa14-0036-ec28031ccec1.png)
+
+ここでは8x8の画像に対し4x4のフィルタを、2つずつスライドさせながら適用しています。この場合、最終的に8x8の画像は3x3に圧縮されます。ここで、元サイズを$N$、フィルタのサイズを$F$、スライド幅を$S$と圧縮後の画像幅は以下の式で求められます。
+
+$$
+(N - F) / S + 1
+$$
+
+この式に当てはめると、$(8 - 4)/2 + 1 = 3$で、きちんと3になることがわかります。パディング$P$で画像の周りに余白(実際は輝度0=黒にすることが多く、そういう意味では余**黒**)をとる際は、以下のようになります。
+
+$$
+(N + P \times 2 - F) / S + 1
+$$
+
+これは、下図を見るとわかりやすいです、余白サイズ×2が元のサイズに加わるということです。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/cb337362-8565-6737-e423-5b0267aea045.png)
+
+割り算が入っていることからもわかる通り、適用するフィルタの幅・スライド幅などはきちんと割り切れるように調整する必要があります。これが、他のモデルを利用する場合の第一の制約になります。
+
+ここまでをまとめておきます。最初に挙げたポイントのうち以下3点を使うことで、フィルタ適用後の層の幅が計算できることがわかりました。
+
+* フィルタの大きさ(F): 使用するフィルタの大きさ
+* フィルタの移動幅(S): フィルタを移動させる幅
+* パディング(P): 画像の端の領域をどれくらい埋めるか
+
+**フィルタ適用後の層の幅 = $(N + P \times 2 - F) / S + 1$**
+**入力画像は、既存のモデルで使用されているフィルタに適合する(上記の式の結果がきちんと整数になる)必要がある**
+
+さて、残った最後の「フィルタの数(K)」は何にかかわるかというと、画像の「深さ(チャンネル数)」に関わります。
+チャンネル数は画像における深さ要素のことで、画像的にはカラー(RGB)に対応します。そのため、一層目のチャンネル数は3のことが多いです。逆に、既存のネットワークを流用する場合でここが1になっていれば、それはグレースケールを表しているため前処理でグレースケールに変換する必要があります。
+
+ここで、畳み込んだ後深さはどうなるのかを考えてみます。フィルタの深さは入力画像の深さに合わせるため(そうしないと計算できない)、畳み込んだ後は深さは常に「1」になります。
+ここで、フィルタをもっと増やすとどうなるでしょうか。そうすると、深さが1の畳み込み層がフィルタの数だけ増えることになります(下図)。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/f34a6372-970c-cce8-58ad-191d275fef57.png)
+
+通常、CNNではこのように複数のフィルタを利用して畳み込みを行っています。つまり、「フィルタの数(K)」はそのまま畳み込んだ後の「深さ(チャンネル数)」になるということです。これは当然次の層の入力の深さと同じになります(コード中、`conv1`のout_channelと`conv_2`のin_channelは同じ値になっていると思います)。
+
+ここまででフィルタに関するすべての要素を見てきたので、改めて第一層の定義を見直してみます。
+
+* in_channel: 3 -&gt; 最初の画像の深さ。RGB=3
+* out_channel: 96 -&gt; 畳み込んだ後の層の深さ = フィルタの数(K)
+* ksize: 11 -&gt; フィルタのサイズ(F)
+* stride: 4 -&gt; フィルタのスライド幅(S)
+
+`Convolution2D`には`pad`のパラメーターもあり、これは当然パディング(P)に該当します。これでパラメータの理解はできました。そして、ここからAlexNetでは以下の制約があることがわかります。
+
+* 入力画像のサイズは、11を引いた後4で割り切れる数である必要がある(設定されているサイズ227はこれを満たす)。※厳密には、以後の層の定義も満たす必要がある
+* 入力画像は、RGBカラーで表されている必要がある
+
+よって、画像のサイズは実は固定ではなく、条件を満たせば他のサイズでも使用可能です。ただ、事前に学習させた内容が適用されるかわからないのと、出力部分に影響が出ます。AlexNetでは6層目から線形関数になっており、ここからがいわば畳み込んだ結果を使って分類を行っている部分になります。Fine Tuningを行うならここを差し替えたりSVMにつなげたりということになると思いますが、それに際しては以下の定義を理解することが必要です。
+Chainerの6層目の定義は`fc6=L.Linear(9216, 4096)`となっており、ここから入力の数が9216で出力の数が4096ということは明白ですが、入力の「9216」はどういう意味か分かるでしょうか。
+
+畳み込み層からの出力は当然「幅×高さ×深さ」になるため、直前の`conv5`で「幅×高さ×深さ=9216」になっていることが推察されます。深さは`conv5`のout_channelが256であることから明らかなため、9216を256で割ると36、よって幅×高さ=36なので幅は6になっていることがわかります。この「6」は当然入力画像の幅が定義通り227だった時の場合なので、入力する画像のサイズを変えるならもう一層いれてサイズを調整するなどしないといけないことがわかります。
+サイズの調整は当然畳み込んでもいいですが、重みを使わずサイズの調整、つまり幅の圧縮を行うプーリングを使うという手もあります([プーリングについての詳細は理論編のこちら参照](http://qiita.com/icoxfog417/items/5fd55fad152231d706c2#%E3%83%AC%E3%82%A4%E3%83%A4%E6%A7%8B%E6%88%90))。
+
+このプーリング層はAlexNetでも使われていて、実はconv5の段階では13だった幅がfc6では6になっているのはこのプーリングのためです。下図にfc6に至るまでの計算の過程を書いているので、興味がある方は追ってみてください。計算順序は、conv1&gt;pool1&gt;conv2&gt;pool2&gt;conv3&gt;conv4&gt;conv5&gt;pool5&gt;fc6になります(※conv3&gt;conv4、conv4&gt;conv5間にはプーリングはありません)。
+
+![image](https://qiita-image-store.s3.amazonaws.com/0/25990/815b75c9-7632-b8ea-ec6c-b2c3290c0f7d.png)
+
+よって、大き目の画像を使うならこのプーリングでもう少し圧縮するようにすればいいということです(逆に小さいならプーリングしない)。前述のとおり、このプーリングは重みを使わないため、学習済みモデルから持ってきた重みは関係しません。よって、学習済みのモデルを使うなら学習して重みをもっている畳み込み層でなく、プーリングで調整するほうが良いでしょう。
+
+最後に、学習済みモデルをカスタマイズする際のポイントについてまとめておきます。なお、これは理論的には、の話で実際使う上ではうまくいったりいかなかったりというのがあるとおもいます。私のほうでも、わかり次第またまとめていきたいと思います。
+
+* 層の定義から、サイズ・カラーに関する制約がわかる
+* 特定の層にFine Tuning用の学習機をつけたい場合、その入力数は入力した画像のサイズと各層のフィルタ定義を順に計算していくことで導出できる
+ * 最近はちょっと複雑なフィルタのかけ方をしたり層がものすごい深くなっていたりするので、勉強のため以外で計算するのはあまりお勧めできない。一番上の層は分類するクラス数に一致するはずなので、素直に一番上につけることを推奨。 
+* 入力画像のサイズを変更したい場合は、学習済みの重みをもつ畳み込み層は温存しプーリングで調整を行う
+ * 最近はPoolingをかませないのが主流となっているが、学習済みモデルを流用するために入れるのはありだと思う。
+
+※「最近は」の情報は、[Stanfordの講座参照(Lecture 7 p89)](http://cs231n.stanford.edu/slides/winter1516_lecture7.pdf)。 AlphaGoについてもちょっとのっている。CNNの理解は最先端のAIの仕組みの理解にもつながっているのだ。
+
+
+## データの前処理
+
+ここまででモデルの理解ができ、どんなデータを用意すればいいかもわかりました。
+ただ、実際学習させるときに必要なのは「画像」ではなく、それを数値的に表現した「行列」になります。この変換の過程にミスがあるとせっかくの学習済みモデルも役に立ちません。特に重要な点は、以下点になります。
+
+* 行列変換
+ * 直感的には幅(W)x高さ(H)x深さ(K)
+ * 行列的に考えると、行列の行は高さ、列は幅に該当するので、行列的にはH x W x Kになる
+ * 学習する際は、慣例?としてさらにこれをK x H x Wに変換する
+ * 実際の処理は、[chainer/examples/imagenet/train_imagenet.pyの`read_image`](https://github.com/pfnet/chainer/blob/master/examples/imagenet/train_imagenet.py#L135)を参照。
+* 深さの調整
+ * モデルはRGBを想定しているが輝度しかない、という場合は輝度の値を複製して調整する。輝度しかないのは、次元が2であることで判別可能(colorがないので2次元の行列での表現になるため)。
+ * 世の中にはRGBAという形式があるため、この場合Aを落とす
+ * 実際の処理は、[Caffe/io.pyの`load_image`](https://github.com/BVLC/caffe/blob/master/python/caffe/io.py#L278)を参照。
+* 画像データの正規化
+ * 全データセットから計算した平均を差し引くことで正規化する。なお、当然画像のサイズがすべてそろっていないといけないので注意。
+ * 平均の計算処理は[chainer/examples/imagenet/compute_mean.py](https://github.com/pfnet/chainer/blob/master/examples/imagenet/compute_mean.py)を参照
+* スケーリング
+ * RGBカラー、また輝度は0-255の値をとるので、これを0-1の値に変換するため255で割る
+ * 実際の処理は、[chainer/examples/imagenet/train_imagenet.pyの`read_image`](https://github.com/pfnet/chainer/blob/master/examples/imagenet/train_imagenet.py#L135)を参照。
+
+今回作成したツールでは、画像を読み込んで深さの調整をしたうえで行列変換をしてくれるクラス(LabeledImage)を実装しました。
+
+[mlimages/mlimages/model.py](https://github.com/icoxfog417/mlimages/blob/master/mlimages/model.py#L60)
+
+`to_array`と`from_array`行列化とそこからの復元が可能です。画像のリサイズ用のメソッドも積んでいるので、サイズ調整等の加工したうえで行列にできるようにしています。実装の参考にしていただければと思います。
+
+平均化については実装はほぼ同様ですが、実際の画像として保存するようにしました。これはnumpyを使わない場合でも利用できるようにするほか、データの傾向を見られるという利点もあります。
+
+以下はImageNetの猫系の画像から作成した平均画像ですが、何の特徴も見えないことがわかると思います。
+
+![mean_image.png](https://qiita-image-store.s3.amazonaws.com/0/25990/1ec485f6-8274-9300-4467-e4d6d05a3311.png)
+
+これは良くはない傾向です。なぜなら、すべての画像に共通する何らかの特徴があれば、その部分だけ色などが変わっているはずだからです(人の顔なら、目や口の位置など)。もちろん画像の枚数が多ければこうした全体的に黒っぽいものになるのは当然ですが、あるクラスのみで作ってみるなど傾向をとらえるには使えると思います。
+
+
+## 教師データの準備
+
+さて、画像を用意しただけでは学習はできません。その画像に対し、それがどのクラスに分類されるのかといった教師データを作成してやる必要があります。これは、「画像のパス」「教師ラベル」をペアにして記載したフォーマットが用いられることが多いです(以下の感じ)。
+
+```
+tabby\51879196_5a4404873a.jpg 10
+tortoiseshell\1802271715_d1b3acb8f4.jpg 13
+tom\1433889998_6a42ce2633.jpg 12
+```
+
+これは当然人力でやっていると日が暮れるので、自動的作成したいです。画像をクラスごとにフォルダに収めている場合、フォルダ構造がそのまま教師データとなるので、これを利用して教師データを作成することができます。
+
+今回作成したツールでも、簡単なスクリプトを作ってラベル付けを行いました([mlimages/mlimages/scripts/label_command.py](https://github.com/icoxfog417/mlimages/blob/master/mlimages/scripts/label_command.py))。
+
+なお、スクレイピングなどで自動的に画像を集めていた場合、たまに開けなかったり教師データとして不適なものがあったりします。学習している際にこうした画像に当たり例外が飛んで数時間かけた学習が止まると泣きたくなるので、ここでそうした要素を排除しておくとよいです。
+学習に際しては正規化のために平均画像を計算する必要があり(前述)、その際に本番同様の行列への変換や演算を行うので、そこでチェックをかけてもよいです。今回は平均画像計算の際に別途「平均計算に使用した(できた)画像」をファイルとして出力し、それを学習データとして使っています。
+
+あと、データをテスト用と訓練用などに分ける、ちゃんとシャッフルしておく、といった点は通常の機械学習と変わりません。これは単純にファイルの分割や乱数を利用した処理で行えるので、そう手間ではないと思います。
+
+## モデルの学習
+
+教師データの準備ができたら後は学習させるだけです。ここでの最大の考慮点は、パフォーマンスと監視です(運用管理みたいですが・・・)。
+
+### パフォーマンス
+
+パフォーマンスについては、以下点が重要になります。
+
+* GPU
+* 並列処理
+
+GPU。これは実際やって痛感したのですが、何はともあれGPUマシンを用意しましょう(AWSでも可)。CPUだと数日待っても精度が上がる確信が得られないのに比べ、GPUなら数時間でわかるか計算が終わります。
+モデルの構成、学習率といったハイパーパラメーター、またバッチサイズなど、学習に際しては調整すべきパラメーターが多々あります。この検証・確認のサイクルをどれだけ速く回せるかが肝となるので、ハードで解決できるところはハードで解決してしまったほうが良いです。
+
+並列処理は、これに比べソフト面での工夫となります。画像の学習に際しては、教師データには画像へのパスしか書いていません。そのため学習時に画像を読み込む必要がありますが、これを上から順に・・・とかやっているとただでさえ遅い学習がさらに遅くなるので、ミニバッチ(一度に学習させるデータのまとまり)内の画像は並列で読み込むといった工夫が必要になってきます。Pythonでは`multiprocessing`、3からは`asyncio`が利用できるので、これらのモジュールを利用して並列化できるところは並列化します。
+
+### 監視
+
+学習中は、きちんと学習が行われているかどうかを見ておく必要があります。
+一定量の学習(1batch/epochなど)ごとに、誤差と精度を記録しておきます。また、途中でモデルを保存しておくことも重要です。単にコンソールに出力しているだけだと接続が切れたり万一落雷とかで飛んだ時に何も残らないので、ログファイルやらモデルファイルやら、とにかくディスクに残る形で記録をすることをお勧めします。
+
+具体的な学習用スクリプトの実装としては、Chainerのexampleが参考になります。
+
+[chainer/examples/imagenet/train_imagenet.py](https://github.com/pfnet/chainer/blob/master/examples/imagenet/train_imagenet.py)
+
+Pythonは3からasync/awaitが書きやすくなったので、Python3にするならmultiprocessingのところはもう少し書きやすくなると思います。今回作ったツールについてはPython3を使いました(ただ、ロギングはまだない・・・)。
+
+[mlimages/mlimages/training.py/generate_batches](https://github.com/icoxfog417/mlimages/blob/master/mlimages/training.py#L93)
+
+これで一通りのポイントは解説し終えました。最後に、データの収集・教師データの作成・それを利用した学習、をまとめたスクリプトを参考に載せておきます。モデルには例の通りAlexNetを利用しています。
+
+[mlimages/examples/chainer_alex.py](https://github.com/icoxfog417/mlimages/blob/master/examples/chainer_alex.py)
+
+実際に学習をさせる際の参考となれば幸いです。なお、このスクリプトはCPUでは2日たっても全然精度が上がりませんでしたが、GPUで計算させたところ2、3時間で50～60%の精度(accuracy)になりました。実際のモデルではExampleのように、見る間に精度が上がっていくことはありませんし、またその保証もありません。モデルに対する正当な評価をベースにブラッシュアップしていくには、やはり速度の貢献は大きい・・・ということを痛感した次第です。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Convolutional Neural Networkを実装する by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Convolutional Neural Networkを実装する" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/icoxfog417"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/icoxfog417">icoxfog417</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">20387</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;icoxfog417&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-24808e07-d758-4f6c-8f3b-02515e365ec0"></div>
+    <div id="UserFollowButton-react-component-24808e07-d758-4f6c-8f3b-02515e365ec0"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/e8f97a6acad07903b5b0">Pythonを書き始める前に見るべきTips</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/adbbf445d357c924b8fc">画像処理の数式を見て石になった時のための、金の針</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/242439ecd1a477ece312">ゼロからDeepまで学ぶ強化学習</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/65e800c3a2094457c3a0">はじめるDeep learning</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/icoxfog417/items/5d79b3336226aa51e30d">React.js 実戦投入への道</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/tis"><img alt="TIS株式会社" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/5710e4c30854dd4ab3658e7f585930ab0d81a12c/original.jpg?1484790468" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E6%BA%96%E5%82%99\&quot;\u003eデータの準備\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#imagenet\&quot;\u003eImageNet\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E7%90%86%E8%A7%A3\&quot;\u003eモデルの理解\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E5%89%8D%E5%87%A6%E7%90%86\&quot;\u003eデータの前処理\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%95%99%E5%B8%AB%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E6%BA%96%E5%82%99\&quot;\u003e教師データの準備\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%A2%E3%83%87%E3%83%AB%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003eモデルの学習\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9\&quot;\u003eパフォーマンス\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%9B%A3%E8%A6%96\&quot;\u003e監視\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-ca00ffa2-7d83-4dfb-a21b-81c4015ee4bb"></div>
+    <div id="Toc-react-component-ca00ffa2-7d83-4dfb-a21b-81c4015ee4bb"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:213,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;5aa1b3f87bb294f84bac&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="chareau"><a itemprop="url" href="/chareau"><img alt="chareau" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/108734/profile-images/1473710646" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="letusfly85"><a itemprop="url" href="/letusfly85"><img alt="letusfly85" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/49547/profile-images/1473691769" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="dsanno"><a itemprop="url" href="/dsanno"><img alt="dsanno" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/58026/profile-images/1473694517" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hnakamur"><a itemprop="url" href="/hnakamur"><img alt="hnakamur" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3227/profile-images/1473682812" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shogiai"><a itemprop="url" href="/shogiai"><img alt="shogiai" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/86977/profile-images/1473703926" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="vs4sh"><a itemprop="url" href="/vs4sh"><img alt="vs4sh" class="thumb thumb--xs" src="https://si0.twimg.com/profile_images/3211381950/a6def015e917a8498ac95ef9ba51cf90_normal.jpeg" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mettoboshi"><a itemprop="url" href="/mettoboshi"><img alt="mettoboshi" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/42925/profile-images/1473689342" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="toohsk"><a itemprop="url" href="/toohsk"><img alt="toohsk" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/47270/profile-images/1473690928" /></a></div></div><div class="ArticleFooter__user"><a href="/icoxfog417/items/5aa1b3f87bb294f84bac/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/5aa1b3f87bb294f84bac/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/icoxfog417/items/5aa1b3f87bb294f84bac.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/ichiroex/items/e0486a6dea1f14c2cfc2#_reference-3d3789f57a36b8025ff3"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/92685/profile-images/1473705706" />深層学習フレームワークChainerの勉強に役立つページのまとめ</a><time class="references_datetime js-dateTimeView" datetime="2016-04-05T15:03:21+00:00">12 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/dsanno/items/a79a87720239f295234b#_reference-d17c5938be68f9af899f"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/58026/profile-images/1473694517" />画像の高速スタイル変換を行う論文の紹介</a><time class="references_datetime js-dateTimeView" datetime="2016-04-10T01:49:33+00:00">11 months ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/icoxfog417/items/53e61496ad980c41a08e#_reference-3cb556e9a01ae83f05ca"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516" />機械学習のためのOpenCV入門</a><time class="references_datetime js-dateTimeView" datetime="2016-05-13T08:16:18+00:00">10 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="Convolutional Neural Networkを実装する by @icoxfog417 on @Qiita" data-url="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="Convolutional Neural Networkを実装する" href="http://b.hatena.ne.jp/entry/http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:379968,&quot;uuid&quot;:&quot;5aa1b3f87bb294f84bac&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;icoxfog417&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-d1eaf533-e83f-4b63-aa93-8d50564ced34"></div>
+    <div id="CommentListContainer-react-component-d1eaf533-e83f-4b63-aa93-8d50564ced34"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="0wi7B4jIkBF1e/MT7xgZ93e+u6y2VgyrVOlrkI+YbHiIxvY9uNQ1tqmFIa5k0TvcG6TZYR4y5odErhnIXtzwkQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/5aa1b3f87bb294f84bac" /><input type="hidden" name="item_uuid" id="item_uuid" value="5aa1b3f87bb294f84bac" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/icoxfog417/items/5aa1b3f87bb294f84bac", "id": 379968, "uuid": "5aa1b3f87bb294f84bac" }</script><script class="js-user" type="application/json">{&quot;id&quot;:25990,&quot;url_name&quot;:&quot;icoxfog417&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/25990/profile-images/1484303516&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="qVLrN4iUhl9VF8dMqBR0Mtsh0WyzKmw3w0uol8/hWMPynKYNuIgj+InpFfEj3VYZtzuzoRtOhhvTDNrPHqXEKg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/icoxfog417/items/5aa1b3f87bb294f84bac" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

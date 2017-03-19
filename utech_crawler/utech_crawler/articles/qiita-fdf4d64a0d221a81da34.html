@@ -1,0 +1,383 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>TensorFlowとTensorBoardでニューラルネットワークを可視化 - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="
+
+概要
+
+TensorFlowについてくるTensorBoardを使うとニューラルネットワークの学習過程やデータフローが簡単に可視化できてすごいという話。
+以下のドキュメントの内容を実際に動かしてみた結果です。
+
+
+TensorFlow Mechanics 101
+TensorBoard: Visualizing Learning
+
+
+
+前提知識
+
+
+Neural Networkをちょっとかじった人のための、はじめてのTensorFlow
+TensorFlow 畳み込..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="sergeant_wizard" name="twitter:creator" /><meta content="TensorFlowとTensorBoardでニューラルネットワークを可視化 - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="# 概要
+TensorFlowについてくるTensorBoardを使うとニューラルネットワークの学習過程やデータフローが簡単に可視化できてすごいという話。
+以下のドキュメントの内容を実際に動かしてみた結果です。
+
+- [TensorF..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="fLXhJpZ1CfMpWyPYWnOZ0RauNNi17EU+mpdIBRL/w6u56x9ueq97BLh1bIqm9CbkOdwOL54AnkoLtiD7O0ym2w==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"sergeant-wizard","type":"items","id":"fdf4d64a0d221a81da34"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;News&quot;,&quot;content&quot;:&quot;ストックの他に「いいね」が追加されました&quot;,&quot;url&quot;:&quot;http://blog.qiita.com/post/153200849029/qiita-like-button&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-906fab25-48bb-49cc-9bee-05318570ad4f"></div>
+    <div id="HeaderContainer-react-component-906fab25-48bb-49cc-9bee-05318570ad4f"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/TensorFlow",        "name": "TensorFlow"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader "><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><h1 class="ArticleMainHeader__title" itemprop="headline">TensorFlowとTensorBoardでニューラルネットワークを可視化</h1><ul class="TagList"><li class="TagList__item" data-count="786"><a class="u-link-unstyled TagList__label" href="/tags/TensorFlow"><img alt="TensorFlow" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a35c51e3bff4af3c505656bda4abdef2e00684c8/medium.jpg?1447140205" /><span>TensorFlow</span></a></li><li class="TagList__item" data-count="814"><a class="u-link-unstyled TagList__label" href="/tags/MachineLearning"><img alt="MachineLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/b85c97772bddbfbb48a8b116669349c7ec92e4bf/medium.jpg?1395227038" /><span>MachineLearning</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="40"><a class="u-link-unstyled TagList__label" href="/tags/NeuralNetwork"><img alt="NeuralNetwork" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>NeuralNetwork</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">192</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="2 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>2</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:192,&quot;uuid&quot;:&quot;fdf4d64a0d221a81da34&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></li><li class="js-hovercard" data-hovercard-target-name="piruty_joy"><a itemprop="url" href="/piruty_joy"><img alt="piruty_joy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26687/profile-images/1473684662" /></a></li><li class="js-hovercard" data-hovercard-target-name="cb400sp2"><a itemprop="url" href="/cb400sp2"><img alt="cb400sp2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7821/profile-images/1473680740" /></a></li><li class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></li><li class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></li><li class="js-hovercard" data-hovercard-target-name="tmazda1973"><a itemprop="url" href="/tmazda1973"><img alt="tmazda1973" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/91620/profile-images/1473705363" /></a></li><li class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></li><li class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></li><li class="js-hovercard" data-hovercard-target-name="macchaberrycream"><a itemprop="url" href="/macchaberrycream"><img alt="macchaberrycream" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33391/profile-images/1473686115" /></a></li><li><a href="/sergeant-wizard/items/fdf4d64a0d221a81da34/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/sergeant-wizard"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" alt="1473697453" /></a> <a class="u-link-unstyled" href="/sergeant-wizard">sergeant-wizard</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-11-11T13:06:56+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-11-11">Edited at <time datetime="2015-11-11T13:22:04+09:00" itemprop="dateModified">2015-11-11</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/sergeant-wizard/items/fdf4d64a0d221a81da34/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">2</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/sergeant-wizard/items/fdf4d64a0d221a81da34/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(2)</span></a></li><li><a href="/sergeant-wizard/items/fdf4d64a0d221a81da34.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-fdf4d64a0d221a81da34" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div>
+<h1>
+<span id="概要" class="fragment"></span><a href="#%E6%A6%82%E8%A6%81"><i class="fa fa-link"></i></a>概要</h1>
+
+<p>TensorFlowについてくるTensorBoardを使うとニューラルネットワークの学習過程やデータフローが簡単に可視化できてすごいという話。<br>
+以下のドキュメントの内容を実際に動かしてみた結果です。</p>
+
+<ul>
+<li><a href="https://tensorflow.org/tutorials/mnist/tf/index.md#tutorial_files" rel="nofollow noopener" target="_blank">TensorFlow Mechanics 101</a></li>
+<li><a href="https://tensorflow.org/how_tos/summaries_and_tensorboard/index.md" rel="nofollow noopener" target="_blank">TensorBoard: Visualizing Learning</a></li>
+</ul>
+
+<h1>
+<span id="前提知識" class="fragment"></span><a href="#%E5%89%8D%E6%8F%90%E7%9F%A5%E8%AD%98"><i class="fa fa-link"></i></a>前提知識</h1>
+
+<ul>
+<li><a href="http://qiita.com/sergeant-wizard/items/55256ac6d5d8d7c53a5a" id="reference-8974e65531ef099756e6">Neural Networkをちょっとかじった人のための、はじめてのTensorFlow</a></li>
+<li><a href="http://qiita.com/haminiku/items/36982ae65a770565458d" id="reference-f7b42bbb6528e9f56881">TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築</a></li>
+</ul>
+
+<h1>
+<span id="学習を実行" class="fragment"></span><a href="#%E5%AD%A6%E7%BF%92%E3%82%92%E5%AE%9F%E8%A1%8C"><i class="fa fa-link"></i></a>学習を実行</h1>
+
+<p>TensorFlowの公式GitHubリポジトリをクローンします。チュートリアルで使われるコードもついてきます。</p>
+
+<div class="code-frame" data-lang="sh"><div class="highlight"><pre>
+<span class="nv">$ </span>git clone https://github.com/tensorflow/tensorflow
+</pre></div></div>
+
+<p>今回は以下のディレクトリに含まれるMNISTの学習を取り扱います。</p>
+
+<div class="code-frame" data-lang="sh"><div class="highlight"><pre>
+<span class="nv">$ </span><span class="nb">cd </span>tensorflow/tensorflow/g3doc/tutorials/mnist
+</pre></div></div>
+
+<p>公式のチュートリアル通りに<code>fully_connected_feed.py</code>を実行しようとすると以下のエラーがでます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ python fully_connected_feed.py
+Traceback (most recent call last):
+  File "fully_connected_feed.py", line 19, in &lt;module&gt;
+    from tensorflow.g3doc.tutorials.mnist import input_data
+ImportError: No module named g3doc.tutorials.mnist
+</pre></div></div>
+
+<p>エラー回避のために以下の修正をしました。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+--- a/tensorflow/g3doc/tutorials/mnist/fully_connected_feed.py
++++ b/tensorflow/g3doc/tutorials/mnist/fully_connected_feed.py
+@@ -16,8 +16,8 @@ import tensorflow.python.platform
+ import numpy
+ import tensorflow as tf
+
+-from tensorflow.g3doc.tutorials.mnist import input_data
+-from tensorflow.g3doc.tutorials.mnist import mnist
++import input_data
++import mnist
+</pre></div></div>
+
+<p>修正した上で実行します。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ python fully_connected_feed.py
+Succesfully downloaded train-images-idx3-ubyte.gz 9912422 bytes.
+Extracting data/train-images-idx3-ubyte.gz
+Succesfully downloaded train-labels-idx1-ubyte.gz 28881 bytes.
+Extracting data/train-labels-idx1-ubyte.gz
+Succesfully downloaded t10k-images-idx3-ubyte.gz 1648877 bytes.
+Extracting data/t10k-images-idx3-ubyte.gz
+Succesfully downloaded t10k-labels-idx1-ubyte.gz 4542 bytes.
+Extracting data/t10k-labels-idx1-ubyte.gz
+can't determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4
+can't determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4
+Step 0: loss = 2.31 (0.015 sec)
+Step 100: loss = 2.15 (0.006 sec)
+Step 200: loss = 1.91 (0.006 sec)
+Step 300: loss = 1.60 (0.005 sec)
+Step 400: loss = 1.30 (0.006 sec)
+Step 500: loss = 0.91 (0.005 sec)
+Step 600: loss = 0.79 (0.005 sec)
+Step 700: loss = 0.73 (0.005 sec)
+Step 800: loss = 0.60 (0.005 sec)
+Step 900: loss = 0.60 (0.005 sec)
+Training Data Eval:
+  Num examples: 55000  Num correct: 47246  Precision @ 1: 0.8590
+Validation Data Eval:
+  Num examples: 5000  Num correct: 4321  Precision @ 1: 0.8642
+Test Data Eval:
+  Num examples: 10000  Num correct: 8721  Precision @ 1: 0.8721
+Step 1000: loss = 0.41 (0.016 sec)
+Step 1100: loss = 0.50 (0.124 sec)
+Step 1200: loss = 0.35 (0.006 sec)
+Step 1300: loss = 0.58 (0.005 sec)
+Step 1400: loss = 0.56 (0.006 sec)
+Step 1500: loss = 0.51 (0.006 sec)
+Step 1600: loss = 0.59 (0.006 sec)
+Step 1700: loss = 0.25 (0.005 sec)
+Step 1800: loss = 0.46 (0.005 sec)
+Step 1900: loss = 0.28 (0.005 sec)
+Training Data Eval:
+  Num examples: 55000  Num correct: 49320  Precision @ 1: 0.8967
+Validation Data Eval:
+  Num examples: 5000  Num correct: 4512  Precision @ 1: 0.9024
+Test Data Eval:
+  Num examples: 10000  Num correct: 9038  Precision @ 1: 0.9038
+</pre></div></div>
+
+<p>今回は無事実行でき、学習できたようです。</p>
+
+<h1>
+<span id="結果を可視化" class="fragment"></span><a href="#%E7%B5%90%E6%9E%9C%E3%82%92%E5%8F%AF%E8%A6%96%E5%8C%96"><i class="fa fa-link"></i></a>結果を可視化</h1>
+
+<p>ここからがTensorBoardの話です。</p>
+
+<p>TensorFlowをPIP経由でインストールしている場合、以下のコマンドを実行するとローカルのHTTPサーバでTensorBoardがホスティングされます。</p>
+
+<div class="code-frame" data-lang="text"><div class="highlight"><pre>
+$ tensorboard --logdir=/&lt;ABSOLUTE_PATH&gt;/tensorflow/tensorflow/g3doc/tutorials/mnist/data
+flow/tensorflow/g3doc/tutorials/mnist/data
+Starting TensorBoard on port 6006
+(You can navigate to http://localhost:6006)
+</pre></div></div>
+
+<p><code>&lt;ABSOLUTE_PATH&gt;</code>にはTensorFlowをクローンした絶対パスを入れてください。</p>
+
+<p>ログ通りブラウザで<code>localhost:6006</code>にアクセスすると・・・</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/67217/82fa98cb-e03a-599b-c75e-c3db8bac0707.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/67217/82fa98cb-e03a-599b-c75e-c3db8bac0707.png" alt="tensorBoard1.png"></a></p>
+
+<p>出力した<code>xentropy_mean</code>が表示されています。ここを展開すると・・・</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/67217/58ec7cd8-d8b2-a4d9-131b-8467158f43b1.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/67217/58ec7cd8-d8b2-a4d9-131b-8467158f43b1.png" alt="xenttropy.png"></a></p>
+
+<p>横軸が学習回数、縦軸が交差エントロピーの値です。学習が進むに連れて最小化の対象のエントロピーが減少していくことが確認できます。<br>
+<code>gnuplot</code>のスクリプト書いて手動でグラフを書いてた時代が懐かしいです。</p>
+
+<p>更に、右上のGRAPHタブをクリックすると・・・</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/67217/824c2f20-3932-3e9b-7d98-e8a64ec21b07.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/67217/824c2f20-3932-3e9b-7d98-e8a64ec21b07.png" alt="graph.png"></a></p>
+
+<p>ニューラルネットワークのデータフローが可視化されています。これは便利！</p>
+
+<hr>
+
+<p>(追記1)<br>
+GraphのNodeの"+"ボタンを押して展開すると、以下のようにNodeの詳細が見れる機能も便利でした。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/67217/4d7ac405-b04e-270e-caf7-38588e515a18.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/67217/4d7ac405-b04e-270e-caf7-38588e515a18.png" alt="expand.png"></a></p>
+<div class="hidden"><form class="js-task-list-update" action="/sergeant-wizard/items/fdf4d64a0d221a81da34" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="Ysbw18yV3h3uo0Jfh7aWWCKg5ka5su2BIm/WIo9Hn/KnmA6fIE+s6n+NDQ17MSltDdLcsZJeNvWzTr7cpvT6gg==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1447215724" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+# 概要
+TensorFlowについてくるTensorBoardを使うとニューラルネットワークの学習過程やデータフローが簡単に可視化できてすごいという話。
+以下のドキュメントの内容を実際に動かしてみた結果です。
+
+- [TensorFlow Mechanics 101](https://tensorflow.org/tutorials/mnist/tf/index.md#tutorial_files)
+- [TensorBoard: Visualizing Learning](https://tensorflow.org/how_tos/summaries_and_tensorboard/index.md)
+
+# 前提知識
+- [Neural Networkをちょっとかじった人のための、はじめてのTensorFlow](http://qiita.com/sergeant-wizard/items/55256ac6d5d8d7c53a5a)
+- [TensorFlow 畳み込みニューラルネットワークで手書き認識率99.2%の分類器を構築](http://qiita.com/haminiku/items/36982ae65a770565458d)
+
+# 学習を実行
+
+TensorFlowの公式GitHubリポジトリをクローンします。チュートリアルで使われるコードもついてきます。
+
+```sh
+$ git clone https://github.com/tensorflow/tensorflow
+```
+
+今回は以下のディレクトリに含まれるMNISTの学習を取り扱います。
+
+```sh
+$ cd tensorflow/tensorflow/g3doc/tutorials/mnist
+```
+
+公式のチュートリアル通りに`fully_connected_feed.py`を実行しようとすると以下のエラーがでます。
+
+```
+$ python fully_connected_feed.py
+Traceback (most recent call last):
+  File &quot;fully_connected_feed.py&quot;, line 19, in &lt;module&gt;
+    from tensorflow.g3doc.tutorials.mnist import input_data
+ImportError: No module named g3doc.tutorials.mnist
+```
+
+エラー回避のために以下の修正をしました。
+
+```
+--- a/tensorflow/g3doc/tutorials/mnist/fully_connected_feed.py
++++ b/tensorflow/g3doc/tutorials/mnist/fully_connected_feed.py
+@@ -16,8 +16,8 @@ import tensorflow.python.platform
+ import numpy
+ import tensorflow as tf
+
+-from tensorflow.g3doc.tutorials.mnist import input_data
+-from tensorflow.g3doc.tutorials.mnist import mnist
++import input_data
++import mnist
+```
+
+修正した上で実行します。
+
+```
+$ python fully_connected_feed.py
+Succesfully downloaded train-images-idx3-ubyte.gz 9912422 bytes.
+Extracting data/train-images-idx3-ubyte.gz
+Succesfully downloaded train-labels-idx1-ubyte.gz 28881 bytes.
+Extracting data/train-labels-idx1-ubyte.gz
+Succesfully downloaded t10k-images-idx3-ubyte.gz 1648877 bytes.
+Extracting data/t10k-images-idx3-ubyte.gz
+Succesfully downloaded t10k-labels-idx1-ubyte.gz 4542 bytes.
+Extracting data/t10k-labels-idx1-ubyte.gz
+can&#39;t determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4
+can&#39;t determine number of CPU cores: assuming 4
+I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4
+Step 0: loss = 2.31 (0.015 sec)
+Step 100: loss = 2.15 (0.006 sec)
+Step 200: loss = 1.91 (0.006 sec)
+Step 300: loss = 1.60 (0.005 sec)
+Step 400: loss = 1.30 (0.006 sec)
+Step 500: loss = 0.91 (0.005 sec)
+Step 600: loss = 0.79 (0.005 sec)
+Step 700: loss = 0.73 (0.005 sec)
+Step 800: loss = 0.60 (0.005 sec)
+Step 900: loss = 0.60 (0.005 sec)
+Training Data Eval:
+  Num examples: 55000  Num correct: 47246  Precision @ 1: 0.8590
+Validation Data Eval:
+  Num examples: 5000  Num correct: 4321  Precision @ 1: 0.8642
+Test Data Eval:
+  Num examples: 10000  Num correct: 8721  Precision @ 1: 0.8721
+Step 1000: loss = 0.41 (0.016 sec)
+Step 1100: loss = 0.50 (0.124 sec)
+Step 1200: loss = 0.35 (0.006 sec)
+Step 1300: loss = 0.58 (0.005 sec)
+Step 1400: loss = 0.56 (0.006 sec)
+Step 1500: loss = 0.51 (0.006 sec)
+Step 1600: loss = 0.59 (0.006 sec)
+Step 1700: loss = 0.25 (0.005 sec)
+Step 1800: loss = 0.46 (0.005 sec)
+Step 1900: loss = 0.28 (0.005 sec)
+Training Data Eval:
+  Num examples: 55000  Num correct: 49320  Precision @ 1: 0.8967
+Validation Data Eval:
+  Num examples: 5000  Num correct: 4512  Precision @ 1: 0.9024
+Test Data Eval:
+  Num examples: 10000  Num correct: 9038  Precision @ 1: 0.9038
+```
+
+今回は無事実行でき、学習できたようです。
+
+# 結果を可視化
+
+ここからがTensorBoardの話です。
+
+TensorFlowをPIP経由でインストールしている場合、以下のコマンドを実行するとローカルのHTTPサーバでTensorBoardがホスティングされます。
+
+```
+$ tensorboard --logdir=/&lt;ABSOLUTE_PATH&gt;/tensorflow/tensorflow/g3doc/tutorials/mnist/data
+flow/tensorflow/g3doc/tutorials/mnist/data
+Starting TensorBoard on port 6006
+(You can navigate to http://localhost:6006)
+```
+
+`&lt;ABSOLUTE_PATH&gt;`にはTensorFlowをクローンした絶対パスを入れてください。
+
+ログ通りブラウザで`localhost:6006`にアクセスすると・・・
+
+![tensorBoard1.png](https://qiita-image-store.s3.amazonaws.com/0/67217/82fa98cb-e03a-599b-c75e-c3db8bac0707.png)
+
+出力した`xentropy_mean`が表示されています。ここを展開すると・・・
+
+![xenttropy.png](https://qiita-image-store.s3.amazonaws.com/0/67217/58ec7cd8-d8b2-a4d9-131b-8467158f43b1.png)
+
+横軸が学習回数、縦軸が交差エントロピーの値です。学習が進むに連れて最小化の対象のエントロピーが減少していくことが確認できます。
+`gnuplot`のスクリプト書いて手動でグラフを書いてた時代が懐かしいです。
+
+更に、右上のGRAPHタブをクリックすると・・・
+
+![graph.png](https://qiita-image-store.s3.amazonaws.com/0/67217/824c2f20-3932-3e9b-7d98-e8a64ec21b07.png)
+
+ニューラルネットワークのデータフローが可視化されています。これは便利！
+
+-----
+(追記1)
+GraphのNodeの&quot;+&quot;ボタンを押して展開すると、以下のようにNodeの詳細が見れる機能も便利でした。
+
+![expand.png](https://qiita-image-store.s3.amazonaws.com/0/67217/4d7ac405-b04e-270e-caf7-38588e515a18.png)
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowとTensorBoardでニューラルネットワークを可視化 by @sergeant_wizard on @Qiita" data-url="http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowとTensorBoardでニューラルネットワークを可視化" href="http://b.hatena.ne.jp/entry/http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/sergeant-wizard"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/sergeant-wizard">sergeant-wizard</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">1545</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;sergeant-wizard&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-df09d570-735d-4277-a4e4-87def3b007cc"></div>
+    <div id="UserFollowButton-react-component-df09d570-735d-4277-a4e4-87def3b007cc"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/sergeant-wizard/items/9bb45c0850aebca2bc07">ニューラルネットワークでプロ野球選手の給与を査定してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/sergeant-wizard/items/fdf4d64a0d221a81da34">TensorFlowとTensorBoardでニューラルネットワークを可視化</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/sergeant-wizard/items/0a57485bc90a35efcf26">最新の画像生成技術に衝撃を受けたので、その基礎技術をTensorFlowで実装してみる</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/sergeant-wizard/items/f10669e33858543dbc0b">RESTの次のパラダイムはGraphQLか</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/sergeant-wizard/items/98ce0993a195475fd7a9">TensorFlowのコード分割の考え方</a></li></ul></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%A6%82%E8%A6%81\&quot;\u003e概要\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%89%8D%E6%8F%90%E7%9F%A5%E8%AD%98\&quot;\u003e前提知識\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AD%A6%E7%BF%92%E3%82%92%E5%AE%9F%E8%A1%8C\&quot;\u003e学習を実行\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E6%9E%9C%E3%82%92%E5%8F%AF%E8%A6%96%E5%8C%96\&quot;\u003e結果を可視化\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-9488900d-02a6-4e14-b291-fab05ab864b4"></div>
+    <div id="Toc-react-component-9488900d-02a6-4e14-b291-fab05ab864b4"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:192,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;fdf4d64a0d221a81da34&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="st450"><a itemprop="url" href="/st450"><img alt="st450" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63970/profile-images/1473696432" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="piruty_joy"><a itemprop="url" href="/piruty_joy"><img alt="piruty_joy" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/26687/profile-images/1473684662" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="cb400sp2"><a itemprop="url" href="/cb400sp2"><img alt="cb400sp2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/7821/profile-images/1473680740" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hachi8833"><a itemprop="url" href="/hachi8833"><img alt="hachi8833" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/20266/profile-images/1473682963" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tomookaku"><a itemprop="url" href="/tomookaku"><img alt="tomookaku" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/32563/profile-images/1473685930" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="tmazda1973"><a itemprop="url" href="/tmazda1973"><img alt="tmazda1973" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/91620/profile-images/1473705363" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mero"><a itemprop="url" href="/mero"><img alt="mero" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/63104/profile-images/1473696161" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiTamori"><a itemprop="url" href="/HirofumiTamori"><img alt="HirofumiTamori" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/46294/profile-images/1473690604" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="HirofumiYashima"><a itemprop="url" href="/HirofumiYashima"><img alt="HirofumiYashima" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/43487/profile-images/1473689546" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="macchaberrycream"><a itemprop="url" href="/macchaberrycream"><img alt="macchaberrycream" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/33391/profile-images/1473686115" /></a></div></div><div class="ArticleFooter__user"><a href="/sergeant-wizard/items/fdf4d64a0d221a81da34/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/fdf4d64a0d221a81da34/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/sergeant-wizard/items/fdf4d64a0d221a81da34.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/sergeant-wizard/items/98ce0993a195475fd7a9#_reference-e42205a476558d887a5d"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" />TensorFlowのコード分割の考え方</a><time class="references_datetime js-dateTimeView" datetime="2015-11-11T09:38:35+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/sergeant-wizard/items/c98597b8add04b8eea0b#_reference-b78585b2755c063a1015"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453" />TensorBoardでデータフローを可視化する</a><time class="references_datetime js-dateTimeView" datetime="2015-11-12T04:07:50+00:00">over 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/shu223/items/a4fc17eb3356a6068553#_reference-46c52b084ca91314f23c"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/3180/profile-images/1473682733" />ディープラーニングの有名ライブラリ5種を最短距離で試す半日コース（TensorFlow, Chainer, Caffe, DeepDream, 画風変換）</a><time class="references_datetime js-dateTimeView" datetime="2016-01-12T00:34:06+00:00">about 1 year ago</time></li><li class="references_reference js-reference"><span>Linked from </span><a href="/shngt/items/58bdc5087dd9036ea97d#_reference-699ac5da661f76e2188a"><img alt="" width="18" height="18" src="https://qiita-image-store.s3.amazonaws.com/0/103085/profile-images/1479473183" />TensorFlowの基本概念メモ</a><time class="references_datetime js-dateTimeView" datetime="2016-08-13T10:02:31+00:00">7 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="TensorFlowとTensorBoardでニューラルネットワークを可視化 by @sergeant_wizard on @Qiita" data-url="http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="TensorFlowとTensorBoardでニューラルネットワークを可視化" href="http://b.hatena.ne.jp/entry/http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cblockquote\u003e\n\u003cp\u003e公式のチュートリアル通りにfully_connected_feed.pyを実行しようとすると以下のエラーがでます。  \u003c/p\u003e\n\u003c/blockquote\u003e\n\n\u003cp\u003e\u003ca href=\&quot;http://nextdeveloper.hatenablog.com/entry/2015/11/10/204609\&quot; rel=\&quot;nofollow noopener\&quot; target=\&quot;_blank\&quot;\u003eこちら\u003c/a\u003eにはかきませんでしたが、私のところでも同様のエラーが出て、同様の修正をしました。  \u003c/p\u003e\n\n\u003cp\u003e自分の環境が悪いのかと思っていたのですが、やはり起こるようですね・・・\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-11T14:25:22+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:381905,&quot;is_team&quot;:false,&quot;item_id&quot;:342016,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;fdf4d64a0d221a81da34&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:1,&quot;raw_body&quot;:&quot;\u003e公式のチュートリアル通りにfully_connected_feed.pyを実行しようとすると以下のエラーがでます。  \n\n[こちら](http://nextdeveloper.hatenablog.com/entry/2015/11/10/204609)にはかきませんでしたが、私のところでも同様のエラーが出て、同様の修正をしました。  \n\n自分の環境が悪いのかと思っていたのですが、やはり起こるようですね・・・\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34#comment-7fd874c13231754b485f&quot;,&quot;user&quot;:{&quot;contribution&quot;:750,&quot;created_at&quot;:&quot;2014-07-31T11:02:13+09:00&quot;,&quot;id&quot;:50474,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50474/profile-images/1473692117&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;bohemian916&quot;},&quot;uuid&quot;:&quot;7fd874c13231754b485f&quot;,&quot;via_email&quot;:false},{&quot;banned&quot;:false,&quot;body&quot;:&quot;\u003cp\u003efully_connected_feed.pyを実行できずに悩んでいたので、非常に参考になりました。\u003c/p\u003e\n&quot;,&quot;created_at&quot;:&quot;2015-11-13T22:12:19+09:00&quot;,&quot;expanded_references&quot;:&quot;&quot;,&quot;id&quot;:385411,&quot;is_team&quot;:false,&quot;item_id&quot;:342016,&quot;item_type&quot;:&quot;PublicDomainArticle&quot;,&quot;item_uuid&quot;:&quot;fdf4d64a0d221a81da34&quot;,&quot;likable&quot;:false,&quot;liked&quot;:false,&quot;public_likes_count&quot;:0,&quot;raw_body&quot;:&quot;fully_connected_feed.pyを実行できずに悩んでいたので、非常に参考になりました。\n&quot;,&quot;reaction_types&quot;:[{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png&quot;,&quot;name&quot;:&quot;+1&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png&quot;,&quot;name&quot;:&quot;pray&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png&quot;,&quot;name&quot;:&quot;tada&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png&quot;,&quot;name&quot;:&quot;bow&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png&quot;,&quot;name&quot;:&quot;scream&quot;},{&quot;image_url&quot;:&quot;https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png&quot;,&quot;name&quot;:&quot;eyes&quot;}],&quot;reactions&quot;:[],&quot;team&quot;:null,&quot;team_membership&quot;:null,&quot;updatable&quot;:false,&quot;url&quot;:&quot;http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34#comment-37e332f26c47bd324fbb&quot;,&quot;user&quot;:{&quot;contribution&quot;:1,&quot;created_at&quot;:&quot;2013-11-27T21:29:27+09:00&quot;,&quot;id&quot;:33059,&quot;is_admin&quot;:false,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/33059/profile-images/1473686037&quot;,&quot;suspended&quot;:false,&quot;url_name&quot;:&quot;JizaiCafe&quot;},&quot;uuid&quot;:&quot;37e332f26c47bd324fbb&quot;,&quot;via_email&quot;:false}],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:342016,&quot;uuid&quot;:&quot;fdf4d64a0d221a81da34&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;sergeant-wizard&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:67217,&quot;url_name&quot;:&quot;sergeant-wizard&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453&quot;},{&quot;id&quot;:50474,&quot;url_name&quot;:&quot;bohemian916&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/50474/profile-images/1473692117&quot;},{&quot;id&quot;:33059,&quot;url_name&quot;:&quot;JizaiCafe&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/33059/profile-images/1473686037&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-bab50112-405d-4b24-af21-ef8db6f0d0c5"></div>
+    <div id="CommentListContainer-react-component-bab50112-405d-4b24-af21-ef8db6f0d0c5"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="khIl6MlmrTVwwWseckszVkBynVM7q3z/o/mOL1RpFlpXTNugJbzfwuHvJEyOzIxjbwCnpBBHp4sy2ObRfdpzKg==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/sergeant-wizard/items/fdf4d64a0d221a81da34" /><input type="hidden" name="item_uuid" id="item_uuid" value="fdf4d64a0d221a81da34" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/sergeant-wizard/items/fdf4d64a0d221a81da34", "id": 342016, "uuid": "fdf4d64a0d221a81da34" }</script><script class="js-user" type="application/json">{&quot;id&quot;:67217,&quot;url_name&quot;:&quot;sergeant-wizard&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/67217/profile-images/1473697453&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="sMMk/KjDPf0GbSiZ/iQs/xWoRpSbZEuAZ1X+otFqdtV1ndq0RBlPCpdDZ8sCo5PKOtp8Y7CIkPT2dJZc+NkTpQ==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/sergeant-wizard/items/fdf4d64a0d221a81da34" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>

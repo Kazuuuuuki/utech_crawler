@@ -1,0 +1,815 @@
+<!DOCTYPE html><html xmlns:og="http://ogp.me/ns#"><head><meta charset="UTF-8" /><title>ニコニコ動画の公開コメントデータをDeep Learningで解析する - Qiita</title><meta content="width=device-width,initial-scale=1" name="viewport" /><meta content="この記事は第2のドワンゴ Advent Calendar 2015の24日目の記事です。
+
+ドワンゴエンジニアの@ixixiです。
+niconicoのデータをDeep Learningなアプローチで解析してみた話です。
+
+
+nico-opendata
+
+niconicoの学術目的用データ公開サイト　https://nico-opendata.jp が最近オープンしました。
+
+これまでも、国立情報学研究所にて、ニコニコ動画コメントデータや大百科データが公開されていましたが..." name="description" /><meta content="summary" name="twitter:card" /><meta content="@Qiita" name="twitter:site" /><meta content="ixixi" name="twitter:creator" /><meta content="ニコニコ動画の公開コメントデータをDeep Learningで解析する - Qiita" property="og:title" /><meta content="article" property="og:type" /><meta content="http://qiita.com/ixixi/items/a3d56b2db6e09249a519" property="og:url" /><meta content="http://cdn.qiita.com/assets/qiita-fb-2887e7b4aad86fd8c25cea84846f2236.png" property="og:image" /><meta content="
+この記事は[第2のドワンゴ Advent Calendar 2015](http://qiita.com/advent-calendar/2015/dwango2)の24日目の記事です。
+
+ドワンゴエンジニアの[@ixixi](ht..." property="og:description" /><meta content="Qiita" property="og:site_name" /><meta content="564524038" property="fb:admins" /><link rel="shortcut icon" type="image/x-icon" href="http://cdn.qiita.com/assets/favicons/public/production-4ff10c1e1e2b5fcb353ff9cafdd56c70.ico" /><link rel="apple-touch-icon" type="image/png" href="http://cdn.qiita.com/assets/favicons/public/apple-touch-icon-f9a6afad761ec2306e10db2736187c8b.png" /><link href="/opensearch.xml" rel="search" title="Qiita" type="application/opensearchdescription+xml" /><link rel="stylesheet" media="all" href="http://cdn.qiita.com/assets/public-81dd63f4385f99b52aeab91266068ebd.min.css" /><meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="ahB4McmfLPwLyuAmQvkePeDOb3X/zS/I9Teo4bzN9eyS9Ub9X1mtGwCek7AzwVkqmXdyXtj9YzwUAmPvjCGKQA==" /></head><body class="without-js" id=""><noscript><iframe height="0" src="//www.googletagmanager.com/ns.html?id=GTM-TBQWPN" style="display:none;visibility:hidden" width="0"></iframe></noscript><script>
+  document.body.className = document.body.className.replace('without-js', '') + ' with-js';
+  window.Qiita = {"asset_host":"cdn.qiita.com","TLD":"com","controller_path":"public/items","controller_action":"public/items#show","controller":"items","action":"show","action_path":"public/items#show","env":"production","flash":{},"is_landing_page":false,"is_team_page":false,"request_parameters":{"controller":"public/items","action":"show","user_id":"ixixi","type":"items","id":"a3d56b2db6e09249a519"},"root_domain":"qiita.com","variant":null,"config":{"mixpanel":{"career":"dd35af27e959781713d63fd7ca898a8d","per_team":"c0a2116368b33b44b5029ebd2cc9b094","public":"be87616606b0e26a87689099aab2c4e5","team":"b7c0342acba2dbc8742484d98788efb3"},"default_locale":"ja","locale":"en"},"team":null,"user":null,"GIT_BRANCH":null,"DEBUG":false};
+
+</script>
+<div class="headerContainer headerContainer-public" role="navigation"><div class="js-react-on-rails-component" data-component-name="HeaderContainer" data-props="{&quot;user&quot;:null,&quot;team&quot;:null,&quot;news&quot;:{&quot;type&quot;:&quot;Hot&quot;,&quot;content&quot;:&quot;Markdownによる情報共有サービス、Qiita:Team&quot;,&quot;url&quot;:&quot;https://teams.qiita.com?utm_source=qiita\u0026utm_medium=header_news&quot;},&quot;initial_unread_count&quot;:null,&quot;siteid_image&quot;:&quot;http://cdn.qiita.com/siteid-reverse.png&quot;,&quot;is_team_page&quot;:false,&quot;on_team_setting&quot;:false,&quot;show_post_menu&quot;:true,&quot;show_search_menu&quot;:true,&quot;is_fluid&quot;:false,&quot;locale&quot;:&quot;en&quot;}" data-trace="false" data-dom-id="HeaderContainer-react-component-484b07f1-fa48-4460-87ce-f32a59429d64"></div>
+    <div id="HeaderContainer-react-component-484b07f1-fa48-4460-87ce-f32a59429d64"></div>
+    
+</div><div id="main"><script type="application/ld+json">{  "@context": "http://schema.org",  "@type": "BreadcrumbList",  "itemListElement": [    {      "@type": "ListItem",      "position": 1,      "item": {        "@id": "/",        "name": "Qiita"      }    },    {      "@type": "ListItem",      "position": 2,      "item": {        "@id": "/items",        "name": "Items"      }    },    {      "@type": "ListItem",      "position": 3,      "item": {        "@id": "/tags/DeepLearning",        "name": "DeepLearning"      }    }  ]}</script><article itemscope="" itemtype="http://schema.org/Article"><div class="ArticleMainHeader ArticleMainHeader--adcalItem"><div class="container"></div><div class="container"><div class="row s-flex-align-center"><div class="col-sm-9"><div class="adventCalendarRibbon"><span><a class="adventCalendarRibbon_title" href="/advent-calendar/2015/dwango2">第2のドワンゴ Advent Calendar 2015</a> Day 24</span></div><h1 class="ArticleMainHeader__title" itemprop="headline">ニコニコ動画の公開コメントデータをDeep Learningで解析する</h1><ul class="TagList"><li class="TagList__item" data-count="1075"><a class="u-link-unstyled TagList__label" href="/tags/DeepLearning"><img alt="DeepLearning" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/eac844d1d880a38fc3be5ebf534cad5182b64ebf/medium.jpg?1453002020" /><span>DeepLearning</span></a></li><li class="TagList__item" data-count="421"><a class="u-link-unstyled TagList__label" href="/tags/%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86"><img alt="自然言語処理" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/8f3d1fa5956802137842d298176db395ebb6ed5e/medium.jpg?1439789898" /><span>自然言語処理</span></a></li><li class="TagList__item" data-count="358"><a class="u-link-unstyled TagList__label" href="/tags/Chainer"><img alt="Chainer" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/755fdcf477b1d3db5946dad4f779ba11a5954c18/medium.jpg?1434432587" /><span>Chainer</span></a></li><li class="TagList__item" data-count="1835"><a class="u-link-unstyled TagList__label" href="/tags/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92"><img alt="機械学習" class="TagList__icon" src="https://s3-ap-northeast-1.amazonaws.com/qiita-tag-image/a94d4d239b3b0b83723d5b56c050ffc54b8593e7/medium.jpg?1394635775" /><span>機械学習</span></a></li><li class="TagList__item" data-count="31"><a class="u-link-unstyled TagList__label" href="/tags/%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E5%8B%95%E7%94%BB"><img alt="ニコニコ動画" class="TagList__icon" src="//cdn.qiita.com/assets/icons/medium/missing-2e17009a0b32a6423572b0e6dc56727e.png" /><span>ニコニコ動画</span></a></li></ul></div><div class="col-sm-3"><div class="itemsShowHeaderStock"><ul class="list-unstyled itemsShowHeaderStock_statusList"><li><div class="itemsShowHeaderStock_count stock"><span class="fa fa-thumbs-up"></span><span class="js-likecount">371</span></div><div class="itemsShowHeaderStock_countText">Like</div></li><li><div class="itemsShowHeaderStock_count" content="0 UserComments" itemprop="commentCount"><span class="fa fa-comment"></span>0</div><div class="itemsShowHeaderStock_countText">Comment</div></li></ul></div><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:371,&quot;uuid&quot;:&quot;a3d56b2db6e09249a519&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-header&quot;}"></div><ul class="list-inline ArticleMainHeader__users"><li class="js-hovercard" data-hovercard-target-name="snowsunny"><a itemprop="url" href="/snowsunny"><img alt="snowsunny" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10658/profile-images/1473681766" /></a></li><li class="js-hovercard" data-hovercard-target-name="mia_0032"><a itemprop="url" href="/mia_0032"><img alt="mia_0032" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/59581/profile-images/1473694972" /></a></li><li class="js-hovercard" data-hovercard-target-name="ru_shalm"><a itemprop="url" href="/ru_shalm"><img alt="ru_shalm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25109/profile-images/1476593104" /></a></li><li class="js-hovercard" data-hovercard-target-name="ayaniimi213"><a itemprop="url" href="/ayaniimi213"><img alt="ayaniimi213" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31830/profile-images/1473685778" /></a></li><li class="js-hovercard" data-hovercard-target-name="shimo_t"><a itemprop="url" href="/shimo_t"><img alt="shimo_t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64100/profile-images/1473696475" /></a></li><li class="js-hovercard" data-hovercard-target-name="Kinoppyd"><a itemprop="url" href="/Kinoppyd"><img alt="Kinoppyd" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14067/profile-images/1484671405" /></a></li><li class="js-hovercard" data-hovercard-target-name="meso"><a itemprop="url" href="/meso"><img alt="meso" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1512/profile-images/1473683611" /></a></li><li class="js-hovercard" data-hovercard-target-name="futa23"><a itemprop="url" href="/futa23"><img alt="futa23" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/82469/profile-images/1473702463" /></a></li><li class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></li><li class="js-hovercard" data-hovercard-target-name="erukiti"><a itemprop="url" href="/erukiti"><img alt="erukiti" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3134/profile-images/1473682645" /></a></li><li><a href="/ixixi/items/a3d56b2db6e09249a519/likers"><span class="fa fa-ellipsis-h"></span></a></li></ul></div></div></div></div><div class="ArticleAsideHeader"><div class="container"><div class="u-flex u-space-between"><div class="u-flex u-flex-wrap"><div class="u-flex u-align-center s-pdv-5 u-flex-wrap"><div class="ArticleAsideHeader__author"><a href="/ixixi"><img class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/8954/profile-images/1473681204" alt="1473681204" /></a> <a class="u-link-unstyled" href="/ixixi">ixixi</a> </div><div class="ArticleAsideHeader__date"><meta content="2015-12-24T02:11:23+09:00" itemprop="datePublished" /><span data-toggle="tooltip" title="posted at 2015-12-24">Edited at <time datetime="2015-12-29T23:23:23+09:00" itemprop="dateModified">2015-12-29</time></span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"><div class="ArticleAsideHeader__revision"> <a data-toggle="tooltip" title="Revisions" href="/ixixi/items/a3d56b2db6e09249a519/revisions"><span class="fa fa-history"></span></a><span class="ArticleAsideHeader__revisionCount">11</span></div></div><div class="u-flex u-align-center s-pdv-5 mobile-hidden"></div></div><div class="u-flex u-align-center s-flex-justiry-between s-pdv-5 u-shrink-0"><div class="ArticleAsideHeader__stock"><div class="js-stockbutton" data-position="top" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h fa-lg"></span></a><ul class="dropdown-menu dropdown-menu-right"><li class="dropdown__item--mobile"><a href="/ixixi/items/a3d56b2db6e09249a519/revisions"><span class="fa fa-fw fa-history"></span> Revisions<span>(11)</span></a></li><li><a href="/ixixi/items/a3d56b2db6e09249a519.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><span class="fa fa-fw fa-flag"></span> Report article</a></li></ul></div></div></div></div></div><div class="container"><div class="row" id="article-body-wrapper"><div class="col-sm-9"><section class="markdownContent markdownContent-headingEnabled js-task-list-container clearfix position-relative" id="item-a3d56b2db6e09249a519" itemprop="articleBody"><div class="alert alert-warning"><i class="fa fa-clock-o"></i> More than 1 year has passed since last update.</div><p>この記事は<a href="http://qiita.com/advent-calendar/2015/dwango2">第2のドワンゴ Advent Calendar 2015</a>の24日目の記事です。</p>
+
+<p>ドワンゴエンジニアの<a href="http://qiita.com/ixixi">@ixixi</a>です。<br>
+niconicoのデータをDeep Learningなアプローチで解析してみた話です。</p>
+
+<h1>
+<span id="nico-opendata" class="fragment"></span><a href="#nico-opendata"><i class="fa fa-link"></i></a>nico-opendata</h1>
+
+<p>niconicoの学術目的用データ公開サイト　<a href="https://nico-opendata.jp" class="autolink" rel="nofollow noopener" target="_blank">https://nico-opendata.jp</a> が最近オープンしました。</p>
+
+<p>これまでも、国立情報学研究所にて、ニコニコ動画コメントデータや大百科データが公開されていましたが、 nico-opendataでは、ニコニコ静画のイラストデータの約40万枚のイラストとメタデータが研究者向けにデータ提供されています。<br>
+今回は、ニコニコ動画コメントデータ(誰でも取得可能)を用いたDeep Learningによるコメント解析例を紹介します。</p>
+
+<h1>
+<span id="超自然言語" class="fragment"></span><a href="#%E8%B6%85%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E"><i class="fa fa-link"></i></a>超自然言語</h1>
+
+<p>ニコニコのコメントデータに限らず、twitterでのtweetやなど、Web上の言葉は非常に自由な表現が行われており、このことが文の解釈を阻む課題となっています。<br>
+通常の文章に比べ、例えば、以下のような表現は、意味の解析を難しくしています。</p>
+
+<ul>
+<li>絶叫表現 - 「<a href="http://dic.nicovideo.jp/a/%E3%81%93%E3%81%AA%E3%81%82%E3%81%82%E3%81%82%E3%81%82%E3%81%82%E3%81%82%E3%82%86%E3%81%8D%E3%81%84%E3%81%84%E3%81%84%E3%81%84%E3%81%84%E3%81%84" rel="nofollow noopener" target="_blank">こなああああああゆきいいいいいい</a>」「きたああああ」「SUGEEEEEEE」</li>
+<li>顔文字 - 「<a href="http://dic.nicovideo.jp/a/%28%CC%81%E3%83%BB%CF%89%E3%83%BB%60%29" rel="nofollow noopener" target="_blank">(´・ω・`)ｼｮﾎﾞｰﾝ</a>」「<a href="http://dic.nicovideo.jp/a/%28%E3%82%9A%E2%88%80%E3%82%9A%29%E3%83%A9%E3%83%B4%E3%82%A3%21%21" rel="nofollow noopener" target="_blank">(ﾟ∀ﾟ)ﾗｳﾞｨ!!</a>」「<a href="http://dic.nicovideo.jp/a/%E4%BA%BA%E7%94%9F%E3%82%AA%E3%83%AF%E3%82%BF%5C%28%5Eo%5E%29%2F" rel="nofollow noopener" target="_blank">人生ｵﾜﾀ＼(^o^)／</a>」「<a href="http://dic.nicovideo.jp/a/%E5%9B%A7" rel="nofollow noopener" target="_blank">囧</a>」</li>
+<li>話し言葉表現 - 「くっさ」「〜じゃね?」「やっべぇ!」</li>
+<li>書き言葉ではない言い回し - 「<a href="http://dic.nicovideo.jp/a/%E3%83%9E%E3%82%B8%E3%82%AD%E3%83%81" rel="nofollow noopener" target="_blank">マジキチwww</a>」「<a href="http://dic.nicovideo.jp/a/%E3%81%BF%E3%81%88" rel="nofollow noopener" target="_blank">みえ</a>」「<a href="http://dic.nicovideo.jp/a/%E2%97%8Frec" rel="nofollow noopener" target="_blank">●REC</a>」「<a href="http://dic.nicovideo.jp/a/%E3%81%8A%E3%81%BE" rel="nofollow noopener" target="_blank">おまwww</a>」</li>
+<li>特殊な擬音語・擬態語 - 「<a href="http://dic.nicovideo.jp/a/8" rel="nofollow noopener" target="_blank">8888888</a>」</li>
+<li>略称 - 「<a href="http://dic.nicovideo.jp/a/ksk" rel="nofollow noopener" target="_blank">ksk</a>」「<a href="http://dic.nicovideo.jp/a/wktk" rel="nofollow noopener" target="_blank">wktk</a>」「<a href="http://dic.nicovideo.jp/a/ndk" rel="nofollow noopener" target="_blank">NKT</a>」「<a href="http://dic.nicovideo.jp/a/ndk" rel="nofollow noopener" target="_blank">NDK</a>」「<a href="http://dic.nicovideo.jp/a/%E4%B9%99" rel="nofollow noopener" target="_blank">乙</a>」「<a href="http://dic.nicovideo.jp/a/%E4%BB%8A%E5%8C%97%E7%94%A3%E6%A5%AD" rel="nofollow noopener" target="_blank">今北産業</a>」「<a href="http://dic.nicovideo.jp/a/%E5%B8%8C%E3%82%AC%E3%82%B9" rel="nofollow noopener" target="_blank">〜な希ガス</a>」</li>
+<li>サービス固有表現 - 「<a href="http://dic.nicovideo.jp/l/%E3%82%8F%E3%81%93%E3%81%A4" rel="nofollow noopener" target="_blank">わこつ</a>」「こうこつ」「<a href="http://dic.nicovideo.jp/a/%E3%81%86%E3%81%BD%E3%81%A4" rel="nofollow noopener" target="_blank">うぽつ</a>」「えんちょつ」「<a href="http://dic.nicovideo.jp/a/tmt" rel="nofollow noopener" target="_blank">tmt</a>」「<a href="http://dic.nicovideo.jp/a/184%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88" rel="nofollow noopener" target="_blank">184</a>」「<a href="http://dic.nicovideo.jp/a/%E3%82%93c" rel="nofollow noopener" target="_blank">んc</a>」</li>
+<li>通常とは異なる意味 - 「<a href="http://dic.nicovideo.jp/a/%E2%80%BB" rel="nofollow noopener" target="_blank">※</a>」「<a href="http://dic.nicovideo.jp/a/%E9%A6%AC%E9%B9%BF%E3%81%AA%E3%81%AE%3F" rel="nofollow noopener" target="_blank">馬鹿なの?死ぬの?</a>」「<a href="http://netyougo.com/2ch/3166.html" rel="nofollow noopener" target="_blank">わろすわろす</a>(「わろすわろす」と「わろす」ではニュアンスがかなり異なる)」</li>
+<li>テンプレート文法 -「<a href="http://dic.nicovideo.jp/a/%E3%81%AA%E3%82%93%E3%81%A7%E3%82%84%EF%BC%81%E9%98%AA%E7%A5%9E%E9%96%A2%E4%BF%82%E3%81%AA%E3%81%84%E3%82%84%E3%82%8D%EF%BC%81" rel="nofollow noopener" target="_blank">なんでや!●●関係ないやろ!</a>」「<a href="http://dic.nicovideo.jp/a/%E3%81%82%E3%81%81%5E%E3%80%9C%E5%BF%83%E3%81%8C%E3%81%B4%E3%82%87%E3%82%93%E3%81%B4%E3%82%87%E3%82%93%E3%81%99%E3%82%8B%E3%82%93%E3%81%98%E3%82%83%E3%81%81%5E%E3%80%9C" rel="nofollow noopener" target="_blank"> あぁ^～●●が△△するんじゃぁ^～</a>」「<a href="http://dic.nicovideo.jp/a/%E4%B8%80%E4%BD%93%E4%BD%95%E8%80%85%E3%81%AA%E3%82%93%E3%81%A0%E3%83%BB%E3%83%BB%E3%83%BB" rel="nofollow noopener" target="_blank">一体何◯なんだ...</a>」</li>
+<li>末尾()による意味の追加 - 「なんで・・・(泣」「美味しい(白目」</li>
+<li>装飾 - 「こ れ は 酷 い(スペース区切り)」「<a href="http://dic.nicovideo.jp/a/%5C%E4%B8%AD%E6%9D%91%E5%B1%8B%21%2F" rel="nofollow noopener" target="_blank">＼中村屋!／</a>」</li>
+</ul>
+
+<p>辞書ベースの処理では、基本的に「文章中の単語は全て辞書にある(それ以外は全て一律未知語)」ということが前提になっているため、上記のようなコメントは、そもそも文を適切に分解することは難しいと考えられます。<br>
+特に、テンプレート的表現や装飾表現を、正しく認識して扱うことはとても難しいものです。正規化にも限界があります。<br>
+辞書に頼らないアプローチとしては、N-gram(「ある文書中、N個の文字列の組み合わせがどの程度出現するかを素性とするモデル」)であれば、未知語は関係ありませんが、例えばスペース区切り装飾では全く別の素性となってしまい、人間が行っているような、文法構造を認識して構文解析を行い、そこから意味を取るというアプローチとはかけ離れています。</p>
+
+<h1>
+<span id="lstmによるコメント解析" class="fragment"></span><a href="#lstm%E3%81%AB%E3%82%88%E3%82%8B%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%A7%A3%E6%9E%90"><i class="fa fa-link"></i></a>LSTMによるコメント解析</h1>
+
+<p>このような崩れた言葉について、どのようなアプローチで学習するのが良いでしょうか。<br>
+文全体でのマクロな特徴ではなく、文頭から文字単位で読んでいって、系列情報を扱えるモデルでコメントの意味を把握させてみたいと思います。<br>
+その為に、LSTMという、系列情報を学習可能なモデルを使って学習を行うこととします。<br>
+LSTMについては、「<a href="http://qiita.com/t_Signull/items/21b82be280b46f467d1b" id="reference-6cac083816c3000f3d08">わかるLSTM ～ 最近の動向と共に</a>」の記事が非常に詳しく、お薦めです。</p>
+
+<h2>
+<span id="タスク1-コメント次文字予測自動生成" class="fragment"></span><a href="#%E3%82%BF%E3%82%B9%E3%82%AF1-%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E6%AC%A1%E6%96%87%E5%AD%97%E4%BA%88%E6%B8%AC%E8%87%AA%E5%8B%95%E7%94%9F%E6%88%90"><i class="fa fa-link"></i></a>タスク1: コメント次文字予測・自動生成</h2>
+
+<p>コメントの意味が取れていれば、途中までのコメントが与えられたとき、その後に続く文字をある程度予測出来るはずです。<br>
+これが出来るか試してみましょう。<br>
+つまり、「n文字目まで与えられた時に、n+1文字目を予測する」ことがタスクです。<br>
+辞書は一切使わず。キャラクタ(文字)べースで行います。</p>
+
+<h3>
+<span id="データセット" class="fragment"></span><a href="#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88"><i class="fa fa-link"></i></a>データセット</h3>
+
+<p><a href="http://www.nii.ac.jp/dsc/idr/nico/nico.html" rel="nofollow noopener" target="_blank">国立情報学研究所の情報学研究データリポジトリ</a>で公開されているコメントを利用します。</p>
+
+<h3>
+<span id="マエショリ" class="fragment"></span><a href="#%E3%83%9E%E3%82%A8%E3%82%B7%E3%83%A7%E3%83%AA"><i class="fa fa-link"></i></a>マエショリ</h3>
+
+<p>公開されている24億コメントをすべて学習させる必要は無さそうに思ったため、学習するコメントを以下のように抽出しました。</p>
+
+<ol>
+<li>各動画の最後の10コメントを抽出</li>
+<li>その内、500万コメントをランダムサンプリング</li>
+<li>コメントをNFKC正規化し、末尾の同一文字繰り返しを2文字までに丸める(「テラワロスwwwwww」→「テラワロスww」)</li>
+<li>当該コメント群から利用される文字をカウントし、利用上位5000文字を語彙とする</li>
+<li>上位5000文字以外の文字を含むコメントは除外(ほとんど無い)</li>
+</ol>
+
+<p>1について、各動画最初の10コメントではなく、最後の10コメントを対象にしたのは、最初のコメントは「1ゲット」とか「うp乙」などの特定のコメントが入る傾向が高くなるためです。また、純粋なランダムサンプリングでコメントを集めると、コメント量が膨大な特定の動画に学習が引っ張られるため、ニコニコ内での一般的な語彙を学習するにはあまり向いていないと判断したためです。(尚、コメントランキング一位の動画のコメント数は、<a href="http://dic.nicovideo.jp/v/sm125732" rel="nofollow noopener" target="_blank">1動画で3000万コメント超</a>です)<br>
+3の繰り返し正規化は、次文字予測するにあたり、これを行わない場合、「"w"が来たら次の文字も"w"だ」と予測するだけで容易に正解率が上がるためです。</p>
+
+<h3>
+<span id="結果" class="fragment"></span><a href="#%E7%B5%90%E6%9E%9C"><i class="fa fa-link"></i></a>結果</h3>
+
+<p>GPUマシンで数日回したところ、次のような結果となりました。(線の色はモデルのパラメタが微妙に違うパターンです)</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/3f9933cb-4d58-4aaa-09c5-fefc082004f3.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/3f9933cb-4d58-4aaa-09c5-fefc082004f3.png" alt="Kobito.KVuIrK.png" title="Kobito.KVuIrK.png"></a></p>
+
+<p>次の文字を40%程度当てることが出来ています。<br>
+これは、「何も無い状態からの1文字目」の予測と、「コメント終了」も含んでいます。<br>
+(ちなみに、先ほどの繰り返し正規化を行わない場合は、正解率は50%を超えます。)</p>
+
+<h3>
+<span id="コメント自動生成" class="fragment"></span><a href="#%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%87%AA%E5%8B%95%E7%94%9F%E6%88%90"><i class="fa fa-link"></i></a>コメント自動生成</h3>
+
+<p>次の文字の予測が出来るということは、それを利用して次々とコメントの続きが作れるはずです。<br>
+実際にやってみましょう。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">入力</th>
+<th style="text-align: left">生成結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">┗(^</td>
+<td style="text-align: left">┗(^o^ )┓三</td>
+</tr>
+<tr>
+<td style="text-align: left">日本語</td>
+<td style="text-align: left">日本語でおk</td>
+</tr>
+<tr>
+<td style="text-align: left">/hi</td>
+<td style="text-align: left">/hidden</td>
+</tr>
+<tr>
+<td style="text-align: left">おっく</td>
+<td style="text-align: left">おっくせんまん！おっくせんまん！</td>
+</tr>
+<tr>
+<td style="text-align: left">らんら</td>
+<td style="text-align: left">らんらんるー</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>ξ*・</code></td>
+<td style="text-align: left"><code>ξ*・ヮ・*</code></td>
+</tr>
+<tr>
+<td style="text-align: left">わっふ</td>
+<td style="text-align: left">わっふるわっふる</td>
+</tr>
+<tr>
+<td style="text-align: left">かわい</td>
+<td style="text-align: left">かわいいww</td>
+</tr>
+</tbody>
+</table>
+
+<p>面白い結果としては、一個置きスペースや、カッコ対応もちゃんと学習しています。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">入力</th>
+<th style="text-align: left">生成結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">「は</td>
+<td style="text-align: left">「はぁ?」</td>
+</tr>
+<tr>
+<td style="text-align: left">こ れ は</td>
+<td style="text-align: left">こ れ は ひ ど い</td>
+</tr>
+<tr>
+<td style="text-align: left">((((</td>
+<td style="text-align: left">(((((* ´ Д ｀<em>)))))(</em>´Д｀)( * ´д｀*)</td>
+</tr>
+<tr>
+<td style="text-align: left">犯人は</td>
+<td style="text-align: left">犯人はヤス</td>
+</tr>
+</tbody>
+</table>
+
+<p>直前の文字だけでなく、意味に合わせて生成していることを確認するため、「〜の」から始まるコメントを抽出して、「〜の」以降を生成してみます。</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: left">入力</th>
+<th style="text-align: left">生成結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left">この</td>
+<td style="text-align: left">この曲好きだ</td>
+</tr>
+<tr>
+<td style="text-align: left">あの</td>
+<td style="text-align: left">あのさぁ・・</td>
+</tr>
+<tr>
+<td style="text-align: left">なんだこの</td>
+<td style="text-align: left">なんだこの画質</td>
+</tr>
+<tr>
+<td style="text-align: left">今の</td>
+<td style="text-align: left">今のはなんだったんだw</td>
+</tr>
+<tr>
+<td style="text-align: left">ミクの</td>
+<td style="text-align: left">ミクの声が聴こえる</td>
+</tr>
+<tr>
+<td style="text-align: left">謎の</td>
+<td style="text-align: left">謎の感動</td>
+</tr>
+<tr>
+<td style="text-align: left">ゲームの</td>
+<td style="text-align: left">ゲームの音が聞こえない</td>
+</tr>
+<tr>
+<td style="text-align: left">他の</td>
+<td style="text-align: left">他の人の動画でもみたいな</td>
+</tr>
+<tr>
+<td style="text-align: left">うp主の</td>
+<td style="text-align: left">うp主の声好きだなぁ</td>
+</tr>
+</tbody>
+</table>
+
+<p>どうやら「の」の前までの文の意味がちゃんと取れているようです。<br>
+各「〜の」について、出力層(5002次元)の出力について、PCAで2次元に落として拡大してみると、例えば、以下のようなクラスタが存在していました。</p>
+
+<p>「中国の」「日本の」が固まっていて「(国)の」という概念が固まっていたり、「当時の」「今日の」「今年の」「次の」などの「(時間)の」の概念が固まってたりします。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/a43633c8-2a9f-376a-50f0-1788de8c2bd5.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/a43633c8-2a9f-376a-50f0-1788de8c2bd5.png" alt="Kobito.x2nxGy.png" title="Kobito.x2nxGy.png"></a></p>
+
+<p>また、「(体の一部)の」や「(音/声)の」なども、次に繋がる文字が近い、ということが分かります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/e843bf9f-e0c8-4a76-b5af-8b3acfefdf58.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/e843bf9f-e0c8-4a76-b5af-8b3acfefdf58.png" alt="Kobito.uv6XYw.png" title="Kobito.uv6XYw.png"></a></p>
+
+<h2>
+<span id="タスク2-コメントからの動画カテゴリ予測" class="fragment"></span><a href="#%E3%82%BF%E3%82%B9%E3%82%AF2-%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E3%81%8B%E3%82%89%E3%81%AE%E5%8B%95%E7%94%BB%E3%82%AB%E3%83%86%E3%82%B4%E3%83%AA%E4%BA%88%E6%B8%AC"><i class="fa fa-link"></i></a>タスク2: コメントからの動画カテゴリ予測</h2>
+
+<p>現在、niconicoの動画は<a href="http://dic.nicovideo.jp/a/%E3%82%AB%E3%83%86%E3%82%B4%E3%83%AA%E3%82%BF%E3%82%B0" rel="nofollow noopener" target="_blank">30カテゴリ</a>あります。<br>
+(音楽 / 歌ってみた /ゲーム / アニメ / VOCALOID / 東方 / その他 / エンターテイメント /  演奏してみた / ラジオ / アイドルマスター / ニコニコインディーズ / スポーツ /  描いてみた / ニコニコ動画講座 / 料理 / R-18 / 動物 / 政治 / 科学 / 日記 / 例のアレ /  ニコニコ技術部 / 旅行 / 自然 / 作ってみた / 歴史 / 踊ってみた / ニコニコ手芸部 / 車載動画)<br>
+タスクは「1コメント与えられた時、そのコメントは何のカテゴリの動画なのか」を当てる、というタスクです。</p>
+
+<h3>
+<span id="学習セット例" class="fragment"></span><a href="#%E5%AD%A6%E7%BF%92%E3%82%BB%E3%83%83%E3%83%88%E4%BE%8B"><i class="fa fa-link"></i></a>学習セット例</h3>
+
+<p>以下のようなデータセットについて、本文カッコ内が正解ラベルです。<br>
+草コメント(「ww」)のようなコメントについては、それだけではカテゴリを識別することは難しく、このタスクは、人間でも相当な難易度のタスクです。<br>
+相当に熟練した人間でも精々20%程度しか正解出来ないタスクではないかと思います(筆者は、15%程度の正解率でした)。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/893c8f7b-14d2-c2d0-f22b-f891db3734a9.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/893c8f7b-14d2-c2d0-f22b-f891db3734a9.png" alt="Kobito.qiUuwy.png" title="Kobito.qiUuwy.png"></a></p>
+
+<h3>
+<span id="アプローチ" class="fragment"></span><a href="#%E3%82%A2%E3%83%97%E3%83%AD%E3%83%BC%E3%83%81"><i class="fa fa-link"></i></a>アプローチ</h3>
+
+<p>タスク1の次文字予測で行ったモデルは、そのままではカテゴリ予測は使えないのですが、内部では文法構造や語彙の学習が出来ていると考えられ、これを利用することは価値がありそうです。<br>
+そのため、以下の4つのパターンで実験を行ってみました。</p>
+
+<ol>
+<li>次文字予測モデルと同じ構造でゼロから学習するパターン</li>
+<li>次文字予測学習済みモデルの出力層のみ付け替えて学習するパターン </li>
+<li>次文字予測モデルに層を追加した構造でゼロから学習するパターン</li>
+<li>次文字予測学習済みモデルに層を追加して学習したパターン</li>
+</ol>
+
+<h3>
+<span id="結果-1" class="fragment"></span><a href="#%E7%B5%90%E6%9E%9C-1"><i class="fa fa-link"></i></a>結果</h3>
+
+<p>何通りか試してみたのですが、結果としては「次文字予測学習済みモデルに層を追加して学習したパターン」が最も精度が高く、18%程度の正答率が出るようになりました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/3a578c95-cda9-a7de-3b73-32ff44c4af70.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/3a578c95-cda9-a7de-3b73-32ff44c4af70.png" alt="Kobito.4TwqiC.png" title="Kobito.4TwqiC.png"></a></p>
+
+<h3>
+<span id="可視化" class="fragment"></span><a href="#%E5%8F%AF%E8%A6%96%E5%8C%96"><i class="fa fa-link"></i></a>可視化</h3>
+
+<p>出力層からの出力(30次元)をt-SNEで可視化すると、以下のようになります。<br>
+各コメントの色が、そのコメントが付いている動画のカテゴリです。<br>
+(見やすさのため、9カテゴリのコメントのみにしています)<br>
+パッと見ただけでも、色が固まっていそうに見えるかと思います。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/efd5ed51-1731-9da3-10ac-0643a410bb71.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/efd5ed51-1731-9da3-10ac-0643a410bb71.png" alt="Kobito.zWrpwy.png" title="Kobito.zWrpwy.png"></a></p>
+
+<p>「動物」系コメント<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/b9087044-8339-d946-b8be-024324f1195c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/b9087044-8339-d946-b8be-024324f1195c.png" alt="Kobito.syKkNJ.png" title="Kobito.syKkNJ.png"></a><br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/6b1a66c1-1240-76a7-c4ad-7c7139404f8d.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/6b1a66c1-1240-76a7-c4ad-7c7139404f8d.png" alt="Kobito.vjTCmk.png" title="Kobito.vjTCmk.png"></a></p>
+
+<p>「料理」系コメント<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/c7dedc27-e064-e5e0-6a1c-4444b28e5b4a.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/c7dedc27-e064-e5e0-6a1c-4444b28e5b4a.png" alt="Kobito.y0pQd1.png" title="Kobito.y0pQd1.png"></a></p>
+
+<p>「スポーツ」系コメント<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/f96fc0d7-70bf-a319-f51f-2248fc9958fd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/f96fc0d7-70bf-a319-f51f-2248fc9958fd.png" alt="Kobito.SGLFVF.png" title="Kobito.SGLFVF.png"></a></p>
+
+<p>「車載動画」系コメント<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/611df9ec-574a-5fd1-9ff6-3d5dafc9f77c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/611df9ec-574a-5fd1-9ff6-3d5dafc9f77c.png" alt="Kobito.cMvXC2.png" title="Kobito.cMvXC2.png"></a></p>
+
+<p>「演奏してみた」系コメント<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/ab22bb71-c4ae-a54d-c5b2-b194b6acbe2c.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/ab22bb71-c4ae-a54d-c5b2-b194b6acbe2c.png" alt="Kobito.YhD5Ub.png" title="Kobito.YhD5Ub.png"></a></p>
+
+<p>どうやら、上手く意味が(カテゴリ分類に必要なレベルで)取れているようです。</p>
+
+<h2>
+<span id="類似コメントサジェスト" class="fragment"></span><a href="#%E9%A1%9E%E4%BC%BC%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E3%82%B5%E3%82%B8%E3%82%A7%E3%82%B9%E3%83%88"><i class="fa fa-link"></i></a>類似コメントサジェスト</h2>
+
+<p>先ほど学習したコメントカテゴリ識別器は、出力層の一つ前の層を取り出すと、(カテゴリ識別に必要な)コメントの意味を表現する特徴量となっているとも解釈できます。<br>
+ということは、近傍探索を行うことで、意味的に類似したコメントを探すことが出来たり、コメントとコメントの間の意味的な距離のようなものも定義出来そうです。</p>
+
+<h3>
+<span id="アーキテクチャ" class="fragment"></span><a href="#%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3"><i class="fa fa-link"></i></a>アーキテクチャ</h3>
+
+<p>この仕組みは簡単にアプリケーションにすることが出来て、<a href="http://jubat.us/ja/" rel="nofollow noopener" target="_blank">Jubatus</a>というオンライン分類器を使えば、コメントの特徴量をID付きで投げてあげると、LSHやminhashなどの近似最近傍探索で、格納済みのコメントの内、特徴量が近いコメントを取得することが出来ます。<a href="http://jubat.us/ja/api_recommender.html" rel="nofollow noopener" target="_blank">Jubarecommender</a>を利用しました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/e22291c5-8ba8-af91-62e4-8f4848794ad4.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/e22291c5-8ba8-af91-62e4-8f4848794ad4.png" alt="Kobito.Hj52BC.png" title="Kobito.Hj52BC.png"></a></p>
+
+<p>今回は、事前に一括でニコニコデータセットのコメントデータの特徴量をJubatusに格納しておきます。今回は行いませんが、この仕組みだと、Jubatusもオンラインで候補追加出来ますし、Chainerもオンラインで追加で学習出来るので、リアルタイム学習という面で面白いかも知れません。(学習率調整をどうするかという課題はあると思いますが。)</p>
+
+<h3>
+<span id="サジェスト例" class="fragment"></span><a href="#%E3%82%B5%E3%82%B8%E3%82%A7%E3%82%B9%E3%83%88%E4%BE%8B"><i class="fa fa-link"></i></a>サジェスト例</h3>
+
+<p>上の白い入力フォームが入力コメント、下の「近傍投稿」が、類似しているコメントです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/f514d561-322a-03bb-55a8-b201267c4b0c.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/f514d561-322a-03bb-55a8-b201267c4b0c.jpeg" alt="スクリーンショット 2015-12-23 20.38.07.jpg" title="スクリーンショット 2015-12-23 20.38.07.jpg"></a></p>
+
+<p>「可愛いなぁ」という入力に対して、「かーわーいーいー」や「かぁわいい」「かわいい^^」「かわいすぎるううううううう&gt;w&lt;」「かわゆす」等と似たような特徴を持つコメントになりました。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/6ef62f13-ecc8-68ff-83ad-3441594be433.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/6ef62f13-ecc8-68ff-83ad-3441594be433.jpeg" alt="スクリーンショット 2015-12-23 20.44.17.jpg" title="スクリーンショット 2015-12-23 20.44.17.jpg"></a></p>
+
+<p>「お疲れ様」と「乙」が同じ特徴を持つことが分かります。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/2a3d4c77-c331-0eb4-7b99-779dcf47e5ea.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/2a3d4c77-c331-0eb4-7b99-779dcf47e5ea.jpeg" alt="スクリーンショット 2015-12-23 20.45.25.jpg" title="スクリーンショット 2015-12-23 20.45.25.jpg"></a></p>
+
+<p>「どうしてこうなった」≒「!?」</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/df937bb4-67e3-0bb0-ca24-b85028819e6b.jpeg" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/df937bb4-67e3-0bb0-ca24-b85028819e6b.jpeg" alt="スクリーンショット 2015-12-23 20.46.19.jpg" title="スクリーンショット 2015-12-23 20.46.19.jpg"></a></p>
+
+<p>「勉強になるなぁ」≒「ほぅ」「へ〜」「fmfm」</p>
+
+<h2>
+<span id="ニコニコのコメント解析まとめ" class="fragment"></span><a href="#%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%81%AE%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%A7%A3%E6%9E%90%E3%81%BE%E3%81%A8%E3%82%81"><i class="fa fa-link"></i></a>ニコニコのコメント解析まとめ</h2>
+
+<p>LSTMのキャラクタベースのアプローチでは、辞書を一切使わずに、カテゴリラベルを教師データにするだけで、コメントの意味をある程度学習することができ、識別にも類似検索にも適用出来ることが分かりました。<br>
+カテゴリタグは高々30個しか無い荒い粒度ですが、主要タグレベルで学習させれば、更に細かい意味の学習が可能になると思います。<br>
+特に、類似コメントのサジェストについては、「お疲れ様です」と「乙」、「勉強になるな」と「fmfm」のような、利用している文字も全く違う、表面的には全く異なるコメントについて、意味として近いものをサジェスト出来るのは面白いと思います。</p>
+
+<h1>
+<span id="より細やかなコメント解析に向けて" class="fragment"></span><a href="#%E3%82%88%E3%82%8A%E7%B4%B0%E3%82%84%E3%81%8B%E3%81%AA%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%A7%A3%E6%9E%90%E3%81%AB%E5%90%91%E3%81%91%E3%81%A6"><i class="fa fa-link"></i></a>より細やかなコメント解析に向けて</h1>
+
+<p>以下記載する内容は、まだ実験中ですが、より細かく意味を学習するアプローチのアイデアについて述べます。</p>
+
+<h3>
+<span id="投稿コメント特徴の動画内における局所性" class="fragment"></span><a href="#%E6%8A%95%E7%A8%BF%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E7%89%B9%E5%BE%B4%E3%81%AE%E5%8B%95%E7%94%BB%E5%86%85%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E5%B1%80%E6%89%80%E6%80%A7"><i class="fa fa-link"></i></a>投稿コメント特徴の動画内における局所性</h3>
+
+<p>先ほど、カテゴリではなく、タグを使うともっと細かい意味の学習が出来るのではないかと書きましたが、更に言えば、タグ化されないレベルの細かい情報があるはずです。<br>
+一つの動画の中でも、シーンに応じて、持っているコンテクストが違い、付いているコメントの特徴が違うはずです。<br>
+「コメント特徴の動画内に局所性が存在する(同一内容のコメントは同一箇所近辺に投稿される)」ということは自然に仮定できそうです。</p>
+
+<p>以下の動画では、「かわいい」という意味の言葉が局所的に発生していることが分かります。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/28d214b3-119e-f4a5-3f11-70bc448ccc08.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/28d214b3-119e-f4a5-3f11-70bc448ccc08.png" alt="コメント局所性" title="スクリーンショット 2015-12-24 0.12.32.png"></a></p>
+
+<h2>
+<span id="動画内コメント位置からのコメント特徴の学習" class="fragment"></span><a href="#%E5%8B%95%E7%94%BB%E5%86%85%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E4%BD%8D%E7%BD%AE%E3%81%8B%E3%82%89%E3%81%AE%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E7%89%B9%E5%BE%B4%E3%81%AE%E5%AD%A6%E7%BF%92"><i class="fa fa-link"></i></a>動画内コメント位置からのコメント特徴の学習</h2>
+
+<p>この局所性から、コメントの意味を学習することを考えます。「意味的の距離がそのまま特徴量間の距離となる特徴量」を出力するネットワークを目指します。<br>
+F(c_1)は、このネットワークにコメントc_1を入れた時のk次元ベクトル(コメントの意味を表す特徴量)を表すものとします。<br>
+二つのコメント(c_1,c_2)があった時、その意味の近さが、特徴量ベクトルの距離 distance(F(c_1),F(c_2))として表現されるなら、その特徴量空間は、近傍探索などで有用な特徴量が抽出されるだろうと考えます。<br>
+出力される特徴量としては、以下の性質を期待します。</p>
+
+<ol>
+<li>c_1とc_2が同じタイムウィンドウ内のコメントであれば、意味的に同じコメントだろうから、コメント特徴量間の距離は近くなって欲しい。</li>
+<li>c_1とc_2が同じ動画でタイムウィンドウ外のコメントであれば、コメント特徴量間距離はある程度(α以上)離れて欲しい。</li>
+<li>c_1とc_2が別動画のコメントであれば、コメント特徴量間距離はある程度(β以上)離れて欲しい。</li>
+<li>0&lt;α&lt;β</li>
+</ol>
+
+<p>これを素直にloss functionとして実装すると、次のようになります。</p>
+
+<ol>
+<li>c1はc2は同一動画であり、c1の動画内位置近辺にc2がいるなら、<code>distance(F(c_1),F(c_2))</code>がloss。</li>
+<li>c1はc2は同一動画だが、c1の動画内位置近辺にc2がいないなら、<code>max(α-(F(c_1),F(c_2),0)</code>がloss。</li>
+<li>c1とc2が別動画なら<code>max(β-(F(c_1),F(c_2),0)</code>がloss</li>
+</ol>
+
+<p>loss functionとしては、chainer v1.5から入った<a href="http://chainer.readthedocs.org/en/stable/reference/functions.html?highlight=contrastive#chainer.functions.contrastive" rel="nofollow noopener" target="_blank">contrastive loss</a>が使えそうですので、こちらを適用出来そうです(このFunctionを使わなくてもVariableのまま同等の処理は書けますが)。<br>
+この手法での実験結果がまとまったら、またどこかで記事にしようかなと思います。</p>
+
+<h2>
+<span id="おまけ-contrative-lossと相対関係の学習について一般的な話" class="fragment"></span><a href="#%E3%81%8A%E3%81%BE%E3%81%91-contrative-loss%E3%81%A8%E7%9B%B8%E5%AF%BE%E9%96%A2%E4%BF%82%E3%81%AE%E5%AD%A6%E7%BF%92%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E4%B8%80%E8%88%AC%E7%9A%84%E3%81%AA%E8%A9%B1"><i class="fa fa-link"></i></a>[おまけ] contrative lossと相対関係の学習について(一般的な話)</h2>
+
+<p>contrastive lossは、y_nが1(同じクラス)ならベクトル間の距離がlossとなり、0(違うクラス)なら、指定したマージンより近かった分の距離がloss(マージン以上離れていたらlossは0)となります。つまり、「同じクラスなら出来るだけ固め、違うクラスならマージン分以上離れる」ように最適化されます。<br>
+このloss functionは以下のようになっています。</p>
+
+<div class="code-frame" data-lang="math"><div class="highlight"><pre>
+L = \frac{1}{2N} \left( \sum_{n=1}^N y_n d_n^2
+    + (1 - y_n) \max ({\rm margin} - d_n, 0)^2 \right)
+</pre></div></div>
+
+<p>一般に、Nクラス分類の問題では、出力層をN次元にして、これに<a href="http://chainer.readthedocs.org/en/stable/reference/functions.html#chainer.functions.softmax_cross_entropy" rel="nofollow noopener" target="_blank">softmax_cross_entropy</a>を適用して、入力に対して「どのクラスに一番近いか」を予測出来るように学習します。これは、最初にクラス数が分かっていることが前提のモデルです。<br>
+相対関係の学習ではクラス数は関係ありません。「(画像A,画像B)は同じ種類」「(画像C,画像D)は別の種類」のような形の、相対的な関係の情報だけで学習が進むので、最初に全体のクラス数を知っていない場合でも対応が出来るわけです。</p>
+
+<p>ところで、一般的なNクラス識別から特徴を取り出す場合、その出力N次元、あるいはその前の層を特徴量とすることが多いです。例えば、画像分類でよく使われるVGGモデルでは、出力層直前は4096次元のベクトルとなり、これを特徴量とすることが多いと思います。<br>
+ただ、<a href="http://cs.stanford.edu/people/karpathy/cnnembed/" rel="nofollow noopener" target="_blank">4096次元をt-SNEで2次元に落として可視化したもの</a>を見ても、かなり綺麗にクラスが分かれており、低次元でも、多次元の特徴を表現することは十分出来そうだと感じます。<br>
+なので、特徴量の出力層は低次元にして、その空間での距離を学習してみることにします。</p>
+
+<h3>
+<span id="例1--mnistでの例" class="fragment"></span><a href="#%E4%BE%8B1--mnist%E3%81%A7%E3%81%AE%E4%BE%8B"><i class="fa fa-link"></i></a>例1 : MNISTでの例</h3>
+
+<p>ネットワークの最終出力層を2次元として「クラスが同じものを入力した場合、出力層の2次元ベクトルの距離が出来るだけ近くなるように、また、クラスが違うものを入れたら距離が1以上違う2次元ベクトルが出力される」ように学習させると、出力されるベクトルは次のようになります(2次元の出力なので、PCAやt-SNEは掛けずに出力そのままです)。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/5756a021-dc4b-3a78-d3e8-b6d6b6000780.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/5756a021-dc4b-3a78-d3e8-b6d6b6000780.png" alt="MNISTクラス分離" title="Kobito.Pt2cZx.png"></a></p>
+
+<p>クラスのラベルを与えずに、与えられたペアが同じか違うかという情報だけで綺麗にクラス識別が出来ており、各クラス間の距離は10(クラス間のマージンとして設定した値)となっていることが分かります。</p>
+
+<h3>
+<span id="例2--cifar-10での例" class="fragment"></span><a href="#%E4%BE%8B2--cifar-10%E3%81%A7%E3%81%AE%E4%BE%8B"><i class="fa fa-link"></i></a>例2 : CIFAR-10での例</h3>
+
+<p>定番の<a href="https://www.cs.toronto.edu/%7Ekriz/cifar.html" rel="nofollow noopener" target="_blank">CIFAR-10 dataset</a>でもやってみましょう。<br>
+これは、10種類(airplane/automobile/bird/cat/deer/dog/frog/horse/ship/truck)の写真がそれぞれラベル付きで6000枚づつ入っているデータセットです。</p>
+
+<p><a href="https://qiita-image-store.s3.amazonaws.com/0/8954/83650abc-265c-11a3-1d94-7325201ca0dd.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/83650abc-265c-11a3-1d94-7325201ca0dd.png" alt="cifar10クラス分離" title="Kobito.Ccpn3w.png"></a><br>
+クラス(airplane/automobile/...)より広いカテゴリ(動物/乗り物)についても同様にcontrastive lossを適用し、クラスのcontrastive lossと足してoptimizeしているため、カテゴリも分離されます。<br>
+<a href="https://qiita-image-store.s3.amazonaws.com/0/8954/eb71586c-bbf2-ce92-eb36-01461c3e4eda.png" target="_blank" rel="nofollow noopener"><img src="https://qiita-image-store.s3.amazonaws.com/0/8954/eb71586c-bbf2-ce92-eb36-01461c3e4eda.png" alt="cifar10カテゴリ分離" title="Kobito.XHpacq.png"></a><br>
+階層的な関係も含めて、相対的な情報から良い感じに特徴空間を作れます。</p>
+
+<p>尚、この手法を使う場合、単純にランダムにペアを集めるとペアの組のほとんどが別クラスのものになってしまうので、ここはそれぞれバランスよく学習データのペアを作る必要があります。</p>
+
+<h1>
+<span id="おわりに" class="fragment"></span><a href="#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB"><i class="fa fa-link"></i></a>おわりに</h1>
+
+<p>クリスマス、くりすます、くりす、ます。<br>
+<a href="http://steinsgate.jp/" rel="nofollow noopener" target="_blank">Steins;Gate</a>の「紅莉栖」が思い浮かぶ方もいらっしゃるのではないでしょうか。<br>
+ドワンゴでは、「<a href="http://dwango.co.jp/pi/ns/2015/0917/index2.html" rel="nofollow noopener" target="_blank">紅莉栖</a>」という名前の、数十台の<a href="http://www.nvidia.co.jp/object/geforce-gtx-titan-x-jp.html" rel="nofollow noopener" target="_blank">Titan X</a>4枚挿しノード群があります(内2台はメモリ1TB)。<br>
+ドワンゴでは、この紅莉栖の環境を使って、コメント解析に限らず、イラストの解析なども行っています。<br>
+例えば、<a href="https://nico-opendata.jp" class="autolink" rel="nofollow noopener" target="_blank">https://nico-opendata.jp</a> に掲載している、<a href="https://nico-opendata.jp/ja/casestudy/view_count_prediction/index.html" rel="nofollow noopener" target="_blank">画像からの閲覧数・お気に入り数予測</a>の実験は紅莉栖上で行われました。<br>
+コメントの解析に関しては、今年、ChainerでLSTMのモデルのコメント解析エンジンがniconicoのサービスの一部で本番導入されています。(本番環境はTesla GPUマシンです。)</p>
+
+<p>今年はDeep Learningの年だったと言ってもよいぐらい、このワードを聞くことが増えた年だと思います。<br>
+「その後のシステム組み込みや運用を考えると、Deep Learning以外の手法の方が良くないか?」というようなケースも実際には多くありますが、ハマるところにハマればやはり強烈な効果が確かに出ます。</p>
+
+<p>「<a href="http://research.google.com/pubs/pub43146.html" rel="nofollow noopener" target="_blank">機械学習の技術的負債</a>」はとても大きいので、適切に目的を設定して、業務に合う適切なアルゴリズムを選び、適切にモデリングをして、適切に前処理を行って、適切にシステムに組み込み、適切に運用すること(とてもむずかしい)を強く意識しつつ、これからのサービスへの適用を考えていきたいと強く思った一年でした。</p>
+
+<p>明日は25日、最後は <a href="http://qiita.com/pocketberserker">@pocketberserker</a>さんです。</p>
+<div class="hidden"><form class="js-task-list-update" action="/ixixi/items/a3d56b2db6e09249a519" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="_method" value="patch" /><input type="hidden" name="authenticity_token" value="/35Q8KCJ9DwqRzXy+eREHQF38k1TIQbJ5isyQ7svsBQHm248Nk912yETRmSI3AMKeM7vZnQRSj0HHvlNi8PPuA==" /><input type="hidden" name="updated_at_confirmation_in_unixtime" id="updated_at_confirmation_in_unixtime" value="1451399003" class="js-task-list-updated-at" /><textarea name="raw_body" id="raw_body" class="js-task-list-field">
+
+この記事は[第2のドワンゴ Advent Calendar 2015](http://qiita.com/advent-calendar/2015/dwango2)の24日目の記事です。
+
+ドワンゴエンジニアの[@ixixi](http://qiita.com/ixixi)です。
+niconicoのデータをDeep Learningなアプローチで解析してみた話です。
+
+# nico-opendata
+
+niconicoの学術目的用データ公開サイト　https://nico-opendata.jp が最近オープンしました。
+
+これまでも、国立情報学研究所にて、ニコニコ動画コメントデータや大百科データが公開されていましたが、 nico-opendataでは、ニコニコ静画のイラストデータの約40万枚のイラストとメタデータが研究者向けにデータ提供されています。
+今回は、ニコニコ動画コメントデータ(誰でも取得可能)を用いたDeep Learningによるコメント解析例を紹介します。
+
+# 超自然言語
+ニコニコのコメントデータに限らず、twitterでのtweetやなど、Web上の言葉は非常に自由な表現が行われており、このことが文の解釈を阻む課題となっています。
+通常の文章に比べ、例えば、以下のような表現は、意味の解析を難しくしています。
+
+- 絶叫表現 - 「[こなああああああゆきいいいいいい](http://dic.nicovideo.jp/a/%E3%81%93%E3%81%AA%E3%81%82%E3%81%82%E3%81%82%E3%81%82%E3%81%82%E3%81%82%E3%82%86%E3%81%8D%E3%81%84%E3%81%84%E3%81%84%E3%81%84%E3%81%84%E3%81%84)」「きたああああ」「SUGEEEEEEE」
+- 顔文字 - 「[(´・ω・`)ｼｮﾎﾞｰﾝ](http://dic.nicovideo.jp/a/%28%CC%81%E3%83%BB%CF%89%E3%83%BB%60%29)」「[(ﾟ∀ﾟ)ﾗｳﾞｨ!!](http://dic.nicovideo.jp/a/%28%E3%82%9A%E2%88%80%E3%82%9A%29%E3%83%A9%E3%83%B4%E3%82%A3%21%21)」「[人生ｵﾜﾀ＼(^o^)／](http://dic.nicovideo.jp/a/%E4%BA%BA%E7%94%9F%E3%82%AA%E3%83%AF%E3%82%BF%5C%28%5Eo%5E%29%2F)」「[囧](http://dic.nicovideo.jp/a/%E5%9B%A7)」
+- 話し言葉表現 - 「くっさ」「〜じゃね?」「やっべぇ!」
+- 書き言葉ではない言い回し - 「[マジキチwww](http://dic.nicovideo.jp/a/%E3%83%9E%E3%82%B8%E3%82%AD%E3%83%81)」「[みえ](http://dic.nicovideo.jp/a/%E3%81%BF%E3%81%88)」「[●REC](http://dic.nicovideo.jp/a/%E2%97%8Frec)」「[おまwww](http://dic.nicovideo.jp/a/%E3%81%8A%E3%81%BE)」
+- 特殊な擬音語・擬態語 - 「[8888888](http://dic.nicovideo.jp/a/8)」
+- 略称 - 「[ksk](http://dic.nicovideo.jp/a/ksk)」「[wktk](http://dic.nicovideo.jp/a/wktk)」「[NKT](http://dic.nicovideo.jp/a/ndk)」「[NDK](http://dic.nicovideo.jp/a/ndk)」「[乙](http://dic.nicovideo.jp/a/%E4%B9%99)」「[今北産業](http://dic.nicovideo.jp/a/%E4%BB%8A%E5%8C%97%E7%94%A3%E6%A5%AD)」「[〜な希ガス](http://dic.nicovideo.jp/a/%E5%B8%8C%E3%82%AC%E3%82%B9)」
+- サービス固有表現 - 「[わこつ](http://dic.nicovideo.jp/l/%E3%82%8F%E3%81%93%E3%81%A4)」「こうこつ」「[うぽつ](http://dic.nicovideo.jp/a/%E3%81%86%E3%81%BD%E3%81%A4)」「えんちょつ」「[tmt](http://dic.nicovideo.jp/a/tmt)」「[184](http://dic.nicovideo.jp/a/184%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88)」「[んc](http://dic.nicovideo.jp/a/%E3%82%93c)」
+- 通常とは異なる意味 - 「[※](http://dic.nicovideo.jp/a/%E2%80%BB)」「[馬鹿なの?死ぬの?](http://dic.nicovideo.jp/a/%E9%A6%AC%E9%B9%BF%E3%81%AA%E3%81%AE%3F)」「[わろすわろす](http://netyougo.com/2ch/3166.html)(「わろすわろす」と「わろす」ではニュアンスがかなり異なる)」
+- テンプレート文法 -「[なんでや!●●関係ないやろ!](http://dic.nicovideo.jp/a/%E3%81%AA%E3%82%93%E3%81%A7%E3%82%84%EF%BC%81%E9%98%AA%E7%A5%9E%E9%96%A2%E4%BF%82%E3%81%AA%E3%81%84%E3%82%84%E3%82%8D%EF%BC%81)」「[ あぁ^～●●が△△するんじゃぁ^～](http://dic.nicovideo.jp/a/%E3%81%82%E3%81%81%5E%E3%80%9C%E5%BF%83%E3%81%8C%E3%81%B4%E3%82%87%E3%82%93%E3%81%B4%E3%82%87%E3%82%93%E3%81%99%E3%82%8B%E3%82%93%E3%81%98%E3%82%83%E3%81%81%5E%E3%80%9C)」「[一体何◯なんだ...](http://dic.nicovideo.jp/a/%E4%B8%80%E4%BD%93%E4%BD%95%E8%80%85%E3%81%AA%E3%82%93%E3%81%A0%E3%83%BB%E3%83%BB%E3%83%BB)」
+- 末尾()による意味の追加 - 「なんで・・・(泣」「美味しい(白目」
+- 装飾 - 「こ れ は 酷 い(スペース区切り)」「[＼中村屋!／](http://dic.nicovideo.jp/a/%5C%E4%B8%AD%E6%9D%91%E5%B1%8B%21%2F)」
+
+辞書ベースの処理では、基本的に「文章中の単語は全て辞書にある(それ以外は全て一律未知語)」ということが前提になっているため、上記のようなコメントは、そもそも文を適切に分解することは難しいと考えられます。
+特に、テンプレート的表現や装飾表現を、正しく認識して扱うことはとても難しいものです。正規化にも限界があります。
+辞書に頼らないアプローチとしては、N-gram(「ある文書中、N個の文字列の組み合わせがどの程度出現するかを素性とするモデル」)であれば、未知語は関係ありませんが、例えばスペース区切り装飾では全く別の素性となってしまい、人間が行っているような、文法構造を認識して構文解析を行い、そこから意味を取るというアプローチとはかけ離れています。
+
+# LSTMによるコメント解析
+このような崩れた言葉について、どのようなアプローチで学習するのが良いでしょうか。
+文全体でのマクロな特徴ではなく、文頭から文字単位で読んでいって、系列情報を扱えるモデルでコメントの意味を把握させてみたいと思います。
+その為に、LSTMという、系列情報を学習可能なモデルを使って学習を行うこととします。
+LSTMについては、「[わかるLSTM ～ 最近の動向と共に](http://qiita.com/t_Signull/items/21b82be280b46f467d1b)」の記事が非常に詳しく、お薦めです。
+
+## タスク1: コメント次文字予測・自動生成
+コメントの意味が取れていれば、途中までのコメントが与えられたとき、その後に続く文字をある程度予測出来るはずです。
+これが出来るか試してみましょう。
+つまり、「n文字目まで与えられた時に、n+1文字目を予測する」ことがタスクです。
+辞書は一切使わず。キャラクタ(文字)べースで行います。
+
+### データセット
+[国立情報学研究所の情報学研究データリポジトリ](http://www.nii.ac.jp/dsc/idr/nico/nico.html)で公開されているコメントを利用します。
+
+### マエショリ
+
+公開されている24億コメントをすべて学習させる必要は無さそうに思ったため、学習するコメントを以下のように抽出しました。
+
+1. 各動画の最後の10コメントを抽出
+2. その内、500万コメントをランダムサンプリング
+3. コメントをNFKC正規化し、末尾の同一文字繰り返しを2文字までに丸める(「テラワロスwwwwww」→「テラワロスww」)
+4. 当該コメント群から利用される文字をカウントし、利用上位5000文字を語彙とする
+5. 上位5000文字以外の文字を含むコメントは除外(ほとんど無い)
+
+1について、各動画最初の10コメントではなく、最後の10コメントを対象にしたのは、最初のコメントは「1ゲット」とか「うp乙」などの特定のコメントが入る傾向が高くなるためです。また、純粋なランダムサンプリングでコメントを集めると、コメント量が膨大な特定の動画に学習が引っ張られるため、ニコニコ内での一般的な語彙を学習するにはあまり向いていないと判断したためです。(尚、コメントランキング一位の動画のコメント数は、[1動画で3000万コメント超](http://dic.nicovideo.jp/v/sm125732)です)
+3の繰り返し正規化は、次文字予測するにあたり、これを行わない場合、「&quot;w&quot;が来たら次の文字も&quot;w&quot;だ」と予測するだけで容易に正解率が上がるためです。
+
+### 結果
+
+GPUマシンで数日回したところ、次のような結果となりました。(線の色はモデルのパラメタが微妙に違うパターンです)
+
+![Kobito.KVuIrK.png](https://qiita-image-store.s3.amazonaws.com/0/8954/3f9933cb-4d58-4aaa-09c5-fefc082004f3.png &quot;Kobito.KVuIrK.png&quot;)
+
+次の文字を40%程度当てることが出来ています。
+これは、「何も無い状態からの1文字目」の予測と、「コメント終了」も含んでいます。
+(ちなみに、先ほどの繰り返し正規化を行わない場合は、正解率は50%を超えます。)
+
+### コメント自動生成
+
+次の文字の予測が出来るということは、それを利用して次々とコメントの続きが作れるはずです。
+実際にやってみましょう。
+
+|入力|生成結果|
+|:----|:----|
+|┗(^|┗(^o^ )┓三|
+|日本語|日本語でおk|
+|/hi | /hidden|
+|おっく|おっくせんまん！おっくせんまん！|
+|らんら|らんらんるー|
+|`ξ*・`|`ξ*・ヮ・*`|
+|わっふ|わっふるわっふる|
+|かわい|かわいいww|
+
+面白い結果としては、一個置きスペースや、カッコ対応もちゃんと学習しています。
+
+|入力|生成結果|
+|:----|:----|
+|「は|「はぁ?」|
+|こ れ は|こ れ は ひ ど い|
+|((((|(((((* ´ Д ｀*)))))(*´Д｀)( * ´д｀*)|
+|犯人は|犯人はヤス|
+
+直前の文字だけでなく、意味に合わせて生成していることを確認するため、「〜の」から始まるコメントを抽出して、「〜の」以降を生成してみます。
+
+|入力|生成結果|
+|:----|:----|
+|この|この曲好きだ|
+|あの|あのさぁ・・|
+|なんだこの|なんだこの画質|
+|今の|今のはなんだったんだw|
+|ミクの|ミクの声が聴こえる|
+|謎の|謎の感動|
+|ゲームの|ゲームの音が聞こえない|
+|他の|他の人の動画でもみたいな|
+|うp主の|うp主の声好きだなぁ|
+
+どうやら「の」の前までの文の意味がちゃんと取れているようです。
+各「〜の」について、出力層(5002次元)の出力について、PCAで2次元に落として拡大してみると、例えば、以下のようなクラスタが存在していました。
+
+「中国の」「日本の」が固まっていて「(国)の」という概念が固まっていたり、「当時の」「今日の」「今年の」「次の」などの「(時間)の」の概念が固まってたりします。
+
+![Kobito.x2nxGy.png](https://qiita-image-store.s3.amazonaws.com/0/8954/a43633c8-2a9f-376a-50f0-1788de8c2bd5.png &quot;Kobito.x2nxGy.png&quot;)
+
+また、「(体の一部)の」や「(音/声)の」なども、次に繋がる文字が近い、ということが分かります。
+
+![Kobito.uv6XYw.png](https://qiita-image-store.s3.amazonaws.com/0/8954/e843bf9f-e0c8-4a76-b5af-8b3acfefdf58.png &quot;Kobito.uv6XYw.png&quot;)
+
+
+## タスク2: コメントからの動画カテゴリ予測
+
+現在、niconicoの動画は[30カテゴリ](http://dic.nicovideo.jp/a/%E3%82%AB%E3%83%86%E3%82%B4%E3%83%AA%E3%82%BF%E3%82%B0)あります。
+(音楽 / 歌ってみた /ゲーム / アニメ / VOCALOID / 東方 / その他 / エンターテイメント /  演奏してみた / ラジオ / アイドルマスター / ニコニコインディーズ / スポーツ /  描いてみた / ニコニコ動画講座 / 料理 / R-18 / 動物 / 政治 / 科学 / 日記 / 例のアレ /  ニコニコ技術部 / 旅行 / 自然 / 作ってみた / 歴史 / 踊ってみた / ニコニコ手芸部 / 車載動画)
+タスクは「1コメント与えられた時、そのコメントは何のカテゴリの動画なのか」を当てる、というタスクです。
+
+### 学習セット例
+以下のようなデータセットについて、本文カッコ内が正解ラベルです。
+草コメント(「ww」)のようなコメントについては、それだけではカテゴリを識別することは難しく、このタスクは、人間でも相当な難易度のタスクです。
+相当に熟練した人間でも精々20%程度しか正解出来ないタスクではないかと思います(筆者は、15%程度の正解率でした)。
+![Kobito.qiUuwy.png](https://qiita-image-store.s3.amazonaws.com/0/8954/893c8f7b-14d2-c2d0-f22b-f891db3734a9.png &quot;Kobito.qiUuwy.png&quot;)
+
+
+### アプローチ
+
+タスク1の次文字予測で行ったモデルは、そのままではカテゴリ予測は使えないのですが、内部では文法構造や語彙の学習が出来ていると考えられ、これを利用することは価値がありそうです。
+そのため、以下の4つのパターンで実験を行ってみました。
+
+1. 次文字予測モデルと同じ構造でゼロから学習するパターン
+2. 次文字予測学習済みモデルの出力層のみ付け替えて学習するパターン 
+3. 次文字予測モデルに層を追加した構造でゼロから学習するパターン
+4. 次文字予測学習済みモデルに層を追加して学習したパターン
+
+
+### 結果
+
+何通りか試してみたのですが、結果としては「次文字予測学習済みモデルに層を追加して学習したパターン」が最も精度が高く、18%程度の正答率が出るようになりました。
+
+![Kobito.4TwqiC.png](https://qiita-image-store.s3.amazonaws.com/0/8954/3a578c95-cda9-a7de-3b73-32ff44c4af70.png &quot;Kobito.4TwqiC.png&quot;)
+
+### 可視化
+出力層からの出力(30次元)をt-SNEで可視化すると、以下のようになります。
+各コメントの色が、そのコメントが付いている動画のカテゴリです。
+(見やすさのため、9カテゴリのコメントのみにしています)
+パッと見ただけでも、色が固まっていそうに見えるかと思います。
+
+![Kobito.zWrpwy.png](https://qiita-image-store.s3.amazonaws.com/0/8954/efd5ed51-1731-9da3-10ac-0643a410bb71.png &quot;Kobito.zWrpwy.png&quot;)
+
+「動物」系コメント
+![Kobito.syKkNJ.png](https://qiita-image-store.s3.amazonaws.com/0/8954/b9087044-8339-d946-b8be-024324f1195c.png &quot;Kobito.syKkNJ.png&quot;)
+![Kobito.vjTCmk.png](https://qiita-image-store.s3.amazonaws.com/0/8954/6b1a66c1-1240-76a7-c4ad-7c7139404f8d.png &quot;Kobito.vjTCmk.png&quot;)
+
+「料理」系コメント
+![Kobito.y0pQd1.png](https://qiita-image-store.s3.amazonaws.com/0/8954/c7dedc27-e064-e5e0-6a1c-4444b28e5b4a.png &quot;Kobito.y0pQd1.png&quot;)
+
+「スポーツ」系コメント
+![Kobito.SGLFVF.png](https://qiita-image-store.s3.amazonaws.com/0/8954/f96fc0d7-70bf-a319-f51f-2248fc9958fd.png &quot;Kobito.SGLFVF.png&quot;)
+
+「車載動画」系コメント
+![Kobito.cMvXC2.png](https://qiita-image-store.s3.amazonaws.com/0/8954/611df9ec-574a-5fd1-9ff6-3d5dafc9f77c.png &quot;Kobito.cMvXC2.png&quot;)
+
+「演奏してみた」系コメント
+![Kobito.YhD5Ub.png](https://qiita-image-store.s3.amazonaws.com/0/8954/ab22bb71-c4ae-a54d-c5b2-b194b6acbe2c.png &quot;Kobito.YhD5Ub.png&quot;)
+
+
+どうやら、上手く意味が(カテゴリ分類に必要なレベルで)取れているようです。
+
+## 類似コメントサジェスト
+
+先ほど学習したコメントカテゴリ識別器は、出力層の一つ前の層を取り出すと、(カテゴリ識別に必要な)コメントの意味を表現する特徴量となっているとも解釈できます。
+ということは、近傍探索を行うことで、意味的に類似したコメントを探すことが出来たり、コメントとコメントの間の意味的な距離のようなものも定義出来そうです。
+
+### アーキテクチャ
+この仕組みは簡単にアプリケーションにすることが出来て、[Jubatus](http://jubat.us/ja/)というオンライン分類器を使えば、コメントの特徴量をID付きで投げてあげると、LSHやminhashなどの近似最近傍探索で、格納済みのコメントの内、特徴量が近いコメントを取得することが出来ます。[Jubarecommender](http://jubat.us/ja/api_recommender.html)を利用しました。
+
+![Kobito.Hj52BC.png](https://qiita-image-store.s3.amazonaws.com/0/8954/e22291c5-8ba8-af91-62e4-8f4848794ad4.png &quot;Kobito.Hj52BC.png&quot;)
+
+今回は、事前に一括でニコニコデータセットのコメントデータの特徴量をJubatusに格納しておきます。今回は行いませんが、この仕組みだと、Jubatusもオンラインで候補追加出来ますし、Chainerもオンラインで追加で学習出来るので、リアルタイム学習という面で面白いかも知れません。(学習率調整をどうするかという課題はあると思いますが。)
+
+### サジェスト例
+
+上の白い入力フォームが入力コメント、下の「近傍投稿」が、類似しているコメントです。
+
+![スクリーンショット 2015-12-23 20.38.07.jpg](https://qiita-image-store.s3.amazonaws.com/0/8954/f514d561-322a-03bb-55a8-b201267c4b0c.jpeg &quot;スクリーンショット 2015-12-23 20.38.07.jpg&quot;)
+
+「可愛いなぁ」という入力に対して、「かーわーいーいー」や「かぁわいい」「かわいい^^」「かわいすぎるううううううう&gt;w&lt;」「かわゆす」等と似たような特徴を持つコメントになりました。
+
+![スクリーンショット 2015-12-23 20.44.17.jpg](https://qiita-image-store.s3.amazonaws.com/0/8954/6ef62f13-ecc8-68ff-83ad-3441594be433.jpeg &quot;スクリーンショット 2015-12-23 20.44.17.jpg&quot;)
+
+「お疲れ様」と「乙」が同じ特徴を持つことが分かります。
+
+![スクリーンショット 2015-12-23 20.45.25.jpg](https://qiita-image-store.s3.amazonaws.com/0/8954/2a3d4c77-c331-0eb4-7b99-779dcf47e5ea.jpeg &quot;スクリーンショット 2015-12-23 20.45.25.jpg&quot;)
+
+「どうしてこうなった」≒「!?」
+
+![スクリーンショット 2015-12-23 20.46.19.jpg](https://qiita-image-store.s3.amazonaws.com/0/8954/df937bb4-67e3-0bb0-ca24-b85028819e6b.jpeg &quot;スクリーンショット 2015-12-23 20.46.19.jpg&quot;)
+
+「勉強になるなぁ」≒「ほぅ」「へ〜」「fmfm」
+
+
+## ニコニコのコメント解析まとめ
+
+LSTMのキャラクタベースのアプローチでは、辞書を一切使わずに、カテゴリラベルを教師データにするだけで、コメントの意味をある程度学習することができ、識別にも類似検索にも適用出来ることが分かりました。
+カテゴリタグは高々30個しか無い荒い粒度ですが、主要タグレベルで学習させれば、更に細かい意味の学習が可能になると思います。
+特に、類似コメントのサジェストについては、「お疲れ様です」と「乙」、「勉強になるな」と「fmfm」のような、利用している文字も全く違う、表面的には全く異なるコメントについて、意味として近いものをサジェスト出来るのは面白いと思います。
+
+# より細やかなコメント解析に向けて
+
+以下記載する内容は、まだ実験中ですが、より細かく意味を学習するアプローチのアイデアについて述べます。
+
+### 投稿コメント特徴の動画内における局所性
+先ほど、カテゴリではなく、タグを使うともっと細かい意味の学習が出来るのではないかと書きましたが、更に言えば、タグ化されないレベルの細かい情報があるはずです。
+一つの動画の中でも、シーンに応じて、持っているコンテクストが違い、付いているコメントの特徴が違うはずです。
+「コメント特徴の動画内に局所性が存在する(同一内容のコメントは同一箇所近辺に投稿される)」ということは自然に仮定できそうです。
+
+以下の動画では、「かわいい」という意味の言葉が局所的に発生していることが分かります。
+![コメント局所性](https://qiita-image-store.s3.amazonaws.com/0/8954/28d214b3-119e-f4a5-3f11-70bc448ccc08.png &quot;スクリーンショット 2015-12-24 0.12.32.png&quot;)
+
+
+## 動画内コメント位置からのコメント特徴の学習
+この局所性から、コメントの意味を学習することを考えます。「意味的の距離がそのまま特徴量間の距離となる特徴量」を出力するネットワークを目指します。
+F(c_1)は、このネットワークにコメントc_1を入れた時のk次元ベクトル(コメントの意味を表す特徴量)を表すものとします。
+二つのコメント(c_1,c_2)があった時、その意味の近さが、特徴量ベクトルの距離 distance(F(c_1),F(c_2))として表現されるなら、その特徴量空間は、近傍探索などで有用な特徴量が抽出されるだろうと考えます。
+出力される特徴量としては、以下の性質を期待します。
+
+1. c_1とc_2が同じタイムウィンドウ内のコメントであれば、意味的に同じコメントだろうから、コメント特徴量間の距離は近くなって欲しい。
+2. c_1とc_2が同じ動画でタイムウィンドウ外のコメントであれば、コメント特徴量間距離はある程度(α以上)離れて欲しい。
+3. c_1とc_2が別動画のコメントであれば、コメント特徴量間距離はある程度(β以上)離れて欲しい。
+4. 0&lt;α&lt;β
+
+これを素直にloss functionとして実装すると、次のようになります。
+
+1. c1はc2は同一動画であり、c1の動画内位置近辺にc2がいるなら、`distance(F(c_1),F(c_2))`がloss。
+* c1はc2は同一動画だが、c1の動画内位置近辺にc2がいないなら、`max(α-(F(c_1),F(c_2),0)`がloss。
+* c1とc2が別動画なら`max(β-(F(c_1),F(c_2),0)`がloss
+
+loss functionとしては、chainer v1.5から入った[contrastive loss](http://chainer.readthedocs.org/en/stable/reference/functions.html?highlight=contrastive#chainer.functions.contrastive)が使えそうですので、こちらを適用出来そうです(このFunctionを使わなくてもVariableのまま同等の処理は書けますが)。
+この手法での実験結果がまとまったら、またどこかで記事にしようかなと思います。
+
+## [おまけ] contrative lossと相対関係の学習について(一般的な話)
+
+contrastive lossは、y_nが1(同じクラス)ならベクトル間の距離がlossとなり、0(違うクラス)なら、指定したマージンより近かった分の距離がloss(マージン以上離れていたらlossは0)となります。つまり、「同じクラスなら出来るだけ固め、違うクラスならマージン分以上離れる」ように最適化されます。
+このloss functionは以下のようになっています。
+
+```math
+L = \frac{1}{2N} \left( \sum_{n=1}^N y_n d_n^2
+    + (1 - y_n) \max ({\rm margin} - d_n, 0)^2 \right)
+```
+
+一般に、Nクラス分類の問題では、出力層をN次元にして、これに[softmax_cross_entropy](http://chainer.readthedocs.org/en/stable/reference/functions.html#chainer.functions.softmax_cross_entropy)を適用して、入力に対して「どのクラスに一番近いか」を予測出来るように学習します。これは、最初にクラス数が分かっていることが前提のモデルです。
+相対関係の学習ではクラス数は関係ありません。「(画像A,画像B)は同じ種類」「(画像C,画像D)は別の種類」のような形の、相対的な関係の情報だけで学習が進むので、最初に全体のクラス数を知っていない場合でも対応が出来るわけです。
+
+ところで、一般的なNクラス識別から特徴を取り出す場合、その出力N次元、あるいはその前の層を特徴量とすることが多いです。例えば、画像分類でよく使われるVGGモデルでは、出力層直前は4096次元のベクトルとなり、これを特徴量とすることが多いと思います。
+ただ、[4096次元をt-SNEで2次元に落として可視化したもの](http://cs.stanford.edu/people/karpathy/cnnembed/)を見ても、かなり綺麗にクラスが分かれており、低次元でも、多次元の特徴を表現することは十分出来そうだと感じます。
+なので、特徴量の出力層は低次元にして、その空間での距離を学習してみることにします。
+
+### 例1 : MNISTでの例
+ネットワークの最終出力層を2次元として「クラスが同じものを入力した場合、出力層の2次元ベクトルの距離が出来るだけ近くなるように、また、クラスが違うものを入れたら距離が1以上違う2次元ベクトルが出力される」ように学習させると、出力されるベクトルは次のようになります(2次元の出力なので、PCAやt-SNEは掛けずに出力そのままです)。
+
+![MNISTクラス分離](https://qiita-image-store.s3.amazonaws.com/0/8954/5756a021-dc4b-3a78-d3e8-b6d6b6000780.png &quot;Kobito.Pt2cZx.png&quot;)
+
+クラスのラベルを与えずに、与えられたペアが同じか違うかという情報だけで綺麗にクラス識別が出来ており、各クラス間の距離は10(クラス間のマージンとして設定した値)となっていることが分かります。
+
+### 例2 : CIFAR-10での例
+
+定番の[CIFAR-10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html)でもやってみましょう。
+これは、10種類(airplane/automobile/bird/cat/deer/dog/frog/horse/ship/truck)の写真がそれぞれラベル付きで6000枚づつ入っているデータセットです。
+
+![cifar10クラス分離](https://qiita-image-store.s3.amazonaws.com/0/8954/83650abc-265c-11a3-1d94-7325201ca0dd.png &quot;Kobito.Ccpn3w.png&quot;)
+クラス(airplane/automobile/...)より広いカテゴリ(動物/乗り物)についても同様にcontrastive lossを適用し、クラスのcontrastive lossと足してoptimizeしているため、カテゴリも分離されます。
+![cifar10カテゴリ分離](https://qiita-image-store.s3.amazonaws.com/0/8954/eb71586c-bbf2-ce92-eb36-01461c3e4eda.png &quot;Kobito.XHpacq.png&quot;)
+階層的な関係も含めて、相対的な情報から良い感じに特徴空間を作れます。
+
+尚、この手法を使う場合、単純にランダムにペアを集めるとペアの組のほとんどが別クラスのものになってしまうので、ここはそれぞれバランスよく学習データのペアを作る必要があります。
+
+#おわりに
+
+クリスマス、くりすます、くりす、ます。
+[Steins;Gate](http://steinsgate.jp/)の「紅莉栖」が思い浮かぶ方もいらっしゃるのではないでしょうか。
+ドワンゴでは、「[紅莉栖](http://dwango.co.jp/pi/ns/2015/0917/index2.html)」という名前の、数十台の[Titan X](http://www.nvidia.co.jp/object/geforce-gtx-titan-x-jp.html)4枚挿しノード群があります(内2台はメモリ1TB)。
+ドワンゴでは、この紅莉栖の環境を使って、コメント解析に限らず、イラストの解析なども行っています。
+例えば、https://nico-opendata.jp に掲載している、[画像からの閲覧数・お気に入り数予測](https://nico-opendata.jp/ja/casestudy/view_count_prediction/index.html)の実験は紅莉栖上で行われました。
+コメントの解析に関しては、今年、ChainerでLSTMのモデルのコメント解析エンジンがniconicoのサービスの一部で本番導入されています。(本番環境はTesla GPUマシンです。)
+
+今年はDeep Learningの年だったと言ってもよいぐらい、このワードを聞くことが増えた年だと思います。
+「その後のシステム組み込みや運用を考えると、Deep Learning以外の手法の方が良くないか?」というようなケースも実際には多くありますが、ハマるところにハマればやはり強烈な効果が確かに出ます。
+
+「[機械学習の技術的負債](http://research.google.com/pubs/pub43146.html)」はとても大きいので、適切に目的を設定して、業務に合う適切なアルゴリズムを選び、適切にモデリングをして、適切に前処理を行って、適切にシステムに組み込み、適切に運用すること(とてもむずかしい)を強く意識しつつ、これからのサービスへの適用を考えていきたいと強く思った一年でした。
+
+明日は25日、最後は [@pocketberserker](http://qiita.com/pocketberserker)さんです。
+</textarea><input type="submit" name="commit" value="Save changes" data-disable-with="Save changes" /></form></div></section></div><div class="col-sm-3"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ニコニコ動画の公開コメントデータをDeep Learningで解析する by @ixixi on @Qiita" data-url="http://qiita.com/ixixi/items/a3d56b2db6e09249a519" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ニコニコ動画の公開コメントデータをDeep Learningで解析する" href="http://b.hatena.ne.jp/entry/http://qiita.com/ixixi/items/a3d56b2db6e09249a519" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/ixixi/items/a3d56b2db6e09249a519" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/ixixi/items/a3d56b2db6e09249a519" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div><section class="itemsShowAuthorInfo" itemprop="author" itemscope="" itemtype="http://schema.org/Person"><a href="/ixixi"><img alt="" class="itemsShowAuthorInfo_userIcon" itemprop="image" src="https://qiita-image-store.s3.amazonaws.com/0/8954/profile-images/1473681204" /></a><div class="itemsShowAuthorInfo_profileStats"><strong class="itemsShowAuthorInfo_userName" itemprop="name"><a itemprop="url" href="/ixixi">ixixi</a></strong><div class="itemsShowAuthorInfo_contribution"><span class="itemsShowAuthorInfo_count">804</span><span class="itemsShowAuthorInfo_unit">Contribution</span></div><div id="js-react-on-rails-context" data-rails-context="{}"></div>
+<div class="js-react-on-rails-component" data-component-name="UserFollowButton" data-props="{&quot;initial_followed_by&quot;:false,&quot;position&quot;:&quot;author-info&quot;,&quot;size&quot;:&quot;btn-xs&quot;,&quot;url_name&quot;:&quot;ixixi&quot;}" data-trace="false" data-dom-id="UserFollowButton-react-component-213c8543-ce1f-4b8b-a282-4c137f5d4fa5"></div>
+    <div id="UserFollowButton-react-component-213c8543-ce1f-4b8b-a282-4c137f5d4fa5"></div>
+    
+</div><section class="itemsShowAuthorPopularItems"><h5 class="itemsShowAuthorPopularItems_sectionTitle">人気の投稿</h5><ul class="itemsShowAuthorPopularItems_posts list-unstyled"><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ixixi/items/a3d56b2db6e09249a519">ニコニコ動画の公開コメントデータをDeep Learningで解析する</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ixixi/items/e2dafaa7e4d6eb531729">リアルタイム集計・可視化環境(Norikra+Kibana4+Elasticsearch+Fluentd+Nginx)をfig一発で気楽に立ち上げる。</a></li><li itemscope="" itemtype="http://schema.org/Article"> <a itemprop="url" track="click" data-label="AuthorPopularItemsAtSidebar" href="/ixixi/items/a56ea15b582c7f014a57">InfluxDBとGrafanaとfluentdで、twitterデータのリアルタイム集計・可視化</a></li></ul></section><section class="itemsShowAuthorInfo_organization"><h5 class="itemsShowAuthorInfo_organizationTitle">ORGANIZATION</h5><span itemprop="memberOf" itemscope="" itemtype="http://schema.org/Organization"><a itemprop="url" href="/organizations/dwango"><img alt="株式会社 ドワンゴ" class="itemsShowAuthorInfo_organizationLogo" itemprop="image" src="https://s3-ap-northeast-1.amazonaws.com/qiita-organization-image/1f8c9b8bfcf54d57c3853c576d6041de6e816fac/original.jpg?1447316084" /></a></span></section></section><div class="scroll-chaser"><div class="google-adsense"><style>.test-text-responsible { width: 200px; height: 200px; }@media(min-width: 1200px) {  .test-text-responsible { width: 250px; height: 250px; }}@media(max-width: 979px) and (min-width: 768px) {  .test-text-responsible { width: 120px; height: 240px; }}@media(max-width: 767px) {  .test-text-responsible { width: 320px; height: 50px; }}</style><script async="" src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><ins class="adsbygoogle test-text-responsible" data-ad-client="ca-pub-8127218772604357" data-ad-slot="3880091879" style="display:inline-block"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div></div><div class="js-react-on-rails-component" data-component-name="Toc" data-props="{&quot;body&quot;:&quot;\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#nico-opendata\&quot;\u003enico-opendata\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E8%B6%85%E8%87%AA%E7%84%B6%E8%A8%80%E8%AA%9E\&quot;\u003e超自然言語\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#lstm%E3%81%AB%E3%82%88%E3%82%8B%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%A7%A3%E6%9E%90\&quot;\u003eLSTMによるコメント解析\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BF%E3%82%B9%E3%82%AF1-%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E6%AC%A1%E6%96%87%E5%AD%97%E4%BA%88%E6%B8%AC%E8%87%AA%E5%8B%95%E7%94%9F%E6%88%90\&quot;\u003eタスク1: コメント次文字予測・自動生成\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%87%E3%83%BC%E3%82%BF%E3%82%BB%E3%83%83%E3%83%88\&quot;\u003eデータセット\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%9E%E3%82%A8%E3%82%B7%E3%83%A7%E3%83%AA\&quot;\u003eマエショリ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E6%9E%9C\&quot;\u003e結果\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%87%AA%E5%8B%95%E7%94%9F%E6%88%90\&quot;\u003eコメント自動生成\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%BF%E3%82%B9%E3%82%AF2-%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E3%81%8B%E3%82%89%E3%81%AE%E5%8B%95%E7%94%BB%E3%82%AB%E3%83%86%E3%82%B4%E3%83%AA%E4%BA%88%E6%B8%AC\&quot;\u003eタスク2: コメントからの動画カテゴリ予測\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%AD%A6%E7%BF%92%E3%82%BB%E3%83%83%E3%83%88%E4%BE%8B\&quot;\u003e学習セット例\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%83%97%E3%83%AD%E3%83%BC%E3%83%81\&quot;\u003eアプローチ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E7%B5%90%E6%9E%9C-1\&quot;\u003e結果\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8F%AF%E8%A6%96%E5%8C%96\&quot;\u003e可視化\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E9%A1%9E%E4%BC%BC%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E3%82%B5%E3%82%B8%E3%82%A7%E3%82%B9%E3%83%88\&quot;\u003e類似コメントサジェスト\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3\&quot;\u003eアーキテクチャ\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%B5%E3%82%B8%E3%82%A7%E3%82%B9%E3%83%88%E4%BE%8B\&quot;\u003eサジェスト例\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%81%AE%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%A7%A3%E6%9E%90%E3%81%BE%E3%81%A8%E3%82%81\&quot;\u003eニコニコのコメント解析まとめ\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%82%88%E3%82%8A%E7%B4%B0%E3%82%84%E3%81%8B%E3%81%AA%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E8%A7%A3%E6%9E%90%E3%81%AB%E5%90%91%E3%81%91%E3%81%A6\&quot;\u003eより細やかなコメント解析に向けて\u003c/a\u003e\n\u003cul\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E6%8A%95%E7%A8%BF%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E7%89%B9%E5%BE%B4%E3%81%AE%E5%8B%95%E7%94%BB%E5%86%85%E3%81%AB%E3%81%8A%E3%81%91%E3%82%8B%E5%B1%80%E6%89%80%E6%80%A7\&quot;\u003e投稿コメント特徴の動画内における局所性\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E5%8B%95%E7%94%BB%E5%86%85%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E4%BD%8D%E7%BD%AE%E3%81%8B%E3%82%89%E3%81%AE%E3%82%B3%E3%83%A1%E3%83%B3%E3%83%88%E7%89%B9%E5%BE%B4%E3%81%AE%E5%AD%A6%E7%BF%92\&quot;\u003e動画内コメント位置からのコメント特徴の学習\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E3%81%8A%E3%81%BE%E3%81%91-contrative-loss%E3%81%A8%E7%9B%B8%E5%AF%BE%E9%96%A2%E4%BF%82%E3%81%AE%E5%AD%A6%E7%BF%92%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E4%B8%80%E8%88%AC%E7%9A%84%E3%81%AA%E8%A9%B1\&quot;\u003e[おまけ] contrative lossと相対関係の学習について(一般的な話)\u003c/a\u003e\n\u003cul\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BE%8B1--mnist%E3%81%A7%E3%81%AE%E4%BE%8B\&quot;\u003e例1 : MNISTでの例\u003c/a\u003e\n\u003c/li\u003e\n\u003cli\u003e\n\u003ca href=\&quot;#%E4%BE%8B2--cifar-10%E3%81%A7%E3%81%AE%E4%BE%8B\&quot;\u003e例2 : CIFAR-10での例\u003c/a\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\u003c/li\u003e\n\u003c/ul\u003e\n\n\n\u003ca href=\&quot;#%E3%81%8A%E3%82%8F%E3%82%8A%E3%81%AB\&quot;\u003eおわりに\u003c/a\u003e\n\n\n&quot;,&quot;wrapper&quot;:&quot;#article-body-wrapper&quot;}" data-trace="false" data-dom-id="Toc-react-component-9b91cc42-9ccc-4224-8d27-dadad741e2b2"></div>
+    <div id="Toc-react-component-9b91cc42-9ccc-4224-8d27-dadad741e2b2"></div>
+    
+</div></div><div class="row"><div class="col-sm-9"><div class="ArticleFooter__menu"><div class="s-flex-align-center"><div class="js-likebutton" data-props="{&quot;like_status&quot;:false,&quot;like_count&quot;:371,&quot;show_count&quot;:true,&quot;uuid&quot;:&quot;a3d56b2db6e09249a519&quot;,&quot;likable_type&quot;:&quot;Article&quot;,&quot;position&quot;:&quot;article-footer&quot;}"></div><div class="ArticleFooter__userList"><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="snowsunny"><a itemprop="url" href="/snowsunny"><img alt="snowsunny" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/10658/profile-images/1473681766" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="mia_0032"><a itemprop="url" href="/mia_0032"><img alt="mia_0032" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/59581/profile-images/1473694972" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ru_shalm"><a itemprop="url" href="/ru_shalm"><img alt="ru_shalm" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/25109/profile-images/1476593104" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="ayaniimi213"><a itemprop="url" href="/ayaniimi213"><img alt="ayaniimi213" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/31830/profile-images/1473685778" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="shimo_t"><a itemprop="url" href="/shimo_t"><img alt="shimo_t" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/64100/profile-images/1473696475" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="Kinoppyd"><a itemprop="url" href="/Kinoppyd"><img alt="Kinoppyd" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/14067/profile-images/1484671405" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="meso"><a itemprop="url" href="/meso"><img alt="meso" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/1512/profile-images/1473683611" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="futa23"><a itemprop="url" href="/futa23"><img alt="futa23" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/82469/profile-images/1473702463" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="hiro_matsuno2"><a itemprop="url" href="/hiro_matsuno2"><img alt="hiro_matsuno2" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/9764/profile-images/1473681543" /></a></div></div><div class="ArticleFooter__user"><div class="js-hovercard" data-hovercard-target-name="erukiti"><a itemprop="url" href="/erukiti"><img alt="erukiti" class="thumb thumb--xs" src="https://qiita-image-store.s3.amazonaws.com/0/3134/profile-images/1473682645" /></a></div></div><div class="ArticleFooter__user"><a href="/ixixi/items/a3d56b2db6e09249a519/likers"><span class="fa fa-ellipsis-h"></span></a></div></div></div><div class="u-flex u-align-center"><div class="ArticleFooter__stock"><div class="js-stockbutton" data-position="footer_menu" data-props="{&quot;stock_status&quot;:false}"></div></div><div class="ArticleFooter__editRequest"><a class="u-link-no-underline" data-toggle="tooltip" title="You can propose improvements about the article to the author 💪" href="/drafts/a3d56b2db6e09249a519/edit"><span class="fa fa-send-o fa-lg"></span> <span>Edit request</span></a></div><div class="dropdown ArticleFooter__dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#"><span class="fa fa-ellipsis-h"></span></a><ul class="dropdown-menu dropdown-menu-right"><li><a href="/ixixi/items/a3d56b2db6e09249a519.md"><span class="fa fa-fw fa-file-text-o"></span> Show article as Markdown</a></li><li><a data-target=".js-report-form" data-toggle="modal" href="#"><i class="fa fa-fw fa-flag"></i> Report article</a></li></ul></div></div></div><div class="itemsShowBody_adventCalendar"><div class="itemsShowBody_adventCalendar_header"><i class="fa fa-fw fa-calendar"></i> This post is the <span class="date">No.24</span> article of <a class="title" href="/advent-calendar/2015/dwango2">第2のドワンゴ Advent Calendar 2015</a></div><ul class="itemsShowBody_adventCalendar_nav list-unstyled"><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-prev"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-left"></i> Day 23:</span><span class="itemsShowBody_adventCalendar_title"><img alt="kadoyau" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/87448/profile-images/1473704094" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/kadoyau/items/5cddcf2f457b115c2fe1">DokkuにLaravel5のプロジェクトをデプロイする</a></span></li><li class="itemsShowBody_adventCalendar_neighborItem itemsShowBody_adventCalendar_neighborItem-next"><span class="itemsShowBody_adventCalendar_date"><i class="fa fa-fw fa-arrow-circle-right"></i> Day 25:</span><span class="itemsShowBody_adventCalendar_title"><img alt="pocketberserker" class="itemsShowBody_adventCalendar_icon" src="https://qiita-image-store.s3.amazonaws.com/0/63039/profile-images/1473696141" width="18" height="18" /> <a class="itemsShowBody_adventCalendar_link" href="/pocketberserker/items/4e38b8da846641a7a989">TypeProviderによるプリキュア型の生成</a></span></li></ul></div><ul class="references js-referencesView"><li class="references_header"><i class="fa fa-fw fa-link"></i> Linked from these articles</li><li class="references_reference js-reference"><span>Linked from </span><a href="/torash/items/ad4be6128c9461fa4c75#_reference-2f94088385d285bd53a1"><img alt="" width="18" height="18" src="https://avatars.githubusercontent.com/u/4098713?v=3" />Jubatus関連エントリまとめ</a><time class="references_datetime js-dateTimeView" datetime="2016-12-14T09:31:56+00:00">3 months ago</time></li></ul><div class="itemsShowBody_articleColumnFooter"><div class="socialButtons"><div class="socialButtons_twitter"><a class="twitter-share-button" data-text="ニコニコ動画の公開コメントデータをDeep Learningで解析する by @ixixi on @Qiita" data-url="http://qiita.com/ixixi/items/a3d56b2db6e09249a519" href="https://twitter.com/share">Tweet</a></div><div class="socialButtons_hatebu"><a class="hatena-bookmark-button" data-hatena-bookmark-layout="simple-balloon" data-hatena-bookmark-title="ニコニコ動画の公開コメントデータをDeep Learningで解析する" href="http://b.hatena.ne.jp/entry/http://qiita.com/ixixi/items/a3d56b2db6e09249a519" title="Add to Hatena Bookmark"><img alt="Add to Hatena Bookmark" height="20" src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" style="border: none;" width="20" /></a><script async="async" charset="utf-8" src="https://b.st-hatena.com/js/bookmark_button.js" type="text/javascript"></script></div><div class="socialButtons_googlePlus"><div class="g-plusone" data-href="http://qiita.com/ixixi/items/a3d56b2db6e09249a519" data-size="medium"></div></div><div class="socialButtons_facebook"><div class="fb-like" data-action="like" data-href="http://qiita.com/ixixi/items/a3d56b2db6e09249a519" data-layout="button_count" data-share="false" data-show-faces="false"></div></div><div class="socialButtons_pocket"><a class="pocket-btn" data-lang="en" data-pocket-count="horizontal" data-pocket-label="pocket"></a></div></div></div><div class="itemsShowComment_wrapper" id="comments"><div class="js-react-on-rails-component" data-component-name="CommentListContainer" data-props="{&quot;currentUser&quot;:null,&quot;initialComments&quot;:[],&quot;monthly_public_image_uploadable_size_limit&quot;:null,&quot;total_uploaded_public_image_size_in_current_month&quot;:null,&quot;item&quot;:{&quot;id&quot;:356163,&quot;uuid&quot;:&quot;a3d56b2db6e09249a519&quot;,&quot;suspended&quot;:false,&quot;secret&quot;:false},&quot;owner&quot;:{&quot;url_name&quot;:&quot;ixixi&quot;},&quot;is_team&quot;:false,&quot;is_project&quot;:false,&quot;logged_in&quot;:false,&quot;polling&quot;:false,&quot;mention_candidates&quot;:[{&quot;id&quot;:8954,&quot;url_name&quot;:&quot;ixixi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/8954/profile-images/1473681204&quot;}]}" data-trace="false" data-dom-id="CommentListContainer-react-component-08635f54-07ed-485a-903b-91b659d4e151"></div>
+    <div id="CommentListContainer-react-component-08635f54-07ed-485a-903b-91b659d4e151"></div>
+    
+</div></div></div></div></article><div class="js-report-form modal fade reportForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Report article</h4></div><div class="modal-body"><form action="/reports" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="3FER2geJdtv4/hGfVhot/T8XC85uakoZ+1InQc2QI6sktC8WkU/3PPOqYgknImrqRq4W5UlaBu0aZ+xP/XxcBw==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/ixixi/items/a3d56b2db6e09249a519" /><input type="hidden" name="item_uuid" id="item_uuid" value="a3d56b2db6e09249a519" /><p>Help us understand the problem. What is going on with this item?</p><br /><div class="form-group"><ul class="list-unstyled"><li><label><input type="radio" name="report_type" id="report_type_spam" value="spam" required="required" /> It&#39;s spam </label></li><li><label><input type="radio" name="report_type" id="report_type_harassment" value="harassment" required="required" /> It&#39;s abusive or harmful </label></li><li><label><input type="radio" name="report_type" id="report_type_inappropriate_content" value="inappropriate_content" required="required" /> It contains inappropriate content </label></li></ul></div><div class="reportForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary reportForm_submitButton"><i class="fa fa-send"></i> Submit</button></div></form></div></div></div></div><script id="js-item" type="application/json">{ "url": "http://qiita.com/ixixi/items/a3d56b2db6e09249a519", "id": 356163, "uuid": "a3d56b2db6e09249a519" }</script><script class="js-user" type="application/json">{&quot;id&quot;:8954,&quot;url_name&quot;:&quot;ixixi&quot;,&quot;profile_image_url&quot;:&quot;https://qiita-image-store.s3.amazonaws.com/0/8954/profile-images/1473681204&quot;}</script><script language="JavaScript" src="//cdn.bigmining.com/private/js/qiita_bigmining.js" type="text/javascript"></script></div><footer class="footer"><div class="footer_inner"><div class="footer_container"><ul class="footer_links-left"><li class="footer_link"><a class="footer_copyright" href="http://increments.co.jp">© 2011-2017 Increments Inc.</a></li><li class="footer_link"><a href="http://qiita.com/terms">Terms</a></li><li class="footer_link"><a href="http://qiita.com/privacy">Privacy</a></li><li class="footer_link"><a href="http://help.qiita.com">Help</a></li><li class="footer_link"><a href="https://increments.zendesk.com/anonymous_requests/new">Contact</a></li></ul><ul class="footer_links-right"><li class="footer_link"><a href="http://qiita.com/about">About</a></li><li class="footer_link"><a href="/users">Users</a></li><li class="footer_link"><a href="/tags">Tags</a></li><li class="footer_link"><a href="http://blog.qiita.com">Blog</a></li><li class="footer_link"><a href="http://qiita.com/api/v2/docs">API</a></li><li class="footer_link"><a href="https://teams.qiita.com/">Team</a></li><li class="footer_link"><a href="http://kobito.qiita.com">Kobito</a></li><li class="footer_link"><a class="js-public-form-feedback-link" data-target=".js-feedback-form" data-toggle="modal" href=""><i class="fa fa-heart"></i> Feedback <i class="fa fa-caret-down"></i></a></li></ul></div></div></footer><div class="js-feedback-form modal fade feedbackForm"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button name="button" type="submit" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">Feedback</h4></div><div class="modal-body"><form class="js-feedback-form-form" action="/feedbacks" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="8bDQTgfepyc33zhfbN0NH6zYbhcy8Czmdcq7Rhym2IAJVe6CkRgmwDyLS8kd5UoI1WFzPBXAYBKU/3BILEqnLA==" /><input type="hidden" name="redirect_path" id="redirect_path" value="/ixixi/items/a3d56b2db6e09249a519" /><div class="form-group"><textarea name="feedback[message]" id="feedback_message" class="form-control js-feedback-form-text-area" placeholder="Please give us any feedback about Qiita." required="required" rows="5">
+</textarea></div><div class="feedbackForm_submitButtonContainer"><button name="button" type="submit" class="btn btn-primary feedbackForm_submitButton"><i class="fa fa-send"></i> Submit</button><p class="feedbackForm_note">We don&#39;t reply to any feedback.<br />If you need help with Qiita, please send a support request from <a href="https://increments.zendesk.com/anonymous_requests/new">here</a>.</p></div><div style="position:fixed;top:-99999px;opacity:0.0001;"><input name="feedback[name]" type="text" /></div></form></div></div></div></div><script>// if (window.mixpanel instanceof Element) {
+//   window.mixpanel = [];
+// }
+// (function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.track_charge people.clear_charges people.delete_user".split(" ");
+// for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElement("script");a.type="text/javascript";a.async=!0;a.src="//cdn.mxpnl.com/libs/mixpanel-2.2.min.js";e=f.getElementsByTagName("script")[0];e.parentNode.insertBefore(a,e)}})(document,window.mixpanel||[]);</script><script src="http://cdn.qiita.com/assets/public-3af9c1d29a49f3320bb796fb5e75304b.min.js"></script><script>
+  (function () {
+    var script = document.getElementsByTagName('script')[0];
+    var load = function (src, id) {
+      var el = document.createElement('script');
+      el.async = true;
+      el.src = src;
+      el.id = id;
+      script.parentNode.insertBefore(el, script);
+    };
+      // Optimizely
+      load('//cdn.optimizely.com/js/52738645.js', 'optimizely-jssdk');
+      // Google Analytics
+      window._gaq = window._gaq || [];
+      var isCareer = location.hostname.split('.')[0] == 'career';
+      if (isCareer) {
+        window._gaq.push(['_setAccount', 'UA-24675221-11']);
+        window._gaq.push(['_setDomainName', 'qiita.com']);
+      } else {
+        window._gaq.push(['_setAccount', 'UA-24675221-1']);
+      }
+      window._gaq.push(['_setCustomVar', 1, 'logged_in', 'false', 2]);
+      window._gaq.push(['_trackPageview']);
+      var src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      load(src, 'google-analytics-jssdk');
+    // Google Analytics - Universal Analytics
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-24675221-12', {
+          
+        });
+          ga('create', 'UA-11160687-2', { name: 'user' });
+          ga('user.send', 'pageview');
+        ga('set', 'dimension1', 'false');
+        ga('set', 'dimension3', 'false');
+      ga('require', 'displayfeatures');
+      ga('set', 'forceSSL', true);
+      ga('send', 'pageview');
+    // Google Tag Manager
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TBQWPN');
+  })();
+</script>
+</body></html>
