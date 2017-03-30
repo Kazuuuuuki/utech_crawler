@@ -5,11 +5,12 @@ from gensim import models
 from gensim.models.doc2vec import LabeledSentence
 
 def docs_title():
-    filename = "title.txt"
+    filename = "like_title.txt"
     with open(filename, 'r') as f:
         text = f.read()
         new_text = text.replace('\n','')
-        return new_text.split(",")
+        new_text2 = new_text.replace(' ','')
+        return new_text2.split(",")
 #
 #
 def split_into_words(text):
@@ -35,4 +36,4 @@ model = models.Doc2Vec(documents=sentences, dm=0, min_count=1)
 model.save('title.model')
 
 model = models.Doc2Vec.load('title.model')
-print(model.docvecs['最新の画像生成技術に衝撃を受けたので、その基礎技術をTensorFlowで実装してみる'])
+
